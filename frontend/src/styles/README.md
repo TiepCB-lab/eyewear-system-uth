@@ -1,8 +1,8 @@
-# Styles
+# Global Styles & Assets
 
-Thu muc style du kien:
+This directory contains the design tokens and global styling for the application.
 
-- `tokens.css`: bien mau sac, spacing, radius, shadow
-- `global.css`: reset va base styles
-
-Trang thai hien tai chi la scaffold.
+- `tokens`: Variables for colors, spacing, and typography.
+- `globals`: Reset styles and system-wide CSS.
+- `components`: Component-specific styling (if not using co-location).
+- `themes`: Theme-specific overrides.

@@ -1,24 +1,35 @@
-﻿# Frontend Scaffold
+# Frontend Architecture Overview
 
-Frontend duoc chinh lai theo cau truc React frontend pho bien hon.
+The frontend of the Eyewear System is a modern, responsive Single Page Application (SPA) built with **React** and **Vite**. The project structure is optimized for scalability and modularity.
 
-## Cum thu muc
+## 📂 Source Directory Structure (`/src`)
 
-- `src/pages`: page theo route
-- `src/components`: component tai su dung lai
-- `src/layouts`: layout tong
-- `src/routes`: config route
-- `src/services`: API va xu ly giao tiep
-- `src/store`: state management
-- `src/contexts`: context toan cuc
-- `src/hooks`: custom hook
-- `src/types`: type dung chung
-- `src/utils`: helper function
-- `src/constants`: hang so frontend
-- `src/config`: app config
-- `src/styles`: token va global style
-- `src/assets`: icon, image
+- `pages/`: Route-based view components. Each directory represents a specific feature (Auth, Home, Catalog).
+- `components/`: Atomic UI components, organized into common, layout, and domain-specific (e.g., `product/`).
+- `layouts/`: Master components that define the page structure (Sidebar, Navbar, Footer).
+- `services/`: API integration layer. Handles HTTP communication with the backend.
+- `store/`: Global state management for persistent data (Auth state, Carts).
+- `hooks/`: Reusable custom React hooks for shared component logic.
+- `contexts/`: React contexts for lightweight global state (Theme, Error handling).
+- `utils/`: Utility functions for formatting (Currency, Dates) and validation.
+- `types/`: Comprehensive TypeScript interfaces for API responses and component props.
+- `constants/`: Global configurations, API endpoints, and static values.
+- `assets/`: Management of static resources (SVG icons, Logos, Placeholders).
 
-## Note
+---
 
-Thu muc nay moi la scaffold, chua co React app day du, nhung da duoc dat dung huong cho phase code giao dien.
+## 🏗️ Technical Stack
+
+| Layer | Technology |
+| :--- | :--- |
+| **Framework** | React 18+ (Vite) |
+| **Styling** | Vanilla CSS / CSS Modules |
+| **Routing** | React Router Dom |
+| **State Management** | Zustand or React Context |
+| **API Client** | Axios |
+| **Language** | TypeScript |
+
+---
+
+> [!NOTE]
+> This directory serves as the architecture scaffold for the UI. The complete React application source code and styling will be added in Phase 2.

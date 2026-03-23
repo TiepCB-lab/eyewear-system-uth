@@ -1,9 +1,7 @@
-# Database Folder
+# Application Database
 
-Thu muc nay gom:
+Standard Laravel database assets:
 
-- `migrations`: migration cho PostgreSQL
-- `seeders`: seed role, lens, category, data mau
-- `factories`: factory phuc vu test va seed
-
-Order migration de xuat duoc liet ke tai `migrations/README.md`.
+- `migrations`: Table schema definitions.
+- `seeders`: Sample data for dev/staging environments.
+- `factories`: Model factories for testing and seeding.
