@@ -1,15 +1,6 @@
 # Infrastructure Layer
 
-Infrastructure layer se chua:
+The Infrastructure layer handles implementation details for database persistence and external integrations.
 
-- Eloquent repository implementation
-- Payment gateway adapter
-- Recommendation engine
-- Virtual try-on service
-- File storage adapter
-- Notification adapter
-
-Thu muc chinh:
-
-- `Persistence/Repositories`
-- `Services`
+- `Persistence/Repositories`: Eloquent implementations of domain repository contracts.
+- `Services`: Discrete integrations with third-party gateways (VNPay, AI, Mailers).

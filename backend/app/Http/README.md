@@ -1,22 +1,8 @@
-# Http Layer
+# Presentation Layer (HTTP)
 
-Thu muc nay se giu vai tro presentation layer cho Laravel:
+This layer acts as the entry point for API requests.
 
-- `Controllers/Api/V1`
-- `Requests`
-- `Resources`
-
-Controller de xuat:
-
-- `AuthController.php`
-- `CustomerProfileController.php`
-- `PrescriptionController.php`
-- `ProductCatalogController.php`
-- `RecommendationController.php`
-- `CartController.php`
-- `CheckoutController.php`
-- `SalesOrderController.php`
-- `OperationsController.php`
-- `SupportTicketController.php`
-- `DashboardController.php`
-- `SystemAdminController.php`
+- `Controllers`: API versioned controllers (V1).
+- `Requests`: Form requests for input validation.
+- `Resources`: JSON transformation logic for API responses.
+- `Middleware`: Authentication and system-level filters.
