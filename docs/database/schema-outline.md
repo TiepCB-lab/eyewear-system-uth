@@ -1,6 +1,6 @@
 # Database Schema Outline (Revised)
 
-The PostgreSQL database is structured to support the modular business requirements of the Eyewear System. Tables are grouped into logical clusters based on their functional domains.
+The MySQL database is structured to support the modular business requirements of the Eyewear System. Tables are grouped into logical clusters based on their functional domains.
 
 > [!IMPORTANT]
 > In eyewear e-commerce, a finished pair of glasses = **Frame** (from `products`) + **Lens** (from `lenses`) + **Prescription** (from `prescriptions`). The `products` table represents Frames. Customers who buy **sunglasses** or **fashion frames** do NOT select a lens or prescription.
@@ -173,6 +173,6 @@ The PostgreSQL database is structured to support the modular business requiremen
 
 - **Referential Integrity**: Strict foreign key constraints across all modules.
 - **Soft Deletes**: Implement for Products, Orders, and Users.
-- **Data Validation**: PostgreSQL Enums or Check for status fields.
+- **Data Validation**: MySQL ENUM or CHECK constraints for status fields.
 - **Performance**: Indexes on `email`, `slug`, `sku`, `tracking_code`, `status`, `created_at`.
 - **Audit Logging**: Track changes on price updates and order status transitions.

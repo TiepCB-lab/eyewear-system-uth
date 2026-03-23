@@ -13,10 +13,10 @@ This repository serves as the foundational scaffold for the Eyewear System. It f
 
 ### Core Tech Stack
 
-- **Database**: [PostgreSQL](https://www.postgresql.org/)
+- **Database**: [MySQL](https://www.mysql.com/)
 - **Backend**: [PHP Laravel](https://laravel.com/) - Organized using N-layered architecture within an MVC framework.
 - **Frontend**: [React](https://react.dev/) - Modern component-based architecture with separated layers for hooks, contexts, services, and state management.
-- **Infrastructure**: [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/) for containerized development environments.
+- **Infrastructure**: Local development environment (MySQL server, PHP, Node.js).
 
 ---
 
@@ -26,7 +26,7 @@ The project is currently in the **Scaffolding Phase**.
 
 - [x] Defined directory structure for backend, frontend, and documentation.
 - [x] Pre-configured environment variables (`.env.example`).
-- [x] Functional `docker-compose.yml` for PostgreSQL and pgAdmin.
+- [x] Local MySQL configuration templates for backend and project root.
 - [ ] Business logic implementation.
 - [ ] Full Laravel and React app initialization (Source code to be added in Phase 2).
 
@@ -56,7 +56,6 @@ For a detailed breakdown, please see [docs/project-structure.md](docs/project-st
 ├── backend/           # Laravel API Core
 ├── frontend/          # React Single Page Application
 ├── docs/              # Architectural and Project Documentation
-├── docker-compose.yml # Container orchestration for dev DB
 └── .env.example       # Global environment templates
 ```
 
@@ -67,7 +66,7 @@ For a detailed breakdown, please see [docs/project-structure.md](docs/project-st
 To begin development, ensure you have the following installed:
 
 - **Git**
-- **Docker Desktop** or **Docker Engine**
+- **MySQL Server 8.0+**
 - **PHP 8.2+**
 - **Composer 2.7+**
 - **Node.js 22+**
@@ -86,36 +85,39 @@ cd eyewear-system-uth
 
 ### 2. Environment Setup
 
-Copy the root environment file:
+Copy environment files:
 
 ```bash
 # Bash
 cp .env.example .env
+cp backend/.env.example backend/.env
 
 # PowerShell
 Copy-Item .env.example .env
+Copy-Item backend/.env.example backend/.env
 ```
 
-The root `.env` controls the Docker infrastructure (PostgreSQL ports, credentials, etc.).
+The backend `.env` controls Laravel database connectivity.
 
-### 3. Launch Infrastructure (Database)
+### 3. Prepare MySQL Database (Without Docker)
 
-Start the database services using Docker Compose:
+Create the database and application user in your local MySQL server:
 
 ```bash
-docker compose up -d
+mysql -u root -p -e "CREATE DATABASE eyewear_system CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -u root -p -e "CREATE USER 'eyewear_admin'@'localhost' IDENTIFIED BY 'eyewear_secret';"
+mysql -u root -p -e "GRANT ALL PRIVILEGES ON eyewear_system.* TO 'eyewear_admin'@'localhost'; FLUSH PRIVILEGES;"
 ```
 
-**Default Services:**
-- **PostgreSQL**: `127.0.0.1:5432`
-- **pgAdmin**: `http://127.0.0.1:5050` (Login with credentials in `.env`)
+Default connection values are configured in `backend/.env.example`:
+- **Host**: `127.0.0.1`
+- **Port**: `3306`
+- **Database**: `eyewear_system`
+- **User**: `eyewear_admin`
 
 ### 4. Backend Configuration
 
 ```bash
-# Copy env file
-cp backend/.env.example backend/.env
-
 # Once the source code is populated in Phase 2:
 cd backend
 composer install
