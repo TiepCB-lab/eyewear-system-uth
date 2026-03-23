@@ -9,7 +9,6 @@ This document provides a comprehensive overview of the project's directory struc
 ├── backend/           # PHP Laravel (API-first)
 ├── frontend/          # React (Vite-based SPA)
 ├── docs/              # Detailed documentation & diagrams
-├── docker-compose.yml # Dev environment orchestration
 └── .env.example       # Global environment template
 ```
 
