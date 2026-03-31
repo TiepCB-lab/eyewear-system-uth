@@ -1,34 +1,19 @@
-.env
-
-# Backend
+﻿.env
 backend/.env
-backend/vendor/
-backend/storage/*.key
+fe/.env
+/vendor/
+
+# Backend logs
 backend/storage/logs/*
 !backend/storage/logs/.gitkeep
-backend/storage/framework/cache/*
-!backend/storage/framework/cache/.gitkeep
-backend/storage/framework/sessions/*
-!backend/storage/framework/sessions/.gitkeep
-backend/storage/framework/views/*
-!backend/storage/framework/views/.gitkeep
-backend/bootstrap/cache/*.php
-backend/.phpunit.result.cache
-backend/public/build/
-backend/public/hot
-backend/auth.json
 
-# Frontend
-frontend/.env
-frontend/node_modules/
-frontend/dist/
-frontend/.vite/
-frontend/coverage/
-npm-debug.log
-yarn-error.log
-pnpm-lock.yaml
-package-lock.json
-yarn.lock
+# Backend uploads
+backend/storage/uploads/products/*
+!backend/storage/uploads/products/.gitkeep
+backend/storage/uploads/prescriptions/*
+!backend/storage/uploads/prescriptions/.gitkeep
+backend/storage/uploads/avatars/*
+!backend/storage/uploads/avatars/.gitkeep
 
 # IDE / OS
 .idea/

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eyewear System UTH — Premium Eye Care</title>
+    <!-- Use relative path reflecting modular src structure -->
+    <link rel="stylesheet" href="src/assets/css/style.css">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="container">
+            <nav>
+                <a href="index.html" class="logo">EYEWEAR.UTH</a>
+                <ul class="nav-links">
+                    <li><a href="#">Frames</a></li>
+                    <li><a href="#">Lenses</a></li>
+                    <li><a href="#">Prescription</a></li>
+                    <li><a href="#">Support</a></li>
+                </ul>
+                <div class="header-actions">
+                    <a href="src/pages/auth/LoginPage.tsx" class="btn btn-primary">Login</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Premium Eyewear,<br>Digital Precision.</h1>
+            <p>The ultimate platform for optical health and high-end fashion. Discover frames that match your face shape using our AI recommendation engine.</p>
+            <div class="hero-btns">
+                <a href="#" class="btn btn-primary">Shop Collection</a>
+                <a href="#" class="btn" style="border: 2px solid var(--primary); margin-left: 1rem;">Try On Virtual</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Categories/Mock Test Section -->
+    <section class="featured">
+        <div class="container">
+            <h2 class="section-title">Explore Modules (Testing)</h2>
+            <div class="grid">
+                <!-- Identity Module -->
+                <div class="card">
+                    <span class="badge">M1-IDENTITY</span>
+                    <h3>Identity & Profiles</h3>
+                    <p>Secure login, registration, and prescription book storage for optical health history.</p>
+                    <a href="src/pages/auth/LoginPage.tsx" class="btn btn-primary" style="font-size: 0.8rem;">Test Auth</a>
+                </div>
+
+                <!-- Catalog Module -->
+                <div class="card">
+                    <span class="badge">M2-CATALOG</span>
+                    <h3>Product Catalog</h3>
+                    <p>Advanced filtering by brand, shape, and lens compatibility for a seamless search.</p>
+                    <a href="src/pages/catalog/ProductListPage.tsx" class="btn btn-primary" style="font-size: 0.8rem;">Test Catalog</a>
+                </div>
+
+                <!-- Operations Module -->
+                <div class="card">
+                    <span class="badge">M5-OPS</span>
+                    <h3>Management Dashboard</h3>
+                    <p>Real-time analytics, inventory stocks, and laboratory production queue visibility.</p>
+                    <a href="src/pages/admin/AdminDashboardPage.tsx" class="btn btn-primary" style="font-size: 0.8rem;">Test Admin</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Eyewear System UTH. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="src/assets/js/app.js"></script>
+</body>
+</html>

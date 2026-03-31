@@ -1,6 +1,7 @@
 ﻿# Layouts
 
-Layout de xuat:
+Khung giao dien de xuat:
 
-- `MainLayout`: giao dien khach hang
-- `AdminLayout`: dashboard manager, sales, operations
+- main-layout
+- admin-layout
+- auth-layout

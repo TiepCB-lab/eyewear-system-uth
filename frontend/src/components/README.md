@@ -1,9 +1,9 @@
 ﻿# Components
 
-Noi chua component tai su dung lai cho frontend:
+Thanh phan giao dien de xuat:
 
-- `common`: button, modal, pagination, badge
-- `forms`: input, select, checkbox, upload
-- `layout`: navbar, sidebar, footer, breadcrumb
-- `product`: product card, variant selector, lens option
-- `charts`: chart card, summary widget
+- product-card
+- filter-bar
+- cart-item
+- order-table
+- chart-box

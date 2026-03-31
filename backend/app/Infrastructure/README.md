@@ -1,6 +1,7 @@
-# Infrastructure Layer
+﻿# Helpers
 
-The Infrastructure layer handles implementation details for database persistence and external integrations.
+Noi chua helper function dung chung cho backend PHP thuan.
 
-- `Persistence/Repositories`: Eloquent implementations of domain repository contracts.
-- `Services`: Discrete integrations with third-party gateways (VNPay, AI, Mailers).
+- `env.php`: doc bien moi truong
+- `response.php`: tra JSON response thong nhat
+- `validator.php`: validation helper co ban

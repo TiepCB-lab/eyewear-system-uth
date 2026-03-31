@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class ProductVariant extends Model
-{
-    // TODO: [M2-CATALOG] Define $fillable: product_id, sku, color, size, price, image_url, allow_preorder
-    // TODO: [M2-CATALOG] Relationship: belongsTo(Product::class)
-    // TODO: [M2-CATALOG] Relationship: hasOne(Inventory::class)
-    // TODO: [M2-CATALOG] Accessor: getIsInStockAttribute() -> check inventory qty > 0
+// TODO: Implement this class
+class ProductVariant {
+    // Requirements:
+    // - id, product_id (FK)
+    // - color, size_code
+    // - stock_quantity
+    // - image_2d_url (Main variant image)
+    // - model_3d_url (Link to GLB/GLTF file for 3D try-on)
+    // - additional_price
+    // - timestamps
 }

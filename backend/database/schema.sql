@@ -1,0 +1,19 @@
+﻿-- Placeholder MySQL schema file for backend.
+-- Table names are aligned to the ERD exactly:
+-- role
+-- user
+-- product
+-- productvariant
+-- inventory
+-- lens
+-- promotion
+-- prescription
+-- cart
+-- cartitem
+-- `order`
+-- orderitem
+-- payment
+-- shipment
+-- supportticket
+-- returnrequest
+-- Note: `order` should be wrapped in backticks in MySQL statements.

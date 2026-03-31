@@ -1,10 +1,9 @@
-# Planned Seeders
+﻿# Seeders
 
-Seeder de xuat:
+Seeder de xuat theo ERD hien tai:
 
-- `DatabaseSeeder`
-- `RoleSeeder`
-- `LensSeeder`
-- `CategorySeeder`
-- `PromotionSeeder`
-- `DemoUserSeeder`
+- role
+- lens
+- product
+- productvariant
+- user demo

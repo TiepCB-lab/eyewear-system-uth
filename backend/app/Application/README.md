@@ -1,23 +1,16 @@
-# Application Layer
+﻿# Services
 
-Application layer dieu phoi use case cho tung module:
+Tach nghiep vu phuc tap ra khoi controller:
 
-- `Auth`
-- `Catalog`
-- `Checkout`
-- `Identity`
-- `Sales`
-- `Operations`
-- `Support`
-- `Reports`
-
-File se duoc them o phase code, vi du:
-
-- `Auth/LoginService.php`
-- `Catalog/CatalogService.php`
-- `Checkout/CheckoutService.php`
-- `Identity/PrescriptionBookService.php`
-- `Sales/SalesOrderService.php`
-- `Operations/OperationsService.php`
-- `Support/SupportTicketService.php`
-- `Reports/DashboardService.php`
+- `AuthService.php`
+- `CatalogService.php`
+- `RecommendationService.php`
+- `PrescriptionService.php`
+- `CartService.php`
+- `CheckoutService.php`
+- `OrderService.php`
+- `SupportTicketService.php`
+- `AdminService.php`
+- `SalesVerificationService.php`
+- `OperationsService.php`
+- `DashboardService.php`

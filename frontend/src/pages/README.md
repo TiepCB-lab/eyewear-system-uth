@@ -1,9 +1,9 @@
 ﻿# Pages
 
-Pages duoc tach theo route nghiep vu:
+Pages de xuat:
 
-- `auth`
 - `home`
+- `auth`
 - `catalog`
 - `recommendation`
 - `prescription`
@@ -14,4 +14,3 @@ Pages duoc tach theo route nghiep vu:
 - `admin`
 - `sales`
 - `operations`
-

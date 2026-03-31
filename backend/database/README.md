@@ -1,7 +1,7 @@
-# Application Database
+﻿# Database
 
-Standard Laravel database assets:
+Thu muc nay chua:
 
-- `migrations`: Table schema definitions.
-- `seeders`: Sample data for dev/staging environments.
-- `factories`: Model factories for testing and seeding.
+- `migrations`
+- `seeders`
+- `schema.sql`

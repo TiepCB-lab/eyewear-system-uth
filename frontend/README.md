@@ -1,35 +1,22 @@
-# Frontend Architecture Overview
+# Frontend Application
 
-The frontend of the Eyewear System is a modern, responsive Single Page Application (SPA) built with **React** and **Vite**. The project structure is optimized for scalability and modularity.
+The frontend is a modern React-based Single Page Application (SPA), emphasizing a component-driven and modular design.
 
-## 📂 Source Directory Structure (`/src`)
+## Core Structure (frontend/src/)
 
-- `pages/`: Route-based view components. Each directory represents a specific feature (Auth, Home, Catalog).
-- `components/`: Atomic UI components, organized into common, layout, and domain-specific (e.g., `product/`).
-- `layouts/`: Master components that define the page structure (Sidebar, Navbar, Footer).
-- `services/`: API integration layer. Handles HTTP communication with the backend.
-- `store/`: Global state management for persistent data (Auth state, Carts).
-- `hooks/`: Reusable custom React hooks for shared component logic.
-- `contexts/`: React contexts for lightweight global state (Theme, Error handling).
-- `utils/`: Utility functions for formatting (Currency, Dates) and validation.
-- `types/`: Comprehensive TypeScript interfaces for API responses and component props.
-- `constants/`: Global configurations, API endpoints, and static values.
-- `assets/`: Management of static resources (SVG icons, Logos, Placeholders).
+As specified in the architecture documentation, the frontend is organized into the following layers:
 
----
+- `pages`: Unique route-based views (Home, Product, Cart, etc.)
+- `components`: Reusable UI components (Common, Forms, Layout, Charts)
+- `layouts`: Page structure wrappers (AdminLayout, MainLayout)
+- `contexts`: Global React state (Auth, Theme)
+- `hooks`: Custom React hooks for shared logic
+- `services`: API communication and data fetching
+- `store`: Global state management
+- `types`: TypeScript interfaces and definitions
+- `utils`: Formatting and helper utilities
 
-## 🏗️ Technical Stack
+## Development Workflow
 
-| Layer | Technology |
-| :--- | :--- |
-| **Framework** | React 18+ (Vite) |
-| **Styling** | Vanilla CSS / CSS Modules |
-| **Routing** | React Router Dom |
-| **State Management** | Zustand or React Context |
-| **API Client** | Axios |
-| **Language** | TypeScript |
-
----
-
-> [!NOTE]
-> This directory serves as the architecture scaffold for the UI. The complete React application source code and styling will be added in Phase 2.
+- `TODO.md`: Frontend task list and backlog
+- `assets/`: Static icons, images, and global styles
