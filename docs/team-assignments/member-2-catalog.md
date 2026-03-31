@@ -1,98 +1,89 @@
-# 🛍️ Member 2 — Catalog, Variant & Promotion
+# 🕶️ Member 2 — Product Catalog & Inventory
 
 **Module Tag**: `M2-CATALOG`  
-**Priority**: 🟠 High (can start after M1 migrations are done)
+**Priority**: 🔴 High (Core for Shopping & Orders)
 
 ---
 
 ## 📋 Scope Overview
 
-This member owns the **Product Catalog** — the core data layer that customers interact with. Includes Frames, Lenses, Variants, Inventory management, and Promotion/Voucher systems.
+This member owns the **heart of the store**: Branded frames, Lens types, and the logic that combines them. You handle the inventory (stock) and the product search/filtering functionality.
 
 ---
 
 ## ✅ TODO Checklist
 
-### Database (Migrations & Seeders)
-- [ ] Create `categories` migration (id, name, slug unique, parent_id FK nullable self-ref, description, image_url, sort_order, timestamps)
-- [ ] Create `products` migration (id, category_id FK, name, slug unique, brand, description, material, shape, gender, is_active, timestamps, soft_deletes)
-- [ ] Create `product_variants` migration (id, product_id FK, sku unique, color, size, price decimal, image_url, allow_preorder boolean default false, timestamps)
-- [ ] Create `product_images` migration (id, product_id FK, product_variant_id FK nullable, image_url, sort_order, is_primary boolean, timestamps)
-- [ ] Create `inventories` migration (id, product_variant_id FK unique, quantity integer, warehouse_location nullable, timestamps)
-- [ ] Create `lenses` migration (id, name, index_value decimal, material, features json, min_sph, max_sph, min_cyl, max_cyl, price decimal, is_active, timestamps)
-- [ ] Create `promotions` migration (id, code unique, type enum, value decimal, min_order_amount, max_uses, used_count default 0, starts_at datetime, expires_at datetime, is_active, timestamps)
-- [ ] Create CategorySeeder with default categories (Prescription Frames, Sunglasses, Accessories)
-- [ ] Create ProductSeeder with sample eyewear data (10-20 products with variants + images)
-- [ ] Create LensSeeder with common lens types
-- [ ] Create PromotionSeeder with sample vouchers
+### Database (Migrations)
+- [ ] Create `categories` migration (id, name, slug, description, timestamps)
+- [ ] Create `products` migration (id, category_id FK, brand, model_name, base_price, description, gender, timestamps)
+- [ ] Create `product_variants` migration (id, product_id FK, color, size_code, stock_quantity, image_2d_url, model_3d_url, additional_price, timestamps)
+- [ ] Create `lenses` migration (id, name, type: single_vision/bifocal/progressive, material, price, timestamps)
 
 ### Backend — Models
-- [ ] Complete `Category.php` — fillable, self-referencing parent/children relationships, products relationship
-- [ ] Complete `Product.php` — fillable, relationships (category, variants, images), scopes, slug accessor
-- [ ] Complete `ProductVariant.php` — fillable, relationships, isInStock accessor
-- [ ] Complete `ProductImage.php` — fillable, relationships (product, variant)
-- [ ] Complete `Inventory.php` — fillable, relationships, reserve/restock methods
-- [ ] Complete `Lens.php` — fillable, JSON cast, isCompatibleWith method
-- [ ] Complete `Promotion.php` — fillable, scopes, calculateDiscount method
+- [ ] Complete `Category.php` — hasMany Products
+- [ ] Complete `Product.php` — belongsTo Category, hasMany Variants, scope filters
+- [ ] Complete `ProductVariant.php` — belongsTo Product
+- [ ] Complete `Lens.php`
 
 ### Backend — Domain Layer
-- [ ] Implement `ProductRepositoryInterface.php` contract methods
-- [ ] Create `app/Domain/Catalog/ProductShape.php` enum (oval, rectangle, aviator, cat_eye, round, square)
+- [ ] Implement `ProductFilter.php` (logic for brand, price range, category, gender filters)
 
 ### Backend — Application Layer
-- [ ] Implement `CatalogService.php` — product CRUD, variant management, lens queries
-- [ ] Implement `PromotionService.php` — voucher validation & application logic
-
-### Backend — Infrastructure Layer
-- [ ] Implement `app/Infrastructure/Persistence/Repositories/EloquentProductRepository.php`
-- [ ] Register repository binding in ServiceProvider
+- [ ] Implement `CatalogService.php`
+  - Search products with filters & pagination
+  - Get product details with variants
+  - Get categories list
+- [ ] Implement `InventoryService.php` (Staff only)
+  - Update stock quantities
+  - Low stock alerts logic
+- [ ] Implement `LensService.php`
+  - Get available lenses based on variant compatibility
 
 ### Backend — Controllers & Routes
-- [ ] Implement `ProductCatalogController.php` (public product listing, detail, lens compatibility)
-- [ ] Implement `AdminCatalogController.php` (admin CRUD for products, variants, inventory, lenses, promotions)
-- [ ] Create Form Requests: `ProductRequest`, `VariantRequest`, `InventoryRequest`, `ProductFilterRequest`
-- [ ] Create API Resources: `ProductResource`, `ProductVariantResource`, `LensResource`, `PromotionResource`
-- [ ] Define routes under `/api/v1/products/*`, `/api/v1/lenses/*`, `/api/v1/admin/products/*`
+- [ ] Implement `ProductController.php` (index, show)
+- [ ] Implement `CategoryController.php` (index)
+- [ ] Implement `InventoryController.php` (update stock)
+- [ ] Create API Resources: `ProductListResource`, `ProductDetailResource`, `VariantResource`, `CategoryResource`
+- [ ] Define routes under `/api/v1/catalog/*` and `/api/v1/admin/inventory/*`
 
 ### Frontend
-- [ ] Implement `CatalogPage.tsx` — product grid, filters, sort, search, pagination
-- [ ] Implement `ProductDetailPage.tsx` — gallery, variant selector, lens config, add-to-cart
-- [ ] Create `ProductCard` component in `src/components/product/`
-- [ ] Create `ProductFilter` sidebar component
-- [ ] Create `catalogService.ts` in `src/services/catalog/`
-- [ ] Admin: Product management CRUD pages in `src/pages/admin/`
+- [ ] Implement `ProductListPage.tsx` (GridView/ListView + Sidebar filters)
+- [ ] Implement `ProductDetailPage.tsx` (Variant selection, price calculation)
+- [ ] Implement `InventoryManagementPage.tsx` (Staff only — stock edit table)
+- [ ] Create `CatalogSearch.tsx` component (debounced search input)
+- [ ] Create `catalogService.ts`, `inventoryService.ts` in `src/services/`
+- [ ] Create `ProductCard.tsx` and `FilterSidebar.tsx` components
+- [ ] Implement `VirtualTryOn.tsx` (Integration for 3D/AR preview)
 
 ### Testing
 - [ ] Feature tests for product listing & filtering
-- [ ] Feature tests for admin product CRUD
-- [ ] Feature tests for lens compatibility check
-- [ ] Feature tests for voucher validation
+- [ ] Feature tests for stock updates (concurrency check)
+- [ ] Unit tests for Price Calculation logic
 
 ---
 
 ## 📁 Files Owned
 
 ### Backend
-- `app/Models/Category.php`, `Product.php`, `ProductVariant.php`, `ProductImage.php`, `Inventory.php`, `Lens.php`, `Promotion.php`
-- `app/Domain/Catalog/ProductRepositoryInterface.php`, `ProductShape.php`
-- `app/Application/Catalog/CatalogService.php`, `PromotionService.php`
-- `app/Http/Controllers/Api/V1/ProductCatalogController.php`
-- `app/Http/Controllers/Api/V1/AdminCatalogController.php`
-- `app/Infrastructure/Persistence/Repositories/EloquentProductRepository.php`
-- `database/migrations/*_create_categories_table.php`, `*_create_products_table.php` (and variants, images, inventories, lenses, promotions)
+- `app/Models/Product.php`, `ProductVariant.php`, `Category.php`, `Lens.php`
+- `app/Application/Catalog/CatalogService.php`
+- `app/Application/Inventory/InventoryService.php`
+- `app/Http/Controllers/Api/V1/ProductController.php`
+- `app/Http/Controllers/Api/V1/InventoryController.php`
+- `database/migrations/*_create_products_table.php`, `variants_table.php`, etc.
 
 ### Frontend
-- `src/pages/catalog/CatalogPage.tsx`
-- `src/pages/catalog/ProductDetailPage.tsx`
-- `src/components/product/*`
-- `src/services/catalog/`
+- `src/pages/catalog/ProductListPage.tsx`, `ProductDetailPage.tsx`
+- `src/pages/admin/InventoryManagementPage.tsx`
+- `src/services/catalogService.ts`, `inventoryService.ts`
+- `src/components/catalog/*`
 
 ---
 
 ## 🔗 Dependencies
 
-- **Depends on**: M1-IDENTITY (users table must exist)
-- **Blocks**: M3-SHOPPING (cart needs products), M5-OPS (inventory management)
+- **Depends on**: M1-IDENTITY (for staff-only inventory actions)
+- **Blocks**: M3-SHOPPING (needs products to add to cart), M5-OPS (needs inventory to restock)
 
 ---
 
@@ -100,9 +91,10 @@ This member owns the **Product Catalog** — the core data layer that customers 
 
 | Phase | Duration |
 |-------|----------|
-| Database + Models + Seeders | 3 days |
-| Catalog API (public + admin) | 3 days |
-| Promotion/Voucher system | 2 days |
-| Frontend catalog pages | 4 days |
-| Testing | 1 day |
-| **Total** | **~13 days** |
+| Database + Models | 2 days |
+| Catalog API (Filters/Search) | 3 days |
+| Inventory API | 1 day |
+| Frontend Catalog Pages | 4 days |
+| Frontend Inventory Page | 2 days |
+| Testing | 2 days |
+| **Total** | **~14 days** |

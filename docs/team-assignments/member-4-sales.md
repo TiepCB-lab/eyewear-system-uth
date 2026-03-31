@@ -1,95 +1,89 @@
-# 💼 Member 4 — Sales & Customer Service
+# 💰 Member 4 — Sales, Payments & Support
 
 **Module Tag**: `M4-SALES`  
-**Priority**: 🟢 Medium (can work on models/frontend early, API after M3 orders exist)
+**Priority**: 🟡 Medium (Parallel with M3/M5)
 
 ---
 
 ## 📋 Scope Overview
 
-This member owns the **Sales Staff workflow** and **Customer Service** features. Includes order verification (prescription review), pre-order management, support ticketing, and return/warranty handling.
+This member owns the **financial and customer service** side: Payment status tracking (simulated or Stripe), Order verification (Staff side), and the Support Ticket system.
 
 ---
 
 ## ✅ TODO Checklist
 
 ### Database (Migrations)
-- [ ] Create `support_tickets` migration (id, user_id FK, order_id FK nullable, subject, description text, type enum, status enum, resolved_at nullable, timestamps)
-- [ ] Create `return_warranties` migration (id, order_id FK, user_id FK, type enum, reason text, status enum, refund_amount decimal nullable, resolved_at nullable, timestamps)
+- [ ] Create `payments` migration (id, order_id FK, transaction_id, method, amount, status, timestamps)
+- [ ] Create `tickets` migration (id, user_id FK, subject, message, status enum: open, closed, priority, timestamps)
+- [ ] Create `ticket_replies` migration (id, ticket_id FK, user_id FK, message, timestamps)
 
 ### Backend — Models
-- [ ] Complete `SupportTicket.php` — fillable, casts (enum), relationships
-- [ ] Complete `ReturnWarranty.php` — fillable, casts (enum), relationships
-
-### Backend — Domain Layer
-- [ ] Create `app/Domain/Support/TicketType.php` enum (inquiry, complaint, return, warranty)
-- [ ] Create `app/Domain/Support/TicketStatus.php` enum (open, in_progress, resolved, closed)
-- [ ] Create `app/Domain/Support/ReturnStatus.php` enum (requested, approved, rejected, refunded)
+- [ ] Complete `Payment.php`
+- [ ] Complete `Ticket.php` — belongsTo User, hasMany TicketReplies
+- [ ] Complete `TicketReply.php`
 
 ### Backend — Application Layer
-- [ ] Implement `SalesVerificationService.php`
-  - List pending verification orders (orders with prescription type)
-  - Verify order: validate prescription params against lens limits, update status
-  - Reject order: set status rejected, restore inventory, notify customer
-  - Pre-order management: list pre-orders, fulfill when stock restocked
-- [ ] Implement `SupportTicketService.php`
-  - Create ticket (customer)
-  - Respond to ticket (staff)
-  - Resolve/close ticket
-  - Create return/warranty request
-  - Process return: approve/reject, calculate refund
+- [ ] Implement `PaymentService.php`
+  - Process simulated payment
+  - Update `orders.payment_status` and `orders.status` to `verified`
+- [ ] Implement `SalesService.php` (Staff only)
+  - Get list of all orders (filtering by status)
+  - Verify manual payments (e.g., bank transfer)
+- [ ] Implement `TicketService.php`
+  - Create ticket (Customer)
+  - Reply to ticket (Customer/Staff)
+  - Close ticket
 
 ### Backend — Controllers & Routes
-- [ ] Implement `SalesOrderController.php` (pending orders, verify, reject, pre-orders)
-- [ ] Implement `SupportTicketController.php` (ticket CRUD, respond, resolve, return/warranty CRUD)
-- [ ] Create Form Requests: `VerifyRequest`, `RejectRequest`, `TicketRequest`, `RespondRequest`, `ReturnRequest`
-- [ ] Create API Resources: `SalesOrderResource`, `TicketResource`, `ReturnWarrantyResource`
-- [ ] Define routes under `/api/v1/sales/*`, `/api/v1/support/*`
+- [ ] Implement `PaymentController.php` (store)
+- [ ] Implement `SalesController.php` (Staff — order management)
+- [ ] Implement `TicketController.php` (index, show, store, update)
+- [ ] Create Form Requests: `PaymentRequest`, `TicketRequest`, `ReplyRequest`
+- [ ] Create API Resources: `PaymentResource`, `OrderResource` (Sales view), `TicketResource`
+- [ ] Define routes under `/api/v1/payments/*`, `/api/v1/sales/*`, `/api/v1/tickets/*`
 
 ### Frontend
-- [ ] Implement `SalesDashboardPage.tsx`
-  - Pending orders table with prescription detail drawer
-  - Verify/Reject buttons with confirmation dialog
-  - Pre-order tab with fulfillment actions
-  - Quick stats cards (pending count, today verified, rejection rate)
-- [ ] Implement `SupportPage.tsx`
-  - Customer view: create ticket form, ticket list, ticket detail
-  - Staff view: all tickets, respond textarea, resolve button
-  - Return/warranty request form linked to order
-  - Ticket conversation thread UI
-- [ ] Create `salesService.ts`, `supportService.ts` in `src/services/`
+- [ ] Implement `PaymentPage.tsx` (Summary + Mock payment buttons)
+- [ ] Implement `OrderHistoryPage.tsx` (Customer view — track status)
+- [ ] Implement `SalesDashboardPage.tsx` (Staff view — list of orders to verify)
+- [ ] Implement `SupportTicketPage.tsx` (List/Create tickets)
+- [ ] Implement `TicketDetailPage.tsx` (Chat-like reply interface)
+- [ ] Create `paymentService.ts`, `salesService.ts`, `ticketService.ts` in `src/services/`
+- [ ] Create `StatusBadge.tsx` component (reusable for orders/tickets)
 
 ### Testing
-- [ ] Feature tests for order verification flow
-- [ ] Feature tests for order rejection with inventory restoration
-- [ ] Feature tests for support ticket lifecycle
-- [ ] Feature tests for return/warranty processing
+- [ ] Feature tests for Payment flow → Order status transition
+- [ ] Feature tests for Staff order verification
+- [ ] Feature tests for Support ticket creation/reply
+- [ ] Security test: Ensure users can't see other users' tickets
 
 ---
 
 ## 📁 Files Owned
 
 ### Backend
-- `app/Models/SupportTicket.php`, `ReturnWarranty.php`
-- `app/Domain/Support/TicketType.php`, `TicketStatus.php`, `ReturnStatus.php`
-- `app/Application/Sales/SalesVerificationService.php`
-- `app/Application/Support/SupportTicketService.php`
-- `app/Http/Controllers/Api/V1/SalesOrderController.php`
-- `app/Http/Controllers/Api/V1/SupportTicketController.php`
-- `database/migrations/*_create_support_tickets_table.php`
-- `database/migrations/*_create_return_warranties_table.php`
+- `app/Models/Payment.php`, `Ticket.php`, `TicketReply.php`
+- `app/Application/Sales/PaymentService.php`
+- `app/Application/Helpdesk/TicketService.php`
+- `app/Http/Controllers/Api/V1/PaymentController.php`
+- `app/Http/Controllers/Api/V1/SalesController.php`
+- `app/Http/Controllers/Api/V1/TicketController.php`
+- `database/migrations/*_create_payments_table.php`, `tickets_table.php`
 
 ### Frontend
-- `src/pages/sales/SalesDashboardPage.tsx`
-- `src/pages/support/SupportPage.tsx`
+- `src/pages/payment/PaymentPage.tsx`
+- `src/pages/orders/OrderHistoryPage.tsx`
+- `src/pages/admin/SalesDashboardPage.tsx`
+- `src/pages/support/`
 - `src/services/sales/`, `src/services/support/`
 
 ---
 
 ## 🔗 Dependencies
 
-- **Depends on**: M1-IDENTITY (users), M3-SHOPPING (orders + payments must exist)
-- **Blocks**: M5-OPS (verified orders enter production)
+- **Depends on**: M1-IDENTITY (users), M3-SHOPPING (orders)
+- **Blocks**: M5-OPS (Production only starts after M4 verifies payment/order)
 
 ---
 
@@ -97,10 +91,11 @@ This member owns the **Sales Staff workflow** and **Customer Service** features.
 
 | Phase | Duration |
 |-------|----------|
-| Database + Models + Enums | 1 day |
-| Sales verification API | 3 days |
-| Support ticket API | 2 days |
-| Return/warranty API | 2 days |
-| Frontend sales/support pages | 4 days |
+| Database + Models | 1 day |
+| Payment API (Mock/Stripe) | 2 days |
+| Sales/Order Mgmt API | 2 days |
+| Tickets/Helpdesk API | 2 days |
+| Frontend Payment/Orders | 3 days |
+| Frontend Support system | 3 days |
 | Testing | 1 day |
-| **Total** | **~13 days** |
+| **Total** | **~14 days** |

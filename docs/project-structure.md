@@ -28,17 +28,9 @@ The backend follows an N-layered architecture to ensure separation of concerns a
 | **Infrastructure** | `app/Infrastructure` | Implementation of database repositories, external API integrations (VNPay, AI). |
 | **Persistence** | `app/Models` | Eloquent models for database interaction. |
 
-### Planned Directory Mapping
-
-- **Controllers (API V1)**: `app/Http/Controllers/Api/V1/*` (Auth, Catalog, Checkout, Orders)
-- **Application Services**: `app/Application/{Module}/*`
-- **Domain Contracts**: `app/Domain/{Module}/*`
-- **Infrastructure Services**: `app/Infrastructure/Services/*` (Payments, AI Recommendation Engine)
-- **Database Assets**: `database/` (Migrations, Seeders, Factories)
-
 ---
 
-## ⚛️ Frontend Architecture (Component-Driven)
+## 🏗️ Frontend Architecture (Component-Driven)
 
 The frontend is built with React, focusing on a modular and scalable structure.
 
@@ -56,25 +48,3 @@ The frontend is built with React, focusing on a modular and scalable structure.
 | `store/` | Global state management (Zustand or Redux). |
 | `types/` | TypeScript interfaces and type definitions. |
 | `utils/` | Helper functions and formatting utilities. |
-
----
-
-## 🛠️ Key Files & Components
-
-### Backend Entities (Models)
-`User`, `Role`, `Address`, `Category`, `Product`, `ProductVariant`, `ProductImage`, `Inventory`, `Lens`, `Promotion`, `Prescription`, `Cart`, `CartItem`, `Order`, `OrderItem`, `Payment`, `Shipment`, `SupportTicket`, `ReturnWarranty`.
-
-### Frontend Page Modules
-- **Public**: `home`, `catalog`, `recommendation`.
-- **User**: `auth`, `cart`, `checkout`, `orders`, `prescription`.
-- **Admin**: `dashboard`, `sales`, `operations`, `support`.
-
----
-
-## 📄 Documentation Links
-
-- [Backend N-Layered Architecture](architecture/backend-n-layered.md)
-- [Frontend Structure](architecture/frontend-structure.md)
-- [Database Schema Outline](database/schema-outline.md)
-
-

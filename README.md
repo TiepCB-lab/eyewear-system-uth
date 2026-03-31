@@ -1,167 +1,110 @@
-# Eyewear E-commerce System (UTH)
+# Eyewear System UTH
 
-A modern, professional monorepo scaffold for an eyewear e-commerce platform. This project is designed as a comprehensive system for selling eyeglasses, managing prescriptions, and providing a smart shopping experience with virtual try-on features.
+Dự án được tách thành **2 ứng dụng độc lập** để dễ dàng phát triển và gỡ lỗi:
 
-[![Project Status: Phase 1](https://img.shields.io/badge/Project%20Status-Phase%201%3A%20Scaffold-blue.svg)](https://github.com/your-repo/eyewear-system-uth)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-
----
-
-## 🌟 Overview
-
-This repository serves as the foundational scaffold for the Eyewear System. It follows a monorepo structure, organizing the database, backend, and frontend into a single manageable workspace.
-
-### Core Tech Stack
-
-- **Database**: [MySQL](https://www.mysql.com/)
-- **Backend**: [PHP Laravel](https://laravel.com/) - Organized using N-layered architecture within an MVC framework.
-- **Frontend**: [React](https://react.dev/) - Modern component-based architecture with separated layers for hooks, contexts, services, and state management.
-- **Infrastructure**: Local development environment (MySQL server, PHP, Node.js).
+- `backend/`: API (PHP), xử lý logic nghiệp vụ, cơ sở dữ liệu MySQL.
+- `frontend/`: Giao diện người dùng (HTML/CSS/JS), sẵn sàng cho React.
 
 ---
 
-## 🚩 Current Project Status: Phase 1 (Scaffold)
+## 🛠️ Yêu cầu hệ thống (Prerequisites)
 
-The project is currently in the **Scaffolding Phase**.
+Dự án này yêu cầu các công cụ sau được cài đặt trên máy của mỗi thành viên:
 
-- [x] Defined directory structure for backend, frontend, and documentation.
-- [x] Pre-configured environment variables (`.env.example`).
-- [x] Local MySQL configuration templates for backend and project root.
-- [ ] Business logic implementation.
-- [ ] Full Laravel and React app initialization (Source code to be added in Phase 2).
-
-> [!NOTE]
-> The database environment is ready for use. Backend and frontend logic will be implemented in the subsequent development phase.
+1.  **PHP 8.x** & **MySQL Server**: Khuyên dùng [**XAMPP (Cho Windows)**](https://www.apachefriends.org/index.html) hoặc [**Laragon**](https://laragon.org/download/index.html) vì chúng đã bao gồm cả PHP và MySQL.
+2.  **IDE / Code Editor**: Khuyên dùng các công cụ hỗ trợ AI hiện đại như [**Cursor**](https://cursor.sh/), [**Antigravity**](https://antigravity.google/) hoặc bất kỳ trình soạn thảo nào bạn thích.
+3.  **Live Server (Extension)**: Dùng để xem trước Frontend (nếu dùng Cursor/VS Code thì chỉ cần cài extension cùng tên).
 
 ---
 
-## 🎯 Project Scope
+## 🚀 Hướng dẫn chạy dự án dành cho người mới
 
-The project covers 5 major business domains as detailed in [docs/project-scope-summary.md](docs/project-scope-summary.md):
+### Bước 1: Cấu hình Cơ sở dữ liệu (Database)
 
-1.  **System Admin & Identity**: User management, roles, and prescription books.
-2.  **Catalog, Variant & Promotion**: Product management for frames and lenses, inventory, and marketing.
-3.  **Shopping Experience & Smart Suggestion**: Face-shape-based recommendations and configuration of prescription glasses.
-4.  **Sales & Customer Service**: Order processing, verification, and support ticketing.
-5.  **Operations, Logistics & Dashboard**: Laboratory workflow (lens cutting), quality control, shipping, and analytics.
+Bạn cần cài đặt MySQL (thường dùng XAMPP, Laragon hoặc cài rời).
 
----
+1.  Mở terminal tại thư mục gốc của dự án (`eyewear-system-uth`) và chạy lệnh tạo file `.env`:
+    ```powershell
+    # Lệnh tạo file cấu hình từ file mẫu
+    copy .env.example .env
+    ```
+2.  Mở file `.env` vừa tạo và kiểm tra thông tin kết nối (Username/Password của MySQL trên máy bạn).
+3.  Truy cập **phpMyAdmin** (thường là `http://localhost/phpmyadmin`) hoặc dùng **MySQL Workbench**:
+    - Tạo một Database mới tên là: `eyewear_system`.
+    - Bạn có thể xem cấu trúc bảng trong [docs/database/schema-outline.md](docs/database/schema-outline.md).
 
-## 📂 Project Structure
+### Bước 2: Chạy Backend (Dành cho API)
 
-For a detailed breakdown, please see [docs/project-structure.md](docs/project-structure.md).
+Mở một cửa sổ Terminal mới:
 
-```text
-.
-├── backend/           # Laravel API Core
-├── frontend/          # React Single Page Application
-├── docs/              # Architectural and Project Documentation
-└── .env.example       # Global environment templates
-```
+1.  Di chuyển vào thư mục gốc dự án:
+    ```bash
+    cd "d:\HK2_2026\Laptrinhweb\Doan\eyewear-system-uth"
+    ```
+2.  Chạy lệnh khởi động server PHP cho Backend:
+    ```bash
+    php -S 127.0.0.1:8000 -t backend/public
+    ```
+3.  **Kiểm tra**: Mở trình duyệt web và truy cập `http://localhost:8000`. Nếu thấy dòng chữ `"Eyewear System UTH Backend API is live"` là thành công.
 
----
+### Bước 3: Chạy Frontend (Dành cho Giao diện)
 
-## 💻 Prerequisites
+Mở thêm một cửa sổ Terminal khác (đừng tắt Terminal của Backend):
 
-To begin development, ensure you have the following installed:
-
-- **Git**
-- **MySQL Server 8.0+**
-- **PHP 8.2+**
-- **Composer 2.7+**
-- **Node.js 22+**
-- **npm 10+**
-
----
-
-## 🚀 Getting Started
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/your-username/eyewear-system-uth.git
-cd eyewear-system-uth
-```
-
-### 2. Environment Setup
-
-Copy environment files:
-
-```bash
-# Bash
-cp .env.example .env
-cp backend/.env.example backend/.env
-
-# PowerShell
-Copy-Item .env.example .env
-Copy-Item backend/.env.example backend/.env
-```
-
-The backend `.env` controls Laravel database connectivity.
-
-### 3. Prepare MySQL Database (Without Docker)
-
-Create the database and application user in your local MySQL server:
-
-```bash
-mysql -u root -p -e "CREATE DATABASE eyewear_system CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-mysql -u root -p -e "CREATE USER 'eyewear_admin'@'localhost' IDENTIFIED BY 'eyewear_secret';"
-mysql -u root -p -e "GRANT ALL PRIVILEGES ON eyewear_system.* TO 'eyewear_admin'@'localhost'; FLUSH PRIVILEGES;"
-```
-
-Default connection values are configured in `backend/.env.example`:
-- **Host**: `127.0.0.1`
-- **Port**: `3306`
-- **Database**: `eyewear_system`
-- **User**: `eyewear_admin`
-
-### 4. Backend Configuration
-
-```bash
-# Once the source code is populated in Phase 2:
-cd backend
-composer install
-php artisan key:generate
-php artisan migrate --seed
-php artisan serve
-```
-
-### 5. Frontend Configuration
-
-```bash
-# Copy env file
-cp frontend/.env.example frontend/.env
-
-# Once the source code is populated in Phase 2:
-cd frontend
-npm install
-npm run dev
-```
+1.  Di chuyển vào thư mục gốc dự án:
+    ```bash
+    cd "d:\HK2_2026\Laptrinhweb\Doan\eyewear-system-uth"
+    ```
+2.  Chạy lệnh khởi động server cho Frontend:
+    ```bash
+    php -S 127.0.0.1:5500 -t frontend
+    ```
+3.  **Kiểm tra**: Mở trình duyệt web và truy cập `http://localhost:5500`. Bạn sẽ thấy giao diện trang chủ cực đẹp và có thể nhấn nút để test các module.
 
 ---
 
-## 🗺️ Implementation Roadmap
+## 🏗️ Cấu trúc thư mục chi tiết
 
-1.  **Identity & Core**: Authentication, User Profiles, Addresses, Prescription Management.
-2.  **Catalog & Inventory**: Frames, Lenses, Variants, Stock Management, Promotions.
-3.  **Checkout & Fulfillment**: Cart, Order Processing, Payment (VNPay), Shipping.
-4.  **Customer Support**: Verification workflows, Support tickets, Warranty/Returns.
-5.  **Advanced Features**: Lab operations, Analytics dashboards, Smart recommendations, Virtual Try-on.
+### Backend (`/backend/app`)
+- `Http/`: Chứa Controller (Xử lý request) và Middleware.
+- `Application/`: Chứa các Service (Xử lý logic nghiệp vụ).
+- `Domain/`: Chứa các quy tắc kinh doanh cốt lõi.
+- `Infrastructure/`: Chứa các Repository (Lưu trữ và kết nối DB).
+- `Models/`: Chứa các thực thể dữ liệu (User, Product, Order...).
 
----
-
-## 📑 Documentation
-
-Explore more detailed documentation in the `docs` folder:
-- [Business Scope Summary](docs/project-scope-summary.md)
-- [Directory & Architecture Details](docs/project-structure.md)
-- [Backend N-Layered Architecture](docs/architecture/backend-n-layered.md)
-- [Frontend Structure](docs/architecture/frontend-structure.md)
-- [Database Schema Outline](docs/database/schema-outline.md)
+### Frontend (`/frontend/src`)
+- `pages/`: Các trang giao diện chính (Login, Catalog, Cart...).
+- `components/`: Các thành phần tái sử dụng (Header, Footer, ProductCard...).
+- `assets/`: Chứa file CSS, Hình ảnh và JavaScript hỗ trợ.
 
 ---
 
-## 📄 License
+## 📊 Xem dữ liệu MySQL như thế nào?
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Bạn hoàn toàn có thể dùng MySQL để xem và quản lý dữ liệu. Có 3 cách phổ biến:
 
+1.  **phpMyAdmin**: Nếu bạn dùng XAMPP, hãy truy cập `http://localhost/phpmyadmin`. Đây là cách dễ nhất cho người mới.
+2.  **MySQL Workbench**: Phần mềm chuyên nghiệp của Oracle để thiết kế và xem bảng dữ liệu.
+3.  **VS Code Extension**: Cài extension "MySQL" hoặc "SQLTools" để xem database trực tiếp trong VS Code.
+
+---
+
+## 🛠️ Quy định Commit (Git Commit Convention)
+
+Để dự án được quản lý chuyên nghiệp, tất cả thành viên hãy tuân thủ cấu trúc Commit sau:
+
+**Cấu trúc**: `<type>(<scope>): <description>`
+
+- `feat`: Thêm tính năng mới (Ví dụ: `feat(auth): add google login`)
+- `fix`: Sửa lỗi (Ví dụ: `fix(cart): fix price calculation error`)
+- `docs`: Cập nhật tài liệu (Ví dụ: `docs(readme): update run instructions`)
+- `style`: Thay đổi giao diện, CSS, format code (Ví dụ: `style(home): update hero section colors`)
+- `refactor`: Tái cấu trúc mã nguồn, không làm thay đổi tính năng (Ví dụ: `refactor(db): change model structure`)
+- `chore`: Các công việc phụ trợ, cài đặt môi trường (Ví dụ: `chore(git): add gitkeep files`)
+
+---
+
+## 📄 Documentation Links
+- [Project Scope Summary](docs/project-scope-summary.md)
+- [Architecture & Structure](docs/project-structure.md)
+- [Team Assignments & Process](docs/team-assignments/)

@@ -1,102 +1,90 @@
-# 🛒 Member 3 — Shopping Experience & Smart Suggestion
+# 🛒 Member 3 — Shopping Cart & Order Processing
 
 **Module Tag**: `M3-SHOPPING`  
-**Priority**: 🟡 High (can start after M1 auth + M2 products are ready)
+**Priority**: 🟡 Medium-High (Depends on M2)
 
 ---
 
 ## 📋 Scope Overview
 
-This member owns the **Customer Journey** — from browsing and adding to cart, through checkout and payment, to order history. Also owns the AI-powered recommendation and virtual try-on features.
+This member owns the **transactional flow**: Cart management (Database-backed for logged-in users), Prescription input (OD/OS details), and the initial Order creation (Checkout).
 
 ---
 
 ## ✅ TODO Checklist
 
 ### Database (Migrations)
-- [ ] Create `carts` migration (id, user_id FK unique, timestamps)
-- [ ] Create `cart_items` migration (id, cart_id FK, product_variant_id FK, lens_id FK nullable, prescription_id FK nullable, quantity, unit_price decimal, timestamps)
-- [ ] Create `orders` migration (id, user_id FK, address_id FK, type enum, status enum, subtotal, discount, total_price decimal, voucher_code nullable, note nullable, timestamps, soft_deletes)
-- [ ] Create `order_items` migration (id, order_id FK, product_variant_id FK, lens_id FK nullable, prescription_id FK nullable, quantity, unit_price, lens_price nullable, timestamps)
-- [ ] Create `payments` migration (id, order_id FK unique, method enum, transaction_id nullable, amount decimal, status enum, paid_at nullable, gateway_response json nullable, timestamps)
+- [ ] Create `cart_items` migration (id, user_id FK, variant_id FK, lens_id FK nullable, quantity, timestamps)
+- [ ] Create `orders` migration (id, user_id FK, total_amount, status enum: pending, verified, in_production, shipped, delivered, cancelled, payment_status, timestamps)
+- [ ] Create `order_items` migration (id, order_id FK, variant_id FK, lens_id FK, quantity, unit_price, timestamps)
+- [ ] Create `prescriptions` migration (id, order_item_id FK, sphere, cylinder, axis, add, pd, timestamps)
 
 ### Backend — Models
-- [ ] Complete `Cart.php` — relationships, subtotal accessor, clear method
-- [ ] Complete `CartItem.php` — relationships, lineTotal accessor
-- [ ] Complete `Order.php` — relationships, casts, scopes
-- [ ] Complete `OrderItem.php` — relationships, lineTotal accessor
-- [ ] Complete `Payment.php` — relationships, casts
-
-### Backend — Domain Layer
-- [ ] Finalize `OrderStatus.php` enum
-- [ ] Finalize `PaymentMethod.php` enum
-- [ ] Finalize `PaymentStatus.php` enum
-- [ ] Implement `OrderRepositoryInterface.php` methods
-- [ ] Create `OrderType.php` enum (standard, prescription)
+- [ ] Complete `CartItem.php`
+- [ ] Complete `Order.php` — hasMany OrderItems, belongsTo User
+- [ ] Complete `OrderItem.php` — belongsTo Order, hasOne Prescription
+- [ ] Complete `Prescription.php`
 
 ### Backend — Application Layer
-- [ ] Implement `CartService.php` — add/update/remove items, get summary
-- [ ] Implement `CheckoutService.php` — create order, VNPay flow, cancel order
-  - Inventory reservation (decrement stock on checkout)
-  - Voucher application (call PromotionService from M2)
-  - Payment record creation
-  - Cart clearing after successful order
-
-### Backend — Infrastructure Layer
-- [ ] Implement `VnpayGateway.php` — payment URL generation, callback verification
-- [ ] Implement `FaceShapeRecommendationEngine.php` — face shape analysis + suggestion mapping
-- [ ] Implement `VirtualTryOnService.php` — frame overlay on face image
+- [ ] Implement `CartService.php`
+  - Sync frontend cart with DB
+  - Add/Update/Remove items
+  - Validate stock before adding to cart
+- [ ] Implement `CheckoutService.php`
+  - Validate entire cart (stock, prices)
+  - Create Order & OrderItems
+  - Attach Prescription details
+  - **Draft** status: `pending`
+- [ ] Implement `PrescriptionService.php`
+  - Validation logic for optical parameters (Sphere, Cyl, etc.)
 
 ### Backend — Controllers & Routes
-- [ ] Implement `CartController.php` (view cart, add/update/remove items, apply voucher)
-- [ ] Implement `CheckoutController.php` (place order, VNPay redirect/callback, order history, cancel)
-- [ ] Implement `RecommendationController.php` (face shape analysis, frame suggestions, virtual try-on)
-- [ ] Create Form Requests: `CartItemRequest`, `CheckoutRequest`, `VnpayRequest`, `VoucherRequest`
-- [ ] Create API Resources: `CartResource`, `OrderResource`, `OrderDetailResource`
-- [ ] Define routes under `/api/v1/cart/*`, `/api/v1/checkout/*`, `/api/v1/orders/*`, `/api/v1/recommendation/*`
+- [ ] Implement `CartController.php` (index, store, update, destroy)
+- [ ] Implement `CheckoutController.php` (store — create order)
+- [ ] Create Form Requests: `AddToCartRequest`, `PrescriptionRequest`, `CheckoutRequest`
+- [ ] Create API Resources: `CartResource`, `OrderResource`
+- [ ] Define routes under `/api/v1/cart/*` and `/api/v1/checkout`
 
 ### Frontend
-- [ ] Implement `HomePage.tsx` — hero, featured products, CTA sections
-- [ ] Implement `CartPage.tsx` — item list, quantity controls, voucher, summary
-- [ ] Implement `CheckoutPage.tsx` — address selection, payment method, place order
-- [ ] Implement `OrdersPage.tsx` — customer order history with status badges
-- [ ] Implement `RecommendationPage.tsx` — face photo upload, AI results, virtual try-on
-- [ ] Create `cartService.ts`, `orderService.ts`, `recommendationService.ts`
-- [ ] Create cart state in `src/store/useCartStore.ts`
-- [ ] Create `MainLayout.tsx` in `src/layouts/` (header with cart icon + count)
+- [ ] Implement `CartDrawer.tsx` or `CartPage.tsx`
+- [ ] Implement `CheckoutPage.tsx`
+  - Step 1: Shipping Address (M1 data + overrides)
+  - Step 2: Prescription Entry (Form for OD/OS)
+  - Step 3: Order Summary & Confirm
+- [ ] Create `PrescriptionForm.tsx` component with validation
+- [ ] Create `cartService.ts`, `checkoutService.ts` in `src/services/`
+- [ ] Create `cartStore.ts` (Zustand) — persistent local storage + API sync
 
 ### Testing
-- [ ] Feature tests for cart operations
-- [ ] Feature tests for checkout flow (COD + VNPay)
-- [ ] Feature tests for order history & cancellation
-- [ ] Integration test for VNPay callback
+- [ ] Feature tests for Cart logic (add same item → increment quantity)
+- [ ] Feature tests for Checkout (stock reduction simulation — *M2 coordination*)
+- [ ] Unit tests for Prescription validation rules
+- [ ] Feature tests for Guest vs Authenticated cart behavior
 
 ---
 
 ## 📁 Files Owned
 
 ### Backend
-- `app/Models/Cart.php`, `CartItem.php`, `Order.php`, `OrderItem.php`, `Payment.php`
-- `app/Domain/Orders/OrderStatus.php`, `OrderType.php`, `PaymentMethod.php`, `PaymentStatus.php`
-- `app/Application/Checkout/CheckoutService.php`, `CartService.php`
-- `app/Http/Controllers/Api/V1/CartController.php`, `CheckoutController.php`, `RecommendationController.php`
-- `app/Infrastructure/Services/VnpayGateway.php`, `FaceShapeRecommendationEngine.php`, `VirtualTryOnService.php`
+- `app/Models/CartItem.php`, `Order.php`, `OrderItem.php`, `Prescription.php`
+- `app/Application/Shopping/CartService.php`
+- `app/Application/Shopping/CheckoutService.php`
+- `app/Http/Controllers/Api/V1/CartController.php`
+- `app/Http/Controllers/Api/V1/CheckoutController.php`
+- `database/migrations/*_create_orders_table.php`, `prescriptions_table.php`, etc.
 
 ### Frontend
-- `src/pages/home/HomePage.tsx`
-- `src/pages/cart/CartPage.tsx`
-- `src/pages/checkout/CheckoutPage.tsx`
-- `src/pages/orders/OrdersPage.tsx`
-- `src/pages/recommendation/RecommendationPage.tsx`
-- `src/store/useCartStore.ts`
-- `src/layouts/MainLayout.tsx`
+- `src/pages/shopping/CheckoutPage.tsx`, `CartPage.tsx`
+- `src/store/cartStore.ts`
+- `src/services/shopping/`
+- `src/components/shopping/PrescriptionForm.tsx`
 
 ---
 
 ## 🔗 Dependencies
 
-- **Depends on**: M1-IDENTITY (users, addresses), M2-CATALOG (products, lenses, promotions)
-- **Blocks**: M4-SALES (orders must exist), M5-OPS (orders must exist)
+- **Depends on**: M1-IDENTITY (user_id), M2-CATALOG (product variants, lenses)
+- **Blocks**: M4-SALES (needs orders to verify/pay), M5-OPS (needs orders to produce)
 
 ---
 
@@ -105,9 +93,9 @@ This member owns the **Customer Journey** — from browsing and adding to cart, 
 | Phase | Duration |
 |-------|----------|
 | Database + Models | 2 days |
-| Cart & Checkout API | 4 days |
-| VNPay integration | 2 days |
-| Recommendation/AI | 2 days |
-| Frontend shopping pages | 5 days |
+| Cart API | 2 days |
+| Checkout/Prescription API | 3 days |
+| Frontend Cart/Drawer | 2 days |
+| Frontend Checkout Flow | 4 days |
 | Testing | 2 days |
-| **Total** | **~17 days** |
+| **Total** | **~15 days** |
