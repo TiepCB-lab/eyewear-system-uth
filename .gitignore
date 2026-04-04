@@ -2,6 +2,10 @@
 backend/.env
 fe/.env
 /vendor/
+node_modules/
+dist/
+frontend/node_modules/
+frontend/dist/
 
 # Backend logs
 backend/storage/logs/*
