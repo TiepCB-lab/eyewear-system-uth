@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!--=============== FLATICON ===============-->
-    <link
-      rel="stylesheet"
-      href="https://cdn-uicons.flaticon.com/2.0.0/uicons-regular-straight/css/uicons-regular-straight.css"
-    />
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.0.0/uicons-regular-straight/css/uicons-regular-straight.css" />
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.1.0/uicons-brands/css/uicons-brands.css" />
 
     <!--=============== SWIPER CSS ===============-->
     <link
@@ -18,267 +16,321 @@
 
     <!--=============== CSS ===============-->
     <link rel="stylesheet" href="../../../assets/css/styles.css" />
+    <link rel="stylesheet" href="../../../assets/css/auth.css" />
 
-    <title>EYEWEAR.UTH</title>
+    <!--=============== LAYOUT LOADER ===============-->
+    <script src="../../../assets/js/core/layout-loader.js" defer></script>
+
+    <title>EYEWEAR.UTH — Login / Sign Up</title>
   </head>
   <body>
-    <!--=============== HEADER ===============-->
-    <header class="header">
-      <div class="header__top">
-        <div class="header__container container">
-          <div class="header__contact">
-            <span>(+01) - 2345 - 6789</span>
-            <span>Our location</span>
-          </div>
-          <p class="header__alert-news">
-            Super Values Deals - Save more coupons
-          </p>
-          <a href="../auth/" class="header__top-action">
-            Log In / Sign Up
-          </a>
-        </div>
-      </div>
-
-      <nav class="nav container">
-        <a href="../../../index.html" class="nav__logo">
-          <img
-            class="nav__logo-img"
-            src="../../../assets/img/logo_placeholder.png"
-            alt="website logo"
-          />
-        </a>
-        <div class="nav__menu" id="nav-menu">
-          <ul class="nav__list">
-            <li class="nav__item">
-              <a href="../../../index.html" class="nav__link">Home</a>
-            </li>
-            <li class="nav__item">
-              <a href="../shop/" class="nav__link">Shop</a>
-            </li>
-            <li class="nav__item">
-              <a href="../accounts/" class="nav__link">My Account</a>
-            </li>
-            <li class="nav__item">
-              <a href="../compare/" class="nav__link">Compare</a>
-            </li>
-            <li class="nav__item">
-              <a href="../auth/" class="nav__link active-link"
-                >Login</a
-              >
-            </li>
-          </ul>
-          <div class="header__search">
-            <input
-              type="text"
-              placeholder="Search For Items..."
-              class="form__input"
-            />
-            <button class="search__btn">
-              <img src="../../../assets/img/search.png" alt="search icon" />
-            </button>
-          </div>
-        </div>
-        <div class="header__user-actions">
-          <a href="../wishlist/" class="header__action-btn" title="Wishlist">
-            <img src="../../../assets/img/icon-heart.svg" alt="" />
-            <span class="count">3</span>
-          </a>
-          <a href="../cart/" class="header__action-btn" title="Cart">
-            <img src="../../../assets/img/icon-cart.svg" alt="" />
-            <span class="count">3</span>
-          </a>
-        </div>
-      </nav>
-    </header>
+    <!-- No Global Header/Footer for the Standalone Auth Page -->
 
     <!--=============== MAIN ===============-->
     <main class="main">
-      <!--=============== BREADCRUMB ===============-->
-      <section class="breadcrumb">
-        <ul class="breadcrumb__list flex container">
-          <li><a href="../../../index.html" class="breadcrumb__link">Home</a></li>
-          <li><span class="breadcrumb__link">></span></li>
-          <li><span class="breadcrumb__link">Login / Register</span></li>
-        </ul>
-      </section>
+      <!--=============== BACK BUTTON ===============-->
+      <a href="../../../index.html" class="auth-back-home">
+        <i class="fi fi-rs-arrow-left"></i> Back to Home
+      </a>
 
       <!--=============== LOGIN-REGISTER ===============-->
-      <section class="login-register section--lg">
-        <div class="login-register__container container grid">
-          <div class="login">
-            <h3 class="section__title">Login</h3>
-            <form class="form grid">
-              <input
-                type="email"
-                placeholder="Your Email"
-                class="form__input"
-              />
-              <input
-                type="password"
-                placeholder="Your Password"
-                class="form__input"
-              />
-              <div class="form__btn">
-                <button class="btn">Login</button>
+      <section class="auth-section">
+        <div class="auth-container" id="auth-container">
+          <!-- Sign Up Form -->
+          <div class="form-container sign-up-container">
+            <form action="#" class="auth-form">
+              <div class="auth-brand">
+                  <h2 style="font-weight: 800; color: var(--first-color);">EYEWEAR.UTH</h2>
               </div>
+              <h1 class="section__title" style="margin-bottom: 0.5rem; font-size: 1.5rem;">Create Account</h1>
+              <div class="social-container">
+                <a href="#" class="social"><i class="fi fi-brands-facebook"></i></a>
+                <a href="#" class="social"><i class="fi fi-brands-google"></i></a>
+              </div>
+              <span style="font-size: 0.9rem; color: #777; margin-bottom: 1rem;">or use your email for registration</span>
+              <input type="text" placeholder="Name" />
+              <input type="email" placeholder="Email" />
+              <input type="password" placeholder="Password" />
+              <button type="button" class="btn" onclick="handleAuth('register')">Sign Up</button>
             </form>
           </div>
-          <div class="register">
-            <h3 class="section__title">Create an Account</h3>
-            <form class="form grid">
-              <input
-                type="text"
-                placeholder="Username"
-                class="form__input"
-              />
-              <input
-                type="email"
-                placeholder="Your Email"
-                class="form__input"
-              />
-              <input
-                type="password"
-                placeholder="Your Password"
-                class="form__input"
-              />
-              <input
-                type="password"
-                placeholder="Confirm Password"
-                class="form__input"
-              />
-              <div class="form__btn">
-                <button class="btn">Submit & Register</button>
+
+          <!-- Sign In Form -->
+          <div class="form-container sign-in-container">
+            <form action="#" class="auth-form">
+              <div class="auth-brand">
+                  <h2 style="font-weight: 800; color: var(--first-color);">EYEWEAR.UTH</h2>
               </div>
+              <h1 class="section__title" style="margin-bottom: 0.5rem; font-size: 1.5rem;">Sign in</h1>
+              <div class="social-container">
+                <a href="#" class="social"><i class="fi fi-brands-facebook"></i></a>
+                <a href="#" class="social"><i class="fi fi-brands-google"></i></a>
+              </div>
+              <span style="font-size: 0.8rem; color: #999; margin-bottom: 1rem;">Testing logic: admin@uth.com / staff@uth.com</span>
+              <input type="email" placeholder="Email" id="email-signin" value="admin@uth.com" />
+              <input type="password" placeholder="Password" value="password" />
+              <a href="#" class="forgot-password">Forgot your password?</a>
+              <button type="button" class="btn" onclick="handleAuth('login')">Sign In</button>
             </form>
           </div>
-        </div>
-      </section>
 
-      <!--=============== NEWSLETTER ===============-->
-      <section class="newsletter section">
-        <div class="newsletter__container container grid">
-          <h3 class="newsletter__title flex">
-            <img
-              src="../../../assets/img/icon-email.svg"
-              alt=""
-              class="newsletter__icon"
-            />
-            Sign in to Newsletter
-          </h3>
-          <p class="newsletter__description">
-            ...and receive $25 coupon for first shopping.
-          </p>
-          <form action="" class="newsletter__form">
-            <input
-              type="text"
-              placeholder="Enter Your Email"
-              class="newsletter__input"
-            />
-            <button type="submit" class="newsletter__btn">Subscribe</button>
-          </form>
-        </div>
-      </section>
-    </main>
-
-    <!--=============== FOOTER ===============-->
-    <footer class="footer container">
-      <div class="footer__container grid">
-        <div class="footer__content">
-          <a href="../../../index.html" class="footer__logo">
-            <h2 style="font-weight: 800; color: var(--first-color);">EYEWEAR.UTH</h2>
-          </a>
-          <h4 class="footer__subtitle">Contact</h4>
-          <p class="footer__description">
-            <span>Address:</span> 13 Tlemcen Road, Street 32, Beb-Wahren
-          </p>
-          <p class="footer__description">
-            <span>Phone:</span> +01 2222 365 /(+91) 01 2345 6789
-          </p>
-          <p class="footer__description">
-            <span>Hours:</span> 10:00 - 18:00, Mon - Sat
-          </p>
-          <div class="footer__social">
-            <h4 class="footer__subtitle">Follow Me</h4>
-            <div class="footer__links flex">
-              <a href="#">
-                <img
-                  src="../../../assets/img/icon-facebook.svg"
-                  alt=""
-                  class="footer__social-icon"
-                />
-              </a>
-              <a href="#">
-                <img
-                  src="../../../assets/img/icon-twitter.svg"
-                  alt=""
-                  class="footer__social-icon"
-                />
-              </a>
-              <a href="#">
-                <img
-                  src="../../../assets/img/icon-instagram.svg"
-                  alt=""
-                  class="footer__social-icon"
-                />
-              </a>
-              <a href="#">
-                <img
-                  src="../../../assets/img/icon-pinterest.svg"
-                  alt=""
-                  class="footer__social-icon"
-                />
-              </a>
-              <a href="#">
-                <img
-                  src="../../../assets/img/icon-youtube.svg"
-                  alt=""
-                  class="footer__social-icon"
-                />
-              </a>
+          <!-- Overlay -->
+          <div class="overlay-container">
+            <div class="overlay">
+              <div class="overlay-panel overlay-left">
+                <h1>Welcome Back!</h1>
+                <p>To keep connected with us please login with your personal info</p>
+                <button class="ghost" id="signIn">Sign In</button>
+              </div>
+              <div class="overlay-panel overlay-right">
+                <h1>Hello, Friend!</h1>
+                <p>Enter your personal details and start journey with us</p>
+                <button class="ghost" id="signUp">Sign Up</button>
+              </div>
             </div>
           </div>
         </div>
-        <div class="footer__content">
-          <h3 class="footer__title">Address</h3>
-          <ul class="footer__links">
-            <li><a href="#" class="footer__link">About Us</a></li>
-            <li><a href="#" class="footer__link">Delivery Information</a></li>
-            <li><a href="#" class="footer__link">Privacy Policy</a></li>
-            <li><a href="#" class="footer__link">Terms & Conditions</a></li>
-            <li><a href="#" class="footer__link">Contact Us</a></li>
-            <li><a href="#" class="footer__link">Support Center</a></li>
-          </ul>
-        </div>
-        <div class="footer__content">
-          <h3 class="footer__title">My Account</h3>
-          <ul class="footer__links">
-            <li><a href="#" class="footer__link">Sign In</a></li>
-            <li><a href="#" class="footer__link">View Cart</a></li>
-            <li><a href="#" class="footer__link">My Wishlist</a></li>
-            <li><a href="#" class="footer__link">Track My Order</a></li>
-            <li><a href="#" class="footer__link">Help</a></li>
-            <li><a href="#" class="footer__link">Order</a></li>
-          </ul>
-        </div>
-        <div class="footer__content">
-          <h3 class="footer__title">Secured Payed Gateways</h3>
-          <img
-            src="../../../assets/img/payment-method.png"
-            alt=""
-            class="payment__img"
-          />
-        </div>
-      </div>
-      <div class="footer__bottom">
-        <p class="copyright">&copy; 2024 EYEWEAR.UTH. All right reserved</p>
-        <span class="designer">Designer by Crypticalcoder</span>
-      </div>
-    </footer>
+      </section>
 
-    <!--=============== SWIPER JS ===============-->
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+      <style>
+        /* Standalone Auth Styles */
+        :root {
+          --auth-accent: #059669; /* Emerald 600 */
+        }
 
-    <!--=============== MAIN JS ===============-->
-    <script src="../../../assets/js/main.js"></script>
-  </body>
-</html>
+        body {
+          background: radial-gradient(circle at top right, #eef7f4 0%, #f8fafc 40%, #f1f5f9 100%);
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .auth-back-home {
+          position: fixed;
+          top: 2.5rem;
+          left: 2.5rem;
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          font-weight: 600;
+          color: #475569;
+          text-decoration: none;
+          z-index: 1000;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          padding: 0.6rem 1.2rem;
+          background: rgba(255, 255, 255, 0.9);
+          backdrop-filter: blur(8px);
+          border-radius: 50px;
+          box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+          font-size: 0.9rem;
+        }
+
+        .auth-back-home i {
+          background: var(--first-color);
+          color: white;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.7rem;
+        }
+
+        .auth-back-home:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+          color: var(--first-color);
+        }
+
+        .auth-container {
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            border-radius: 24px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .overlay {
+            background: #064e3b; /* Deep emerald */
+            background: linear-gradient(135deg, #065f46 0%, #10b981 100%);
+        }
+
+        .overlay-panel h1 {
+            color: #ffffff !important;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .overlay-panel p {
+            color: #e2f1ed !important;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .auth-brand {
+            margin-bottom: 1rem;
+        }
+
+        .auth-section {
+          width: 100%;
+          padding: 0;
+        }
+
+        .social-container {
+          margin: 1rem 0;
+        }
+
+        .social-container a {
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          display: inline-flex;
+          justify-content: center;
+          align-items: center;
+          margin: 0 8px;
+          height: 48px;
+          width: 48px;
+          transition: all 0.3s;
+          color: #64748b;
+          font-size: 1.2rem;
+        }
+
+        .social-container a:hover {
+          background-color: var(--first-color);
+          border-color: var(--first-color);
+          color: white;
+          transform: translateY(-3px);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .forgot-password {
+          color: #94a3b8;
+          font-size: 0.85rem;
+          text-decoration: none;
+          margin: 1rem 0;
+          transition: 0.2s;
+        }
+
+        .forgot-password:hover {
+          color: var(--first-color);
+        }
+
+        .auth-form input {
+            background-color: #f1f5f9;
+            border: 2px solid transparent;
+            padding: 12px 15px;
+            margin: 8px 0;
+            width: 100%;
+            border-radius: 12px;
+            transition: 0.3s;
+            outline: none;
+        }
+
+        .auth-form input:focus {
+            border-color: var(--first-color);
+            background-color: #fff;
+        }
+
+        .btn {
+            border-radius: 12px;
+            padding: 12px 45px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: transform 80ms ease-in;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ghost {
+            border-radius: 12px;
+            border: 2px solid #FFFFFF;
+            background-color: transparent;
+            color: #FFFFFF;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 12px 45px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: transform 80ms ease-in;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Responsive */
+        @media screen and (max-width: 768px) {
+            .auth-back-home {
+                top: 1rem;
+                left: 1rem;
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
+            }
+
+            .auth-container {
+                min-height: 600px;
+                width: 100% !important;
+                border-radius: 0; /* Full width edge-to-edge on mobile */
+            }
+
+            .overlay-container {
+                display: none; /* Hide the sliding panels on small phones */
+            }
+
+            .sign-in-container, .sign-up-container {
+                width: 100% !important;
+            }
+
+            .auth-container.active .sign-in-container {
+                display: none;
+            }
+
+            .auth-container.active .sign-up-container {
+                transform: none;
+                opacity: 1;
+                z-index: 5;
+            }
+
+            .auth-section {
+                padding: 0;
+            }
+        }
+      </style>
+
+      <script>
+        const signUpButton = document.getElementById('signUp');
+        const signInButton = document.getElementById('signIn');
+        const container = document.getElementById('auth-container');
+
+        signUpButton.addEventListener('click', () => {
+          container.classList.add("active");
+        });
+
+        signInButton.addEventListener('click', () => {
+          container.classList.remove("active");
+        });
+
+        // Role Simulation Logic
+        function handleAuth(type) {
+            const email = document.getElementById('email-signin').value;
+            
+            if (email === 'admin@uth.com') {
+                window.location.href = '../dashboard/admin/';
+            } else if (email === 'manager@uth.com') {
+                window.location.href = '../dashboard/manager/';
+            } else if (email === 'sales@uth.com') {
+                window.location.href = '../dashboard/sales/';
+            } else if (email === 'ops@uth.com') {
+                window.location.href = '../dashboard/ops/';
+            } else {
+                // Default to accounts page (Customer role)
+                window.location.href = '../accounts/';
+            }
+        }
+      </script>
+
+    </main>
+
+    <!-- Standing Auth page has no footer -->

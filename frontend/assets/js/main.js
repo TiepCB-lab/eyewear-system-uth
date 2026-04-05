@@ -5,15 +5,15 @@ const navMenu = document.getElementById("nav-menu"),
 
 /*===== Menu Show =====*/
 /* Validate if constant exists */
-if (navToggle) {
+if (navToggle && navMenu) {
   navToggle.addEventListener("click", () => {
     navMenu.classList.add("show-menu");
   });
 }
 
-/*===== Hide Show =====*/
+/*===== Menu Hide =====*/
 /* Validate if constant exists */
-if (navClose) {
+if (navClose && navMenu) {
   navClose.addEventListener("click", () => {
     navMenu.classList.remove("show-menu");
   });
