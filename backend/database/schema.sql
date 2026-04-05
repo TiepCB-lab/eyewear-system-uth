@@ -26,9 +26,20 @@ CREATE TABLE IF NOT EXISTS `user` (
 		ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
+CREATE TABLE IF NOT EXISTS category (
+	id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	name VARCHAR(120) NOT NULL,
+	slug VARCHAR(160) NOT NULL UNIQUE,
+	description TEXT NULL,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS product (
 	id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	category_id BIGINT UNSIGNED NULL,
 	name VARCHAR(150) NOT NULL,
+	model_name VARCHAR(150) NULL,
 	slug VARCHAR(180) NOT NULL UNIQUE,
 	description TEXT NULL,
 	base_price DECIMAL(12,2) NOT NULL DEFAULT 0.00,
@@ -36,7 +47,9 @@ CREATE TABLE IF NOT EXISTS product (
 	gender ENUM('unisex', 'men', 'women', 'kids') DEFAULT 'unisex',
 	is_active TINYINT(1) NOT NULL DEFAULT 1,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT fk_product_category FOREIGN KEY (category_id) REFERENCES category(id)
+		ON UPDATE CASCADE ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS productvariant (
@@ -44,7 +57,12 @@ CREATE TABLE IF NOT EXISTS productvariant (
 	product_id BIGINT UNSIGNED NOT NULL,
 	sku VARCHAR(100) NOT NULL UNIQUE,
 	color VARCHAR(60) NULL,
+	size_code VARCHAR(60) NULL,
 	size VARCHAR(60) NULL,
+	stock_quantity INT UNSIGNED NOT NULL DEFAULT 0,
+	image_2d_url VARCHAR(255) NULL,
+	model_3d_url VARCHAR(255) NULL,
+	additional_price DECIMAL(12,2) NOT NULL DEFAULT 0.00,
 	price_override DECIMAL(12,2) NULL,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -66,7 +84,9 @@ CREATE TABLE IF NOT EXISTS inventory (
 CREATE TABLE IF NOT EXISTS lens (
 	id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 	name VARCHAR(120) NOT NULL,
+	type ENUM('single_vision', 'bifocal', 'progressive') NULL,
 	lens_type VARCHAR(80) NOT NULL,
+	material VARCHAR(120) NULL,
 	index_value DECIMAL(4,2) NULL,
 	coating VARCHAR(120) NULL,
 	price DECIMAL(12,2) NOT NULL DEFAULT 0.00,
@@ -234,3 +254,170 @@ CREATE TABLE IF NOT EXISTS returnrequest (
 	CONSTRAINT fk_returnrequest_orderitem FOREIGN KEY (orderitem_id) REFERENCES orderitem(id)
 		ON UPDATE CASCADE ON DELETE RESTRICT
 );
+
+SET @product_category_id_exists = (
+	SELECT COUNT(*)
+	FROM information_schema.COLUMNS
+	WHERE TABLE_SCHEMA = DATABASE()
+	  AND TABLE_NAME = 'product'
+	  AND COLUMN_NAME = 'category_id'
+);
+SET @product_category_id_sql = IF(
+	@product_category_id_exists = 0,
+	'ALTER TABLE product ADD COLUMN category_id BIGINT UNSIGNED NULL',
+	'DO 0'
+);
+PREPARE stmt_product_category_id FROM @product_category_id_sql;
+EXECUTE stmt_product_category_id;
+DEALLOCATE PREPARE stmt_product_category_id;
+
+SET @product_model_name_exists = (
+	SELECT COUNT(*)
+	FROM information_schema.COLUMNS
+	WHERE TABLE_SCHEMA = DATABASE()
+	  AND TABLE_NAME = 'product'
+	  AND COLUMN_NAME = 'model_name'
+);
+SET @product_model_name_sql = IF(
+	@product_model_name_exists = 0,
+	'ALTER TABLE product ADD COLUMN model_name VARCHAR(150) NULL',
+	'DO 0'
+);
+PREPARE stmt_product_model_name FROM @product_model_name_sql;
+EXECUTE stmt_product_model_name;
+DEALLOCATE PREPARE stmt_product_model_name;
+
+SET @variant_size_code_exists = (
+	SELECT COUNT(*)
+	FROM information_schema.COLUMNS
+	WHERE TABLE_SCHEMA = DATABASE()
+	  AND TABLE_NAME = 'productvariant'
+	  AND COLUMN_NAME = 'size_code'
+);
+SET @variant_size_code_sql = IF(
+	@variant_size_code_exists = 0,
+	'ALTER TABLE productvariant ADD COLUMN size_code VARCHAR(60) NULL',
+	'DO 0'
+);
+PREPARE stmt_variant_size_code FROM @variant_size_code_sql;
+EXECUTE stmt_variant_size_code;
+DEALLOCATE PREPARE stmt_variant_size_code;
+
+SET @variant_stock_quantity_exists = (
+	SELECT COUNT(*)
+	FROM information_schema.COLUMNS
+	WHERE TABLE_SCHEMA = DATABASE()
+	  AND TABLE_NAME = 'productvariant'
+	  AND COLUMN_NAME = 'stock_quantity'
+);
+SET @variant_stock_quantity_sql = IF(
+	@variant_stock_quantity_exists = 0,
+	'ALTER TABLE productvariant ADD COLUMN stock_quantity INT UNSIGNED NOT NULL DEFAULT 0',
+	'DO 0'
+);
+PREPARE stmt_variant_stock_quantity FROM @variant_stock_quantity_sql;
+EXECUTE stmt_variant_stock_quantity;
+DEALLOCATE PREPARE stmt_variant_stock_quantity;
+
+SET @variant_image_2d_exists = (
+	SELECT COUNT(*)
+	FROM information_schema.COLUMNS
+	WHERE TABLE_SCHEMA = DATABASE()
+	  AND TABLE_NAME = 'productvariant'
+	  AND COLUMN_NAME = 'image_2d_url'
+);
+SET @variant_image_2d_sql = IF(
+	@variant_image_2d_exists = 0,
+	'ALTER TABLE productvariant ADD COLUMN image_2d_url VARCHAR(255) NULL',
+	'DO 0'
+);
+PREPARE stmt_variant_image_2d FROM @variant_image_2d_sql;
+EXECUTE stmt_variant_image_2d;
+DEALLOCATE PREPARE stmt_variant_image_2d;
+
+SET @variant_model_3d_exists = (
+	SELECT COUNT(*)
+	FROM information_schema.COLUMNS
+	WHERE TABLE_SCHEMA = DATABASE()
+	  AND TABLE_NAME = 'productvariant'
+	  AND COLUMN_NAME = 'model_3d_url'
+);
+SET @variant_model_3d_sql = IF(
+	@variant_model_3d_exists = 0,
+	'ALTER TABLE productvariant ADD COLUMN model_3d_url VARCHAR(255) NULL',
+	'DO 0'
+);
+PREPARE stmt_variant_model_3d FROM @variant_model_3d_sql;
+EXECUTE stmt_variant_model_3d;
+DEALLOCATE PREPARE stmt_variant_model_3d;
+
+SET @variant_additional_price_exists = (
+	SELECT COUNT(*)
+	FROM information_schema.COLUMNS
+	WHERE TABLE_SCHEMA = DATABASE()
+	  AND TABLE_NAME = 'productvariant'
+	  AND COLUMN_NAME = 'additional_price'
+);
+SET @variant_additional_price_sql = IF(
+	@variant_additional_price_exists = 0,
+	'ALTER TABLE productvariant ADD COLUMN additional_price DECIMAL(12,2) NOT NULL DEFAULT 0.00',
+	'DO 0'
+);
+PREPARE stmt_variant_additional_price FROM @variant_additional_price_sql;
+EXECUTE stmt_variant_additional_price;
+DEALLOCATE PREPARE stmt_variant_additional_price;
+
+SET @lens_type_exists = (
+	SELECT COUNT(*)
+	FROM information_schema.COLUMNS
+	WHERE TABLE_SCHEMA = DATABASE()
+	  AND TABLE_NAME = 'lens'
+	  AND COLUMN_NAME = 'type'
+);
+SET @lens_type_sql = IF(
+	@lens_type_exists = 0,
+	'ALTER TABLE lens ADD COLUMN type ENUM(''single_vision'', ''bifocal'', ''progressive'') NULL',
+	'DO 0'
+);
+PREPARE stmt_lens_type FROM @lens_type_sql;
+EXECUTE stmt_lens_type;
+DEALLOCATE PREPARE stmt_lens_type;
+
+SET @lens_material_exists = (
+	SELECT COUNT(*)
+	FROM information_schema.COLUMNS
+	WHERE TABLE_SCHEMA = DATABASE()
+	  AND TABLE_NAME = 'lens'
+	  AND COLUMN_NAME = 'material'
+);
+SET @lens_material_sql = IF(
+	@lens_material_exists = 0,
+	'ALTER TABLE lens ADD COLUMN material VARCHAR(120) NULL',
+	'DO 0'
+);
+PREPARE stmt_lens_material FROM @lens_material_sql;
+EXECUTE stmt_lens_material;
+DEALLOCATE PREPARE stmt_lens_material;
+
+ALTER TABLE lens
+	MODIFY COLUMN lens_type VARCHAR(80) NULL;
+
+UPDATE productvariant
+SET stock_quantity = 0
+WHERE stock_quantity IS NULL;
+
+SET @fk_product_category_exists = (
+	SELECT COUNT(*)
+	FROM information_schema.TABLE_CONSTRAINTS
+	WHERE CONSTRAINT_SCHEMA = DATABASE()
+	  AND TABLE_NAME = 'product'
+	  AND CONSTRAINT_NAME = 'fk_product_category'
+);
+SET @fk_product_category_sql = IF(
+	@fk_product_category_exists = 0,
+	'ALTER TABLE product ADD CONSTRAINT fk_product_category FOREIGN KEY (category_id) REFERENCES category(id) ON UPDATE CASCADE ON DELETE SET NULL',
+	'DO 0'
+);
+PREPARE stmt_fk_product_category FROM @fk_product_category_sql;
+EXECUTE stmt_fk_product_category;
+DEALLOCATE PREPARE stmt_fk_product_category;

@@ -85,32 +85,12 @@ function init_database() {
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         ]);
 
-        $requiredTables = [
-            'role', 'user', 'product', 'productvariant', 'inventory', 'lens',
-            'promotion', 'prescription', 'cart', 'cartitem', 'order', 'orderitem',
-            'payment', 'shipment', 'supportticket', 'returnrequest',
-        ];
-
-        $placeholders = implode(',', array_fill(0, count($requiredTables), '?'));
-        $checkStmt = $appPdo->prepare(
-            'SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = ? AND table_name IN (' . $placeholders . ')'
-        );
-        $checkStmt->execute(array_merge([$database], $requiredTables));
-        $existingCount = (int) $checkStmt->fetchColumn();
-
-        if ($existingCount === count($requiredTables)) {
-            return [
-                'status' => 'ready',
-                'message' => 'Database already initialized.',
-            ];
-        }
-
         $schemaPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'schema.sql';
         $executed = execute_schema($appPdo, $schemaPath);
 
         return [
-            'status' => 'initialized',
-            'message' => 'Database initialized from schema.sql.',
+            'status' => 'synced',
+            'message' => 'Database schema synchronized from schema.sql.',
             'statements_executed' => $executed,
         ];
     } catch (Throwable $e) {
