@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn-uicons.flaticon.com/2.0.0/uicons-regular-straight/css/uicons-regular-straight.css"
+    />
+    <link rel="stylesheet" href="../../../assets/css/styles.css" />
+    <script src="../../../assets/js/core/layout-loader.js" defer></script>
+
+    <title>Product Catalog - EYEWEAR.UTH</title>
+
+    <style>
+      .catalog-layout {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 1.5rem;
+      }
+
+      .catalog-sidebar,
+      .catalog-main {
+        border: 1px solid var(--border-color-alt);
+        border-radius: 0.75rem;
+        background: linear-gradient(180deg, #ffffff 0%, #f9fdfc 100%);
+      }
+
+      .catalog-sidebar {
+        padding: 1.25rem;
+        align-self: start;
+        position: sticky;
+        top: 1rem;
+      }
+
+      .catalog-main {
+        padding: 1.25rem;
+      }
+
+      .filter-block + .filter-block {
+        margin-top: 1.25rem;
+        padding-top: 1.25rem;
+        border-top: 1px dashed var(--border-color);
+      }
+
+      .filter-title {
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .filter-options {
+        display: grid;
+        gap: 0.5rem;
+      }
+
+      .filter-option {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-size: var(--small-font-size);
+      }
+
+      .filter-option input {
+        accent-color: var(--first-color);
+      }
+
+      .price-label {
+        font-size: var(--small-font-size);
+        margin-bottom: 0.5rem;
+      }
+
+      .price-range {
+        width: 100%;
+        accent-color: var(--first-color);
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+      }
+
+      .toolbar-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+
+      .toolbar .form__input,
+      .toolbar select {
+        height: 42px;
+        border-radius: 0.5rem;
+      }
+
+      .view-switch {
+        display: inline-flex;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        overflow: hidden;
+      }
+
+      .view-btn {
+        width: 42px;
+        height: 42px;
+        border: 0;
+        background: #fff;
+        color: var(--text-color);
+        cursor: pointer;
+      }
+
+      .view-btn.active {
+        background: var(--first-color);
+        color: #fff;
+      }
+
+      .catalog-products.grid-view {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1rem;
+      }
+
+      .catalog-products.list-view {
+        display: grid;
+        gap: 0.9rem;
+      }
+
+      .catalog-item {
+        border: 1px solid var(--border-color-alt);
+        border-radius: 0.75rem;
+        background: #fff;
+        overflow: hidden;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+      }
+
+      .catalog-item:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(19, 96, 78, 0.12);
+      }
+
+      .catalog-item .thumb {
+        position: relative;
+        display: block;
+        height: 220px;
+        background: #f3f8f7;
+      }
+
+      .catalog-item .thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .catalog-item .badge {
+        position: absolute;
+        left: 10px;
+        top: 10px;
+        background: var(--second-color);
+        color: var(--title-color);
+        font-size: var(--tiny-font-size);
+        font-weight: var(--weight-700);
+        border-radius: 999px;
+        padding: 0.25rem 0.6rem;
+      }
+
+      .catalog-item .body {
+        padding: 0.9rem;
+      }
+
+      .catalog-item .meta {
+        color: var(--text-color-light);
+        font-size: var(--small-font-size);
+      }
+
+      .catalog-item .name {
+        color: var(--title-color);
+        margin: 0.35rem 0 0.5rem;
+        font-size: 1.02rem;
+      }
+
+      .catalog-item .row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+      }
+
+      .catalog-item .price {
+        color: var(--first-color);
+        font-weight: var(--weight-700);
+      }
+
+      .catalog-item .stock.low {
+        color: #bd4f2c;
+      }
+
+      .catalog-item .stock.ok {
+        color: #2f7f59;
+      }
+
+      .catalog-item .quick {
+        border: 1px solid var(--border-color);
+        border-radius: 0.4rem;
+        width: 36px;
+        height: 36px;
+        display: inline-grid;
+        place-items: center;
+        color: var(--text-color);
+      }
+
+      .catalog-products.list-view .catalog-item {
+        display: grid;
+        grid-template-columns: 240px 1fr;
+      }
+
+      .catalog-products.list-view .catalog-item .thumb {
+        height: 100%;
+        min-height: 190px;
+      }
+
+      .catalog-products.list-view .catalog-item .body {
+        display: grid;
+        align-content: center;
+      }
+
+      .catalog-empty {
+        border: 1px dashed var(--border-color);
+        padding: 2rem 1rem;
+        text-align: center;
+        border-radius: 0.75rem;
+      }
+
+      @media screen and (max-width: 1100px) {
+        .catalog-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .catalog-sidebar {
+          position: static;
+        }
+
+        .catalog-products.grid-view {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media screen and (max-width: 700px) {
+        .catalog-products.grid-view {
+          grid-template-columns: 1fr;
+        }
+
+        .catalog-products.list-view .catalog-item {
+          grid-template-columns: 1fr;
+        }
+
+        .catalog-products.list-view .catalog-item .thumb {
+          min-height: 220px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header" data-include="layout/Header"></header>
+
+    <main class="main">
+      <section class="breadcrumb">
+        <ul class="breadcrumb__list flex container">
+          <li><a href="../../../index.html" class="breadcrumb__link">Home</a></li>
+          <li><span class="breadcrumb__link"></span>></li>
+          <li><span class="breadcrumb__link">Catalog</span></li>
+        </ul>
+      </section>
+
+      <section class="section--lg container">
+        <div class="catalog-layout">
+          <aside class="catalog-sidebar" aria-label="Product Filters">
+            <h3 class="section__title" style="margin-bottom: 0.75rem">Filter Catalog</h3>
+
+            <div class="filter-block">
+              <p class="filter-title">Search</p>
+              <input
+                id="searchInput"
+                type="text"
+                class="form__input"
+                placeholder="Brand, model, category..."
+              />
+            </div>
+
+            <div class="filter-block">
+              <p class="filter-title">Category</p>
+              <div class="filter-options" id="categoryFilters">
+                <label class="filter-option"><input type="checkbox" value="Optical" /> Optical</label>
+                <label class="filter-option"><input type="checkbox" value="Sunglasses" /> Sunglasses</label>
+                <label class="filter-option"><input type="checkbox" value="Blue Light" /> Blue Light</label>
+              </div>
+            </div>
+
+            <div class="filter-block">
+              <p class="filter-title">Brand</p>
+              <div class="filter-options" id="brandFilters">
+                <label class="filter-option"><input type="checkbox" value="Ray-Ban" /> Ray-Ban</label>
+                <label class="filter-option"><input type="checkbox" value="Oakley" /> Oakley</label>
+                <label class="filter-option"><input type="checkbox" value="Gentle Monster" /> Gentle Monster</label>
+                <label class="filter-option"><input type="checkbox" value="Molsion" /> Molsion</label>
+              </div>
+            </div>
+
+            <div class="filter-block">
+              <p class="filter-title">Gender</p>
+              <div class="filter-options" id="genderFilters">
+                <label class="filter-option"><input type="radio" name="gender" value="all" checked /> All</label>
+                <label class="filter-option"><input type="radio" name="gender" value="unisex" /> Unisex</label>
+                <label class="filter-option"><input type="radio" name="gender" value="men" /> Men</label>
+                <label class="filter-option"><input type="radio" name="gender" value="women" /> Women</label>
+              </div>
+            </div>
+
+            <div class="filter-block">
+              <p class="filter-title">Max Price</p>
+              <p class="price-label">Up to <strong id="priceValue">$350</strong></p>
+              <input id="priceRange" class="price-range" type="range" min="80" max="500" value="350" step="5" />
+            </div>
+
+            <div class="filter-block">
+              <label class="filter-option">
+                <input id="inStockOnly" type="checkbox" />
+                In-stock only
+              </label>
+            </div>
+          </aside>
+
+          <section class="catalog-main" aria-live="polite">
+            <div class="toolbar">
+              <div class="toolbar-group">
+                <strong id="resultCount">0 products</strong>
+              </div>
+
+              <div class="toolbar-group">
+                <select id="sortSelect" class="form__input" aria-label="Sort products">
+                  <option value="featured">Featured</option>
+                  <option value="price-asc">Price: Low to High</option>
+                  <option value="price-desc">Price: High to Low</option>
+                  <option value="name-asc">Name: A-Z</option>
+                </select>
+
+                <div class="view-switch" role="group" aria-label="Switch product view">
+                  <button class="view-btn active" id="gridViewBtn" type="button" aria-label="Grid view">
+                    <i class="fi fi-rs-apps"></i>
+                  </button>
+                  <button class="view-btn" id="listViewBtn" type="button" aria-label="List view">
+                    <i class="fi fi-rs-list"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div id="productContainer" class="catalog-products grid-view"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="newsletter section" data-include="newsletter"></section>
+    </main>
+
+    <footer class="footer container" data-include="layout/Footer"></footer>
+
+    <script src="../../../assets/js/main.js"></script>
+    <script>
+      const catalogProducts = [
+        {
+          id: 1,
+          name: "Aviator Edge 2.0",
+          category: "Sunglasses",
+          brand: "Ray-Ban",
+          gender: "unisex",
+          price: 229,
+          stock: 14,
+          image: "../../../assets/img/products/AN550012_3849.png",
+          badge: "Hot"
+        },
+        {
+          id: 2,
+          name: "Urban Focus",
+          category: "Optical",
+          brand: "Molsion",
+          gender: "women",
+          price: 165,
+          stock: 8,
+          image: "../../../assets/img/products/AN550015_3817.png",
+          badge: "New"
+        },
+        {
+          id: 3,
+          name: "Trail Carbon X",
+          category: "Sunglasses",
+          brand: "Oakley",
+          gender: "men",
+          price: 289,
+          stock: 4,
+          image: "../../../assets/img/products/AN550016_3796.png",
+          badge: "Low stock"
+        },
+        {
+          id: 4,
+          name: "Night Reader Pro",
+          category: "Blue Light",
+          brand: "Gentle Monster",
+          gender: "unisex",
+          price: 199,
+          stock: 22,
+          image: "../../../assets/img/products/AN550021_3933.png",
+          badge: "Best seller"
+        },
+        {
+          id: 5,
+          name: "M Street Lite",
+          category: "Optical",
+          brand: "Molsion",
+          gender: "men",
+          price: 129,
+          stock: 0,
+          image: "../../../assets/img/products/AN550029_3863.png",
+          badge: "Restock soon"
+        },
+        {
+          id: 6,
+          name: "Sunline Drift",
+          category: "Sunglasses",
+          brand: "Ray-Ban",
+          gender: "women",
+          price: 254,
+          stock: 9,
+          image: "../../../assets/img/products/AN550030_3896.png",
+          badge: "Trending"
+        }
+      ];
+
+      const state = {
+        view: "grid",
+        sort: "featured"
+      };
+
+      const productContainer = document.getElementById("productContainer");
+      const resultCount = document.getElementById("resultCount");
+      const searchInput = document.getElementById("searchInput");
+      const priceRange = document.getElementById("priceRange");
+      const priceValue = document.getElementById("priceValue");
+      const inStockOnly = document.getElementById("inStockOnly");
+      const sortSelect = document.getElementById("sortSelect");
+      const gridViewBtn = document.getElementById("gridViewBtn");
+      const listViewBtn = document.getElementById("listViewBtn");
+
+      function getCheckedValues(containerId) {
+        return Array.from(document.querySelectorAll(`#${containerId} input[type=\"checkbox\"]:checked`)).map(
+          (input) => input.value
+        );
+      }
+
+      function getSelectedGender() {
+        const selected = document.querySelector("#genderFilters input[type='radio']:checked");
+        return selected ? selected.value : "all";
+      }
+
+      function applySort(products) {
+        const sorted = [...products];
+
+        if (state.sort === "price-asc") {
+          sorted.sort((a, b) => a.price - b.price);
+        } else if (state.sort === "price-desc") {
+          sorted.sort((a, b) => b.price - a.price);
+        } else if (state.sort === "name-asc") {
+          sorted.sort((a, b) => a.name.localeCompare(b.name));
+        }
+
+        return sorted;
+      }
+
+      function getFilteredProducts() {
+        const keyword = searchInput.value.trim().toLowerCase();
+        const categoryValues = getCheckedValues("categoryFilters");
+        const brandValues = getCheckedValues("brandFilters");
+        const gender = getSelectedGender();
+        const maxPrice = Number(priceRange.value);
+
+        const filtered = catalogProducts.filter((item) => {
+          const keywordMatch =
+            item.name.toLowerCase().includes(keyword) ||
+            item.brand.toLowerCase().includes(keyword) ||
+            item.category.toLowerCase().includes(keyword);
+
+          const categoryMatch = categoryValues.length === 0 || categoryValues.includes(item.category);
+          const brandMatch = brandValues.length === 0 || brandValues.includes(item.brand);
+          const genderMatch = gender === "all" || item.gender === gender;
+          const priceMatch = item.price <= maxPrice;
+          const stockMatch = !inStockOnly.checked || item.stock > 0;
+
+          return keywordMatch && categoryMatch && brandMatch && genderMatch && priceMatch && stockMatch;
+        });
+
+        return applySort(filtered);
+      }
+
+      function renderProducts() {
+        const products = getFilteredProducts();
+        resultCount.textContent = `${products.length} product${products.length === 1 ? "" : "s"}`;
+
+        if (!products.length) {
+          productContainer.innerHTML =
+            '<div class="catalog-empty"><h3>No products found</h3><p>Try changing filters or search keyword.</p></div>';
+          return;
+        }
+
+        productContainer.innerHTML = products
+          .map((item) => {
+            const stockClass = item.stock > 5 ? "ok" : "low";
+            const stockText = item.stock > 0 ? `${item.stock} in stock` : "Out of stock";
+
+            return `
+              <article class="catalog-item">
+                <a href="../details/index.html" class="thumb">
+                  <img src="${item.image}" alt="${item.name}" loading="lazy" />
+                  <span class="badge">${item.badge}</span>
+                </a>
+                <div class="body">
+                  <p class="meta">${item.category} · ${item.brand}</p>
+                  <a href="../details/index.html"><h3 class="name">${item.name}</h3></a>
+                  <div class="row">
+                    <span class="price">$${item.price}</span>
+                    <span class="stock ${stockClass}">${stockText}</span>
+                  </div>
+                  <div class="row" style="margin-top: 0.75rem">
+                    <a href="../details/index.html" class="btn btn--sm">Details</a>
+                    <a href="#" class="quick" aria-label="Add to wishlist"><i class="fi fi-rs-heart"></i></a>
+                  </div>
+                </div>
+              </article>
+            `;
+          })
+          .join("");
+      }
+
+      function setView(mode) {
+        state.view = mode;
+
+        productContainer.classList.remove("grid-view", "list-view");
+        productContainer.classList.add(`${mode}-view`);
+
+        gridViewBtn.classList.toggle("active", mode === "grid");
+        listViewBtn.classList.toggle("active", mode === "list");
+      }
+
+      searchInput.addEventListener("input", renderProducts);
+      priceRange.addEventListener("input", () => {
+        priceValue.textContent = `$${priceRange.value}`;
+        renderProducts();
+      });
+      inStockOnly.addEventListener("change", renderProducts);
+      sortSelect.addEventListener("change", () => {
+        state.sort = sortSelect.value;
+        renderProducts();
+      });
+
+      document.querySelectorAll("#categoryFilters input, #brandFilters input, #genderFilters input").forEach((el) => {
+        el.addEventListener("change", renderProducts);
+      });
+
+      gridViewBtn.addEventListener("click", () => {
+        setView("grid");
+        renderProducts();
+      });
+
+      listViewBtn.addEventListener("click", () => {
+        setView("list");
+        renderProducts();
+      });
+
+      setView("grid");
+      renderProducts();
+    </script>
+  </body>
+</html>
