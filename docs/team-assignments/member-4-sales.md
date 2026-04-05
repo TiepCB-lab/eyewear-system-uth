@@ -44,13 +44,13 @@ This member owns the **financial and customer service** side: Payment status tra
 - [ ] Define routes under `/api/v1/payments/*`, `/api/v1/sales/*`, `/api/v1/tickets/*`
 
 ### Frontend
-- [ ] Implement `PaymentPage.tsx` (Summary + Mock payment buttons)
-- [ ] Implement `OrderHistoryPage.tsx` (Customer view — track status)
-- [ ] Implement `SalesDashboardPage.tsx` (Staff view — list of orders to verify)
-- [ ] Implement `SupportTicketPage.tsx` (List/Create tickets)
-- [ ] Implement `TicketDetailPage.tsx` (Chat-like reply interface)
-- [ ] Create `paymentService.ts`, `salesService.ts`, `ticketService.ts` in `src/services/`
-- [ ] Create `StatusBadge.tsx` component (reusable for orders/tickets)
+- [ ] Implement `PaymentPage.html` (Summary + Mock payment buttons)
+- [ ] Implement `OrderHistoryPage.html` (Customer view — track status)
+- [ ] Implement `sales/dashboard/index.html` (Staff view — list of orders to verify)
+- [ ] Implement `SupportTicketPage.html` (List/Create tickets)
+- [ ] Implement `TicketDetailPage.html` (Chat-like reply interface)
+- [ ] Create `paymentService.js`, `salesService.js`, `ticketService.js` in `src/services/`
+- [ ] Create `StatusBadge.html` component (reusable for orders/tickets)
 
 ### Testing
 - [ ] Feature tests for Payment flow → Order status transition
@@ -72,10 +72,10 @@ This member owns the **financial and customer service** side: Payment status tra
 - `database/migrations/*_create_payments_table.php`, `tickets_table.php`
 
 ### Frontend
-- `src/pages/payment/PaymentPage.tsx`
-- `src/pages/orders/OrderHistoryPage.tsx`
-- `src/pages/admin/SalesDashboardPage.tsx`
-- `src/pages/support/`
+- `frontend/src/pages/payment/PaymentPage.html`
+- `frontend/src/pages/orders/OrderHistoryPage.html`
+- `frontend/src/pages/sales/dashboard/index.html`
+- `frontend/src/pages/support/`
 - `src/services/sales/`, `src/services/support/`
 
 ---
