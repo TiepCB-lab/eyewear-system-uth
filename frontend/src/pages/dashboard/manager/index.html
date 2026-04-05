@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Dashboard — EYEWEAR.UTH</title>
+    
+    <!--=============== FLATICON ===============-->
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.0.0/uicons-regular-straight/css/uicons-regular-straight.css" />
+    
+    <!--=============== CSS ===============-->
+    <link rel="stylesheet" href="../../../../assets/css/styles.css" />
+    <link rel="stylesheet" href="../../../../assets/css/admin.css" />
+
+    <!--=============== LAYOUT LOADER ===============-->
+    <script src="../../../../assets/js/core/layout-loader.js" defer></script>
+</head>
+<body class="admin-body">
+    <!--=============== SIDEBAR ===============-->
+    <aside class="sidebar" data-include="sidebar/manager"></aside>
+
+    <!--=============== MAIN CONTENT ===============-->
+    <main class="admin-main">
+        <header class="admin-header flex" data-include="layout/AdminHeader"></header>
+
+        <section class="section">
+            <h2 class="section__title">Business Management Hub</h2>
+            
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Daily Revenue</div>
+                    <div class="metric-value">$1,240.50</div>
+                    <div class="badge badge-shipped">+12%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Total Staff</div>
+                    <div class="metric-value">12</div>
+                    <div class="badge badge-qc">Active</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Pending Reviews</div>
+                    <div class="metric-value">4</div>
+                    <div class="badge badge-pending">Rules</div>
+                </div>
+            </div>
+
+            <div class="admin-table container" style="margin-top: 2rem; background: #fff; padding: 2rem; border-radius: 12px; box-shadow: var(--card-shadow);">
+                <h3 class="table__title">Top Selling Product Varients</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Variant</th>
+                            <th>Sales</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Aviator Classics</td>
+                            <td>Polarized Blue</td>
+                            <td>1,200</td>
+                            <td><a href="#" class="btn btn--sm">Modify Price</a></td>
+                        </tr>
+                        <tr>
+                            <td>Digital Blue Cut</td>
+                            <td>Silver Frame</td>
+                            <td>950</td>
+                            <td><a href="#" class="btn btn--sm">Modify Price</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

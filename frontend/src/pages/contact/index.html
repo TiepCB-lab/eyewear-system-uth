@@ -3,10 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../../../assets/css/styles.css">
+    <!--=============== CSS ===============-->
+    <link rel="stylesheet" href="../../../assets/css/styles.css" />
+
+    <!--=============== LAYOUT LOADER ===============-->
+    <script src="../../../assets/js/core/layout-loader.js" defer></script>
+
     <title>Contact Us — EYEWEAR.UTH</title>
 </head>
 <body>
+    <!--=============== HEADER ===============-->
+    <header class="header" data-include="layout/Header"></header>
+
     <main class="main container section--lg">
         <h2 class="section__title">Get in Touch</h2>
         <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 3rem;">
@@ -28,6 +36,12 @@
                 <button type="submit" class="btn btn--md">Send Message</button>
             </form>
         </div>
+
+        <!--=============== NEWSLETTER ===============-->
+        <section class="newsletter section" data-include="newsletter"></section>
     </main>
+
+    <!--=============== FOOTER ===============-->
+    <footer class="footer container" data-include="layout/Footer"></footer>
 </body>
 </html>
