@@ -41,12 +41,12 @@ This member owns the entry point: Login, Registration, JWT/Sanctum protection, a
 - [ ] Define routes in `api.php` under `Auth` group
 
 ### Frontend
-- [ ] Implement `LoginPage.tsx` (Formik/React Hook Form + Validation)
-- [ ] Implement `RegisterPage.tsx`
-- [ ] Implement `ProfilePage.tsx` (Read/Edit mode)
-- [ ] Create `authStore.ts` (Zustand) — handle token and user state
-- [ ] Create `authService.ts` in `src/services/` (Axios calls)
-- [ ] Create `PrivateRoute.tsx` component to protect routes by role
+- [ ] Implement `auth/index.html` (Formik/React Hook Form + Validation)
+- [ ] Implement `auth/index.html`
+- [ ] Implement `ProfilePage.html` (Read/Edit mode)
+- [ ] Create `authStore.js` (Zustand) — handle token and user state
+- [ ] Create `authService.js` in `src/services/` (Axios calls)
+- [ ] Create `PrivateRoute.html` component to protect routes by role
 
 ### Testing
 - [ ] Feature test for Registration (success/validation error)
@@ -67,11 +67,11 @@ This member owns the entry point: Login, Registration, JWT/Sanctum protection, a
 - `database/migrations/*_create_users_table.php`, `profiles_table.php`
 
 ### Frontend
-- `src/pages/auth/LoginPage.tsx`, `RegisterPage.tsx`
-- `src/pages/profile/ProfilePage.tsx`
-- `src/store/authStore.ts`
-- `src/services/authService.ts`, `profileService.ts`
-- `src/components/auth/PrivateRoute.tsx`
+- `frontend/src/pages/auth/auth/index.html`, `auth/index.html`
+- `frontend/src/pages/profile/ProfilePage.html`
+- `src/store/authStore.js`
+- `src/services/authService.js`, `profileService.js`
+- `src/components/auth/PrivateRoute.html`
 
 ---
 

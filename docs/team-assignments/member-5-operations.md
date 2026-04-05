@@ -49,32 +49,27 @@ This member owns the **back-office workflow** — Laboratory operations (lens cu
 - [ ] Define routes under `/api/v1/ops/*`, `/api/v1/dashboard/*`
 
 ### Frontend
-- [ ] Implement `OperationsDashboardPage.tsx`
-  - Production queue table with step progress indicator
-  - Step advancement buttons per order
-  - QC pass/fail with fail reason input
-  - Packaging confirmation
-  - Shipping: create shipment form (carrier, tracking code)
-  - Shipment status update dropdown
-- [ ] Implement `AdminDashboardPage.tsx`
-  - Revenue line/bar chart (use a chart library like Chart.js or Recharts)
-  - Top products horizontal bar chart
-  - Order success/cancel pie chart
-  - Low stock alert cards with quick-restock action
-  - Recent activity timeline
-- [ ] Create chart components in `src/components/charts/`
-  - `RevenueChart.tsx`
-  - `TopProductsChart.tsx`
-  - `OrderStatsChart.tsx`
-- [ ] Create `operationsService.ts`, `dashboardService.ts` in `src/services/`
-- [ ] Create `AdminLayout.tsx` in `src/layouts/` (sidebar for admin/staff navigation)
+- [ ] Implement `frontend/src/pages/ops/dashboard/index.html`
+  - Production queue table with step progress (Lens Cutting, Mounting, QC)
+  - Quality verification buttons (Pass/Fail)
+  - Shipping integration (Create Shipment, Tracking Code)
+- [ ] Implement `frontend/src/pages/admin/dashboard/index.html`
+  - Manager Overview (KPIs: Revenue, Active Orders, Low Stock)
+  - Top Selling Products table
+  - Recent Activity monitor
+- [ ] Implement `frontend/src/pages/admin/settings/index.html`
+  - Personnel & Role management
+  - Pricing & Combo rules configuration
+  - System-wide policies
+- [ ] Create components in `frontend/src/components/`
+  - `Header.html`
+  - `Footer.html`
+  - `VirtualTryOn.html`
 
 ### Testing
-- [ ] Feature tests for production step advancement
-- [ ] Feature tests for QC pass/fail workflow
-- [ ] Feature tests for shipment creation & status tracking
-- [ ] Feature tests for dashboard statistics APIs
-- [ ] Feature tests for low stock alerts
+- [ ] Verification tests for production steps
+- [ ] Verification tests for shipment tracking
+- [ ] Verification tests for Dashboard metrics
 
 ---
 
@@ -90,11 +85,10 @@ This member owns the **back-office workflow** — Laboratory operations (lens cu
 - `database/migrations/*_create_shipments_table.php`
 
 ### Frontend
-- `src/pages/operations/OperationsDashboardPage.tsx`
-- `src/pages/admin/AdminDashboardPage.tsx`
-- `src/components/charts/*`
-- `src/layouts/AdminLayout.tsx`
-- `src/services/operations/`, `src/services/dashboard/`
+- `frontend/src/pages/ops/dashboard/index.html`
+- `frontend/src/pages/admin/dashboard/index.html`
+- `frontend/src/pages/admin/settings/index.html`
+- `frontend/src/components/VirtualTryOn.html`
 
 ---
 

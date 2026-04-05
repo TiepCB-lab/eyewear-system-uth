@@ -46,14 +46,14 @@ This member owns the **transactional flow**: Cart management (Database-backed fo
 - [ ] Define routes under `/api/v1/cart/*` and `/api/v1/checkout`
 
 ### Frontend
-- [ ] Implement `CartDrawer.tsx` or `CartPage.tsx`
-- [ ] Implement `CheckoutPage.tsx`
+- [ ] Implement `CartDrawer.html` or `cart/index.html`
+- [ ] Implement `checkout/index.html`
   - Step 1: Shipping Address (M1 data + overrides)
   - Step 2: Prescription Entry (Form for OD/OS)
   - Step 3: Order Summary & Confirm
-- [ ] Create `PrescriptionForm.tsx` component with validation
-- [ ] Create `cartService.ts`, `checkoutService.ts` in `src/services/`
-- [ ] Create `cartStore.ts` (Zustand) — persistent local storage + API sync
+- [ ] Create `PrescriptionForm.html` component with validation
+- [ ] Create `cartService.js`, `checkoutService.js` in `src/services/`
+- [ ] Create `cartStore.js` (Zustand) — persistent local storage + API sync
 
 ### Testing
 - [ ] Feature tests for Cart logic (add same item → increment quantity)
@@ -74,10 +74,10 @@ This member owns the **transactional flow**: Cart management (Database-backed fo
 - `database/migrations/*_create_orders_table.php`, `prescriptions_table.php`, etc.
 
 ### Frontend
-- `src/pages/shopping/CheckoutPage.tsx`, `CartPage.tsx`
-- `src/store/cartStore.ts`
+- `frontend/src/pages/shopping/checkout/index.html`, `cart/index.html`
+- `src/store/cartStore.js`
 - `src/services/shopping/`
-- `src/components/shopping/PrescriptionForm.tsx`
+- `src/components/shopping/PrescriptionForm.html`
 
 ---
 

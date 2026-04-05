@@ -47,13 +47,13 @@ This member owns the **heart of the store**: Branded frames, Lens types, and the
 - [ ] Define routes under `/api/v1/catalog/*` and `/api/v1/admin/inventory/*`
 
 ### Frontend
-- [ ] Implement `ProductListPage.tsx` (GridView/ListView + Sidebar filters)
-- [ ] Implement `ProductDetailPage.tsx` (Variant selection, price calculation)
-- [ ] Implement `InventoryManagementPage.tsx` (Staff only — stock edit table)
-- [ ] Create `CatalogSearch.tsx` component (debounced search input)
-- [ ] Create `catalogService.ts`, `inventoryService.ts` in `src/services/`
-- [ ] Create `ProductCard.tsx` and `FilterSidebar.tsx` components
-- [ ] Implement `VirtualTryOn.tsx` (Integration for 3D/AR preview)
+- [ ] Implement `ProductListPage.html` (GridView/ListView + Sidebar filters)
+- [ ] Implement `details/index.html` (Variant selection, price calculation)
+- [ ] Implement `InventoryManagementPage.html` (Staff only — stock edit table)
+- [ ] Create `CatalogSearch.html` component (debounced search input)
+- [ ] Create `catalogService.js`, `inventoryService.js` in `src/services/`
+- [ ] Create `ProductCard.html` and `FilterSidebar.html` components
+- [ ] Implement `VirtualTryOn.html` (Integration for 3D/AR preview)
 
 ### Testing
 - [ ] Feature tests for product listing & filtering
@@ -73,9 +73,9 @@ This member owns the **heart of the store**: Branded frames, Lens types, and the
 - `database/migrations/*_create_products_table.php`, `variants_table.php`, etc.
 
 ### Frontend
-- `src/pages/catalog/ProductListPage.tsx`, `ProductDetailPage.tsx`
-- `src/pages/admin/InventoryManagementPage.tsx`
-- `src/services/catalogService.ts`, `inventoryService.ts`
+- `frontend/src/pages/catalog/ProductListPage.html`, `details/index.html`
+- `frontend/src/pages/admin/InventoryManagementPage.html`
+- `src/services/catalogService.js`, `inventoryService.js`
 - `src/components/catalog/*`
 
 ---
