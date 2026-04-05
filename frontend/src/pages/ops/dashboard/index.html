@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../../../assets/css/styles.css">
+    <link rel="stylesheet" href="../../../../assets/css/admin.css">
+    <title>Operations Dashboard — EYEWEAR.UTH</title>
+</head>
+<body class="admin-body">
+    <!-- Sidebar Wrapper -->
+    <aside class="sidebar">
+        <a href="../../../index.html" class="nav__logo">
+            <h2 style="font-weight: 800; color: var(--first-color);">EYEWEAR.UTH</h2>
+            <span style="font-size: 0.7rem; color: #666;">Back Office v1.0</span>
+        </a>
+        <nav>
+            <ul class="sidebar-nav">
+                <li><a href="../../admin/dashboard/" class="sidebar-link"><i class="fi fi-rs-chart-pie"></i> Dashboard</a></li>
+                <li><a href="../dashboard/" class="sidebar-link active"><i class="fi fi-rs-settings"></i> Operations</a></li>
+                <li><a href="../../admin/inventory/" class="sidebar-link"><i class="fi fi-rs-box"></i> Inventory</a></li>
+                <li><a href="../../admin/users/" class="sidebar-link"><i class="fi fi-rs-users"></i> Users</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="admin-main">
+        <div class="flex" style="justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h1 class="section__title" style="margin: 0;">Production Queue</h1>
+        </div>
+
+        <div class="metric-card">
+            <h3 class="footer__title">Active Orders in Lab</h3>
+            <div class="table__container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Current Step</th>
+                            <th>Status Badge</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#12540</td>
+                            <td>Duc Tiep</td>
+                            <td>Lens Cutting</td>
+                            <td><span class="badge badge-cutting">In Progress</span></td>
+                            <td><button class="btn btn--sm">Quality Pass</button></td>
+                        </tr>
+                        <tr>
+                            <td>#12541</td>
+                            <td>Minh Thu</td>
+                            <td>Frame Mounting</td>
+                            <td><span class="badge badge-pending">Waiting</span></td>
+                            <td><button class="btn btn--sm">Start Mounting</button></td>
+                        </tr>
+                        <tr>
+                            <td>#12542</td>
+                            <td>Hoang Nam</td>
+                            <td>QC Inspection</td>
+                            <td><span class="badge badge-qc">Verifying</span></td>
+                            <td><button class="btn btn--sm">QC Pass</button> <button class="btn btn--sm" style="background: #dc3545;">QC Fail</button></td>
+                        </tr>
+                        <tr>
+                            <td>#12543</td>
+                            <td>Jacky Chan</td>
+                            <td>Packaging</td>
+                            <td><span class="badge badge-shipped">Ready</span></td>
+                            <td><button class="btn btn--sm">Create Shipment</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="metrics-grid mt-2">
+            <div class="metric-card">
+                <h4 class="footer__title">Total Shipped (Today)</h4>
+                <p class="metric-value">42</p>
+                <span>Goal: 50 orders</span>
+            </div>
+            <div class="metric-card">
+                <h4 class="footer__title">Pending QC</h4>
+                <p class="metric-value">12</p>
+                <span>3 orders need attention</span>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

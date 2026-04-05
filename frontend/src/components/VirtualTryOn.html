@@ -1,0 +1,31 @@
+<!-- Virtual Try-On Modal -->
+<div id="tryon-modal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);">
+    <div class="modal-content" style="background: #fff; margin: 5% auto; padding: 2rem; width: 80%; max-width: 800px; border-radius: 20px; position: relative; text-align: center;">
+        <span class="close-modal" style="position: absolute; right: 20px; top: 20px; font-size: 2rem; cursor: pointer;">&times;</span>
+        <h2 class="section__title">Virtual Try-On</h2>
+        <p>Align your face within the frame to see how these glasses look on you.</p>
+        
+        <div class="camera-preview" style="width: 100%; height: 450px; background: #eee; border-radius: 12px; margin: 1.5rem 0; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+            <i class="fi fi-rs-camera" style="font-size: 4rem; color: #ccc;"></i>
+            <!-- Overlay glasses (mockup) -->
+            <img src="../../../assets/img/products/AN550012_3849.png" style="position: absolute; width: 200px; top: 45%; left: 50%; transform: translate(-50%, -50%); opacity: 0.8;">
+            <div class="face-guide" style="position: absolute; width: 300px; height: 350px; border: 2px dashed var(--first-color); border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+        </div>
+
+        <div class="flex" style="justify-content: center; gap: 1rem;">
+            <button class="btn btn--md">Take Photo</button>
+            <button class="btn btn--md" style="background: #fff; border: 1px solid #ddd; color: #333;">Switch Frames</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.btn-tryon').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.getElementById('tryon-modal').style.display = 'block';
+        });
+    });
+    document.querySelector('.close-modal').addEventListener('click', () => {
+        document.getElementById('tryon-modal').style.display = 'none';
+    });
+</script>
