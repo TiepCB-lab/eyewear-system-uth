@@ -1,13 +1,17 @@
-﻿<?php
+<?php
 
-// TODO: Register public and customer API routes.
-// Suggested groups:
-// - /api/auth
-// - /api/products
-// - /api/recommendations
-// - /api/prescriptions
-// - /api/cart
-// - /api/checkout
-// - /api/orders
-// - /api/support
-// - /api/health
+use Core\Router;
+use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\ProfileController;
+
+Router::group(['prefix' => 'api/auth'], function () {
+    Router::post('register', [AuthController::class, 'register']);
+    Router::post('login', [AuthController::class, 'login']);
+    Router::post('logout', [AuthController::class, 'logout']);
+    Router::get('me', [AuthController::class, 'me'])->middleware('auth:sanctum');
+});
+
+Router::group(['prefix' => 'api/profile', 'middleware' => 'auth:sanctum'], function () {
+    Router::get('/', [ProfileController::class, 'show']);
+    Router::put('/', [ProfileController::class, 'update']);
+});
