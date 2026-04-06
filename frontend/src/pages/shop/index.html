@@ -22,9 +22,24 @@
     <!--=============== LAYOUT LOADER ===============-->
     <script src="../../../assets/js/core/layout-loader.js" defer></script>
 
+    <!-- Canonical product listing page -->
+    <link rel="canonical" href="../catalog/ProductListPage.html" />
+    <script>
+      (function () {
+        const target = "../catalog/ProductListPage.html" + window.location.search + window.location.hash;
+        window.location.replace(target);
+      })();
+    </script>
+
     <title>Shop — EYEWEAR.UTH</title>
   </head>
   <body>
+    <noscript>
+      <p style="padding:1rem; font-family:Arial, sans-serif;">
+        This page has moved to
+        <a href="../catalog/ProductListPage.html">Catalog</a>.
+      </p>
+    </noscript>
     <!--=============== HEADER ===============-->
     <header class="header" data-include="layout/Header"></header>
 

@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="../../../assets/css/styles.css" />
     <script src="../../../assets/js/core/layout-loader.js" defer></script>
 
-    <title>Product Catalog - EYEWEAR.UTH</title>
+    <title>Shop - EYEWEAR.UTH</title>
 
     <style>
       .catalog-layout {
@@ -47,6 +47,43 @@
       .filter-title {
         font-size: 1rem;
         margin-bottom: 0.75rem;
+      }
+
+      .search-field {
+        position: relative;
+      }
+
+      .search-clear-btn {
+        position: absolute;
+        right: 0.4rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 28px;
+        height: 28px;
+        border: 1px solid var(--border-color);
+        border-radius: 999px;
+        background: #fff;
+        color: var(--text-color-light);
+        display: inline-grid;
+        place-items: center;
+        cursor: pointer;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease, color 0.2s ease, transform 0.2s ease;
+      }
+
+      .search-clear-btn.is-visible {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .search-clear-btn:hover {
+        color: var(--first-color);
+        transform: translateY(-50%) scale(1.05);
+      }
+
+      .search-field .form__input {
+        padding-right: 2.1rem;
       }
 
       .filter-options {
@@ -147,12 +184,60 @@
         display: block;
         height: 220px;
         background: #f3f8f7;
+        overflow: hidden;
       }
 
       .catalog-item .thumb img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        transition: transform 0.28s ease;
+      }
+
+      .catalog-item .thumb-actions {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.55rem;
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0.02) 0%, rgba(0, 0, 0, 0.08) 100%);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+      }
+
+      .catalog-item .thumb-action-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 999px;
+        border: 1px solid #9ed0be;
+        background: #e9f8f1;
+        color: #1b6f59;
+        display: inline-grid;
+        place-items: center;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transform: translateY(8px);
+        transition: transform 0.22s ease, background-color 0.22s ease, color 0.22s ease;
+      }
+
+      .catalog-item .thumb-action-btn:hover {
+        background: var(--first-color);
+        color: #fff;
+      }
+
+      .catalog-item:hover .thumb-actions {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .catalog-item:hover .thumb img {
+        transform: scale(1.04);
+      }
+
+      .catalog-item:hover .thumb-action-btn {
+        transform: translateY(0);
       }
 
       .catalog-item .badge {
@@ -187,6 +272,10 @@
         align-items: center;
         justify-content: space-between;
         gap: 0.5rem;
+      }
+
+      .catalog-item .stock-row {
+        justify-content: flex-end;
       }
 
       .catalog-item .price {
@@ -234,6 +323,66 @@
         border-radius: 0.75rem;
       }
 
+      .catalog-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.6rem;
+      }
+
+      .catalog-price-group {
+        display: flex;
+        align-items: baseline;
+        gap: 0.45rem;
+      }
+
+      .catalog-price-group .old-price {
+        color: var(--text-color-light);
+        text-decoration: line-through;
+        font-size: var(--small-font-size);
+      }
+
+      .catalog-cart-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 999px;
+        border: 1px solid var(--border-color);
+        background: var(--first-color-alt);
+        color: var(--first-color);
+        display: inline-grid;
+        place-items: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .catalog-cart-btn:hover {
+        background: var(--first-color);
+        color: #fff;
+        border-color: var(--first-color);
+      }
+
+      .catalog-toast {
+        position: fixed;
+        right: 1rem;
+        bottom: 1rem;
+        z-index: 9999;
+        background: #0f8f6f;
+        color: #fff;
+        border-radius: 0.55rem;
+        padding: 0.65rem 0.9rem;
+        box-shadow: 0 10px 24px rgba(15, 143, 111, 0.28);
+        font-size: var(--small-font-size);
+        font-weight: var(--weight-600);
+        opacity: 0;
+        transform: translateY(8px);
+        transition: opacity 0.22s ease, transform 0.22s ease;
+      }
+
+      .catalog-toast.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
       @media screen and (max-width: 1100px) {
         .catalog-layout {
           grid-template-columns: 1fr;
@@ -271,23 +420,33 @@
         <ul class="breadcrumb__list flex container">
           <li><a href="../../../index.html" class="breadcrumb__link">Home</a></li>
           <li><span class="breadcrumb__link"></span>></li>
-          <li><span class="breadcrumb__link">Catalog</span></li>
+          <li><span class="breadcrumb__link">Shop</span></li>
         </ul>
       </section>
 
       <section class="section--lg container">
         <div class="catalog-layout">
           <aside class="catalog-sidebar" aria-label="Product Filters">
-            <h3 class="section__title" style="margin-bottom: 0.75rem">Filter Catalog</h3>
+            <h3 class="section__title" style="margin-bottom: 0.75rem">Filter Shop</h3>
 
             <div class="filter-block">
               <p class="filter-title">Search</p>
-              <input
-                id="searchInput"
-                type="text"
-                class="form__input"
-                placeholder="Brand, model, category..."
-              />
+              <div class="search-field">
+                <input
+                  id="searchInput"
+                  type="text"
+                  class="form__input"
+                  placeholder="Brand, model, category..."
+                />
+                <button
+                  type="button"
+                  id="searchClearBtn"
+                  class="search-clear-btn"
+                  aria-label="Clear search"
+                >
+                  <i class="fi fi-rs-cross-small"></i>
+                </button>
+              </div>
             </div>
 
             <div class="filter-block">
@@ -441,18 +600,88 @@
 
       const state = {
         view: "grid",
-        sort: "featured"
+        sort: "featured",
+        searchQuery: ""
       };
 
       const productContainer = document.getElementById("productContainer");
       const resultCount = document.getElementById("resultCount");
       const searchInput = document.getElementById("searchInput");
+      const searchClearBtn = document.getElementById("searchClearBtn");
       const priceRange = document.getElementById("priceRange");
       const priceValue = document.getElementById("priceValue");
       const inStockOnly = document.getElementById("inStockOnly");
       const sortSelect = document.getElementById("sortSelect");
       const gridViewBtn = document.getElementById("gridViewBtn");
       const listViewBtn = document.getElementById("listViewBtn");
+      let searchDebounceTimer = null;
+      const CART_STORAGE_KEY = "eyewear_cart_v1";
+
+      function readCart() {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(CART_STORAGE_KEY) || "[]");
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return [];
+        }
+      }
+
+      function writeCart(items) {
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+      }
+
+      function syncCartBadge() {
+        const totalQty = readCart().reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+        document
+          .querySelectorAll('.header__action-btn[title="Cart"] .count')
+          .forEach((el) => {
+            el.textContent = String(totalQty);
+          });
+      }
+
+      function showToast(message) {
+        const oldToast = document.querySelector(".catalog-toast");
+        if (oldToast) {
+          oldToast.remove();
+        }
+
+        const toast = document.createElement("div");
+        toast.className = "catalog-toast";
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        requestAnimationFrame(() => toast.classList.add("is-visible"));
+        window.setTimeout(() => {
+          toast.classList.remove("is-visible");
+          window.setTimeout(() => toast.remove(), 250);
+        }, 1400);
+      }
+
+      function addToCart(productId) {
+        const product = catalogProducts.find((item) => item.id === Number(productId));
+        if (!product) {
+          return;
+        }
+
+        const cartItems = readCart();
+        const found = cartItems.find((item) => item.id === product.id);
+
+        if (found) {
+          found.quantity += 1;
+        } else {
+          cartItems.push({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image: product.image,
+            quantity: 1
+          });
+        }
+
+        writeCart(cartItems);
+        syncCartBadge();
+        showToast(`${product.name} added to cart`);
+      }
 
       function getCheckedValues(containerId) {
         return Array.from(document.querySelectorAll(`#${containerId} input[type=\"checkbox\"]:checked`)).map(
@@ -480,7 +709,7 @@
       }
 
       function getFilteredProducts() {
-        const keyword = searchInput.value.trim().toLowerCase();
+        const keyword = state.searchQuery.trim().toLowerCase();
         const categoryValues = getCheckedValues("categoryFilters");
         const brandValues = getCheckedValues("brandFilters");
         const gender = getSelectedGender();
@@ -514,27 +743,50 @@
           return;
         }
 
+        searchClearBtn.classList.toggle("is-visible", searchInput.value.trim().length > 0);
+
         productContainer.innerHTML = products
           .map((item) => {
+            const detailUrl = `../details/index.html?id=${encodeURIComponent(item.id)}&name=${encodeURIComponent(item.name)}`;
             const stockClass = item.stock > 5 ? "ok" : "low";
             const stockText = item.stock > 0 ? `${item.stock} in stock` : "Out of stock";
 
             return `
               <article class="catalog-item">
-                <a href="../details/index.html" class="thumb">
+                <a href="${detailUrl}" class="thumb">
                   <img src="${item.image}" alt="${item.name}" loading="lazy" />
                   <span class="badge">${item.badge}</span>
+                  <span class="thumb-actions">
+                    <span class="thumb-action-btn" title="Quick view" aria-label="Quick view">
+                      <i class="fi fi-rs-eye"></i>
+                    </span>
+                    <span class="thumb-action-btn" title="Add to wishlist" aria-label="Add to wishlist">
+                      <i class="fi fi-rs-heart"></i>
+                    </span>
+                    <span class="thumb-action-btn" title="Compare" aria-label="Compare">
+                      <i class="fi fi-rs-shuffle"></i>
+                    </span>
+                  </span>
                 </a>
                 <div class="body">
                   <p class="meta">${item.category} · ${item.brand}</p>
-                  <a href="../details/index.html"><h3 class="name">${item.name}</h3></a>
-                  <div class="row">
-                    <span class="price">$${item.price}</span>
+                  <a href="${detailUrl}"><h3 class="name">${item.name}</h3></a>
+                  <div class="row stock-row">
                     <span class="stock ${stockClass}">${stockText}</span>
                   </div>
-                  <div class="row" style="margin-top: 0.75rem">
-                    <a href="../details/index.html" class="btn btn--sm">Details</a>
-                    <a href="#" class="quick" aria-label="Add to wishlist"><i class="fi fi-rs-heart"></i></a>
+                  <div class="catalog-actions" style="margin-top: 0.75rem">
+                    <div class="catalog-price-group">
+                      <span class="price">$${item.price}</span>
+                      <span class="old-price">$${(item.price * 1.1).toFixed(1)}</span>
+                    </div>
+                    <button
+                      class="catalog-cart-btn"
+                      type="button"
+                      data-add-cart="${item.id}"
+                      aria-label="Add ${item.name} to cart"
+                    >
+                      <i class="fi fi-rs-shopping-bag-add"></i>
+                    </button>
                   </div>
                 </div>
               </article>
@@ -553,7 +805,21 @@
         listViewBtn.classList.toggle("active", mode === "list");
       }
 
-      searchInput.addEventListener("input", renderProducts);
+      searchInput.addEventListener("input", () => {
+        searchClearBtn.classList.toggle("is-visible", searchInput.value.trim().length > 0);
+        window.clearTimeout(searchDebounceTimer);
+        searchDebounceTimer = window.setTimeout(() => {
+          state.searchQuery = searchInput.value;
+          renderProducts();
+        }, 300);
+      });
+      searchClearBtn.addEventListener("click", () => {
+        searchInput.value = "";
+        state.searchQuery = "";
+        searchClearBtn.classList.remove("is-visible");
+        searchInput.focus();
+        renderProducts();
+      });
       priceRange.addEventListener("input", () => {
         priceValue.textContent = `$${priceRange.value}`;
         renderProducts();
@@ -568,6 +834,15 @@
         el.addEventListener("change", renderProducts);
       });
 
+      productContainer.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-add-cart]");
+        if (!button) {
+          return;
+        }
+
+        addToCart(button.dataset.addCart);
+      });
+
       gridViewBtn.addEventListener("click", () => {
         setView("grid");
         renderProducts();
@@ -580,6 +855,8 @@
 
       setView("grid");
       renderProducts();
+      syncCartBadge();
+      window.setTimeout(syncCartBadge, 400);
     </script>
   </body>
 </html>
