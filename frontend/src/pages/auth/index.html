@@ -48,10 +48,10 @@
                 <a href="#" class="social"><i class="fi fi-brands-google"></i></a>
               </div>
               <span style="font-size: 0.9rem; color: #777; margin-bottom: 1rem;">or use your email for registration</span>
-              <input type="text" placeholder="Name" />
-              <input type="email" placeholder="Email" />
-              <input type="password" placeholder="Password" />
-              <button type="button" class="btn" onclick="handleAuth('register')">Sign Up</button>
+              <input type="text" placeholder="Name" name="name" />
+              <input type="email" placeholder="Email" name="email" />
+              <input type="password" placeholder="Password" name="password" />
+              <button type="button" class="btn">Sign Up</button>
             </form>
           </div>
 
@@ -67,10 +67,10 @@
                 <a href="#" class="social"><i class="fi fi-brands-google"></i></a>
               </div>
               <span style="font-size: 0.8rem; color: #999; margin-bottom: 1rem;">Testing logic: admin@uth.com / staff@uth.com</span>
-              <input type="email" placeholder="Email" id="email-signin" value="admin@uth.com" />
-              <input type="password" placeholder="Password" value="password" />
+              <input type="email" placeholder="Email" id="email-signin" name="email" value="admin@uth.com" />
+              <input type="password" placeholder="Password" name="password" value="password" />
               <a href="#" class="forgot-password">Forgot your password?</a>
-              <button type="button" class="btn" onclick="handleAuth('login')">Sign In</button>
+              <button type="button" class="btn">Sign In</button>
             </form>
           </div>
 
@@ -299,7 +299,9 @@
         }
       </style>
 
-      <script>
+      <script type="module">
+        import authService from '../../services/authService.js';
+
         const signUpButton = document.getElementById('signUp');
         const signInButton = document.getElementById('signIn');
         const container = document.getElementById('auth-container');
@@ -312,23 +314,56 @@
           container.classList.remove("active");
         });
 
-        // Role Simulation Logic
-        function handleAuth(type) {
-            const email = document.getElementById('email-signin').value;
-            
-            if (email === 'admin@uth.com') {
-                window.location.href = '../dashboard/admin/';
-            } else if (email === 'manager@uth.com') {
-                window.location.href = '../dashboard/manager/';
-            } else if (email === 'sales@uth.com') {
-                window.location.href = '../dashboard/sales/';
-            } else if (email === 'ops@uth.com') {
-                window.location.href = '../dashboard/ops/';
+        // Handle Registration
+        document.querySelector('.sign-up-container .btn').addEventListener('click', async (e) => {
+          e.preventDefault();
+
+          const name = document.querySelector('.sign-up-container input[type="text"]').value;
+          const email = document.querySelector('.sign-up-container input[type="email"]').value;
+          const password = document.querySelector('.sign-up-container input[type="password"]').value;
+
+          if (!name || !email || !password) {
+            alert('Please fill in all fields');
+            return;
+          }
+
+          try {
+            const response = await authService.register({ name, email, password });
+            alert('Registration successful! Please login.');
+            container.classList.remove("active");
+          } catch (error) {
+            alert('Registration failed: ' + (error.response?.data?.message || error.message));
+          }
+        });
+
+        // Handle Login
+        document.querySelector('.sign-in-container .btn').addEventListener('click', async (e) => {
+          e.preventDefault();
+
+          const email = document.querySelector('.sign-in-container input[type="email"]').value;
+          const password = document.querySelector('.sign-in-container input[type="password"]').value;
+
+          if (!email || !password) {
+            alert('Please fill in all fields');
+            return;
+          }
+
+          try {
+            const response = await authService.login({ email, password });
+
+            // Redirect based on role
+            const role = response.user.role;
+            if (role === 'admin') {
+              window.location.href = '../dashboard/admin/';
+            } else if (role === 'staff') {
+              window.location.href = '../dashboard/staff/';
             } else {
-                // Default to accounts page (Customer role)
-                window.location.href = '../accounts/';
+              window.location.href = '../accounts/';
             }
-        }
+          } catch (error) {
+            alert('Login failed: ' + (error.response?.data?.message || error.message));
+          }
+        });
       </script>
 
     </main>

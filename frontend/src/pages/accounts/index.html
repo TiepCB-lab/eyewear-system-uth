@@ -114,14 +114,27 @@
             <div class="tab__content" content id="update-profile">
               <h3 class="tab__header">Update Profile</h3>
               <div class="tab__body">
-                <form class="form grid">
+                <form class="form grid" id="profile-form">
                   <input
                     type="text"
-                    placeholder="Username"
+                    placeholder="Phone"
                     class="form__input"
+                    name="phone"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Address"
+                    class="form__input"
+                    name="address"
+                  />
+                  <input
+                    type="date"
+                    placeholder="Birthdate"
+                    class="form__input"
+                    name="birthdate"
                   />
                   <div class="form__btn">
-                    <button class="btn btn--md">Save</button>
+                    <button type="submit" class="btn btn--md">Save</button>
                   </div>
                 </form>
               </div>
@@ -178,6 +191,64 @@
 
     <!--=============== SWIPER JS ===============-->
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <!--=============== PROFILE JS ===============-->
+    <script type="module">
+      import profileService from '../../services/profileService.js';
+      import authService from '../../services/authService.js';
+
+      // Load profile data when page loads
+      document.addEventListener('DOMContentLoaded', async () => {
+        try {
+          const response = await profileService.getProfile();
+          const profile = response.profile;
+
+          // Populate form
+          document.querySelector('input[name="phone"]').value = profile.phone || '';
+          document.querySelector('input[name="address"]').value = profile.address || '';
+          document.querySelector('input[name="birthdate"]').value = profile.birthdate || '';
+
+          // Update dashboard greeting
+          const dashboardTab = document.querySelector('#dashboard .tab__header');
+          if (dashboardTab) {
+            dashboardTab.textContent = `Hello ${profile.user?.name || 'User'}`;
+          }
+        } catch (error) {
+          console.error('Failed to load profile:', error);
+          // Redirect to login if not authenticated
+          if (error.response?.status === 401) {
+            window.location.href = '../auth/';
+          }
+        }
+      });
+
+      // Handle profile update
+      document.getElementById('profile-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData);
+
+        try {
+          await profileService.updateProfile(data);
+          alert('Profile updated successfully!');
+        } catch (error) {
+          alert('Failed to update profile: ' + (error.response?.data?.message || error.message));
+        }
+      });
+
+      // Handle logout
+      document.querySelector('.account__tab:last-child').addEventListener('click', async () => {
+        try {
+          await authService.logout();
+          window.location.href = '../auth/';
+        } catch (error) {
+          console.error('Logout error:', error);
+          // Force logout anyway
+          window.location.href = '../auth/';
+        }
+      });
+    </script>
 
     <!--=============== MAIN JS ===============-->
     <script src="../../../assets/js/main.js"></script>
