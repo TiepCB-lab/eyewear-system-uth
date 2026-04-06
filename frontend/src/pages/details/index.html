@@ -36,9 +36,9 @@
         <ul class="breadcrumb__list flex container">
           <li><a href="../../../index.html" class="breadcrumb__link">Home</a></li>
           <li><span class="breadcrumb__link"></span>></li>
-          <li><span class="breadcrumb__link">Eyewear Collective</span></li>
+          <li><a href="../catalog/ProductListPage.html" class="breadcrumb__link">Catalog</a></li>
           <li><span class="breadcrumb__link"></span>></li>
-          <li><span class="breadcrumb__link">Henley Frame</span></li>
+          <li><span id="breadcrumb-product" class="breadcrumb__link">Premium Acetate Optical Frames</span></li>
         </ul>
       </section>
 
@@ -49,6 +49,7 @@
             <img
               src="../../../assets/img/products/AN550012_3849.png"
               alt=""
+              id="details-main-image"
               class="details__img"
             />
             <div class="details__small-images grid">
@@ -70,8 +71,8 @@
             </div>
           </div>
           <div class="details__group">
-            <h3 class="details__title">Premium Acetate Optical Frames</h3>
-            <p class="details__brand">Brand: <span>Eyewear Collective</span></p>
+            <h3 id="details-title" class="details__title">Premium Acetate Optical Frames</h3>
+            <p class="details__brand">Brand: <span id="details-brand">Eyewear Collective</span></p>
             <div class="details__price flex">
               <span class="new__price" id="price-current">$116.00</span>
               <span class="old__price" id="price-old">$160.00</span>
@@ -638,8 +639,77 @@
     <script src="../../../assets/js/main.js"></script>
     <script>
       (function () {
-        const basePrice = 116;
-        const comparePrice = 160;
+        const productMap = {
+          1: {
+            name: "Aviator Edge 2.0",
+            brand: "Ray-Ban",
+            image: "../../../assets/img/products/AN550012_3849.png",
+            basePrice: 229,
+            comparePrice: 269
+          },
+          2: {
+            name: "Urban Focus",
+            brand: "Molsion",
+            image: "../../../assets/img/products/AN550016_3796.png",
+            basePrice: 165,
+            comparePrice: 199
+          },
+          3: {
+            name: "Trail Carbon X",
+            brand: "Oakley",
+            image: "../../../assets/img/products/AN550021_3933.png",
+            basePrice: 289,
+            comparePrice: 329
+          },
+          4: {
+            name: "BlueGuard Lite",
+            brand: "Gentle Monster",
+            image: "../../../assets/img/products/AN550030_3896.png",
+            basePrice: 139,
+            comparePrice: 175
+          },
+          5: {
+            name: "Classic Horizon",
+            brand: "Molsion",
+            image: "../../../assets/img/products/AN550012_3849.png",
+            basePrice: 179,
+            comparePrice: 220
+          },
+          6: {
+            name: "Sunline Drift",
+            brand: "Ray-Ban",
+            image: "../../../assets/img/products/AN550030_3896.png",
+            basePrice: 254,
+            comparePrice: 298
+          }
+        };
+
+        const params = new URLSearchParams(window.location.search);
+        const productId = Number(params.get("id"));
+        const productNameFromQuery = params.get("name");
+        const activeProduct = productMap[productId] || {
+          name: "Premium Acetate Optical Frames",
+          brand: "Eyewear Collective",
+          image: "../../../assets/img/products/AN550012_3849.png",
+          basePrice: 116,
+          comparePrice: 160
+        };
+        const displayName = productNameFromQuery ? productNameFromQuery.trim() : activeProduct.name;
+
+        let basePrice = activeProduct.basePrice;
+        let comparePrice = activeProduct.comparePrice;
+
+        const titleEl = document.getElementById("details-title");
+        const brandEl = document.getElementById("details-brand");
+        const breadcrumbEl = document.getElementById("breadcrumb-product");
+        const mainImageEl = document.getElementById("details-main-image");
+
+        titleEl.textContent = displayName;
+        brandEl.textContent = activeProduct.brand;
+        breadcrumbEl.textContent = displayName;
+        mainImageEl.src = activeProduct.image;
+        mainImageEl.alt = displayName;
+        document.title = `${displayName} — EYEWEAR.UTH`;
 
         const colorLinks = Array.from(document.querySelectorAll("#variant-colors .color__link"));
         const sizeLinks = Array.from(document.querySelectorAll("#variant-sizes .size__link"));
