@@ -1,5 +1,29 @@
 <?php
-header('Content-Type: application/json');
+
+header('Content-Type: application/json; charset=utf-8');
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+define('APP_ROOT', dirname(__DIR__));
+
+spl_autoload_register(function ($class) {
+    if (str_starts_with($class, 'App\\')) {
+        $file = APP_ROOT . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, substr($class, 4)) . '.php';
+    } elseif (str_starts_with($class, 'Core\\')) {
+        $file = APP_ROOT . DIRECTORY_SEPARATOR . 'core' . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, substr($class, 5)) . '.php';
+    } else {
+        return;
+    }
+    if (file_exists($file)) {
+        require_once $file;
+    }
+});
 
 function env_value(array $config, array $keys, $default = null) {
     foreach ($keys as $key) {
@@ -7,7 +31,6 @@ function env_value(array $config, array $keys, $default = null) {
             return $config[$key];
         }
     }
-
     return $default;
 }
 
@@ -27,7 +50,6 @@ function load_env_config() {
             }
         }
     }
-
     return [];
 }
 
@@ -66,16 +88,14 @@ function init_database() {
     $password = env_value($config, ['DB_PASSWORD', 'MYSQL_PASSWORD'], '');
 
     if (!$host || !$database || !$username) {
-        return [
-            'status' => 'skipped',
-            'message' => 'Missing database env values.',
-        ];
+        return ['status' => 'skipped', 'message' => 'Missing database env values.'];
     }
 
     try {
         $adminDsn = 'mysql:host=' . $host . ';port=' . $port . ';charset=utf8mb4';
         $adminPdo = new PDO($adminDsn, $username, $password, [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
         ]);
 
         $adminPdo->exec('CREATE DATABASE IF NOT EXISTS `' . str_replace('`', '``', $database) . '` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
@@ -83,8 +103,10 @@ function init_database() {
         $appDsn = 'mysql:host=' . $host . ';port=' . $port . ';dbname=' . $database . ';charset=utf8mb4';
         $appPdo = new PDO($appDsn, $username, $password, [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
         ]);
 
+<<<<<<< HEAD
         $schemaPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'schema.sql';
         $executed = execute_schema($appPdo, $schemaPath);
 
@@ -93,34 +115,41 @@ function init_database() {
             'message' => 'Database schema synchronized from schema.sql.',
             'statements_executed' => $executed,
         ];
-    } catch (Throwable $e) {
-        return [
-            'status' => 'error',
-            'message' => 'Database initialization failed: ' . $e->getMessage(),
+=======
+        \Core\Database::setInstance($appPdo);
+
+        $requiredTables = [
+            'role', 'user', 'product', 'productvariant', 'inventory', 'lens',
+            'promotion', 'prescription', 'cart', 'cartitem', 'order', 'orderitem',
+            'payment', 'shipment', 'supportticket', 'returnrequest',
         ];
+
+        $placeholders = implode(',', array_fill(0, count($requiredTables), '?'));
+        $checkStmt = $appPdo->prepare(
+            'SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = ? AND table_name IN (' . $placeholders . ')'
+        );
+        $checkStmt->execute(array_merge([$database], $requiredTables));
+        $existingCount = (int) $checkStmt->fetchColumn();
+
+        if ($existingCount === count($requiredTables)) {
+            return ['status' => 'ready', 'message' => 'Database already initialized.'];
+        }
+
+        $schemaPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'schema.sql';
+        $executed = execute_schema($appPdo, $schemaPath);
+
+        return ['status' => 'initialized', 'message' => 'Database initialized from schema.sql.', 'statements_executed' => $executed];
+>>>>>>> dea7459 (Identity, Access & User Profiles)
+    } catch (Throwable $e) {
+        return ['status' => 'error', 'message' => 'Database initialization failed: ' . $e->getMessage()];
     }
 }
 
+// 1. Init Database (Also registers PDO in Core\Database)
 $dbInit = init_database();
 
-echo json_content_response([
-    "status" => "success",
-    "message" => "Eyewear System UTH Backend API is live",
-    "database_init" => $dbInit,
-    "architecture" => "N-Layered PHP",
-    "supported_v1_endpoints" => [
-        "/auth",
-        "/catalog",
-        "/cart",
-        "/checkout",
-        "/ops"
-    ]
-]);
+// 2. Load API Routes
+require_once APP_ROOT . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . 'api.php';
 
-// Helper function mock
-function json_content_response($data) {
-    return json_encode([
-        "data" => $data,
-        "timestamp" => date("Y-m-d H:i:s")
-    ], JSON_PRETTY_PRINT);
-}
+// 3. Dispatch current request
+\Core\Router::dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

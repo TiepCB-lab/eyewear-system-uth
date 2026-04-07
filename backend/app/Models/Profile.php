@@ -1,4 +1,28 @@
 <?php
 
-// TODO: Implement this class
+namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Profile extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'user_id',
+        'phone',
+        'address',
+        'avatar',
+        'birthdate',
+    ];
+
+    protected $casts = [
+        'birthdate' => 'date',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+}
