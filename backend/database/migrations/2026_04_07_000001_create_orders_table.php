@@ -7,21 +7,25 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('ticket_replies', function (Blueprint $table) {
+        Schema::create('orders', function (Blueprint $table) {
             $table->id();
-
-            // FK tới bảng supportticket
-            $table->foreignId('ticket_id')
-                ->constrained('supportticket')
-                ->cascadeOnDelete();
 
             // FK tới bảng user
             $table->foreignId('user_id')
                 ->constrained('user')
                 ->cascadeOnDelete();
 
-            // Nội dung trả lời
-            $table->text('message');
+            $table->decimal('total_amount', 12, 2);
+            $table->enum('status', [
+                'pending',
+                'verified',
+                'in_production',
+                'shipped',
+                'delivered',
+                'cancelled'
+            ])->default('pending');
+
+            $table->string('payment_status')->default('unpaid');
 
             // Thời gian tạo & cập nhật
             $table->timestamps();
@@ -30,6 +34,6 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('ticket_replies');
+        Schema::dropIfExists('orders');
     }
 };
