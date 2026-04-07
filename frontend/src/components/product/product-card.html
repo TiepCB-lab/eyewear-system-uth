@@ -1,1 +1,39 @@
-<!-- TODO: Product card component. -->
+<article class="catalog-item" data-product-id="{{id}}">
+	<a href="{{detailUrl}}" class="thumb">
+		<img src="{{image}}" alt="{{name}}" loading="lazy" />
+		<span class="badge">{{badge}}</span>
+		<span class="thumb-actions">
+			<span class="thumb-action-btn" title="Quick view" aria-label="Quick view">
+				<i class="fi fi-rs-eye"></i>
+			</span>
+			<span class="thumb-action-btn" title="Add to wishlist" aria-label="Add to wishlist">
+				<i class="fi fi-rs-heart"></i>
+			</span>
+			<span class="thumb-action-btn" title="Compare" aria-label="Compare">
+				<i class="fi fi-rs-shuffle"></i>
+			</span>
+		</span>
+	</a>
+
+	<div class="body">
+		<p class="meta">{{categoryLabel}}</p>
+		<a href="{{detailUrl}}"><h3 class="name">{{name}}</h3></a>
+		<div class="catalog-rating" aria-label="Rated 5 out of 5 stars">
+			<span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+		</div>
+		<div class="catalog-actions" style="margin-top: 0.75rem">
+			<div class="catalog-price-group">
+				<span class="price">${{price}}</span>
+				<span class="old-price">${{oldPrice}}</span>
+			</div>
+			<button
+				class="catalog-cart-btn"
+				type="button"
+				data-add-cart="{{id}}"
+				aria-label="Add {{name}} to cart"
+			>
+				<i class="fi fi-rs-shopping-bag-add"></i>
+			</button>
+		</div>
+	</div>
+</article>

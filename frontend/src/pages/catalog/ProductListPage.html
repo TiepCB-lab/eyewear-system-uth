@@ -265,6 +265,14 @@
         color: var(--title-color);
         margin: 0.35rem 0 0.5rem;
         font-size: 1.02rem;
+        min-height: 2.5rem;
+      }
+
+      .catalog-rating {
+        color: #f2a400;
+        font-size: 0.98rem;
+        letter-spacing: 1px;
+        line-height: 1;
       }
 
       .catalog-item .row {
@@ -274,31 +282,9 @@
         gap: 0.5rem;
       }
 
-      .catalog-item .stock-row {
-        justify-content: flex-end;
-      }
-
       .catalog-item .price {
         color: var(--first-color);
         font-weight: var(--weight-700);
-      }
-
-      .catalog-item .stock.low {
-        color: #bd4f2c;
-      }
-
-      .catalog-item .stock.ok {
-        color: #2f7f59;
-      }
-
-      .catalog-item .quick {
-        border: 1px solid var(--border-color);
-        border-radius: 0.4rem;
-        width: 36px;
-        height: 36px;
-        display: inline-grid;
-        place-items: center;
-        color: var(--text-color);
       }
 
       .catalog-products.list-view .catalog-item {
@@ -426,71 +412,7 @@
 
       <section class="section--lg container">
         <div class="catalog-layout">
-          <aside class="catalog-sidebar" aria-label="Product Filters">
-            <h3 class="section__title" style="margin-bottom: 0.75rem">Filter Shop</h3>
-
-            <div class="filter-block">
-              <p class="filter-title">Search</p>
-              <div class="search-field">
-                <input
-                  id="searchInput"
-                  type="text"
-                  class="form__input"
-                  placeholder="Brand, model, category..."
-                />
-                <button
-                  type="button"
-                  id="searchClearBtn"
-                  class="search-clear-btn"
-                  aria-label="Clear search"
-                >
-                  <i class="fi fi-rs-cross-small"></i>
-                </button>
-              </div>
-            </div>
-
-            <div class="filter-block">
-              <p class="filter-title">Category</p>
-              <div class="filter-options" id="categoryFilters">
-                <label class="filter-option"><input type="checkbox" value="Optical" /> Optical</label>
-                <label class="filter-option"><input type="checkbox" value="Sunglasses" /> Sunglasses</label>
-                <label class="filter-option"><input type="checkbox" value="Blue Light" /> Blue Light</label>
-              </div>
-            </div>
-
-            <div class="filter-block">
-              <p class="filter-title">Brand</p>
-              <div class="filter-options" id="brandFilters">
-                <label class="filter-option"><input type="checkbox" value="Ray-Ban" /> Ray-Ban</label>
-                <label class="filter-option"><input type="checkbox" value="Oakley" /> Oakley</label>
-                <label class="filter-option"><input type="checkbox" value="Gentle Monster" /> Gentle Monster</label>
-                <label class="filter-option"><input type="checkbox" value="Molsion" /> Molsion</label>
-              </div>
-            </div>
-
-            <div class="filter-block">
-              <p class="filter-title">Gender</p>
-              <div class="filter-options" id="genderFilters">
-                <label class="filter-option"><input type="radio" name="gender" value="all" checked /> All</label>
-                <label class="filter-option"><input type="radio" name="gender" value="unisex" /> Unisex</label>
-                <label class="filter-option"><input type="radio" name="gender" value="men" /> Men</label>
-                <label class="filter-option"><input type="radio" name="gender" value="women" /> Women</label>
-              </div>
-            </div>
-
-            <div class="filter-block">
-              <p class="filter-title">Max Price</p>
-              <p class="price-label">Up to <strong id="priceValue">$350</strong></p>
-              <input id="priceRange" class="price-range" type="range" min="80" max="500" value="350" step="5" />
-            </div>
-
-            <div class="filter-block">
-              <label class="filter-option">
-                <input id="inStockOnly" type="checkbox" />
-                In-stock only
-              </label>
-            </div>
-          </aside>
+          <div id="filterSidebarMount"></div>
 
           <section class="catalog-main" aria-live="polite">
             <div class="toolbar">
@@ -527,9 +449,10 @@
 
     <footer class="footer container" data-include="layout/Footer"></footer>
 
+    <script src="../../services/catalogService.js"></script>
     <script src="../../../assets/js/main.js"></script>
     <script>
-      const catalogProducts = [
+      const fallbackCatalogProducts = [
         {
           id: 1,
           name: "Aviator Edge 2.0",
@@ -598,22 +521,27 @@
         }
       ];
 
+      const catalogService = window.AppServices && window.AppServices.catalogService;
+      let catalogProducts = fallbackCatalogProducts.slice();
+
       const state = {
         view: "grid",
         sort: "featured",
         searchQuery: ""
       };
 
+      const filterSidebarMount = document.getElementById("filterSidebarMount");
       const productContainer = document.getElementById("productContainer");
       const resultCount = document.getElementById("resultCount");
-      const searchInput = document.getElementById("searchInput");
-      const searchClearBtn = document.getElementById("searchClearBtn");
-      const priceRange = document.getElementById("priceRange");
-      const priceValue = document.getElementById("priceValue");
-      const inStockOnly = document.getElementById("inStockOnly");
       const sortSelect = document.getElementById("sortSelect");
       const gridViewBtn = document.getElementById("gridViewBtn");
       const listViewBtn = document.getElementById("listViewBtn");
+      let searchInput = null;
+      let searchClearBtn = null;
+      let priceRange = null;
+      let priceValue = null;
+      let inStockOnly = null;
+      let productCardTemplate = "";
       let searchDebounceTimer = null;
       const CART_STORAGE_KEY = "eyewear_cart_v1";
 
@@ -683,6 +611,99 @@
         showToast(`${product.name} added to cart`);
       }
 
+      function fillTemplate(template, values) {
+        return Object.keys(values).reduce((html, key) => {
+          const token = new RegExp(`\\{\\{${key}\\}\\}`, "g");
+          return html.replace(token, String(values[key]));
+        }, template);
+      }
+
+      function buildProductCard(item) {
+        const detailUrl = `../details/index.html?id=${encodeURIComponent(item.id)}&name=${encodeURIComponent(item.name)}`;
+        const categoryLabel = item.category || "Eyewear";
+
+        return fillTemplate(productCardTemplate, {
+          id: item.id,
+          detailUrl,
+          image: item.image,
+          name: item.name,
+          badge: item.badge,
+          categoryLabel,
+          price: item.price,
+          oldPrice: (item.price * 1.1).toFixed(1)
+        });
+      }
+
+      function bindSidebarElements() {
+        searchInput = document.getElementById("searchInput");
+        searchClearBtn = document.getElementById("searchClearBtn");
+        priceRange = document.getElementById("priceRange");
+        priceValue = document.getElementById("priceValue");
+        inStockOnly = document.getElementById("inStockOnly");
+      }
+
+      function bindFilterEvents() {
+        if (!searchInput || !searchClearBtn || !priceRange || !priceValue || !inStockOnly) {
+          return;
+        }
+
+        searchInput.addEventListener("input", () => {
+          searchClearBtn.classList.toggle("is-visible", searchInput.value.trim().length > 0);
+          window.clearTimeout(searchDebounceTimer);
+          searchDebounceTimer = window.setTimeout(() => {
+            state.searchQuery = searchInput.value;
+            renderProducts();
+          }, 300);
+        });
+
+        searchClearBtn.addEventListener("click", () => {
+          searchInput.value = "";
+          state.searchQuery = "";
+          searchClearBtn.classList.remove("is-visible");
+          searchInput.focus();
+          renderProducts();
+        });
+
+        priceRange.addEventListener("input", () => {
+          priceValue.textContent = `$${priceRange.value}`;
+          renderProducts();
+        });
+
+        inStockOnly.addEventListener("change", renderProducts);
+
+        document.querySelectorAll("#categoryFilters input, #brandFilters input, #genderFilters input").forEach((el) => {
+          el.addEventListener("change", renderProducts);
+        });
+      }
+
+      function mountFilterSidebar() {
+        return fetch("../../components/forms/search-form.html")
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}`);
+            }
+            return response.text();
+          })
+          .then((html) => {
+            filterSidebarMount.innerHTML = html;
+            bindSidebarElements();
+            bindFilterEvents();
+          });
+      }
+
+      function loadProductCardTemplate() {
+        return fetch("../../components/product/product-card.html")
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}`);
+            }
+            return response.text();
+          })
+          .then((html) => {
+            productCardTemplate = html;
+          });
+      }
+
       function getCheckedValues(containerId) {
         return Array.from(document.querySelectorAll(`#${containerId} input[type=\"checkbox\"]:checked`)).map(
           (input) => input.value
@@ -713,7 +734,7 @@
         const categoryValues = getCheckedValues("categoryFilters");
         const brandValues = getCheckedValues("brandFilters");
         const gender = getSelectedGender();
-        const maxPrice = Number(priceRange.value);
+        const maxPrice = Number(priceRange ? priceRange.value : 350);
 
         const filtered = catalogProducts.filter((item) => {
           const keywordMatch =
@@ -725,7 +746,7 @@
           const brandMatch = brandValues.length === 0 || brandValues.includes(item.brand);
           const genderMatch = gender === "all" || item.gender === gender;
           const priceMatch = item.price <= maxPrice;
-          const stockMatch = !inStockOnly.checked || item.stock > 0;
+          const stockMatch = !(inStockOnly && inStockOnly.checked) || item.stock > 0;
 
           return keywordMatch && categoryMatch && brandMatch && genderMatch && priceMatch && stockMatch;
         });
@@ -743,54 +764,13 @@
           return;
         }
 
-        searchClearBtn.classList.toggle("is-visible", searchInput.value.trim().length > 0);
+        if (searchClearBtn && searchInput) {
+          searchClearBtn.classList.toggle("is-visible", searchInput.value.trim().length > 0);
+        }
 
         productContainer.innerHTML = products
           .map((item) => {
-            const detailUrl = `../details/index.html?id=${encodeURIComponent(item.id)}&name=${encodeURIComponent(item.name)}`;
-            const stockClass = item.stock > 5 ? "ok" : "low";
-            const stockText = item.stock > 0 ? `${item.stock} in stock` : "Out of stock";
-
-            return `
-              <article class="catalog-item">
-                <a href="${detailUrl}" class="thumb">
-                  <img src="${item.image}" alt="${item.name}" loading="lazy" />
-                  <span class="badge">${item.badge}</span>
-                  <span class="thumb-actions">
-                    <span class="thumb-action-btn" title="Quick view" aria-label="Quick view">
-                      <i class="fi fi-rs-eye"></i>
-                    </span>
-                    <span class="thumb-action-btn" title="Add to wishlist" aria-label="Add to wishlist">
-                      <i class="fi fi-rs-heart"></i>
-                    </span>
-                    <span class="thumb-action-btn" title="Compare" aria-label="Compare">
-                      <i class="fi fi-rs-shuffle"></i>
-                    </span>
-                  </span>
-                </a>
-                <div class="body">
-                  <p class="meta">${item.category} · ${item.brand}</p>
-                  <a href="${detailUrl}"><h3 class="name">${item.name}</h3></a>
-                  <div class="row stock-row">
-                    <span class="stock ${stockClass}">${stockText}</span>
-                  </div>
-                  <div class="catalog-actions" style="margin-top: 0.75rem">
-                    <div class="catalog-price-group">
-                      <span class="price">$${item.price}</span>
-                      <span class="old-price">$${(item.price * 1.1).toFixed(1)}</span>
-                    </div>
-                    <button
-                      class="catalog-cart-btn"
-                      type="button"
-                      data-add-cart="${item.id}"
-                      aria-label="Add ${item.name} to cart"
-                    >
-                      <i class="fi fi-rs-shopping-bag-add"></i>
-                    </button>
-                  </div>
-                </div>
-              </article>
-            `;
+            return buildProductCard(item);
           })
           .join("");
       }
@@ -805,33 +785,9 @@
         listViewBtn.classList.toggle("active", mode === "list");
       }
 
-      searchInput.addEventListener("input", () => {
-        searchClearBtn.classList.toggle("is-visible", searchInput.value.trim().length > 0);
-        window.clearTimeout(searchDebounceTimer);
-        searchDebounceTimer = window.setTimeout(() => {
-          state.searchQuery = searchInput.value;
-          renderProducts();
-        }, 300);
-      });
-      searchClearBtn.addEventListener("click", () => {
-        searchInput.value = "";
-        state.searchQuery = "";
-        searchClearBtn.classList.remove("is-visible");
-        searchInput.focus();
-        renderProducts();
-      });
-      priceRange.addEventListener("input", () => {
-        priceValue.textContent = `$${priceRange.value}`;
-        renderProducts();
-      });
-      inStockOnly.addEventListener("change", renderProducts);
       sortSelect.addEventListener("change", () => {
         state.sort = sortSelect.value;
         renderProducts();
-      });
-
-      document.querySelectorAll("#categoryFilters input, #brandFilters input, #genderFilters input").forEach((el) => {
-        el.addEventListener("change", renderProducts);
       });
 
       productContainer.addEventListener("click", (event) => {
@@ -853,10 +809,35 @@
         renderProducts();
       });
 
-      setView("grid");
-      renderProducts();
-      syncCartBadge();
-      window.setTimeout(syncCartBadge, 400);
+      function initCatalogPage() {
+        var loadProducts = catalogService
+          ? catalogService.getProducts().catch(function () {
+              return fallbackCatalogProducts.slice();
+            })
+          : Promise.resolve(fallbackCatalogProducts.slice());
+
+        var loadSidebar = mountFilterSidebar().catch(function () {
+          filterSidebarMount.innerHTML =
+            '<aside class="catalog-sidebar"><p class="filter-title">Filter unavailable</p></aside>';
+          bindSidebarElements();
+        });
+
+        var loadCardTemplate = loadProductCardTemplate().catch(function () {
+          productCardTemplate =
+            '<article class="catalog-item"><div class="body"><h3 class="name">{{name}}</h3><p class="meta">{{category}} · {{brand}}</p></div></article>';
+        });
+
+        Promise.all([loadProducts, loadSidebar, loadCardTemplate]).then(function (results) {
+          var products = results[0];
+          catalogProducts = Array.isArray(products) ? products : fallbackCatalogProducts.slice();
+          setView("grid");
+          renderProducts();
+          syncCartBadge();
+          window.setTimeout(syncCartBadge, 400);
+        });
+      }
+
+      initCatalogPage();
     </script>
   </body>
 </html>
