@@ -1,1 +1,63 @@
-<!-- TODO: Search/filter form component. -->
+<h3 class="section__title" style="margin-bottom: 0.75rem">Filter Shop</h3>
+
+<div class="filter-block">
+	<p class="filter-title">Search</p>
+	<div class="search-field">
+		<input
+			id="searchInput"
+			type="text"
+			class="form__input"
+			placeholder="Brand, model, category..."
+		/>
+		<button
+			type="button"
+			id="searchClearBtn"
+			class="search-clear-btn"
+			aria-label="Clear search"
+		>
+			<i class="fi fi-rs-cross-small"></i>
+		</button>
+	</div>
+</div>
+
+<div class="filter-block">
+	<p class="filter-title">Category</p>
+	<div class="filter-options" id="categoryFilters">
+		<label class="filter-option"><input type="checkbox" value="Optical" /> Optical</label>
+		<label class="filter-option"><input type="checkbox" value="Sunglasses" /> Sunglasses</label>
+		<label class="filter-option"><input type="checkbox" value="Blue Light" /> Blue Light</label>
+	</div>
+</div>
+
+<div class="filter-block">
+	<p class="filter-title">Brand</p>
+	<div class="filter-options" id="brandFilters">
+		<label class="filter-option"><input type="checkbox" value="Ray-Ban" /> Ray-Ban</label>
+		<label class="filter-option"><input type="checkbox" value="Oakley" /> Oakley</label>
+		<label class="filter-option"><input type="checkbox" value="Gentle Monster" /> Gentle Monster</label>
+		<label class="filter-option"><input type="checkbox" value="Molsion" /> Molsion</label>
+	</div>
+</div>
+
+<div class="filter-block">
+	<p class="filter-title">Gender</p>
+	<div class="filter-options" id="genderFilters">
+		<label class="filter-option"><input type="radio" name="gender" value="all" checked /> All</label>
+		<label class="filter-option"><input type="radio" name="gender" value="unisex" /> Unisex</label>
+		<label class="filter-option"><input type="radio" name="gender" value="men" /> Men</label>
+		<label class="filter-option"><input type="radio" name="gender" value="women" /> Women</label>
+	</div>
+</div>
+
+<div class="filter-block">
+	<p class="filter-title">Max Price</p>
+	<p class="price-label">Up to <strong id="priceValue">$350</strong></p>
+	<input id="priceRange" class="price-range" type="range" min="80" max="500" value="350" step="5" />
+</div>
+
+<div class="filter-block">
+	<label class="filter-option">
+		<input id="inStockOnly" type="checkbox" />
+		In-stock only
+	</label>
+</div>

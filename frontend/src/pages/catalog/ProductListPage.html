@@ -263,8 +263,22 @@
 
       .catalog-item .name {
         color: var(--title-color);
-        margin: 0.35rem 0 0.5rem;
-        font-size: 1.02rem;
+        margin: 0.4rem 0 0.55rem;
+        font-size: 1.18rem;
+        line-height: 1.25;
+      }
+
+      .catalog-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-bottom: 0.2rem;
+      }
+
+      .catalog-rating__stars {
+        color: #f5a623;
+        letter-spacing: 0.08rem;
+        font-size: 0.95rem;
       }
 
       .catalog-item .row {
@@ -330,35 +344,83 @@
         gap: 0.6rem;
       }
 
+      .catalog-cart-wrap {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .catalog-cart-tooltip {
+        position: absolute;
+        right: 0;
+        bottom: calc(100% + 0.55rem);
+        transform: translateY(4px);
+        background: #0f8f6f;
+        color: #fff;
+        font-size: 0.8rem;
+        font-weight: var(--weight-600);
+        line-height: 1;
+        padding: 0.6rem 0.85rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 10px 24px rgba(15, 143, 111, 0.22);
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.18s ease, transform 0.18s ease;
+        z-index: 2;
+      }
+
+      .catalog-cart-tooltip::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        right: 1rem;
+        border: 7px solid transparent;
+        border-top-color: #0f8f6f;
+      }
+
+      .catalog-cart-wrap:hover .catalog-cart-tooltip,
+      .catalog-cart-wrap:focus-within .catalog-cart-tooltip {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
       .catalog-price-group {
         display: flex;
         align-items: baseline;
-        gap: 0.45rem;
+        gap: 0.55rem;
+      }
+
+      .catalog-price-group .price {
+        color: #0d8f82;
+        font-size: 1.25rem;
       }
 
       .catalog-price-group .old-price {
         color: var(--text-color-light);
         text-decoration: line-through;
-        font-size: var(--small-font-size);
+        font-size: 0.98rem;
       }
 
       .catalog-cart-btn {
-        width: 40px;
-        height: 40px;
+        width: 48px;
+        height: 48px;
         border-radius: 999px;
-        border: 1px solid var(--border-color);
-        background: var(--first-color-alt);
-        color: var(--first-color);
+        border: 1px solid #cfe7d8;
+        background: #edf8f1;
+        color: #245c4d;
         display: inline-grid;
         place-items: center;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
       }
 
       .catalog-cart-btn:hover {
         background: var(--first-color);
         color: #fff;
         border-color: var(--first-color);
+        transform: translateY(-1px);
       }
 
       .catalog-toast {
@@ -426,71 +488,7 @@
 
       <section class="section--lg container">
         <div class="catalog-layout">
-          <aside class="catalog-sidebar" aria-label="Product Filters">
-            <h3 class="section__title" style="margin-bottom: 0.75rem">Filter Shop</h3>
-
-            <div class="filter-block">
-              <p class="filter-title">Search</p>
-              <div class="search-field">
-                <input
-                  id="searchInput"
-                  type="text"
-                  class="form__input"
-                  placeholder="Brand, model, category..."
-                />
-                <button
-                  type="button"
-                  id="searchClearBtn"
-                  class="search-clear-btn"
-                  aria-label="Clear search"
-                >
-                  <i class="fi fi-rs-cross-small"></i>
-                </button>
-              </div>
-            </div>
-
-            <div class="filter-block">
-              <p class="filter-title">Category</p>
-              <div class="filter-options" id="categoryFilters">
-                <label class="filter-option"><input type="checkbox" value="Optical" /> Optical</label>
-                <label class="filter-option"><input type="checkbox" value="Sunglasses" /> Sunglasses</label>
-                <label class="filter-option"><input type="checkbox" value="Blue Light" /> Blue Light</label>
-              </div>
-            </div>
-
-            <div class="filter-block">
-              <p class="filter-title">Brand</p>
-              <div class="filter-options" id="brandFilters">
-                <label class="filter-option"><input type="checkbox" value="Ray-Ban" /> Ray-Ban</label>
-                <label class="filter-option"><input type="checkbox" value="Oakley" /> Oakley</label>
-                <label class="filter-option"><input type="checkbox" value="Gentle Monster" /> Gentle Monster</label>
-                <label class="filter-option"><input type="checkbox" value="Molsion" /> Molsion</label>
-              </div>
-            </div>
-
-            <div class="filter-block">
-              <p class="filter-title">Gender</p>
-              <div class="filter-options" id="genderFilters">
-                <label class="filter-option"><input type="radio" name="gender" value="all" checked /> All</label>
-                <label class="filter-option"><input type="radio" name="gender" value="unisex" /> Unisex</label>
-                <label class="filter-option"><input type="radio" name="gender" value="men" /> Men</label>
-                <label class="filter-option"><input type="radio" name="gender" value="women" /> Women</label>
-              </div>
-            </div>
-
-            <div class="filter-block">
-              <p class="filter-title">Max Price</p>
-              <p class="price-label">Up to <strong id="priceValue">$350</strong></p>
-              <input id="priceRange" class="price-range" type="range" min="80" max="500" value="350" step="5" />
-            </div>
-
-            <div class="filter-block">
-              <label class="filter-option">
-                <input id="inStockOnly" type="checkbox" />
-                In-stock only
-              </label>
-            </div>
-          </aside>
+          <aside id="catalogFilterMount" class="catalog-sidebar" aria-label="Product Filters"></aside>
 
           <section class="catalog-main" aria-live="polite">
             <div class="toolbar">
@@ -606,16 +604,53 @@
 
       const productContainer = document.getElementById("productContainer");
       const resultCount = document.getElementById("resultCount");
-      const searchInput = document.getElementById("searchInput");
-      const searchClearBtn = document.getElementById("searchClearBtn");
-      const priceRange = document.getElementById("priceRange");
-      const priceValue = document.getElementById("priceValue");
-      const inStockOnly = document.getElementById("inStockOnly");
+      let searchInput;
+      let searchClearBtn;
+      let priceRange;
+      let priceValue;
+      let inStockOnly;
       const sortSelect = document.getElementById("sortSelect");
       const gridViewBtn = document.getElementById("gridViewBtn");
       const listViewBtn = document.getElementById("listViewBtn");
       let searchDebounceTimer = null;
       const CART_STORAGE_KEY = "eyewear_cart_v1";
+      let productCardTemplate = "";
+
+      async function loadFilterComponent() {
+        const mount = document.getElementById("catalogFilterMount");
+        if (!mount) {
+          return false;
+        }
+
+        try {
+          const response = await fetch("../../components/forms/search-form.html");
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+
+          mount.innerHTML = await response.text();
+          return true;
+        } catch (error) {
+          console.error("Failed to load search-form component:", error);
+          mount.innerHTML = "<p style=\"color:#c0392b\">Unable to load filters.</p>";
+          return false;
+        }
+      }
+
+      async function loadProductCardTemplate() {
+        try {
+          const response = await fetch("../../components/product/product-card.html");
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+
+          productCardTemplate = await response.text();
+          return true;
+        } catch (error) {
+          console.error("Failed to load product-card component:", error);
+          return false;
+        }
+      }
 
       function readCart() {
         try {
@@ -733,6 +768,22 @@
         return applySort(filtered);
       }
 
+      function renderProductCard(item) {
+        const detailUrl = `../details/index.html?id=${encodeURIComponent(item.id)}&name=${encodeURIComponent(item.name)}`;
+        const oldPrice = (item.price * 1.1).toFixed(1);
+
+        return productCardTemplate
+          .replaceAll("{{DETAIL_URL}}", detailUrl)
+          .replaceAll("{{IMAGE}}", item.image)
+          .replaceAll("{{NAME}}", item.name)
+          .replaceAll("{{BADGE}}", item.badge)
+          .replaceAll("{{CATEGORY}}", item.category)
+          .replaceAll("{{BRAND}}", item.brand)
+          .replaceAll("{{PRICE}}", item.price)
+          .replaceAll("{{OLD_PRICE}}", oldPrice)
+          .replaceAll("{{ID}}", item.id);
+      }
+
       function renderProducts() {
         const products = getFilteredProducts();
         resultCount.textContent = `${products.length} product${products.length === 1 ? "" : "s"}`;
@@ -745,54 +796,7 @@
 
         searchClearBtn.classList.toggle("is-visible", searchInput.value.trim().length > 0);
 
-        productContainer.innerHTML = products
-          .map((item) => {
-            const detailUrl = `../details/index.html?id=${encodeURIComponent(item.id)}&name=${encodeURIComponent(item.name)}`;
-            const stockClass = item.stock > 5 ? "ok" : "low";
-            const stockText = item.stock > 0 ? `${item.stock} in stock` : "Out of stock";
-
-            return `
-              <article class="catalog-item">
-                <a href="${detailUrl}" class="thumb">
-                  <img src="${item.image}" alt="${item.name}" loading="lazy" />
-                  <span class="badge">${item.badge}</span>
-                  <span class="thumb-actions">
-                    <span class="thumb-action-btn" title="Quick view" aria-label="Quick view">
-                      <i class="fi fi-rs-eye"></i>
-                    </span>
-                    <span class="thumb-action-btn" title="Add to wishlist" aria-label="Add to wishlist">
-                      <i class="fi fi-rs-heart"></i>
-                    </span>
-                    <span class="thumb-action-btn" title="Compare" aria-label="Compare">
-                      <i class="fi fi-rs-shuffle"></i>
-                    </span>
-                  </span>
-                </a>
-                <div class="body">
-                  <p class="meta">${item.category} · ${item.brand}</p>
-                  <a href="${detailUrl}"><h3 class="name">${item.name}</h3></a>
-                  <div class="row stock-row">
-                    <span class="stock ${stockClass}">${stockText}</span>
-                  </div>
-                  <div class="catalog-actions" style="margin-top: 0.75rem">
-                    <div class="catalog-price-group">
-                      <span class="price">$${item.price}</span>
-                      <span class="old-price">$${(item.price * 1.1).toFixed(1)}</span>
-                    </div>
-                    <button
-                      class="catalog-cart-btn"
-                      type="button"
-                      data-add-cart="${item.id}"
-                      aria-label="Add ${item.name} to cart"
-                    >
-                      <i class="fi fi-rs-shopping-bag-add"></i>
-                    </button>
-                  </div>
-                </div>
-              </article>
-            `;
-          })
-          .join("");
+        productContainer.innerHTML = products.map(renderProductCard).join("");
       }
 
       function setView(mode) {
@@ -805,34 +809,40 @@
         listViewBtn.classList.toggle("active", mode === "list");
       }
 
-      searchInput.addEventListener("input", () => {
-        searchClearBtn.classList.toggle("is-visible", searchInput.value.trim().length > 0);
-        window.clearTimeout(searchDebounceTimer);
-        searchDebounceTimer = window.setTimeout(() => {
-          state.searchQuery = searchInput.value;
-          renderProducts();
-        }, 300);
-      });
-      searchClearBtn.addEventListener("click", () => {
-        searchInput.value = "";
-        state.searchQuery = "";
-        searchClearBtn.classList.remove("is-visible");
-        searchInput.focus();
-        renderProducts();
-      });
-      priceRange.addEventListener("input", () => {
-        priceValue.textContent = `$${priceRange.value}`;
-        renderProducts();
-      });
-      inStockOnly.addEventListener("change", renderProducts);
-      sortSelect.addEventListener("change", () => {
-        state.sort = sortSelect.value;
-        renderProducts();
-      });
+      function bindFilterEvents() {
+        searchInput.addEventListener("input", () => {
+          searchClearBtn.classList.toggle("is-visible", searchInput.value.trim().length > 0);
+          window.clearTimeout(searchDebounceTimer);
+          searchDebounceTimer = window.setTimeout(() => {
+            state.searchQuery = searchInput.value;
+            renderProducts();
+          }, 300);
+        });
 
-      document.querySelectorAll("#categoryFilters input, #brandFilters input, #genderFilters input").forEach((el) => {
-        el.addEventListener("change", renderProducts);
-      });
+        searchClearBtn.addEventListener("click", () => {
+          searchInput.value = "";
+          state.searchQuery = "";
+          searchClearBtn.classList.remove("is-visible");
+          searchInput.focus();
+          renderProducts();
+        });
+
+        priceRange.addEventListener("input", () => {
+          priceValue.textContent = `$${priceRange.value}`;
+          renderProducts();
+        });
+
+        inStockOnly.addEventListener("change", renderProducts);
+
+        sortSelect.addEventListener("change", () => {
+          state.sort = sortSelect.value;
+          renderProducts();
+        });
+
+        document.querySelectorAll("#categoryFilters input, #brandFilters input, #genderFilters input").forEach((el) => {
+          el.addEventListener("change", renderProducts);
+        });
+      }
 
       productContainer.addEventListener("click", (event) => {
         const button = event.target.closest("[data-add-cart]");
@@ -853,10 +863,30 @@
         renderProducts();
       });
 
-      setView("grid");
-      renderProducts();
-      syncCartBadge();
-      window.setTimeout(syncCartBadge, 400);
+      async function initCatalogPage() {
+        const [isFilterLoaded, isCardTemplateLoaded] = await Promise.all([
+          loadFilterComponent(),
+          loadProductCardTemplate()
+        ]);
+
+        if (!isFilterLoaded || !isCardTemplateLoaded) {
+          return;
+        }
+
+        searchInput = document.getElementById("searchInput");
+        searchClearBtn = document.getElementById("searchClearBtn");
+        priceRange = document.getElementById("priceRange");
+        priceValue = document.getElementById("priceValue");
+        inStockOnly = document.getElementById("inStockOnly");
+
+        bindFilterEvents();
+        setView("grid");
+        renderProducts();
+        syncCartBadge();
+        window.setTimeout(syncCartBadge, 400);
+      }
+
+      initCatalogPage();
     </script>
   </body>
 </html>
