@@ -3,6 +3,7 @@
 use Core\Router;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\ProfileController;
+use App\Http\Controllers\Api\V1\CartController;
 
 Router::group(['prefix' => 'api/auth'], function () {
     Router::post('register', [AuthController::class, 'register']);
@@ -14,4 +15,11 @@ Router::group(['prefix' => 'api/auth'], function () {
 Router::group(['prefix' => 'api/profile', 'middleware' => 'auth:sanctum'], function () {
     Router::get('/', [ProfileController::class, 'show']);
     Router::put('/', [ProfileController::class, 'update']);
+});
+
+Router::group(['prefix' => 'api/v1/cart'], function () {
+    Router::get('/', [CartController::class, 'index']);
+    Router::post('/', [CartController::class, 'store']);
+    Router::put('update', [CartController::class, 'update']);
+    Router::delete('delete', [CartController::class, 'destroy']);
 });
