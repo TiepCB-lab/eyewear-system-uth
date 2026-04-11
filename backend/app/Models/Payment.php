@@ -9,7 +9,7 @@ class Payment extends Model
 {
     use HasFactory;
 
-    // 1. Khai báo tên bảng (phải khớp 100% với schema.sql của nhóm)
+    // 1. Khai báo tên bảng 
     protected $table = 'payment';
 
     // 2. Các cột được phép nhập dữ liệu (Fillable)
