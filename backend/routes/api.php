@@ -5,8 +5,15 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\CartController;
+use App\Http\Controllers\Api\V1\HealthController;
+use App\Http\Controllers\Api\V1\LensController;
+
+Router::get('/', [HealthController::class, 'index']);
+Router::get('api/health', [HealthController::class, 'index']);
 
 Router::get('api/v1/products', [ProductController::class, 'index']);
+Router::get('api/v1/products/show', [ProductController::class, 'show']);
+Router::get('api/v1/lenses/available', [LensController::class, 'available']);
 
 Router::group(['prefix' => 'api/auth'], function () {
     Router::post('register', [AuthController::class, 'register']);

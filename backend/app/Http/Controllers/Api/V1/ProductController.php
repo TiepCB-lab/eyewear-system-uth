@@ -2,26 +2,44 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Core\Database;
-use PDO;
+use App\Application\CatalogService;
 
 class ProductController
 {
-    /**
-     * Expose product listing for Cart/Shopping testing.
-     * (Shared/Dependency for Member 3)
-     */
-    public function index()
+    private CatalogService $catalogService;
+
+    public function __construct(CatalogService $catalogService)
     {
-        $db = Database::getInstance();
-        
-        $sql = "SELECT p.*, c.name as category_name 
-                FROM product p 
-                LEFT JOIN category c ON p.category_id = c.id";
-        
-        $stmt = $db->query($sql);
-        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        return $products;
+        $this->catalogService = $catalogService;
+    }
+
+    /**
+     * Return paginated products with filters.
+     */
+    public function index(): array
+    {
+        return $this->catalogService->searchProducts($_GET);
+    }
+
+    /**
+     * Return a single product by numeric id or slug.
+     */
+    public function show(): array
+    {
+        $identifier = $_GET['id'] ?? $_GET['slug'] ?? null;
+
+        if ($identifier === null || $identifier === '') {
+            http_response_code(400);
+            return ['message' => 'id or slug is required.'];
+        }
+
+        $product = $this->catalogService->getProductDetails($identifier);
+
+        if ($product === null) {
+            http_response_code(404);
+            return ['message' => 'Product not found.'];
+        }
+
+        return ['data' => $product];
     }
 }
