@@ -2,39 +2,24 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Core\Model;
 
 class Ticket extends Model
 {
-    use HasFactory;
-
-    protected $table = 'supportticket';
-
-    protected $fillable = [
-        'user_id',
-        'order_id',
-        'subject',
-        'message',
-        'status',
-        'priority',
-    ];
+    protected static string $table = 'supportticket';
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return User::find($this->user_id);
     }
 
     public function order()
     {
-        return $this->belongsTo(Order::class, 'order_id');
+        return $this->order_id ? Order::find($this->order_id) : null;
     }
 
     public function replies()
     {
-        return $this->hasMany(TicketReply::class, 'ticket_id');
+        return TicketReply::where('ticket_id', $this->id);
     }
 }
-
-
-

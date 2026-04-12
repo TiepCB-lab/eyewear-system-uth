@@ -2,37 +2,24 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Core\Model;
 
 class OrderItem extends Model
 {
-    protected $table = 'order_items';
-
-    protected $fillable = [
-        'order_id',
-        'variant_id',
-        'lens_id',
-        'quantity',
-        'unit_price',
-    ];
+    protected static string $table = 'orderitem';
 
     public function order()
     {
-        return $this->belongsTo(Order::class);
+        return Order::find($this->order_id);
     }
 
     public function variant()
     {
-        return $this->belongsTo(ProductVariant::class, 'variant_id');
-    }
-
-    public function lens()
-    {
-        return $this->belongsTo(Lens::class, 'lens_id');
+        return ProductVariant::find($this->productvariant_id);
     }
 
     public function prescription()
     {
-        return $this->hasOne(Prescription::class);
+        return Prescription::firstWhere('orderitem_id', $this->id);
     }
 }

@@ -2,26 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Core\Model;
 
 class TicketReply extends Model
 {
-    // Tên bảng (đúng rồi, giữ nguyên)
-    protected $table = 'ticket_replies';
-
-    // Cho phép insert/update
-    protected $fillable = [
-        'ticket_id',
-        'user_id',
-        'message'
-    ];
+    protected static string $table = 'ticketreply';
 
     /**
      * Reply thuộc về Ticket
      */
     public function ticket()
     {
-        return $this->belongsTo(SupportTicket::class, 'ticket_id');
+        return Ticket::find($this->ticket_id);
     }
 
     /**
@@ -29,6 +21,6 @@ class TicketReply extends Model
      */
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return User::find($this->user_id);
     }
 }

@@ -2,28 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Core\Model;
 
 class Shipment extends Model
 {
-	protected $fillable = [
-		'order_id',
-		'carrier',
-		'tracking_code',
-		'status',
-		'shipped_at',
-		'delivered_at',
-	];
-
-	protected $casts = [
-		'order_id' => 'integer',
-		'shipped_at' => 'datetime',
-		'delivered_at' => 'datetime',
-	];
+	protected static string $table = 'shipment';
 
 	public function order()
 	{
-		return $this->belongsTo(Order::class);
+		return Order::find($this->order_id);
 	}
 }
-

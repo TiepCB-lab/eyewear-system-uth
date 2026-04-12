@@ -2,58 +2,29 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
+use Core\Model;
 
 class Order extends Model
 {
-    protected $fillable = [
-        'user_id',
-        'total_amount',
-        'status',
-        'payment_status',
-        'production_step',
-        'verified_by',
-        'verified_at',
-    ];
-
-    protected $casts = [
-        'verified_by' => 'integer',
-        'verified_at' => 'datetime',
-    ];
+    protected static string $table = 'order';
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return User::find($this->user_id);
     }
 
     public function items()
     {
-        return $this->hasMany(OrderItem::class);
+        return OrderItem::where('order_id', $this->id);
     }
 
     public function shipment()
     {
-        return $this->hasOne(Shipment::class);
+        return Shipment::firstWhere('order_id', $this->id);
     }
 
     public function verifier()
     {
-        return $this->belongsTo(User::class, 'verified_by');
-    }
-
-    public function scopeInProduction(Builder $query): Builder
-    {
-        return $query->whereIn('production_step', [
-            'lens_cutting',
-            'frame_mounting',
-            'qc_inspection',
-            'packaging',
-        ]);
-    }
-
-    public function scopeReadyToShip(Builder $query): Builder
-    {
-        return $query->where('production_step', 'ready_to_ship');
+        return $this->verified_by ? User::find($this->verified_by) : null;
     }
 }

@@ -2,21 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Core\Model;
 
 class Category extends Model
 {
-	protected $table = 'category';
-
-	protected $fillable = [
-		'name',
-		'slug',
-		'description',
-	];
+	protected static string $table = 'category';
 
 	public function products()
 	{
-		return $this->hasMany(Product::class, 'category_id');
+		return Product::where('category_id', $this->id);
 	}
 }
-

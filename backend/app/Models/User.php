@@ -2,42 +2,24 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Laravel\Passport\HasApiTokens;
+use Core\Model;
 
-class User extends Authenticatable
+class User extends Model
 {
-    use HasApiTokens, HasFactory;
-
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'role',
-    ];
-
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    protected $casts = [
-        'password' => 'hashed',
-    ];
+    protected static string $table = 'user';
 
     public function profile()
     {
-        return $this->hasOne(Profile::class);
+        return Profile::firstWhere('user_id', $this->id);
     }
 
     public function cartItems()
     {
-        return $this->hasMany(CartItem::class);
+        return CartItem::where('user_id', $this->id);
     }
 
     public function orders()
     {
-        return $this->hasMany(Order::class);
+        return Order::where('user_id', $this->id);
     }
 }
