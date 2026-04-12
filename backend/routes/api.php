@@ -3,7 +3,10 @@
 use Core\Router;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\ProfileController;
+use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\CartController;
+
+Router::get('api/v1/products', [ProductController::class, 'index']);
 
 Router::group(['prefix' => 'api/auth'], function () {
     Router::post('register', [AuthController::class, 'register']);
