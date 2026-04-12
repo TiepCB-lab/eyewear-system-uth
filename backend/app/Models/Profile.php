@@ -2,27 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Core\Model;
 
 class Profile extends Model
 {
-    use HasFactory;
-
-    protected $fillable = [
-        'user_id',
-        'phone',
-        'address',
-        'avatar',
-        'birthdate',
-    ];
-
-    protected $casts = [
-        'birthdate' => 'date',
-    ];
+    protected static string $table = 'profile';
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return User::find($this->user_id);
     }
 }

@@ -2,31 +2,24 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Core\Model;
 
 class CartItem extends Model
 {
-    protected $table = 'cart_items';
-
-    protected $fillable = [
-        'user_id',
-        'variant_id',
-        'lens_id',
-        'quantity',
-    ];
+    protected static string $table = 'cartitem';
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return User::find($this->user_id);
     }
 
     public function variant()
     {
-        return $this->belongsTo(ProductVariant::class, 'variant_id');
+        return ProductVariant::find($this->productvariant_id);
     }
 
     public function lens()
     {
-        return $this->belongsTo(Lens::class, 'lens_id');
+        return $this->lens_id ? Lens::find($this->lens_id) : null;
     }
 }
