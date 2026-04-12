@@ -106,16 +106,6 @@ function init_database() {
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
         ]);
 
-<<<<<<< HEAD
-        $schemaPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'schema.sql';
-        $executed = execute_schema($appPdo, $schemaPath);
-
-        return [
-            'status' => 'synced',
-            'message' => 'Database schema synchronized from schema.sql.',
-            'statements_executed' => $executed,
-        ];
-=======
         \Core\Database::setInstance($appPdo);
 
         $requiredTables = [
@@ -131,15 +121,14 @@ function init_database() {
         $checkStmt->execute(array_merge([$database], $requiredTables));
         $existingCount = (int) $checkStmt->fetchColumn();
 
+        $schemaPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'schema.sql';
+
         if ($existingCount === count($requiredTables)) {
             return ['status' => 'ready', 'message' => 'Database already initialized.'];
         }
 
-        $schemaPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'schema.sql';
         $executed = execute_schema($appPdo, $schemaPath);
-
         return ['status' => 'initialized', 'message' => 'Database initialized from schema.sql.', 'statements_executed' => $executed];
->>>>>>> dea7459 (Identity, Access & User Profiles)
     } catch (Throwable $e) {
         return ['status' => 'error', 'message' => 'Database initialization failed: ' . $e->getMessage()];
     }
