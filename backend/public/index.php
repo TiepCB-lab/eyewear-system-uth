@@ -109,9 +109,9 @@ function init_database() {
         \Core\Database::setInstance($appPdo);
 
         $requiredTables = [
-            'role', 'user', 'product', 'productvariant', 'inventory', 'lens',
+            'role', 'user', 'profiles', 'password_reset_tokens', 'product', 'productvariant', 'inventory', 'lens',
             'promotion', 'prescription', 'cart', 'cartitem', 'order', 'orderitem',
-            'payment', 'shipment', 'supportticket', 'returnrequest',
+            'payment', 'shipment', 'supportticket', 'ticket_replies', 'returnrequest',
         ];
 
         $placeholders = implode(',', array_fill(0, count($requiredTables), '?'));
