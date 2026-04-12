@@ -2,21 +2,31 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Resources\Json\JsonResource;
-
-class ProfileResource extends JsonResource
+/**
+ * Transforms a Profile model/array into a standardized API response format.
+ */
+class ProfileResource
 {
-    public function toArray($request)
+    public static function toArray($profile): array
     {
+        if (is_array($profile)) {
+            return [
+                'id' => $profile['id'] ?? null,
+                'user_id' => $profile['user_id'] ?? null,
+                'phone' => $profile['phone'] ?? null,
+                'address' => $profile['address'] ?? null,
+                'avatar' => $profile['avatar'] ?? null,
+                'birthdate' => $profile['birthdate'] ?? null,
+            ];
+        }
+
         return [
-            'id' => $this->id,
-            'user_id' => $this->user_id,
-            'phone' => $this->phone,
-            'address' => $this->address,
-            'avatar' => $this->avatar,
-            'birthdate' => $this->birthdate,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'id' => $profile->id,
+            'user_id' => $profile->user_id,
+            'phone' => $profile->phone,
+            'address' => $profile->address,
+            'avatar' => $profile->avatar,
+            'birthdate' => $profile->birthdate,
         ];
     }
 }

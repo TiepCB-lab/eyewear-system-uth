@@ -3,10 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Application\ProfileService;
-use App\Http\Requests\UpdateProfileRequest;
-use App\Http\Resources\ProfileResource;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class ProfileController
 {
@@ -17,36 +13,48 @@ class ProfileController
         $this->profileService = $profileService;
     }
 
-    public function show(Request $request): JsonResponse
+    public function show()
     {
         try {
-            $profile = $this->profileService->getProfile($request->user());
+            // TODO: Get user ID from auth middleware/token
+            $userId = $_GET['user_id'] ?? null;
+            if (!$userId) {
+                http_response_code(401);
+                return ['message' => 'Unauthorized'];
+            }
 
-            return response()->json([
-                'profile' => new ProfileResource($profile),
-            ]);
+            $profile = $this->profileService->getProfile((int)$userId);
+            return ['profile' => $profile];
         } catch (\Exception $e) {
-            return response()->json([
+            http_response_code(400);
+            return [
                 'message' => 'Failed to retrieve profile',
                 'error' => $e->getMessage(),
-            ], 400);
+            ];
         }
     }
 
-    public function update(UpdateProfileRequest $request): JsonResponse
+    public function update()
     {
         try {
-            $profile = $this->profileService->updateProfile($request->user(), $request->validated());
+            $data = json_decode(file_get_contents('php://input'), true);
+            $userId = $data['user_id'] ?? null;
+            if (!$userId) {
+                http_response_code(401);
+                return ['message' => 'Unauthorized'];
+            }
 
-            return response()->json([
+            $profile = $this->profileService->updateProfile((int)$userId, $data);
+            return [
                 'message' => 'Profile updated successfully',
-                'profile' => new ProfileResource($profile),
-            ]);
+                'profile' => $profile,
+            ];
         } catch (\Exception $e) {
-            return response()->json([
+            http_response_code(400);
+            return [
                 'message' => 'Failed to update profile',
                 'error' => $e->getMessage(),
-            ], 400);
+            ];
         }
     }
 }
