@@ -2,19 +2,15 @@
 
 namespace Tests;
 
-use Illuminate\Contracts\Console\Kernel;
-
+/**
+ * Helper trait for creating the application instance in tests.
+ * Placeholder for future test infrastructure.
+ */
 trait CreatesApplication
 {
-    /**
-     * Creates the application.
-     */
-    public function createApplication()
+    public function createApplication(): void
     {
-        $app = require __DIR__.'/../bootstrap/app.php';
-
-        $app->make(Kernel::class)->bootstrap();
-
-        return $app;
+        // Initialize database connection for tests
+        // This will be implemented when the test runner is set up
     }
 }
