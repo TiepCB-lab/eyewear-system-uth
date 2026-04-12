@@ -16,7 +16,7 @@ This member owns the entry point: Login, Registration, JWT/Sanctum protection, a
 ### Database (Migrations)
 - [ ] Create `users` migration (id, name, email, password, role enum: admin, staff, customer, timestamps)
 - [ ] Create `profiles` migration (id, user_id FK, phone, address, avatar, birthdate, timestamps)
-- [ ] Create `password_reset_tokens` migration (standard Laravel)
+- [ ] Create `password_reset_tokens` table (add to `database/schema.sql`)
 
 ### Backend — Models
 - [ ] Complete `User.php` — fillable, hidden, casts, hasOne Profile

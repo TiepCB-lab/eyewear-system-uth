@@ -1,6 +1,6 @@
 # Backend N-Layered Architecture
 
-The backend of this project is built on the Laravel framework using an API-first approach. It utilizes a clear N-layered architecture to ensure scalability, testability, and a strict separation of concerns.
+The backend of this project is built with **Pure PHP** using an API-first approach. It utilizes a clear N-layered architecture to ensure scalability, testability, and a strict separation of concerns.
 
 ## 🏗️ Architectural Layers
 
@@ -18,4 +18,14 @@ The backend of this project is built on the Laravel framework using an API-first
 
 ### 4. Infrastructure Layer
 - **Directories**: `app/Infrastructure/Persistence`, `app/Infrastructure/Services`
-- **Responsibilities**: Implement Repository Interfaces (Eloquent), integrate with external gateways (VNPay), and handle low-level operations.
+- **Responsibilities**: Implement Repository Interfaces using PDO, integrate with external gateways (VNPay), and handle low-level operations.
+
+## 🔧 Core Framework (`core/`)
+
+The custom framework provides three essential components:
+
+| Component | File | Description |
+| :--- | :--- | :--- |
+| **Router** | `core/Router.php` | HTTP method routing, route groups, prefix support, middleware hooks. |
+| **Database** | `core/Database.php` | PDO singleton wrapper for MySQL. Auto-initializes from `.env`. |
+| **Model** | `core/Model.php` | Base model with `find()`, `all()`, `where()`, `create()`, `update()`, `delete()`. |

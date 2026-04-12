@@ -1,16 +1,16 @@
 # Backend Application
 
-The backend is built with PHP, designed specifically for decoupled API and business logic handling:
+The backend is built with **Pure PHP**, designed specifically for decoupled API and business logic handling:
 
-- API Routing
+- API Routing (Custom `Core\Router`)
 - Controllers
 - Business Services
-- Data Models
+- Data Models (Custom `Core\Model`)
 - Middleware
-- MySQL Database Connectivity
+- MySQL Database Connectivity (PDO)
 - File Upload Management
 
-## N-Layered Architecture (Revised)
+## N-Layered Architecture
 
 As outlined in the core documentation, the backend follows an N-layered architecture to ensure scalability and maintainability:
 
@@ -18,19 +18,19 @@ As outlined in the core documentation, the backend follows an N-layered architec
 - **Application Layer** (`app/Application`): Orchestrates business flows and use cases.
 - **Domain Layer** (`app/Domain`): Contains core business logic and entities.
 - **Infrastructure Layer** (`app/Infrastructure`): Handles persistence (Repositories) and external integrations.
-- **Persistence Layer** (`app/Models`): Database interaction via Eloquent (or equivalent models).
+- **Persistence Layer** (`app/Models`): Database interaction via `Core\Model` (PDO-based).
 
 ## Project Structure
 
 - `app/Http/Controllers`: Controllers
 - `app/Application`: Services and Use Cases
 - `app/Domain`: Entities and Business Logic
-- `app/Models`: Models
+- `app/Models`: Models (extend `Core\Model`)
 - `app/Infrastructure`: Persistence and Repositories
 - `config`: Configuration
-- `core`: Framework core/helpers
+- `core`: Framework core (Router, Database, Model)
 - `routes`: API routes
-- `database`: Migrations and factories
+- `database`: Schema SQL file
 - `public`: Entry points
 - `storage`: Log and temporary files
 - `TODO.md`: Development task list

@@ -6,8 +6,8 @@ This document provides a comprehensive overview of the project's directory struc
 
 ```text
 .
-├── backend/           # PHP Laravel (API-first)
-├── frontend/          # React (Vite-based SPA)
+├── backend/           # Pure PHP (API-first, Custom N-Layered Framework)
+├── frontend/          # HTML/CSS/JS (SPA-style with dynamic partials)
 ├── docs/              # Detailed documentation & diagrams
 └── .env.example       # Global environment template
 ```
@@ -25,14 +25,22 @@ The backend follows an N-layered architecture to ensure separation of concerns a
 | **Presentation** | `app/Http` | Handles HTTP requests, routing, and returns API responses. |
 | **Application** | `app/Application` | Orchestrates business flows; translates user actions into domain operations. |
 | **Domain** | `app/Domain` | Core business logic, entities, and repository interfaces (contracts). |
-| **Infrastructure** | `app/Infrastructure` | Implementation of database repositories, external API integrations (VNPay, AI). |
-| **Persistence** | `app/Models` | Eloquent models for database interaction. |
+| **Infrastructure** | `app/Infrastructure` | Implementation of database repositories, external API integrations (VNPay). |
+| **Persistence** | `app/Models` | Models extending `Core\Model` for PDO-based database interaction. |
+
+### Core Framework (`core/`)
+
+| File | Description |
+| :--- | :--- |
+| `Router.php` | Custom routing engine with group/prefix/middleware support. |
+| `Database.php` | PDO singleton wrapper for MySQL connectivity. |
+| `Model.php` | Base model with CRUD helpers (find, all, where, create, update, delete). |
 
 ---
 
 ## 🏗️ Frontend Architecture (Component-Driven)
 
-The frontend is built with React, focusing on a modular and scalable structure.
+The frontend is built with HTML/CSS/JS, focusing on a modular and maintainable structure.
 
 ### Source Directory Mapping (`frontend/src/`)
 
@@ -40,11 +48,7 @@ The frontend is built with React, focusing on a modular and scalable structure.
 | :--- | :--- |
 | `assets/` | Static files like images, icons, and fonts. |
 | `components/` | Reusable UI components (Common, Forms, Layout, Product-specific). |
-| `contexts/` | Global React contexts for state sharing (Auth, Theme). |
-| `hooks/` | Custom React hooks for shared logic. |
-| `layouts/` | Wrapper components for different page structures (Admin, Main). |
 | `pages/` | Unique route-based views (Home, ProductDetail, Cart). |
-| `services/` | API communication layer using Axios or Fetch. |
-| `store/` | Global state management (Zustand or Redux). |
-| `types/` | TypeScript interfaces and type definitions. |
-| `utils/` | Helper functions and formatting utilities. |
+| `services/` | API communication layer using Fetch. |
+| `store/` | Local state management (localStorage-based). |
+| `partials/` | Shared layout components (header, footer, sidebar). |

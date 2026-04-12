@@ -1,4 +1,4 @@
-﻿CREATE DATABASE IF NOT EXISTS eyewear_system
+CREATE DATABASE IF NOT EXISTS eyewear_system
 CHARACTER SET utf8mb4
 COLLATE utf8mb4_unicode_ci;
 
@@ -166,11 +166,16 @@ CREATE TABLE IF NOT EXISTS `order` (
 	shipping_address TEXT NOT NULL,
 	billing_address TEXT NULL,
 	placed_at DATETIME NOT NULL,
+	production_step ENUM('lens_cutting', 'frame_mounting', 'qc_inspection', 'packaging', 'ready_to_ship') NULL,
+	verified_by BIGINT UNSIGNED NULL,
+	verified_at TIMESTAMP NULL,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	CONSTRAINT fk_order_user FOREIGN KEY (user_id) REFERENCES `user`(id)
 		ON UPDATE CASCADE ON DELETE RESTRICT,
 	CONSTRAINT fk_order_promotion FOREIGN KEY (promotion_id) REFERENCES promotion(id)
+		ON UPDATE CASCADE ON DELETE SET NULL,
+	CONSTRAINT fk_order_verified_by FOREIGN KEY (verified_by) REFERENCES `user`(id)
 		ON UPDATE CASCADE ON DELETE SET NULL
 );
 
