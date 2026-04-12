@@ -2,127 +2,112 @@
 
 namespace App\Domain\Catalog;
 
-use Illuminate\Database\Eloquent\Builder;
+use Core\Database;
 
+/**
+ * ProductFilter — Builds and executes filtered product queries using pure SQL.
+ *
+ * Replaces the previous Eloquent Builder-based implementation.
+ */
 class ProductFilter
 {
-    public function applyFilters(Builder $query, array $filters = []): Builder
+    /**
+     * Apply all provided filters and return the SQL conditions + params.
+     * 
+     * @return array{sql: string, params: array}
+     */
+    public function buildFilterQuery(array $filters = []): array
     {
-        $this->applyCategoryFilter($query, $filters['category_id'] ?? $filters['category'] ?? null);
-        $this->applyBrandFilter($query, $filters['brand'] ?? $filters['brands'] ?? null);
-        $this->applyGenderFilter($query, $filters['gender'] ?? null);
-        $this->applyPriceRangeFilter(
-            $query,
-            $filters['min_price'] ?? $filters['price_min'] ?? null,
-            $filters['max_price'] ?? $filters['price_max'] ?? null
-        );
+        $conditions = [];
+        $params = [];
 
-        return $query;
-    }
-
-    public function applyCategoryFilter(Builder $query, $category): Builder
-    {
-        if ($category === null || $category === '') {
-            return $query;
-        }
-
-        if (is_array($category)) {
-            $categoryIds = array_values(array_filter($category, static function ($value) {
-                return $value !== null && $value !== '';
-            }));
-
-            if (!empty($categoryIds)) {
-                $query->whereIn('category_id', $categoryIds);
+        // Category filter
+        if (!empty($filters['category_id'])) {
+            if (is_array($filters['category_id'])) {
+                $placeholders = implode(',', array_fill(0, count($filters['category_id']), '?'));
+                $conditions[] = "p.category_id IN ({$placeholders})";
+                $params = array_merge($params, $filters['category_id']);
+            } else {
+                $conditions[] = "p.category_id = ?";
+                $params[] = $filters['category_id'];
             }
-
-            return $query;
         }
 
-        return $query->where('category_id', $category);
-    }
-
-    public function applyBrandFilter(Builder $query, $brand): Builder
-    {
-        if ($brand === null || $brand === '') {
-            return $query;
-        }
-
-        if (is_array($brand)) {
-            $brands = array_values(array_filter($brand, static function ($value) {
-                return is_string($value) && trim($value) !== '';
-            }));
-
-            if (!empty($brands)) {
-                $query->whereIn('brand', $brands);
+        // Brand filter
+        $brand = $filters['brand'] ?? $filters['brands'] ?? null;
+        if (!empty($brand)) {
+            if (is_array($brand)) {
+                $placeholders = implode(',', array_fill(0, count($brand), '?'));
+                $conditions[] = "p.brand IN ({$placeholders})";
+                $params = array_merge($params, $brand);
+            } else {
+                $conditions[] = "p.brand = ?";
+                $params[] = $brand;
             }
-
-            return $query;
         }
 
-        $brand = trim((string) $brand);
-        if ($brand === '') {
-            return $query;
-        }
-
-        return $query->where('brand', $brand);
-    }
-
-    public function applyGenderFilter(Builder $query, $gender): Builder
-    {
-        if ($gender === null || $gender === '' || $gender === 'all') {
-            return $query;
-        }
-
-        if (is_array($gender)) {
-            $genders = array_values(array_filter($gender, static function ($value) {
-                if (!is_string($value)) {
-                    return false;
-                }
-
-                $normalized = strtolower(trim($value));
-                return $normalized !== '' && $normalized !== 'all';
-            }));
-
-            if (!empty($genders)) {
-                $query->whereIn('gender', $genders);
+        // Gender filter
+        if (!empty($filters['gender']) && $filters['gender'] !== 'all') {
+            if (is_array($filters['gender'])) {
+                $placeholders = implode(',', array_fill(0, count($filters['gender']), '?'));
+                $conditions[] = "p.gender IN ({$placeholders})";
+                $params = array_merge($params, $filters['gender']);
+            } else {
+                $conditions[] = "p.gender = ?";
+                $params[] = strtolower(trim($filters['gender']));
             }
-
-            return $query;
         }
 
-        return $query->where('gender', strtolower(trim((string) $gender)));
+        // Price range filter
+        $minPrice = $filters['min_price'] ?? $filters['price_min'] ?? null;
+        $maxPrice = $filters['max_price'] ?? $filters['price_max'] ?? null;
+
+        if ($minPrice !== null && $minPrice !== '' && is_numeric($minPrice)) {
+            $conditions[] = "p.base_price >= ?";
+            $params[] = (float)$minPrice;
+        }
+        if ($maxPrice !== null && $maxPrice !== '' && is_numeric($maxPrice)) {
+            $conditions[] = "p.base_price <= ?";
+            $params[] = (float)$maxPrice;
+        }
+
+        // Search filter
+        $search = $filters['search'] ?? null;
+        if (!empty($search) && trim($search) !== '') {
+            $term = '%' . trim($search) . '%';
+            $conditions[] = "(p.name LIKE ? OR p.model_name LIKE ? OR p.slug LIKE ? OR p.brand LIKE ?)";
+            $params = array_merge($params, [$term, $term, $term, $term]);
+        }
+
+        // Active filter
+        if (isset($filters['active']) && $filters['active']) {
+            $conditions[] = "p.is_active = 1";
+        }
+
+        $sql = '';
+        if (!empty($conditions)) {
+            $sql = ' WHERE ' . implode(' AND ', $conditions);
+        }
+
+        return ['sql' => $sql, 'params' => $params];
     }
 
-    public function applyPriceRangeFilter(Builder $query, $minPrice = null, $maxPrice = null): Builder
+    /**
+     * Fetch filtered products from the database.
+     */
+    public function getFilteredProducts(array $filters = []): array
     {
-        $min = $this->toNumber($minPrice);
-        $max = $this->toNumber($maxPrice);
+        $db = Database::getInstance();
+        $filterResult = $this->buildFilterQuery($filters);
 
-        if ($min !== null && $max !== null && $min > $max) {
-            [$min, $max] = [$max, $min];
-        }
+        $sql = "SELECT p.*, c.name as category_name 
+                FROM product p 
+                LEFT JOIN category c ON p.category_id = c.id" 
+                . $filterResult['sql'] 
+                . " ORDER BY p.created_at DESC";
 
-        if ($min !== null) {
-            $query->where('base_price', '>=', $min);
-        }
-
-        if ($max !== null) {
-            $query->where('base_price', '<=', $max);
-        }
-
-        return $query;
-    }
-
-    private function toNumber($value): ?float
-    {
-        if ($value === null || $value === '') {
-            return null;
-        }
-
-        if (is_numeric($value)) {
-            return (float) $value;
-        }
-
-        return null;
+        $stmt = $db->prepare($sql);
+        $stmt->execute($filterResult['params']);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 }
