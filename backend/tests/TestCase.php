@@ -2,9 +2,19 @@
 
 namespace Tests;
 
-use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
-
-abstract class TestCase extends BaseTestCase
+/**
+ * Base test case for the custom PHP framework.
+ * Provides common setup/teardown logic for all tests.
+ */
+abstract class TestCase
 {
-    use CreatesApplication;
+    protected function setUp(): void
+    {
+        // Override in child tests for setup logic
+    }
+
+    protected function tearDown(): void
+    {
+        // Override in child tests for cleanup logic
+    }
 }
