@@ -1,51 +1,57 @@
 <?php
-<?php
 
 namespace App\Application;
 
+use App\Models\Profile;
 use App\Models\User;
-use Illuminate\Support\Facades\Storage;
+use Core\Database;
 
 class ProfileService
 {
     /**
      * Lấy profile của user
      */
-    public function getProfile(User $user)
+    public function getProfile(int $userId)
     {
-        return $user->profile;
+        $profile = Profile::firstWhere('user_id', $userId);
+        return $profile ? $profile->toArray() : null;
     }
 
     /**
      * Cập nhật thông tin profile
      */
-    public function updateProfile(User $user, array $data)
+    public function updateProfile(int $userId, array $data)
     {
-        $profile = $user->profile;
+        $profile = Profile::firstWhere('user_id', $userId);
 
-        $profile->update([
-            'phone' => $data['phone'] ?? $profile->phone,
-            'address' => $data['address'] ?? $profile->address,
-            'birthdate' => $data['birthdate'] ?? $profile->birthdate,
-        ]);
+        if (!$profile) {
+            throw new \Exception('Profile not found');
+        }
 
-        return $profile;
+        $updateData = [];
+        if (isset($data['phone'])) $updateData['phone'] = $data['phone'];
+        if (isset($data['address'])) $updateData['address'] = $data['address'];
+        if (isset($data['birthdate'])) $updateData['birthdate'] = $data['birthdate'];
+
+        if (!empty($updateData)) {
+            $profile->update($updateData);
+        }
+
+        return $profile->toArray();
     }
 
     /**
      * Upload avatar
      */
-    public function uploadAvatar(User $user, $file)
+    public function uploadAvatar(int $userId, string $filePath)
     {
-        $profile = $user->profile;
+        $profile = Profile::firstWhere('user_id', $userId);
 
-        if ($profile->avatar && Storage::exists($profile->avatar)) {
-            Storage::delete($profile->avatar);
+        if (!$profile) {
+            throw new \Exception('Profile not found');
         }
 
-        $path = $file->store('avatars', 'public');
-        $profile->update(['avatar' => $path]);
-
-        return $profile;
+        $profile->update(['avatar' => $filePath]);
+        return $profile->toArray();
     }
 }
