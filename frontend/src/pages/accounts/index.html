@@ -50,6 +50,9 @@
             <p class="account__tab" data-target="#orders">
               <i class="fi fi-rs-shopping-bag"></i> Orders
             </p>
+            <p class="account__tab" data-target="#support-tickets">
+              <i class="fi fi-rs-envelope"></i> Support Tickets
+            </p>
             <p class="account__tab" data-target="#update-profile">
               <i class="fi fi-rs-user"></i> Update Profile
             </p>
@@ -81,32 +84,40 @@
                       <th>Orders</th>
                       <th>Date</th>
                       <th>Status</th>
-                      <th>Totals</th>
                       <th>Actions</th>
+                      <th>Payment Status</th>
+                      <th>Production Step</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody id="ordersListBody">
                     <tr>
-                      <td>#1357</td>
-                      <td>March 19, 2022</td>
-                      <td>Processing</td>
-                      <td>$125.00</td>
-                      <td><a href="#" class="view__order">View</a></td>
+                      <td colspan="7">Loading order tracking...</td>
                     </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            
+            <div class="tab__content" content id="support-tickets">
+              <h3 class="tab__header">Support Tickets</h3>
+              <div class="tab__body">
+                <form id="createTicketForm" class="form grid" style="margin-bottom: 2rem;">
+                  <input type="text" id="ticketSubject" placeholder="Subject / Reason" class="form__input" required />
+                  <textarea id="ticketMessage" placeholder="Detailed message..." class="form__input" style="height: 100px;" required></textarea>
+                  <button type="submit" class="btn btn--md">Create Ticket</button>
+                </form>
+                
+                <table class="placed__order-table">
+                  <thead>
                     <tr>
-                      <td>#2468</td>
-                      <td>June 29, 2022</td>
-                      <td>Completed</td>
-                      <td>$364.00</td>
-                      <td><a href="#" class="view__order">View</a></td>
+                      <th>Subject</th>
+                      <th>Status</th>
+                      <th>Update</th>
+                      <th>Action</th>
                     </tr>
-                    <tr>
-                      <td>#2366</td>
-                      <td>August 02, 2022</td>
-                      <td>Completed</td>
-                      <td>$280.00</td>
-                      <td><a href="#" class="view__order">View</a></td>
-                    </tr>
+                  </thead>
+                  <tbody id="userTicketsList">
+                    <tr><td colspan="4">Loading tickets...</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -248,6 +259,77 @@
           window.location.href = '../auth/';
         }
       });
+      
+      // Order Tracking Render (Member 4)
+      async function loadOrderTracking() {
+          const tbody = document.getElementById('ordersListBody');
+          // Dummy data simulation since OrderList API might belong to M3
+          const mockOrders = [
+              { id: 101, number: '#1357', date: 'March 19, 2026', status: 'verified', total: '$125.00', payment_status: 'paid', production_step: 'lens_cutting' },
+              { id: 102, number: '#2468', date: 'June 29, 2026', status: 'pending', total: '$364.00', payment_status: 'pending', production_step: 'N/A' },
+          ];
+          
+          tbody.innerHTML = mockOrders.map(o => `
+            <tr>
+              <td>${o.number}</td>
+              <td>${o.date}</td>
+              <td>${o.status}</td>
+              <td>${o.total}</td>
+              <td>
+                 ${o.payment_status === 'pending' ? `<a href="../payment/?order_id=${o.id}" class="view__order">Pay Now</a>` : '<span style="color:green">Paid</span>'}
+              </td>
+              <td><strong>${o.payment_status}</strong></td>
+              <td><em>${o.production_step || '-'}</em></td>
+            </tr>
+          `).join('');
+      }
+      
+      document.querySelector('[data-target="#orders"]').addEventListener('click', loadOrderTracking);
+      // Load once if default active
+      if (document.querySelector('[data-target="#orders"]').classList.contains('active-tab')) {
+          loadOrderTracking();
+      }
+
+      // Member 4 - Support Tickets Integration for Accounts
+      import { supportService } from '../../services/supportService.js';
+      
+      async function loadUserTickets() {
+          const tbody = document.getElementById('userTicketsList');
+          try {
+              const res = await supportService.getTickets(false);
+              if (!res || !res.data || res.data.length === 0) {
+                  tbody.innerHTML = '<tr><td colspan="4">You have no support tickets.</td></tr>';
+                  return;
+              }
+              tbody.innerHTML = res.data.map(t => `
+                  <tr>
+                      <td><strong>${t.subject}</strong><br><small>${t.message}</small></td>
+                      <td>${t.status}</td>
+                      <td>${t.updated_at}</td>
+                      <td><a href="#" class="view__order" onclick="alert('Viewing Ticket: ${t.id}')">View</a></td>
+                  </tr>
+              `).join('');
+          } catch (e) {
+              tbody.innerHTML = '<tr><td colspan="4" style="color:red;">Failed to retrieve tickets.</td></tr>';
+          }
+      }
+
+      document.getElementById('createTicketForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const subject = document.getElementById('ticketSubject').value;
+          const msg = document.getElementById('ticketMessage').value;
+          try {
+              await supportService.createTicket(subject, msg);
+              alert('Ticket created!');
+              document.getElementById('createTicketForm').reset();
+              loadUserTickets();
+          } catch(err) {
+              alert('Error: ' + err.message);
+          }
+      });
+      
+      document.querySelector('[data-target="#support-tickets"]').addEventListener('click', loadUserTickets);
+
     </script>
 
     <!--=============== MAIN JS ===============-->
