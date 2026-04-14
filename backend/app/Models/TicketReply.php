@@ -6,7 +6,7 @@ use Core\Model;
 
 class TicketReply extends Model
 {
-    protected static string $table = 'ticketreply';
+    protected static string $table = 'ticket_replies';
 
     /**
      * Reply thuộc về Ticket
