@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\V1\InventoryController;
 use App\Http\Controllers\Api\V1\CartController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\LensController;
+use App\Http\Controllers\Api\V1\CheckoutController;
 
 Router::get('/', [HealthController::class, 'index']);
 Router::get('api/health', [HealthController::class, 'index']);
@@ -37,6 +38,12 @@ Router::group(['prefix' => 'api/v1/cart'], function () {
     Router::put('update', [CartController::class, 'update']);
     Router::delete('delete', [CartController::class, 'destroy']);
 });
+
+// Member 3 - Checkout Routes
+Router::group(['prefix' => 'api/v1/checkout'], function () {
+    Router::post('/', [CheckoutController::class, 'store']);
+});
+
 // Member 4 - Sales, Payments & Support Routes
 Router::group(['prefix' => 'api/v1/payments'], function () {
     Router::post('process', [PaymentController::class, 'process']);
