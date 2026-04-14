@@ -57,6 +57,12 @@ class CartController
         }
 
         try {
+            // Optional prescription logic integration
+            if (!empty($data['prescription'])) {
+                $prescriptionService = new \App\Application\PrescriptionService();
+                $data['prescription_id'] = $prescriptionService->savePrescription($userId, $data['prescription']);
+            }
+
             $item = $this->cartService->addItem($userId, $data);
             return [
                 'message' => 'Item added to cart',
