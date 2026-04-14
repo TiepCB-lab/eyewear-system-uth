@@ -7,78 +7,72 @@
 
 ## 📋 Scope Overview
 
-This member owns the entry point: Login, Registration, JWT/Sanctum protection, and User/Staff Profile management. This module provides the `User` models and `auth` middleware that everyone else relies on.
+This member owns the entry point: Login, Registration, Session/Token protection, and User/Staff Profile management. This module provides the `user` and `role` database logic and authentication services that everyone else relies on.
 
 ---
 
 ## ✅ TODO Checklist
 
-### Database (Migrations)
-- [ ] Create `users` migration (id, name, email, password, role enum: admin, staff, customer, timestamps)
-- [ ] Create `profiles` migration (id, user_id FK, phone, address, avatar, birthdate, timestamps)
-- [ ] Create `password_reset_tokens` table (add to `database/schema.sql`)
+### Database (Schema)
+- [x] Create `role` table in `database/schema.sql`
+- [x] Create `user` table in `database/schema.sql`
+- [x] Create `profiles` table in `database/schema.sql`
+- [x] Implement seed data for roles (`database/seeder.php`)
 
-### Backend — Models
-- [ ] Complete `User.php` — fillable, hidden, casts, hasOne Profile
-- [ ] Complete `Profile.php` — fillable, belongsTo User
-
-### Backend — Application Layer
-- [ ] Implement `AuthService.php`
+### Backend — Application Layer (Services)
+- [ ] Complete `AuthService.php` in `app/Application/`
   - Register (customer only)
-  - Login (returns JWT/Sanctum token + user role)
-  - Logout (revoke tokens)
-  - Reset Password logic
-- [ ] Implement `ProfileService.php`
-  - Get current profile
-  - Update profile details
-  - Upload/Update avatar (storage integration)
+  - Login (returns user data + token simulation)
+  - Logout
+- [ ] Complete `ProfileService.php` in `app/Application/`
+  - Get current profile by user ID
+  - Update profile details (phone, address, etc.)
 
 ### Backend — Controllers & Routes
-- [ ] Implement `AuthController.php` (login, register, logout, me)
-- [ ] Implement `ProfileController.php` (show, update)
-- [ ] Create Form Requests: `LoginRequest`, `RegisterRequest`, `UpdateProfileRequest`
-- [ ] Create API Resources: `UserResource`, `ProfileResource`
-- [ ] Define routes in `api.php` under `Auth` group
+- [ ] Implement `AuthController.php` in `app/Http/Controllers/Api/V1/`
+  - `register()`: Validate name, email, password
+  - `login()`: Verify credentials
+  - `me()`: Return current authenticated user
+- [ ] Implement `ProfileController.php` in `app/Http/Controllers/Api/V1/`
+  - `show()`: View personal info
+  - `update()`: Save profile changes
+- [ ] Define routes in `routes/api.php` under `api/auth` prefix
 
-### Frontend
-- [ ] Implement `auth/index.html` (Formik/React Hook Form + Validation)
-- [ ] Implement `auth/index.html`
-- [ ] Implement `ProfilePage.html` (Read/Edit mode)
-- [ ] Create `authStore.js` (Zustand) — handle token and user state
-- [ ] Create `authService.js` in `src/services/` (Axios calls)
-- [ ] Create `PrivateRoute.html` component to protect routes by role
+### Frontend (Vanilla JS)
+- [ ] Finalize `src/pages/auth/index.html` (Dual Login/Register form)
+- [ ] Implement `src/pages/accounts/index.html` (User profile dashboard)
+- [ ] Create `src/services/authService.js` (Fetch API wrappers)
+- [ ] Implement `src/components/auth/PrivateRoute.js` logic to protect Dashboard pages
 
 ### Testing
-- [ ] Feature test for Registration (success/validation error)
-- [ ] Feature test for Login (correct vs wrong credentials)
-- [ ] Feature test for Protected routes (401 if no token)
-- [ ] Feature test for Profile update
+- [ ] Test Registration with valid/invalid data (check `user` table)
+- [ ] Test Login with existing users (check response roles)
+- [ ] Test Profile Update (check `profiles` table updates)
 
 ---
 
 ## 📁 Files Owned
 
 ### Backend
-- `app/Models/User.php`, `Profile.php`
-- `app/Application/Auth/AuthService.php`
-- `app/Application/Users/ProfileService.php`
+- `app/Application/AuthService.php`
+- `app/Application/ProfileService.php`
 - `app/Http/Controllers/Api/V1/AuthController.php`
 - `app/Http/Controllers/Api/V1/ProfileController.php`
-- `database/migrations/*_create_users_table.php`, `profiles_table.php`
+- `database/schema.sql` (User/Profile/Role sections)
+- `database/seeder.php` (Role seeding)
 
 ### Frontend
-- `frontend/src/pages/auth/auth/index.html`, `auth/index.html`
-- `frontend/src/pages/profile/ProfilePage.html`
-- `src/store/authStore.js`
-- `src/services/authService.js`, `profileService.js`
-- `src/components/auth/PrivateRoute.html`
+- `frontend/src/pages/auth/index.html`
+- `frontend/src/pages/accounts/index.html`
+- `frontend/src/services/authService.js`
+- `frontend/src/components/auth/PrivateRoute.js`
 
 ---
 
 ## 🔗 Dependencies
 
 - **Depends on**: Nothing (Base module)
-- **Blocks**: Everything (M2, M3, M4, M5 all need `user_id` or `auth` middleware)
+- **Blocks**: Everything (M2, M3, M4, M5 all need `user_id` or authentication)
 
 ---
 
@@ -86,10 +80,11 @@ This member owns the entry point: Login, Registration, JWT/Sanctum protection, a
 
 | Phase | Duration |
 |-------|----------|
-| Database + Models | 1 day |
-| Auth API (JWT/Sanctum) | 2 days |
-| Profile API | 1 day |
-| Frontend Auth Pages | 3 days |
-| Frontend Profile Page | 2 days |
-| Testing | 1 day |
-| **Total** | **~10 days** |
+| Database + Seeding | 1 day |
+| Auth API Logic | 2 days |
+| Profile API Logic | 1 day |
+| Frontend Auth UI/Logic | 2 days |
+| Frontend Account UI/Logic| 2 days |
+| Testing & Validation | 1 day |
+| **Total** | **~9 days** |
+

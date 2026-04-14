@@ -1,90 +1,70 @@
-# 🛒 Member 3 — Shopping Cart & Order Processing
+# 🛒 Member 3 — Shopping Cart & Checkout
 
 **Module Tag**: `M3-SHOPPING`  
-**Priority**: 🟡 Medium-High (Depends on M2)
+**Priority**: 🔴 High (Direct Revenue Driver)
 
 ---
 
 ## 📋 Scope Overview
 
-This member owns the **transactional flow**: Cart management (Database-backed for logged-in users), Prescription input (OD/OS details), and the initial Order creation (Checkout).
+This member owns the **transactional flow**: Adding items to the cart (including lens selection), managing quantities, validating prescriptions, and the checkout process where a visitor becomes a customer.
 
 ---
 
 ## ✅ TODO Checklist
 
-### Database (Migrations)
-- [ ] Create `cart_items` migration (id, user_id FK, variant_id FK, lens_id FK nullable, quantity, timestamps)
-- [ ] Create `orders` migration (id, user_id FK, total_amount, status enum: pending, verified, in_production, shipped, delivered, cancelled, payment_status, timestamps)
-- [ ] Create `order_items` migration (id, order_id FK, variant_id FK, lens_id FK, quantity, unit_price, timestamps)
-- [ ] Create `prescriptions` migration (id, order_item_id FK, sphere, cylinder, axis, add, pd, timestamps)
+### Database (Schema)
+- [x] Create `cart` table in `database/schema.sql`
+- [x] Create `cartitem` table in `database/schema.sql`
+- [x] Create `prescription` table in `database/schema.sql`
 
-### Backend — Models
-- [ ] Complete `CartItem.php`
-- [ ] Complete `Order.php` — hasMany OrderItems, belongsTo User
-- [ ] Complete `OrderItem.php` — belongsTo Order, hasOne Prescription
-- [ ] Complete `Prescription.php`
-
-### Backend — Application Layer
-- [ ] Implement `CartService.php`
-  - Sync frontend cart with DB
-  - Add/Update/Remove items
-  - Validate stock before adding to cart
-- [ ] Implement `CheckoutService.php`
-  - Validate entire cart (stock, prices)
-  - Create Order & OrderItems
-  - Attach Prescription details
-  - **Draft** status: `pending`
-- [ ] Implement `PrescriptionService.php`
-  - Validation logic for optical parameters (Sphere, Cyl, etc.)
+### Backend — Application Layer (Services)
+- [ ] Complete `CartService.php` in `app/Application/`
+  - Add/Update/Remove items from cart session or DB
+  - Calculate cart totals including lens additional prices
+- [ ] Complete `PrescriptionService.php` in `app/Application/`
+  - Validation of OD/OS values (Sph, Cyl, Axis, PD)
+- [ ] Complete `CheckoutService.php` in `app/Application/`
+  - Convert cart to pending order
+  - Apply promotion codes (if any)
 
 ### Backend — Controllers & Routes
-- [ ] Implement `CartController.php` (index, store, update, destroy)
-- [ ] Implement `CheckoutController.php` (store — create order)
-- [ ] Create Form Requests: `AddToCartRequest`, `PrescriptionRequest`, `CheckoutRequest`
-- [ ] Create API Resources: `CartResource`, `OrderResource`
-- [ ] Define routes under `/api/v1/cart/*` and `/api/v1/checkout`
+- [ ] Implement `CartController.php` in `app/Http/Controllers/Api/V1/`
+- [ ] Implement `PrescriptionController.php` (if needed)
+- [ ] Define routes in `routes/api.php` under `api/v1/cart` prefix
 
-### Frontend
-- [ ] Implement `CartDrawer.html` or `cart/index.html`
-- [ ] Implement `checkout/index.html`
-  - Step 1: Shipping Address (M1 data + overrides)
-  - Step 2: Prescription Entry (Form for OD/OS)
-  - Step 3: Order Summary & Confirm
-- [ ] Create `PrescriptionForm.html` component with validation
-- [ ] Create `cartService.js`, `checkoutService.js` in `src/services/`
-- [ ] Create `cartStore.js` (Zustand) — persistent local storage + API sync
+### Frontend (Vanilla JS)
+- [ ] Implement `src/pages/cart/index.html` (Item list, quantity controls, subtotal)
+- [ ] Implement `src/pages/checkout/index.html` (Shipping info, summary, prescription upload/entry)
+- [ ] Create `src/services/cartService.js` (Fetch API for cart sync)
+- [ ] Implement dynamic price updates in Cart UI
 
 ### Testing
-- [ ] Feature tests for Cart logic (add same item → increment quantity)
-- [ ] Feature tests for Checkout (stock reduction simulation — *M2 coordination*)
-- [ ] Unit tests for Prescription validation rules
-- [ ] Feature tests for Guest vs Authenticated cart behavior
+- [ ] Test adding variants with different lenses to cart
+- [ ] Test prescription validation logic
+- [ ] Test checkout flow (ensuring total_amount is calculated correctly)
 
 ---
 
 ## 📁 Files Owned
 
 ### Backend
-- `app/Models/CartItem.php`, `Order.php`, `OrderItem.php`, `Prescription.php`
-- `app/Application/Shopping/CartService.php`
-- `app/Application/Shopping/CheckoutService.php`
+- `app/Application/CartService.php`
+- `app/Application/PrescriptionService.php`
+- `app/Application/CheckoutService.php`
 - `app/Http/Controllers/Api/V1/CartController.php`
-- `app/Http/Controllers/Api/V1/CheckoutController.php`
-- `database/migrations/*_create_orders_table.php`, `prescriptions_table.php`, etc.
 
 ### Frontend
-- `frontend/src/pages/shopping/checkout/index.html`, `cart/index.html`
-- `src/store/cartStore.js`
-- `src/services/shopping/`
-- `src/components/shopping/PrescriptionForm.html`
+- `frontend/src/pages/cart/index.html`
+- `frontend/src/pages/checkout/index.html`
+- `src/services/cartService.js`
 
 ---
 
 ## 🔗 Dependencies
 
-- **Depends on**: M1-IDENTITY (user_id), M2-CATALOG (product variants, lenses)
-- **Blocks**: M4-SALES (needs orders to verify/pay), M5-OPS (needs orders to produce)
+- **Depends on**: M1-IDENTITY (for user_id), M2-CATALOG (for products/lenses)
+- **Blocks**: M4-SALES (needs orders created from checkout)
 
 ---
 
@@ -92,10 +72,9 @@ This member owns the **transactional flow**: Cart management (Database-backed fo
 
 | Phase | Duration |
 |-------|----------|
-| Database + Models | 2 days |
-| Cart API | 2 days |
-| Checkout/Prescription API | 3 days |
-| Frontend Cart/Drawer | 2 days |
-| Frontend Checkout Flow | 4 days |
-| Testing | 2 days |
-| **Total** | **~15 days** |
+| API: Cart & Prescription | 3 days |
+| API: Checkout Logic | 2 days |
+| UI: Cart Page | 3 days |
+| UI: Checkout Page | 3 days |
+| Testing & Edge cases | 2 days |
+| **Total** | **~13 days** |
