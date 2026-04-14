@@ -37,3 +37,19 @@ Router::group(['prefix' => 'api/v1/cart'], function () {
     Router::put('update', [CartController::class, 'update']);
     Router::delete('delete', [CartController::class, 'destroy']);
 });
+// Member 4 - Sales, Payments & Support Routes
+Router::group(['prefix' => 'api/v1/payments'], function () {
+    Router::post('process', [PaymentController::class, 'process']);
+});
+
+Router::group(['prefix' => 'api/v1/sales'], function () {
+    Router::get('pending-orders', [SalesController::class, 'pendingOrders']);
+    Router::post('verify', [SalesController::class, 'verify']);
+});
+
+Router::group(['prefix' => 'api/v1/support'], function () {
+    Router::get('/', [SupportTicketController::class, 'index']);
+    Router::post('/', [SupportTicketController::class, 'store']);
+    Router::get('show', [SupportTicketController::class, 'show']);
+    Router::post('reply', [SupportTicketController::class, 'reply']);
+});
