@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!--=============== FLATICON ===============-->
+    <link
+      rel="stylesheet"
+      href="https://cdn-uicons.flaticon.com/2.0.0/uicons-regular-straight/css/uicons-regular-straight.css"
+    />
+
+    <!--=============== CSS ===============-->
+    <link rel="stylesheet" href="../../assets/css/styles.css" />
+
+    <!--=============== LAYOUT LOADER ===============-->
+    <script src="../../assets/js/core/layout-loader.js" defer></script>
+
+    <title>Checkout Payment — EYEWEAR.UTH</title>
+    <style>
+      .payment-section { margin-top: 40px; margin-bottom: 40px; }
+      .payment__card { background: #fff; padding: 2rem; border-radius: 8px; border: 1px solid var(--border-color-alt); }
+      .payment__title { font-size: var(--h3-font-size); margin-bottom: 1.5rem; }
+      .payment__method { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; padding: 1rem; border: 1px solid var(--border-color); border-radius: 0.5rem; cursor: pointer; transition: 0.3s; }
+      .payment__method:hover, .payment__method:has(input:checked) { border-color: var(--first-color); background-color: var(--container-color); }
+      .payment__method input { margin: 0; cursor: pointer; }
+    </style>
+  </head>
+  <body>
+    <!--=============== HEADER ===============-->
+    <header class="header" data-include="layout/Header"></header>
+
+    <!--=============== MAIN ===============-->
+    <main class="main">
+      <section class="breadcrumb">
+        <ul class="breadcrumb__list flex container">
+          <li><a href="../../index.html" class="breadcrumb__link">Home</a></li>
+          <li><span class="breadcrumb__link">></span></li>
+          <li><a href="../checkout/index.html" class="breadcrumb__link">Checkout</a></li>
+          <li><span class="breadcrumb__link">></span></li>
+          <li><span class="breadcrumb__link">Payment</span></li>
+        </ul>
+      </section>
+
+      <section class="payment-section container">
+        <div class="payment__card">
+          <h2 class="payment__title">Complete Your Payment</h2>
+          
+          <div style="margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px dashed var(--border-color-alt);">
+            <p><strong>Order ID:</strong> <span id="displayOrderId">...</span></p>
+            <p><strong>Amount to Pay:</strong> $<span id="displayAmount">0.00</span></p>
+          </div>
+
+          <form id="paymentForm">
+            <h3 style="margin-bottom: 1rem; font-size: 1rem;">Select Payment Method</h3>
+            
+            <label class="payment__method">
+              <input type="radio" name="payment_method" value="cod" checked>
+              <span>Cash on Delivery (COD)</span>
+            </label>
+            
+            <label class="payment__method">
+              <input type="radio" name="payment_method" value="bank_transfer">
+              <span>Bank Transfer</span>
+            </label>
+            
+            <label class="payment__method">
+              <input type="radio" name="payment_method" value="e_wallet">
+              <span>E-Wallet (Momo / ZaloPay)</span>
+            </label>
+            
+            <label class="payment__method">
+              <input type="radio" name="payment_method" value="card">
+              <span>Credit / Debit Card</span>
+            </label>
+
+            <button type="submit" class="btn btn--md" id="btnSubmit" style="margin-top: 1rem; width: 100%;">Confirm Payment</button>
+          </form>
+          
+          <div id="paymentResult" style="margin-top: 1.5rem; text-align: center; font-weight: 600;"></div>
+        </div>
+      </section>
+    </main>
+
+    <!--=============== FOOTER ===============-->
+    <footer class="footer container" data-include="layout/Footer"></footer>
+
+    <!--=============== MAIN JS ===============-->
+    <script src="../../assets/js/main.js"></script>
+    <script type="module">
+        import { paymentService } from '../../services/paymentService.js';
+
+        // Mock reading info - usually from localStorage or URL
+        const queryParams = new URLSearchParams(window.location.search);
+        const currentOrder = {
+            id: queryParams.get('order_id') || 101,
+            amount: 199.99
+        };
+
+        document.getElementById('displayOrderId').innerText = currentOrder.id;
+        document.getElementById('displayAmount').innerText = currentOrder.amount;
+
+        document.getElementById('paymentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const method = document.querySelector('input[name="payment_method"]:checked').value;
+            const resultDiv = document.getElementById('paymentResult');
+            const btn = document.getElementById('btnSubmit');
+
+            btn.disabled = true;
+            btn.innerText = 'Processing...';
+            resultDiv.innerHTML = '';
+
+            try {
+                const res = await paymentService.processPayment(currentOrder.id, method, currentOrder.amount);
+                resultDiv.innerHTML = '<span style="color: var(--first-color);">Payment ' + (res.data.status === 'paid' ? 'Successful' : 'Pending Verification') + '! Transaction Ref: ' + (res.data.transaction_ref || 'N/A') + '</span>';
+                
+                setTimeout(() => {
+                    window.location.href = '../accounts/index.html'; // Redirect to tracking
+                }, 3000);
+            } catch (error) {
+                resultDiv.innerHTML = '<span style="color: red;">Failed to process: ' + error.message + '</span>';
+                btn.disabled = false;
+                btn.innerText = 'Confirm Payment';
+            }
+        });
+    </script>
+  </body>
+</html>
