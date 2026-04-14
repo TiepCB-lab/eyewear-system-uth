@@ -1,101 +1,69 @@
 # ⚙️ Member 5 — Operations, Logistics & Dashboard
 
 **Module Tag**: `M5-OPS`  
-**Priority**: 🔵 Medium-Low (can work on models/frontend early, full API after M4 verification)
+**Priority**: 🔵 Medium-Low (Final stage of lifecycle)
 
 ---
 
 ## 📋 Scope Overview
 
-This member owns the **back-office workflow** — Laboratory operations (lens cutting, frame mounting), Quality Control, Shipping/Logistics, and the Management Analytics Dashboard. This is the final stage of the order lifecycle.
+This member owns the **back-office workflow**: Production (lens cutting, frame mounting), Quality Control, Shipping/Logistics, and the Management Analytics Dashboard.
 
 ---
 
 ## ✅ TODO Checklist
 
-### Database (Migrations)
-- [ ] Create `shipments` migration (id, order_id FK unique, carrier, tracking_code nullable, status enum, shipped_at nullable, delivered_at nullable, timestamps)
-- [ ] Add `production_step` column to `orders` table (nullable enum: lens_cutting, frame_mounting, qc_inspection, packaging, ready_to_ship)
-- [ ] Add `verified_by`, `verified_at` columns to `orders` table (for M4 integration)
+### Database (Schema)
+- [x] Create `shipment` table in `database/schema.sql`
+- [x] Add production columns to `order` table in `database/schema.sql`
 
-### Backend — Models
-- [ ] Complete `Shipment.php` — fillable, casts, relationships
-- [ ] Add production step scopes to `Order.php` (scopeInProduction, scopeReadyToShip)
-
-### Backend — Domain Layer
-- [ ] Finalize `ShipmentStatus.php` enum
-- [ ] Create `app/Domain/Orders/ProductionStep.php` enum (lens_cutting, frame_mounting, qc_inspection, packaging, ready_to_ship)
-
-### Backend — Application Layer
-- [ ] Implement `OperationsService.php`
-  - Get production queue (verified orders → in production)
-  - Advance production step (step-by-step workflow)
-  - QC pass/fail logic (fail → re-enter production)
-  - Create shipment with tracking code
-  - Update shipment status (shipped, in_transit, delivered)
-  - Restock pre-order items (update inventory, trigger M4 notifications)
-- [ ] Implement `DashboardService.php`
-  - Revenue stats by date range (total revenue, order count, average value)
-  - Top selling products (by quantity or revenue)
-  - Order statistics (completion rate, cancellation rate)
-  - Low stock alerts (variants below threshold)
-  - Recent activity feed (latest orders, tickets, shipments)
+### Backend — Application Layer (Services)
+- [ ] Complete `OperationsService.php` in `app/Application/`
+  - Manage production steps (Lens cutting -> Mounting -> QC)
+  - Shipment creation and tracking updates
+- [ ] Complete `DashboardService.php` in `app/Application/`
+  - Aggregate statistics (Revenue, Top products, Active orders)
+- [ ] Complete `AdminService.php` in `app/Application/`
+  - Management of users and system configuration
 
 ### Backend — Controllers & Routes
-- [ ] Implement `OperationsController.php` (production queue, step advancement, QC, packaging, shipping)
-- [ ] Implement `DashboardController.php` (revenue, top products, order stats, inventory alerts, activity)
-- [ ] Create Form Requests: `StepRequest`, `QcFailRequest`, `ShipmentRequest`, `StatusRequest`, `DateRangeRequest`
-- [ ] Create API Resources: `ProductionQueueResource`, `ShipmentResource`, `DashboardStatsResource`
-- [ ] Define routes under `/api/v1/ops/*`, `/api/v1/dashboard/*`
+- [ ] Implement `OperationsController.php` in `app/Http/Controllers/Api/V1/`
+- [ ] Implement `DashboardController.php` in `app/Http/Controllers/Api/V1/`
+- [ ] Define routes in `routes/api.php` under `api/v1/ops` and `api/v1/dashboard`
 
-### Frontend
-- [ ] Implement `frontend/src/pages/ops/dashboard/index.html`
-  - Production queue table with step progress (Lens Cutting, Mounting, QC)
-  - Quality verification buttons (Pass/Fail)
-  - Shipping integration (Create Shipment, Tracking Code)
-- [ ] Implement `frontend/src/pages/admin/dashboard/index.html`
-  - Manager Overview (KPIs: Revenue, Active Orders, Low Stock)
-  - Top Selling Products table
-  - Recent Activity monitor
-- [ ] Implement `frontend/src/pages/admin/settings/index.html`
-  - Personnel & Role management
-  - Pricing & Combo rules configuration
-  - System-wide policies
-- [ ] Create components in `frontend/src/components/`
-  - `Header.html`
-  - `Footer.html`
-  - `VirtualTryOn.html`
+### Frontend (Vanilla JS)
+- [ ] Implement `src/pages/dashboard/admin/index.html` (Full management view)
+- [ ] Implement `src/pages/dashboard/staff/index.html` (Operations & Shipping view)
+- [ ] Create `src/services/adminService.js` and `src/services/dashboardService.js`
 
 ### Testing
-- [ ] Verification tests for production steps
-- [ ] Verification tests for shipment tracking
-- [ ] Verification tests for Dashboard metrics
+- [ ] Test API: Advancing an order through production steps
+- [ ] Test API: Creating a shipment and checking status updates
+- [ ] Analytics: verifying revenue matching with paid orders
 
 ---
 
 ## 📁 Files Owned
 
 ### Backend
-- `app/Models/Shipment.php`
-- `app/Domain/Orders/ShipmentStatus.php`, `ProductionStep.php`
-- `app/Application/Operations/OperationsService.php`
-- `app/Application/Reports/DashboardService.php`
+- `app/Application/OperationsService.php`
+- `app/Application/DashboardService.php`
+- `app/Application/AdminService.php`
 - `app/Http/Controllers/Api/V1/OperationsController.php`
 - `app/Http/Controllers/Api/V1/DashboardController.php`
-- `database/migrations/*_create_shipments_table.php`
 
 ### Frontend
-- `frontend/src/pages/ops/dashboard/index.html`
-- `frontend/src/pages/admin/dashboard/index.html`
-- `frontend/src/pages/admin/settings/index.html`
-- `frontend/src/components/VirtualTryOn.html`
+- `frontend/src/pages/dashboard/admin/index.html`
+- `frontend/src/pages/dashboard/staff/index.html`
+- `frontend/src/services/adminService.js`
+- `frontend/src/services/dashboardService.js`
 
 ---
 
 ## 🔗 Dependencies
 
-- **Depends on**: M1-IDENTITY (users), M2-CATALOG (products, inventory), M3-SHOPPING (orders), M4-SALES (verified orders)
-- **Blocks**: Nothing (this is the final stage)
+- **Depends on**: M1-IDENTITY (users), M2-CATALOG (products), M3-SHOPPING (orders), M4-SALES (verified orders)
+- **Blocks**: Nothing (End of workflow)
 
 ---
 
@@ -103,11 +71,9 @@ This member owns the **back-office workflow** — Laboratory operations (lens cu
 
 | Phase | Duration |
 |-------|----------|
-| Database + Models | 1 day |
-| Operations/Lab API | 3 days |
-| Shipping/Logistics API | 2 days |
-| Dashboard/Reports API | 2 days |
-| Frontend ops pages | 3 days |
-| Frontend dashboard + charts | 3 days |
-| Testing | 1 day |
+| API: Operations Workflow | 4 days |
+| API: Dashboard Analytics | 3 days |
+| UI: Admin Dashboard | 4 days |
+| UI: Staff/Ops Dashboard | 2 days |
+| Testing & Optimization | 2 days |
 | **Total** | **~15 days** |

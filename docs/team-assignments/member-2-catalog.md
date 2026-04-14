@@ -13,77 +13,67 @@ This member owns the **heart of the store**: Branded frames, Lens types, and the
 
 ## ✅ TODO Checklist
 
-### Database (Migrations)
-- [ ] Create `categories` migration (id, name, slug, description, timestamps)
-- [ ] Create `products` migration (id, category_id FK, brand, model_name, base_price, description, gender, timestamps)
-- [ ] Create `product_variants` migration (id, product_id FK, color, size_code, stock_quantity, image_2d_url, model_3d_url, additional_price, timestamps)
-- [ ] Create `lenses` migration (id, name, type: single_vision/bifocal/progressive, material, price, timestamps)
+### Database (Schema)
+- [x] Create `category` table in `database/schema.sql`
+- [x] Create `product` table in `database/schema.sql`
+- [x] Create `productvariant` table in `database/schema.sql`
+- [x] Create `lens` table in `database/schema.sql`
+- [x] Create `inventory` table in `database/schema.sql`
 
-### Backend — Models
-- [ ] Complete `Category.php` — hasMany Products
-- [ ] Complete `Product.php` — belongsTo Category, hasMany Variants, scope filters
-- [ ] Complete `ProductVariant.php` — belongsTo Product
-- [ ] Complete `Lens.php`
-
-### Backend — Domain Layer
-- [ ] Implement `ProductFilter.php` (logic for brand, price range, category, gender filters)
-
-### Backend — Application Layer
-- [ ] Implement `CatalogService.php`
-  - Search products with filters & pagination
-  - Get product details with variants
-  - Get categories list
-- [ ] Implement `InventoryService.php` (Staff only)
-  - Update stock quantities
-  - Low stock alerts logic
-- [ ] Implement `LensService.php`
-  - Get available lenses based on variant compatibility
+### Backend — Application Layer (Services)
+- [ ] Complete `CatalogService.php` in `app/Application/`
+  - Get products with filters (brand, category, price)
+  - Get categories list for sidebar
+- [ ] Complete `InventoryService.php` in `app/Application/`
+  - Update stock quantities for product variants
+  - Reserved stock management
+- [ ] Complete `LensService.php` in `app/Application/`
+  - Retrieve available lenses and pricing
 
 ### Backend — Controllers & Routes
-- [ ] Implement `ProductController.php` (index, show)
-- [ ] Implement `CategoryController.php` (index)
-- [ ] Implement `InventoryController.php` (update stock)
-- [ ] Create API Resources: `ProductListResource`, `ProductDetailResource`, `VariantResource`, `CategoryResource`
-- [ ] Define routes under `/api/v1/catalog/*` and `/api/v1/admin/inventory/*`
+- [ ] Implement `ProductController.php` in `app/Http/Controllers/Api/V1/`
+- [ ] Implement `CategoryController.php` in `app/Http/Controllers/Api/V1/`
+- [ ] Implement `InventoryController.php` in `app/Http/Controllers/Api/V1/`
+- [ ] Implement `LensController.php` in `app/Http/Controllers/Api/V1/`
+- [ ] Define routes in `routes/api.php` under `api/v1/products` and `api/v1/admin/inventory`
 
-### Frontend
-- [ ] Implement `ProductListPage.html` (GridView/ListView + Sidebar filters)
-- [ ] Implement `details/index.html` (Variant selection, price calculation)
-- [ ] Implement `InventoryManagementPage.html` (Staff only — stock edit table)
-- [ ] Create `CatalogSearch.html` component (debounced search input)
-- [ ] Create `catalogService.js`, `inventoryService.js` in `src/services/`
-- [ ] Create `ProductCard.html` and `FilterSidebar.html` components
-- [ ] Implement `VirtualTryOn.html` (Integration for 3D/AR preview)
+### Frontend (Vanilla JS)
+- [ ] Implement `src/pages/catalog/ProductListPage.html` (Grid of products + Filter sidebar)
+- [ ] Implement `src/pages/details/index.html` (Single product view + Variant selection)
+- [ ] Create `src/services/catalogService.js` (Fetch API for products)
+- [ ] Create `src/services/inventoryService.js` (Fetch API for stock updates)
+- [ ] Update `src/pages/dashboard/staff/` (if any) for inventory management tasks
 
 ### Testing
-- [ ] Feature tests for product listing & filtering
-- [ ] Feature tests for stock updates (concurrency check)
-- [ ] Unit tests for Price Calculation logic
+- [ ] Test API: Filtering products by category and brand
+- [ ] Test API: Updating stock and checking if `inventory` table reflects correctly
+- [ ] UI Test: Selecting a variant in details page updates the UI price
 
 ---
 
 ## 📁 Files Owned
 
 ### Backend
-- `app/Models/Product.php`, `ProductVariant.php`, `Category.php`, `Lens.php`
-- `app/Application/Catalog/CatalogService.php`
-- `app/Application/Inventory/InventoryService.php`
+- `app/Application/CatalogService.php`
+- `app/Application/InventoryService.php`
+- `app/Application/LensService.php`
 - `app/Http/Controllers/Api/V1/ProductController.php`
+- `app/Http/Controllers/Api/V1/CategoryController.php`
 - `app/Http/Controllers/Api/V1/InventoryController.php`
-- `database/migrations/*_create_products_table.php`, `variants_table.php`, etc.
+- `app/Http/Controllers/Api/V1/LensController.php`
 
 ### Frontend
-- `frontend/src/pages/catalog/ProductListPage.html`, `details/index.html`
-- `frontend/src/pages/admin/InventoryManagementPage.html`
-- `src/services/catalogService.js`, `inventoryService.js`
-- `src/components/catalog/*`
+- `frontend/src/pages/catalog/ProductListPage.html`
+- `frontend/src/pages/details/index.html`
+- `frontend/src/services/catalogService.js`
+- `frontend/src/services/inventoryService.js`
 
 ---
 
 ## 🔗 Dependencies
 
-- **Depends on**: M1-IDENTITY (for staff-only inventory actions)
-- **Blocks**: M3-SHOPPING (needs products to add to cart), M5-OPS (needs inventory to restock)
+- **Depends on**: M1-IDENTITY (for staff roles in inventory)
+- **Blocks**: M3-SHOPPING (needs products to add to cart)
 
 ---
 
@@ -91,10 +81,10 @@ This member owns the **heart of the store**: Branded frames, Lens types, and the
 
 | Phase | Duration |
 |-------|----------|
-| Database + Models | 2 days |
-| Catalog API (Filters/Search) | 3 days |
-| Inventory API | 1 day |
-| Frontend Catalog Pages | 4 days |
-| Frontend Inventory Page | 2 days |
+| API: Catalog & Filters | 3 days |
+| API: Inventory & stock | 2 days |
+| UI: Listing Page | 3 days |
+| UI: Details Page | 3 days |
 | Testing | 2 days |
-| **Total** | **~14 days** |
+| **Total** | **~13 days** |
+
