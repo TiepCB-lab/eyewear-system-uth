@@ -11,15 +11,47 @@ function env_value(array $config, array $keys, $default = null) {
     return $default;
 }
 
+function parse_env_file(string $path): array {
+    $result = [];
+    $lines = @file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if ($lines === false) {
+        return [];
+    }
+
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if ($line === '' || str_starts_with($line, '#') || str_starts_with($line, ';')) {
+            continue;
+        }
+
+        if (!str_contains($line, '=')) {
+            continue;
+        }
+
+        [$name, $value] = explode('=', $line, 2);
+        $name = trim($name);
+        $value = trim($value);
+
+        if (($value !== '') && (($value[0] === '"' && str_ends_with($value, '"')) || ($value[0] === "'" && str_ends_with($value, "'")))) {
+            $value = substr($value, 1, -1);
+        }
+
+        $result[$name] = $value;
+    }
+
+    return $result;
+}
+
 function load_env_config() {
     $candidates = [
+        APP_ROOT . DIRECTORY_SEPARATOR . '.env.local',
         APP_ROOT . DIRECTORY_SEPARATOR . '.env',
         dirname(APP_ROOT) . DIRECTORY_SEPARATOR . '.env',
     ];
 
     foreach ($candidates as $path) {
         if (is_file($path)) {
-            $config = parse_ini_file($path, false, INI_SCANNER_RAW);
+            $config = parse_env_file($path);
             if (is_array($config)) {
                 return $config;
             }
