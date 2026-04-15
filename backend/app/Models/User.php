@@ -6,7 +6,12 @@ use Core\Model;
 
 class User extends Model
 {
-    protected static string $table = 'user';
+
+    protected static string $table = 'accounts';
+
+    // Thêm danh sách các cột được phép ghi dữ liệu (Tránh lỗi Security)
+    // Hãy đảm bảo các tên này khớp y hệt với cột trong bảng accounts
+    protected static array $fillable = ['name', 'email', 'password', 'role', 'status'];
 
     public function profile()
     {
