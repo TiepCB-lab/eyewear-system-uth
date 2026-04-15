@@ -35,6 +35,7 @@ Router::get('api/v1/lenses/available', [LensController::class, 'available']);
 Router::group(['prefix' => 'api/auth'], function () {
     Router::post('register', [AuthController::class, 'register']);
     Router::post('login', [AuthController::class, 'login']);
+    Router::get('verify', [AuthController::class, 'verify']);
     Router::post('logout', [AuthController::class, 'logout']);
     Router::get('me', [AuthController::class, 'me'])->middleware('auth:sanctum');
 });
