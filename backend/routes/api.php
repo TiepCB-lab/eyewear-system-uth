@@ -14,11 +14,20 @@ use App\Http\Controllers\Api\V1\CheckoutController;
 Router::get('/', [HealthController::class, 'index']);
 Router::get('api/health', [HealthController::class, 'index']);
 
-Router::get('api/v1/products', [ProductController::class, 'index']);
-Router::get('api/v1/products/show', [ProductController::class, 'show']);
+Router::group(['prefix' => 'api/v1/products'], function () {
+    Router::get('/', [ProductController::class, 'index']);
+    Router::get('show', [ProductController::class, 'show']);
+    Router::get('categories', [CategoryController::class, 'index']);
+    Router::get('lenses/available', [LensController::class, 'available']);
+});
+
+Router::group(['prefix' => 'api/v1/admin/inventory'], function () {
+    Router::put('stock', [InventoryController::class, 'updateStock']);
+});
+
+// Backward-compatible aliases
 Router::get('api/v1/categories', [CategoryController::class, 'index']);
 Router::get('api/v1/lenses/available', [LensController::class, 'available']);
-Router::put('api/v1/admin/inventory/stock', [InventoryController::class, 'updateStock']);
 
 Router::group(['prefix' => 'api/auth'], function () {
     Router::post('register', [AuthController::class, 'register']);
