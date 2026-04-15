@@ -24,3 +24,4 @@ backend/storage/uploads/avatars/*
 .vscode/
 .DS_Store
 Thumbs.db
+backend/.env.local
