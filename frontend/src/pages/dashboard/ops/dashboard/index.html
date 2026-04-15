@@ -54,7 +54,17 @@
         .sidebar-link.active {
             background: var(--first-color-alt);
             color: var(--first-color);
-            font-weight: var(--weight-700);
+            font-weight: var(--weight-500);
+        }
+
+        .sidebar-link {
+            font-weight: var(--weight-500);
+        }
+
+        .sidebar-link i {
+            width: 1.15rem;
+            text-align: center;
+            font-size: 0.95rem;
         }
 
         .admin-main {
@@ -445,10 +455,8 @@
 
         <nav>
             <ul class="sidebar-nav">
-                <li><a href="../../admin/dashboard/" class="sidebar-link"><i class="fi fi-rs-chart-pie"></i> Dashboard</a></li>
-                <li><a href="../dashboard/" class="sidebar-link active"><i class="fi fi-rs-settings"></i> Operations</a></li>
+                <li><a href="../dashboard/" class="sidebar-link active"><i class="fi fi-rs-chart-pie"></i> Dashboard</a></li>
                 <li><a href="../inventory/index.html" class="sidebar-link"><i class="fi fi-rs-box"></i> Inventory</a></li>
-                <li><a href="../../admin/users/" class="sidebar-link"><i class="fi fi-rs-users"></i> Users</a></li>
             </ul>
         </nav>
     </aside>
@@ -456,7 +464,7 @@
     <main class="admin-main">
         <section class="ops-topbar">
             <div>
-                <h1 class="ops-title">Operations</h1>
+                <h1 class="ops-title">Operations Dashboard</h1>
                 <p class="ops-subtitle">Track lab throughput, identify bottlenecks, and keep shipment SLA on schedule.</p>
             </div>
             <div class="topbar-actions">
