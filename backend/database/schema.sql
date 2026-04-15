@@ -18,8 +18,9 @@ CREATE TABLE IF NOT EXISTS `user` (
 	full_name VARCHAR(150) NOT NULL,
 	email VARCHAR(150) NOT NULL UNIQUE,
 	password_hash VARCHAR(255) NOT NULL,
+	verify_token VARCHAR(255) NULL,
 	phone VARCHAR(30) NULL,
-	status ENUM('active', 'inactive', 'blocked') DEFAULT 'active',
+	status ENUM('active', 'inactive', 'blocked') DEFAULT 'inactive',
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	CONSTRAINT fk_user_role FOREIGN KEY (role_id) REFERENCES role(id)
