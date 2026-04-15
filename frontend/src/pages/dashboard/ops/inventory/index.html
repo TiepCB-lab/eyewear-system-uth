@@ -10,13 +10,73 @@
     
     <!--=============== CSS ===============-->
     <link rel="stylesheet" href="../../../../../assets/css/styles.css" />
+    <link rel="stylesheet" href="../../../../../assets/css/admin.css" />
     
     <style>
         /* =============== INVENTORY PAGE STYLES =============== */
         
-        body {
+        .admin-body {
             background: linear-gradient(180deg, #f8fffc 0%, #ffffff 35%, #ffffff 100%);
             min-height: 100vh;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fdfb 100%);
+            border-right: 1px solid var(--border-color);
+        }
+
+        .sidebar .nav__logo {
+            padding: 0.25rem 0.4rem 1.2rem;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .brand-name {
+            font-family: var(--second-font);
+            font-size: 1.5rem;
+            font-weight: var(--weight-700);
+            color: var(--first-color);
+            line-height: 1;
+        }
+
+        .brand-tag {
+            color: var(--text-color-light);
+            font-size: 0.73rem;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .ops-chip {
+            margin-top: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.4rem 0.65rem;
+            border-radius: 99px;
+            background: var(--first-color-alt);
+            color: var(--first-color);
+            font-size: 0.74rem;
+            font-weight: var(--weight-700);
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: var(--first-color-alt);
+            color: var(--first-color);
+            font-weight: var(--weight-500);
+        }
+
+        .sidebar-link {
+            font-weight: var(--weight-500);
+        }
+
+        .sidebar-link i {
+            width: 1.15rem;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        .admin-main {
+            padding: 2.1rem;
         }
         
         .breadcrumb {
@@ -670,12 +730,23 @@
     <!--=============== LAYOUT LOADER ===============-->
     <script src="../../../../../assets/js/core/layout-loader.js" defer></script>
 </head>
-<body>
-    <!--=============== HEADER ===============-->
-    <header class="header" data-include="layout/Header"></header>
+<body class="admin-body">
+    <aside class="sidebar">
+        <a href="../dashboard/index.html" class="nav__logo">
+            <div class="brand-name">EYEWEAR.UTH</div>
+            <span class="brand-tag">Operations Control Center</span>
+            <span class="ops-chip"><i class="fi fi-rs-pulse"></i> Live Monitoring</span>
+        </a>
 
-    <!--=============== MAIN ===============-->
-    <main class="main">
+        <nav>
+            <ul class="sidebar-nav">
+                <li><a href="../dashboard/index.html" class="sidebar-link"><i class="fi fi-rs-chart-pie"></i> Dashboard</a></li>
+                <li><a href="../inventory/index.html" class="sidebar-link active"><i class="fi fi-rs-box"></i> Inventory</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="admin-main">
         <!--=============== BREADCRUMB ===============-->
         <section class="breadcrumb">
             <ul class="breadcrumb__list flex container">
@@ -787,9 +858,6 @@
             </div>
         </section>
     </main>
-
-    <!--=============== FOOTER ===============-->
-    <footer class="footer" data-include="layout/Footer"></footer>
 
     <!--=============== SCRIPTS ===============-->
     <script>
