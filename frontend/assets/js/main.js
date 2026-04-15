@@ -112,3 +112,50 @@ tabs.forEach((tab) => {
     tab.classList.add("active-tab");
   });
 });
+/*=============== REGISTER AJAX ===============*/
+const signUpForm = document.querySelector('.signup__form');
+
+if (signUpForm) {
+    signUpForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(signUpForm);
+        const payload = {
+            name: formData.get('name') || '',
+            email: formData.get('email') || '',
+            password: formData.get('password') || ''
+        };
+        const registerEndpoint = 'http://localhost:8000/api/auth/register';
+
+        try {
+            const response = await fetch(registerEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                let message = result.message || 'Đăng ký thành công. Hãy kiểm tra Email để xác thực tài khoản.';
+                if (result.email_sent === false) {
+                    message += '\nLưu ý: email xác thực không gửi được';
+                    if (result.email_error) {
+                        message += '\nLỗi: ' + result.email_error;
+                    }
+                    if (result.verification_url) {
+                        message += '\nLink xác thực: ' + result.verification_url;
+                    }
+                }
+                alert(message);
+            } else {
+                console.error('Backend lỗi:', response.status, result);
+                alert('Đăng ký thất bại: ' + (result.message || 'Vui lòng thử lại.'));
+            }
+        } catch (error) {
+            console.error('Lỗi kết nối:', error);
+            alert('Không thể kết nối đến Server Backend. Hãy kiểm tra backend đang chạy và đúng cổng.');
+        }
+    });
+}

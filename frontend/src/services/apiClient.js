@@ -7,4 +7,9 @@ const apiClient = axios.create({
   },
 });
 
+const savedToken = localStorage.getItem('auth_token');
+if (savedToken) {
+  apiClient.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`;
+}
+
 export default apiClient;

@@ -306,6 +306,25 @@
         const signInButton = document.getElementById('signIn');
         const container = document.getElementById('auth-container');
 
+        const params = new URLSearchParams(window.location.search);
+        const verified = params.get('verified');
+        const verifiedEmail = params.get('email');
+        const verifyError = params.get('error');
+
+        if (verified === '1') {
+          container.classList.remove('active');
+          if (verifiedEmail) {
+            const emailInput = document.getElementById('email-signin');
+            if (emailInput) {
+              emailInput.value = decodeURIComponent(verifiedEmail);
+            }
+          }
+          alert('Xác thực email thành công! Bạn có thể đăng nhập.');
+        } else if (verified === '0') {
+          container.classList.remove('active');
+          alert('Xác thực thất bại: ' + (verifyError ? decodeURIComponent(verifyError) : 'Token không hợp lệ.'));
+        }
+
         signUpButton.addEventListener('click', () => {
           container.classList.add("active");
         });
