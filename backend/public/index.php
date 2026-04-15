@@ -1,9 +1,14 @@
 <?php
 
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
+
 header('Content-Type: application/json; charset=utf-8');
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+header("Access-Control-Allow-Credentials: true");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -41,23 +46,46 @@ function env_value(array $config, array $keys, $default = null) {
     return $default;
 }
 
+function parse_env_file(string $path): array {
+    $result = [];
+    $lines = @file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if ($lines === false) {
+        return [];
+    }
+
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if ($line === '' || str_starts_with($line, '#') || str_starts_with($line, ';')) {
+            continue;
+        }
+
+        if (!str_contains($line, '=')) {
+            continue;
+        }
+
+        [$name, $value] = explode('=', $line, 2);
+        $name = trim($name);
+        $value = trim($value);
+
+        if (($value !== '') && (($value[0] === '"' && str_ends_with($value, '"')) || ($value[0] === "'" && str_ends_with($value, "'")))) {
+            $value = substr($value, 1, -1);
+        }
+
+        $result[$name] = $value;
+    }
+
+    return $result;
+}
+
 function load_env_config() {
     $backendRoot = dirname(__DIR__);
-    $workspaceRoot = dirname($backendRoot);
-    $candidates = [
-        $backendRoot . DIRECTORY_SEPARATOR . '.env',
-        $workspaceRoot . DIRECTORY_SEPARATOR . '.env',
-    ];
+    $envPath = $backendRoot . DIRECTORY_SEPARATOR . '.env';
+    $envLocalPath = $backendRoot . DIRECTORY_SEPARATOR . '.env.local';
 
-    foreach ($candidates as $path) {
-        if (is_file($path)) {
-            $config = parse_ini_file($path, false, INI_SCANNER_RAW);
-            if (is_array($config)) {
-                return $config;
-            }
-        }
-    }
-    return [];
+    $envConfig = is_file($envPath) ? parse_env_file($envPath) : [];
+    $localConfig = is_file($envLocalPath) ? parse_env_file($envLocalPath) : [];
+
+    return array_merge($envConfig, $localConfig);
 }
 
 function execute_schema(PDO $pdo, $schemaPath) {
@@ -83,6 +111,22 @@ function execute_schema(PDO $pdo, $schemaPath) {
     }
 
     return $executed;
+}
+
+function ensure_user_verification_schema(PDO $pdo, string $database): void {
+    $tableStmt = $pdo->prepare("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = ? AND table_name = 'user'");
+    $tableStmt->execute([$database]);
+    $tableExists = (int) $tableStmt->fetchColumn() > 0;
+
+    if (!$tableExists) {
+        return;
+    }
+
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = ? AND table_name = 'user' AND column_name = 'verify_token'");
+    $stmt->execute([$database]);
+    if ((int) $stmt->fetchColumn() === 0) {
+        $pdo->exec("ALTER TABLE `user` ADD COLUMN verify_token VARCHAR(255) NULL AFTER password_hash");
+    }
 }
 
 function init_database() {
@@ -114,7 +158,7 @@ function init_database() {
         ]);
 
         \Core\Database::setInstance($appPdo);
-
+        ensure_user_verification_schema($appPdo, $database);
         $requiredTables = [
             'role', 'user', 'profiles', 'password_reset_tokens', 'product', 'productvariant', 'inventory', 'lens',
             'promotion', 'prescription', 'cart', 'cartitem', 'order', 'orderitem',
@@ -143,9 +187,26 @@ function init_database() {
 
 // 1. Init Database (Also registers PDO in Core\Database)
 $dbInit = init_database();
+if ($dbInit['status'] !== 'ready' && $dbInit['status'] !== 'initialized') {
+    http_response_code(500);
+    echo json_encode([
+        'message' => 'Server error',
+        'error' => $dbInit['message'] ?? 'Database initialization failed.',
+        'status' => $dbInit['status'] ?? 'unknown',
+    ]);
+    exit;
+}
 
 // 2. Load API Routes
 require_once APP_ROOT . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . 'api.php';
 
 // 3. Dispatch current request
-\Core\Router::dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
+try {
+    \Core\Router::dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
+} catch (\Throwable $e) {
+    http_response_code(500);
+    echo json_encode([
+        'message' => 'Server error',
+        'error' => $e->getMessage(),
+    ]);
+}
