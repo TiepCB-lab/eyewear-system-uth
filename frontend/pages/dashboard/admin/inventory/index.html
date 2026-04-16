@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../../../assets/css/styles.css">
+    <link rel="stylesheet" href="../../../../assets/css/admin.css">
+    <title>Inventory Management — EYEWEAR.UTH</title>
+</head>
+<body class="admin-body">
+    <aside class="sidebar">
+        <a href="../../../index.html" class="nav__logo">
+            <h2 style="font-weight: 800; color: var(--first-color);">EYEWEAR.UTH</h2>
+            <span style="font-size: 0.7rem; color: #666;">Back Office v1.0</span>
+        </a>
+        <nav>
+            <ul class="sidebar-nav">
+                <li><a href="../../admin/dashboard/" class="sidebar-link"><i class="fi fi-rs-chart-pie"></i> Dashboard</a></li>
+                <li><a href="../../ops/dashboard/" class="sidebar-link"><i class="fi fi-rs-settings"></i> Operations</a></li>
+                <li><a href="../inventory/" class="sidebar-link active"><i class="fi fi-rs-box"></i> Inventory</a></li>
+                <li><a href="../users/" class="sidebar-link"><i class="fi fi-rs-users"></i> Users</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="admin-main">
+        <div class="flex" style="justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h1 class="section__title" style="margin: 0;">Inventory Control</h1>
+            <button class="btn btn--md">Add New Product</button>
+        </div>
+
+        <div class="metric-card">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Product Name</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><img src="../../../../assets/images/products/AN550012_3849.png" style="width: 50px;"></td>
+                        <td>Premium Acetate Optical</td>
+                        <td>$120.00</td>
+                        <td>45</td>
+                        <td><span class="badge badge-shipped">Active</span></td>
+                        <td><button class="btn btn--sm">Edit</button> <button class="btn btn--sm" style="background:#dc3545;">Delete</button></td>
+                    </tr>
+                    <tr>
+                        <td><img src="../../../../assets/images/products/AN550016_3796.png" style="width: 50px;"></td>
+                        <td>Blue Light Pro Frame</td>
+                        <td>$85.00</td>
+                        <td>0</td>
+                        <td><span class="badge badge-pending">Out of Stock</span></td>
+                        <td><button class="btn btn--sm">Edit</button> <button class="btn btn--sm" style="background:#dc3545;">Delete</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+</html>
+
+

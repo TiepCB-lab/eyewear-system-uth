@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Admin Dashboard — EYEWEAR.UTH</title>
+    
+    <!--=============== FLATICON ===============-->
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.0.0/uicons-regular-straight/css/uicons-regular-straight.css" />
+    
+    <!--=============== CSS ===============-->
+    <link rel="stylesheet" href="../../../../assets/css/styles.css" />
+    <link rel="stylesheet" href="../../../../assets/css/admin.css" />
+
+    <!--=============== LAYOUT LOADER ===============-->
+    <script src="../../../../js/core/layout-loader.js" defer></script>
+</head>
+<body class="admin-body">
+    <!--=============== SIDEBAR ===============-->
+    <aside class="sidebar" data-include="sidebar/admin"></aside>
+
+    <!--=============== MAIN CONTENT ===============-->
+    <main class="admin-main">
+        <header class="admin-header flex" data-include="layout/AdminHeader"></header>
+
+        <section class="section">
+            <h2 class="section__title">System Administration Hub</h2>
+            
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Server Status</div>
+                    <div class="metric-value">99.9%</div>
+                    <div class="badge badge-shipped">Online</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Security Alerts</div>
+                    <div class="metric-value">0</div>
+                    <div class="badge badge-qc">Secure</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Database Load</div>
+                    <div class="metric-value">4%</div>
+                    <div class="badge badge-pending">Normal</div>
+                </div>
+            </div>
+
+            <div class="admin-table container" style="margin-top: 2rem; background: #fff; padding: 2rem; border-radius: 12px; box-shadow: var(--card-shadow);">
+                <h3 class="table__title">Recent System Logs</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Action</th>
+                            <th>Timestamp</th>
+                            <th>IP Address</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#USR-001</td>
+                            <td>Database Backup</td>
+                            <td>Today, 02:00 AM</td>
+                            <td>127.0.0.1</td>
+                        </tr>
+                        <tr>
+                            <td>#USR-001</td>
+                            <td>System Patch Applied</td>
+                            <td>Yesterday, 11:30 PM</td>
+                            <td>127.0.0.1</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
+
+

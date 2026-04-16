@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!--=============== FLATICON ===============-->
+    <link
+      rel="stylesheet"
+      href="https://cdn-uicons.flaticon.com/2.0.0/uicons-regular-straight/css/uicons-regular-straight.css"
+    />
+
+    <!--=============== CSS ===============-->
+    <link rel="stylesheet" href="../../../assets/css/styles.css" />
+
+    <!--=============== LAYOUT LOADER ===============-->
+    <script src="../../../js/core/layout-loader.js" defer></script>
+
+    <title>Checkout Payment — EYEWEAR.UTH</title>
+  </head>
+  <body>
+    <!--=============== HEADER ===============-->
+    <header class="header" data-include="layout/Header"></header>
+
+    <!--=============== MAIN ===============-->
+    <main class="main">
+      
+
+      <!--=============== PAYMENT ===============-->
+      <section class="checkout section--lg">
+        <div class="checkout__container container grid" style="justify-content: center;">
+          
+          <div class="checkout__group" style="max-width: 600px; width: 100%;">
+            <h3 class="section__title">Payment Confirmation</h3>
+            
+            <table class="order__table" style="margin-bottom: 2rem;">
+              <tbody>
+                <tr>
+                  <td><span class="order__subtitle">Order Number</span></td>
+                  <td><h3 class="table__title" id="displayOrderId">...</h3></td>
+                </tr>
+                <tr>
+                  <td><span class="order__subtitle">Total Payable</span></td>
+                  <td><span class="order__grand-total" id="displayAmount">$0.00</span></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <form id="paymentForm">
+              <div class="payment__methods">
+                <h3 class="checkout__title payment__title">Select Payment Method</h3>
+                
+                <div class="payment__option flex">
+                  <input type="radio" name="payment_method" id="l1" value="cod" checked class="payment__input" />
+                  <label for="l1" class="payment__label">Cash on Delivery (COD)</label>
+                </div>
+                
+                <div class="payment__option flex">
+                  <input type="radio" name="payment_method" id="l2" value="bank_transfer" class="payment__input" />
+                  <label for="l2" class="payment__label">Direct Bank Transfer</label>
+                </div>
+                
+                <div class="payment__option flex">
+                  <input type="radio" name="payment_method" id="l3" value="e_wallet" class="payment__input" />
+                  <label for="l3" class="payment__label">E-Wallet (MoMo/ZaloPay)</label>
+                </div>
+                
+                <div class="payment__option flex">
+                  <input type="radio" name="payment_method" id="l4" value="card" class="payment__input" />
+                  <label for="l4" class="payment__label">Credit / Debit Card</label>
+                </div>
+              </div>
+              
+              <button type="submit" class="btn btn--md" id="btnSubmit" style="margin-top: 1.5rem; width: 100%;">Process Payment</button>
+            </form>
+            
+            <div id="paymentResult" style="margin-top: 2rem; font-weight: 700; text-align: center; font-size: var(--h3-font-size);"></div>
+          </div>
+
+        </div>
+      </section>
+      
+      <!--=============== NEWSLETTER ===============-->
+      <section class="newsletter section" data-include="components/newsletter"></section>
+    </main>
+
+    <!--=============== FOOTER ===============-->
+    <footer class="footer container" data-include="layout/Footer"></footer>
+
+    <!--=============== MAIN JS ===============-->
+    <script src="../../../js/main.js"></script>
+    <script type="module">
+        import { paymentService } from '../../services/paymentService.js';
+
+        const queryParams = new URLSearchParams(window.location.search);
+        const currentOrder = {
+            id: queryParams.get('order_id') || 101,
+            amount: 199.99
+        };
+
+        document.getElementById('displayOrderId').innerText = '#' + currentOrder.id;
+        document.getElementById('displayAmount').innerText = '$' + currentOrder.amount;
+
+        document.getElementById('paymentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const method = document.querySelector('input[name="payment_method"]:checked').value;
+            const resultDiv = document.getElementById('paymentResult');
+            const btn = document.getElementById('btnSubmit');
+
+            btn.disabled = true;
+            btn.innerText = 'Processing...';
+            resultDiv.innerHTML = '';
+
+            try {
+                const res = await paymentService.processPayment(currentOrder.id, method, currentOrder.amount);
+                resultDiv.innerHTML = '<span style="color: green;">Payment ' + (res.data.status === 'paid' ? 'Successful' : 'Pending (COD/Transfer)') + '!<br/>Transaction Ref: ' + (res.data.transaction_ref || 'N/A') + '</span>';
+                
+                setTimeout(() => {
+                    window.location.href = '../accounts/index.html'; // Redirect to tracking
+                }, 3000);
+            } catch (error) {
+                resultDiv.innerHTML = '<span style="color: red;">Failed to process: ' + (error.message || 'Server Error') + '</span>';
+                btn.disabled = false;
+                btn.innerText = 'Process Payment';
+            }
+        });
+    </script>
+  </body>
+</html>
+
+
