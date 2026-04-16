@@ -51,6 +51,7 @@
               <input type="text" placeholder="Name" name="name" />
               <input type="email" placeholder="Email" name="email" />
               <input type="password" placeholder="Password" name="password" />
+              <div id="signup-message" class="auth-message" aria-live="polite"></div>
               <button type="button" class="btn">Sign Up</button>
             </form>
           </div>
@@ -69,7 +70,7 @@
               <span style="font-size: 0.8rem; color: #999; margin-bottom: 1rem;">Testing logic: admin@uth.com / staff@uth.com</span>
               <input type="email" placeholder="Email" id="email-signin" name="email" value="admin@uth.com" />
               <input type="password" placeholder="Password" name="password" value="password" />
-              <a href="#" class="forgot-password">Forgot your password?</a>
+              <a href="http://127.0.0.1:8000/forgot_password.php" class="forgot-password">Forgot your password?</a>
               <button type="button" class="btn">Sign In</button>
             </form>
           </div>
@@ -230,6 +231,22 @@
             background-color: #fff;
         }
 
+        .auth-message {
+          min-height: 1.5rem;
+          margin: 0.75rem 0;
+          font-size: 0.95rem;
+          line-height: 1.4;
+          color: #065f46;
+        }
+
+        .auth-message.error {
+          color: #b91c1c;
+        }
+
+        .auth-message.success {
+          color: #166534;
+        }
+
         .btn {
             border-radius: 12px;
             padding: 12px 45px;
@@ -337,21 +354,32 @@
         document.querySelector('.sign-up-container .btn').addEventListener('click', async (e) => {
           e.preventDefault();
 
+          const messageEl = document.getElementById('signup-message');
           const name = document.querySelector('.sign-up-container input[type="text"]').value;
           const email = document.querySelector('.sign-up-container input[type="email"]').value;
           const password = document.querySelector('.sign-up-container input[type="password"]').value;
 
+          messageEl.textContent = '';
+          messageEl.classList.remove('error', 'success');
+
           if (!name || !email || !password) {
-            alert('Please fill in all fields');
+            messageEl.textContent = 'Vui lòng nhập đầy đủ tên, email và mật khẩu.';
+            messageEl.classList.add('error');
             return;
           }
 
           try {
             const response = await authService.register({ name, email, password });
-            alert('Registration successful! Please login.');
+            const message = response.message || 'Đăng ký thành công! Email xác thực đã được gửi. Vui lòng kiểm tra email.';
+            messageEl.textContent = message;
+            messageEl.classList.add('success');
+            alert(message);
             container.classList.remove("active");
           } catch (error) {
-            alert('Registration failed: ' + (error.response?.data?.message || error.message));
+            const errorMessage = error.response?.data?.message || error.message || 'Đăng ký thất bại. Vui lòng thử lại.';
+            messageEl.textContent = errorMessage;
+            messageEl.classList.add('error');
+            alert('Registration failed: ' + errorMessage);
           }
         });
 
