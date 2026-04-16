@@ -38,7 +38,10 @@
             }
 
             rehydrateScripts(el);
-            if (mappedPath.includes('header')) initMenu();
+            if (mappedPath.includes('header')) {
+                initMenu();
+                initHeaderAuthState();
+            }
         } catch (err) {
             console.error(`LayoutLoader Error [${componentPath}]:`, err);
             el.innerHTML = `<div style="color:#d9534f; padding:10px; border:1px solid #d9534f; margin:10px;">Failed to load ${componentPath}</div>`;
@@ -75,6 +78,38 @@
               navClose = document.getElementById("nav-close");
         if (navToggle && navMenu) navToggle.onclick = () => navMenu.classList.add("show-menu");
         if (navClose && navMenu) navClose.onclick = () => navMenu.classList.remove("show-menu");
+    }
+
+    function initHeaderAuthState() {
+        const token = localStorage.getItem('auth_token');
+        const topAuthLink = document.querySelector('.header__top-action');
+        const navLoginLink = document.querySelector('.nav__list .nav__link[href$="/src/pages/auth/"]');
+
+        if (!token) {
+            if (topAuthLink) {
+                topAuthLink.textContent = 'Log In / Sign Up';
+                topAuthLink.href = '/src/pages/auth/';
+            }
+            if (navLoginLink) {
+                navLoginLink.textContent = 'Login';
+                navLoginLink.href = '/src/pages/auth/';
+            }
+            return;
+        }
+
+        if (topAuthLink) {
+            topAuthLink.textContent = 'My Account';
+            topAuthLink.href = '/src/pages/accounts/';
+        }
+        if (navLoginLink) {
+            navLoginLink.textContent = 'Logout';
+            navLoginLink.href = '#';
+            navLoginLink.onclick = (event) => {
+                event.preventDefault();
+                localStorage.removeItem('auth_token');
+                window.location.href = '/index.html';
+            };
+        }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
