@@ -33,6 +33,10 @@ Bạn cần cài đặt MySQL (thường dùng XAMPP, Laragon hoặc cài rời)
     - Tạo một Database mới tên là: `eyewear_system`.
     - Bạn có thể xem cấu trúc bảng trong [docs/database/schema-outline.md](docs/database/schema-outline.md).
 
+4.  **Cấu hình Email (Cho chức năng Xác thực/Quên mật khẩu)**:
+    - Mở file `.env`, tìm các biến `MAIL_...`.
+    - Điền `MAIL_USERNAME` và `MAIL_PASSWORD` (App Password của Gmail) để hệ thống có thể gửi mail xác thực.
+
 ### Bước 2: Chạy Backend (Dành cho API)
 
 Mở một cửa sổ Terminal mới:
