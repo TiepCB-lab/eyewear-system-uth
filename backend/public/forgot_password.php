@@ -174,7 +174,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="email" name="email" required>
                 <button type="submit">Gửi yêu cầu</button>
             </form>
-            <p class="back-link"><a href="http://127.0.0.1:8000/">Quay lại</a></p>
+            <p class="back-link"><a href="http://127.0.0.1:5500/frontend/src/pages/auth/">Quay lại</a></p>
         </div>
     </div>
 </body>
