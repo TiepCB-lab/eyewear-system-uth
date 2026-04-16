@@ -174,8 +174,13 @@ function init_database() {
         \Core\Database::setInstance($appPdo);
         ensure_user_verification_schema($appPdo, $database);
         $requiredTables = [
+<<<<<<< Updated upstream
             'role', 'user', 'profiles', 'password_reset_tokens', 'product', 'productvariant', 'inventory', 'lens',
             'system_config', 'promotion', 'prescription', 'cart', 'cartitem', 'order', 'orderitem',
+=======
+            'role', 'user', 'user_roles', 'profiles', 'password_reset_tokens', 'product', 'productvariant', 'inventory', 'lens',
+            'promotion', 'prescription', 'cart', 'cartitem', 'order', 'orderitem',
+>>>>>>> Stashed changes
             'payment', 'shipment', 'supportticket', 'ticket_replies', 'returnrequest',
         ];
 
