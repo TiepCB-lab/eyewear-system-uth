@@ -38,21 +38,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        $check = $conn->prepare("SELECT id FROM accounts WHERE email = ?");
+        $check = $conn->prepare("SELECT id FROM `user` WHERE email = ?");
         $check->execute([$email]);
         if ($check->fetch()) {
             echo "Email này đã được sử dụng. Vui lòng dùng email khác.";
             exit;
         }
 
+        $roleStmt = $conn->prepare("SELECT id FROM role WHERE name = ?");
+        $roleStmt->execute(['customer']);
+        $role = $roleStmt->fetch();
+        if ($role) {
+            $roleId = (int) $role['id'];
+        } else {
+            $insertRole = $conn->prepare("INSERT INTO role (name, description) VALUES (?, ?)");
+            $insertRole->execute(['customer', 'Customer']);
+            $roleId = (int) $conn->lastInsertId();
+        }
+
         $pass_hash = password_hash($password, PASSWORD_DEFAULT);
         $token = bin2hex(random_bytes(16));
         $full_name = explode('@', $email)[0];
 
-        $sql = "INSERT INTO accounts (full_name, email, password_hash, verify_token, status, role_id) VALUES (?, ?, ?, ?, 0, 2)";
+        $sql = "INSERT INTO `user` (full_name, email, password_hash, verify_token, status, role_id) VALUES (?, ?, ?, ?, 'active', ?)";
         $stmt = $conn->prepare($sql);
 
-        if (!$stmt->execute([$full_name, $email, $pass_hash, $token])) {
+        if (!$stmt->execute([$full_name, $email, $pass_hash, $token, $roleId])) {
             echo "Đăng ký thất bại. Vui lòng thử lại.";
             exit;
         }
@@ -84,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "Lỗi Database: " . $e->getMessage();
     } catch (Exception $e) {
         if (isset($conn) && isset($email)) {
-            $delete = $conn->prepare("DELETE FROM accounts WHERE email = ?");
+            $delete = $conn->prepare("DELETE FROM `user` WHERE email = ?");
             $delete->execute([$email]);
         }
         echo "Lỗi khi gửi mail: " . $e->getMessage();

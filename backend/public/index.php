@@ -24,6 +24,20 @@ if (!function_exists('str_starts_with')) {
     }
 }
 
+if (!function_exists('str_ends_with')) {
+    function str_ends_with(string $haystack, string $needle): bool
+    {
+        return $needle === '' || substr_compare($haystack, $needle, -strlen($needle)) === 0;
+    }
+}
+
+if (!function_exists('str_contains')) {
+    function str_contains(string $haystack, string $needle): bool
+    {
+        return $needle === '' || strpos($haystack, $needle) !== false;
+    }
+}
+
 spl_autoload_register(function ($class) {
     if (str_starts_with($class, 'App\\')) {
         $file = APP_ROOT . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, substr($class, 4)) . '.php';
@@ -160,8 +174,8 @@ function init_database() {
         \Core\Database::setInstance($appPdo);
         ensure_user_verification_schema($appPdo, $database);
         $requiredTables = [
-            'role', 'user', 'profiles', 'password_reset_tokens', 'product', 'productvariant', 'inventory', 'lens',
-            'promotion', 'prescription', 'cart', 'cartitem', 'order', 'orderitem',
+            'role', 'user', 'user_roles', 'profiles', 'password_reset_tokens', 'product', 'productvariant', 'inventory', 'lens',
+            'system_config', 'promotion', 'prescription', 'cart', 'cartitem', 'order', 'orderitem',
             'payment', 'shipment', 'supportticket', 'ticket_replies', 'returnrequest',
         ];
 

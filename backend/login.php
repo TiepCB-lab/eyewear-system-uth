@@ -7,7 +7,7 @@ if (isset($_POST['login'])) {
     $password = $_POST['password'];
 
     // Truy vấn bảng accounts
-    $stmt = $conn->prepare("SELECT * FROM accounts WHERE email = ?");
+    $stmt = $conn->prepare("SELECT * FROM `user` WHERE email = ?");
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 
@@ -16,7 +16,7 @@ if (isset($_POST['login'])) {
     if ($user && password_verify($password, $user['password_hash'])) {
         
         // 2. Kiểm tra trạng thái xác thực mail
-        if ($user['status'] == 0) {
+        if ($user['status'] !== 'active') {
             die("Tài khoản này chưa được xác thực email. Vui lòng kiểm tra hộp thư!");
         }
 
@@ -29,7 +29,7 @@ if (isset($_POST['login'])) {
         if ($user['role_id'] == 1) {
             header("Location: admin_dashboard.php");
         } else {
-            header("Location: index.php"); // Hoặc trang chủ của người dùng
+            header("Location: http://127.0.0.1:5500/frontend/src/pages/shop/");
         }
         exit(); // Luôn dùng exit sau header để dừng code
 
