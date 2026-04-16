@@ -1,0 +1,78 @@
+/* =============== ADMIN DASHBOARD STYLES =============== */
+.admin-body {
+    background: linear-gradient(180deg, #f6fcfa 0%, #ffffff 60%);
+}
+
+.ops-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    margin-bottom: 1.5rem;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 0.8rem;
+    padding: 1rem 1.1rem;
+    box-shadow: 0 8px 20px rgba(0, 154, 133, 0.06);
+}
+
+.ops-title {
+    margin: 0;
+    font-family: var(--second-font);
+    font-size: clamp(1.5rem, 2.2vw, 2rem);
+    color: var(--title-color);
+}
+
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.1rem;
+}
+
+.kpi-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 0.8rem;
+    padding: 1.25rem;
+    box-shadow: 0 8px 20px rgba(0, 154, 133, 0.05);
+    border-top: 4px solid var(--first-color);
+}
+
+.kpi-value {
+    color: var(--first-color);
+    font-size: 2.25rem;
+    font-family: var(--second-font);
+    font-weight: var(--weight-700);
+}
+
+.ops-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+}
+
+@media screen and (max-width: 1100px) {
+    .ops-layout { grid-template-columns: 1fr; }
+}
+
+.panel {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 0.8rem;
+    padding: 1.5rem;
+}
+
+.status-pill {
+    padding: 0.35rem 0.75rem;
+    border-radius: 99px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.status-progress { background: #e6fffa; color: #047857; }
+.status-wait { background: #fffbeb; color: #92400e; }
+.status-qc { background: #edf2f7; color: #2d3748; }
+.status-ready { background: #ebf8ff; color: #2b6cb0; }
