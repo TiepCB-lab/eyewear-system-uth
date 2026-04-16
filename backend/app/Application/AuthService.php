@@ -24,10 +24,43 @@ class AuthService
         }
 
         // 2. Kiểm tra email trong bảng accounts
-        $stmt = $db->prepare('SELECT id FROM accounts WHERE email = ?');
+        $stmt = $db->prepare('SELECT id, status, verify_token, full_name FROM accounts WHERE email = ?');
         $stmt->execute([$data['email']]);
-        if ($stmt->fetch()) {
-            throw new \Exception('Email already exists');
+        $existingUser = $stmt->fetch();
+        if ($existingUser) {
+            if ((int)$existingUser['status'] === 0) {
+                $verifyToken = $existingUser['verify_token'] ?: bin2hex(random_bytes(16));
+                if (!$existingUser['verify_token']) {
+                    $updateToken = $db->prepare('UPDATE accounts SET verify_token = ? WHERE id = ?');
+                    $updateToken->execute([$verifyToken, $existingUser['id']]);
+                }
+
+                $verificationUrl = $this->buildVerificationUrl($verifyToken);
+                $emailError = null;
+                try {
+                    $this->sendVerificationEmail($data['email'], $data['name'] ?: $existingUser['full_name'] ?: $data['email'], $verifyToken);
+                } catch (\Exception $e) {
+                    $emailError = $e->getMessage();
+                }
+
+                $result = [
+                    'id' => $existingUser['id'],
+                    'name' => $data['name'] ?: $existingUser['full_name'],
+                    'email' => $data['email'],
+                    'role' => 'customer',
+                    'verification_url' => $verificationUrl,
+                    'email_sent' => $emailError === null,
+                    'resend_verification' => true,
+                ];
+
+                if ($emailError !== null) {
+                    $result['email_error'] = $emailError;
+                }
+
+                return $result;
+            }
+
+            throw new \Exception('Email already exists. Please use another email.');
         }
 
         $hash = password_hash($data['password'], PASSWORD_DEFAULT);
