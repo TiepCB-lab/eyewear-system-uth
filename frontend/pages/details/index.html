@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!--=============== FLATICON ===============-->
+    <link
+      rel="stylesheet"
+      href="https://cdn-uicons.flaticon.com/2.0.0/uicons-regular-straight/css/uicons-regular-straight.css"
+    />
+
+    <!--=============== SWIPER CSS ===============-->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+    />
+
+    <!--=============== CSS ===============-->
+    <link rel="stylesheet" href="../../../assets/css/styles.css" />
+
+    <!--=============== LAYOUT LOADER ===============-->
+    <script src="../../../js/core/layout-loader.js" defer></script>
+
+    <title>EYEWEAR.UTH — Details</title>
+  </head>
+  <body>
+    <!--=============== HEADER ===============-->
+    <!--=============== HEADER ===============-->
+    <header class="header" data-include="layout/Header"></header>
+
+    <!--=============== MAIN ===============-->
+    <main class="main">
+      
+
+      <!--=============== DETAILS ===============-->
+      <section class="details section--lg">
+        <div class="details__container container grid">
+          <div class="details__group">
+            <img
+              src="../../../assets/images/products/AN550012_3849.png"
+              alt=""
+              id="details-main-image"
+              class="details__img"
+            />
+            <div class="details__small-images grid">
+              <img
+                src="../../../assets/images/products/AN550012_3849.png"
+                alt=""
+                class="details__small-img"
+              />
+              <img
+                src="../../../assets/images/products/AN550012_3849(1).jpeg"
+                alt=""
+                class="details__small-img"
+              />
+              <img
+                src="../../../assets/images/products/AN550021_3933.png"
+                alt=""
+                class="details__small-img"
+              />
+            </div>
+          </div>
+          <div class="details__group">
+            <h3 id="details-title" class="details__title">Premium Acetate Optical Frames</h3>
+            <p class="details__brand">Brand: <span id="details-brand">Eyewear Collective</span></p>
+            <div class="details__price flex">
+              <span class="new__price" id="price-current">$116.00</span>
+              <span class="old__price" id="price-old">$160.00</span>
+              <span class="save__price" id="price-discount">Save $44.00</span>
+            </div>
+            <div class="order-type-selector" style="background: #f4f4f4; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                <p><strong>Purchase Type</strong></p>
+                <div class="flex" style="gap: 1.5rem; margin-top: 0.5rem; flex-wrap: wrap;">
+                    <label><input type="radio" name="order_type" value="instock" checked> In-stock</label>
+                    <label><input type="radio" name="order_type" value="preorder"> Pre-order (10-14 days)</label>
+                    <label><input type="radio" name="order_type" value="prescription"> Add Prescription Lens</label>
+                </div>
+            </div>
+            <p class="short__description">
+                Choose a color and size variant, then select lens package if needed. Price updates instantly based on your configuration.
+            </p>
+            <ul class="products__list">
+              <li class="list__item flex">
+                <i class="fi-rs-crown"></i> 1 Year Al Jazeera Brand Warranty
+              </li>
+              <li class="list__item flex">
+                <i class="fi-rs-refresh"></i> 30 Days Return Policy
+              </li>
+              <li class="list__item flex">
+                <i class="fi-rs-credit-card"></i> Cash on Delivery available
+              </li>
+            </ul>
+            <div class="details__color flex">
+              <span class="details__color-title">Color</span>
+              <ul class="color__list" id="variant-colors">
+                <li>
+                  <a
+                    href="#"
+                    class="color__link"
+                    data-color="Tortoise"
+                    data-additional="0"
+                    style="background-color: hsl(37, 100%, 65%)"
+                  ></a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    class="color__link"
+                    data-color="Crimson"
+                    data-additional="8"
+                    style="background-color: hsl(353, 100%, 65%)"
+                  ></a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    class="color__link"
+                    data-color="Gold"
+                    data-additional="14"
+                    style="background-color: hsl(49, 100%, 60%)"
+                  ></a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    class="color__link"
+                    data-color="Rose"
+                    data-additional="6"
+                    style="background-color: hsl(304, 100%, 78%)"
+                  ></a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    class="color__link"
+                    data-color="Emerald"
+                    data-additional="10"
+                    style="background-color: hsl(126, 61%, 52%)"
+                  ></a>
+                </li>
+              </ul>
+            </div>
+            <div class="details__size flex">
+              <span class="details__size-title">Size</span>
+              <ul class="size__list" id="variant-sizes">
+                <li>
+                  <a href="#" class="size__link size-active" data-size="M" data-additional="0">M</a>
+                </li>
+                <li>
+                  <a href="#" class="size__link" data-size="L" data-additional="12">L</a>
+                </li>
+                <li>
+                  <a href="#" class="size__link" data-size="XL" data-additional="18">XL</a>
+                </li>
+                <li>
+                  <a href="#" class="size__link" data-size="XXL" data-additional="24">XXL</a>
+                </li>
+              </ul>
+            </div>
+
+            <div style="margin-bottom: 1.25rem;">
+              <span class="details__size-title" style="display:block; margin-bottom: 0.5rem;">Lens Package</span>
+              <select id="lens-package" class="form__input" style="width: 100%; max-width: 390px;">
+                <option value="0">Frame only (no lens add-on)</option>
+                <option value="35">Basic Single Vision (+$35)</option>
+                <option value="65">Blue-light Single Vision (+$65)</option>
+                <option value="110">Progressive Premium (+$110)</option>
+              </select>
+            </div>
+
+            <div style="border:1px solid var(--border-color); border-radius:8px; padding:0.85rem 1rem; margin-bottom:1.4rem; background: var(--first-color-alt);">
+              <p style="font-weight: 700; margin-bottom: 0.35rem;">Price Breakdown</p>
+              <p style="font-size: var(--small-font-size);">Base frame: <strong id="line-base">$116.00</strong></p>
+              <p style="font-size: var(--small-font-size);">Variant add-on: <strong id="line-variant">$0.00</strong></p>
+              <p style="font-size: var(--small-font-size);">Lens package: <strong id="line-lens">$0.00</strong></p>
+              <p style="font-size: var(--small-font-size);">Quantity: <strong id="line-qty">1</strong></p>
+              <p style="margin-top:0.35rem; color: var(--first-color); font-weight:700;">Estimated total: <span id="line-total">$116.00</span></p>
+            </div>
+
+            <div class="details__action">
+              <input type="number" class="quantity" id="quantity-input" value="1" min="1" max="10" />
+              <a href="#" class="btn btn--sm">Add To Cart</a>
+              <a href="#" class="btn btn--sm btn-tryon" style="background: var(--first-color-alt);">Virtual Try-On</a>
+              <a href="#" class="details__action-btn">
+                <i class="fi fi-rs-heart"></i>
+              </a>
+            </div>
+            <ul class="details__meta">
+              <li class="meta__list flex"><span>SKU:</span><span id="variant-sku">EYC-ACETATE-M-TOR</span></li>
+              <li class="meta__list flex">
+                <span>Tags:</span>Optical, Premium, Acetate
+              </li>
+              <li class="meta__list flex">
+                <span>Availability:</span><span id="variant-stock">8 Items in Stock</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!--=============== DETAILS TAB ===============-->
+      <section class="details__tab container">
+        <div class="detail__tabs">
+          <span class="detail__tab active-tab" data-target="#info">
+            Additional Info
+          </span>
+          <span class="detail__tab" data-target="#reviews">Reviews(3)</span>
+        </div>
+        <div class="details__tabs-content">
+          <div class="details__tab-content active-tab" content id="info">
+            <table class="info__table">
+              <tr>
+                <th>Stand Up</th>
+                <td>35" L x 24"W x 37-45"H(front to back wheel)</td>
+              </tr>
+              <tr>
+                <th>Folded (w/o wheels)</th>
+                <td>32.5"L x 18.5"W x 16.5"H</td>
+              </tr>
+              <tr>
+                <th>Folded (w/o wheels)</th>
+                <td>32.5"L x 24"W x 18.5"H</td>
+              </tr>
+              <tr>
+                <th>Door Pass THrough</th>
+                <td>24</td>
+              </tr>
+              <tr>
+                <th>Frame</th>
+                <td>Aluminum</td>
+              </tr>
+              <tr>
+                <th>Weight (w/o wheels)</th>
+                <td>20 LBS</td>
+              </tr>
+              <tr>
+                <th>Weight Capacity</th>
+                <td>60 LBS</td>
+              </tr>
+              <tr>
+                <th>Width</th>
+                <td>24</td>
+              </tr>
+              <tr>
+                <th>Handle Height (ground to handle)</th>
+                <td>37-45</td>
+              </tr>
+              <tr>
+                <th>Wheels</th>
+                <td>12" air / wide track slick tread</td>
+              </tr>
+              <tr>
+                <th>Seat back height</th>
+                <td>21.5</td>
+              </tr>
+              <tr>
+                <th>Head Room(inside canopy)</th>
+                <td>25"</td>
+              </tr>
+              <tr>
+                <th>Color</th>
+                <td>Black, Blue, Red, White</td>
+              </tr>
+              <tr>
+                <th>Size</th>
+                <td>M, S</td>
+              </tr>
+            </table>
+          </div>
+          <div class="details__tab-content" content id="reviews">
+            <div class="reviews__container grid">
+              <div class="review__single">
+                <div>
+                  <img
+                    src="../../../assets/images/avatar-1.jpg"
+                    alt=""
+                    class="review__img"
+                  />
+                  <h4 class="review__title">Jacky Chan</h4>
+                </div>
+                <div class="review__data">
+                  <div class="review__rating">
+                    <i class="fi fi-rs-star"></i>
+                    <i class="fi fi-rs-star"></i>
+                    <i class="fi fi-rs-star"></i>
+                    <i class="fi fi-rs-star"></i>
+                    <i class="fi fi-rs-star"></i>
+                  </div>
+                  <p class="review__description">
+                    Thank you, very fast shipping from Poland only 3days.
+                  </p>
+                  <span class="review__date">December 4, 2022 at 3:12 pm</span>
+                </div>
+              </div>
+              <div class="review__single">
+                <div>
+                  <img
+                    src="../../../assets/images/avatar-2.jpg"
+                    alt=""
+                    class="review__img"
+                  />
+                  <h4 class="review__title">Meriem Js</h4>
+                </div>
+                <div class="review__data">
+                  <div class="review__rating">
+                    <i class="fi fi-rs-star"></i>
+                    <i class="fi fi-rs-star"></i>
+                    <i class="fi fi-rs-star"></i>
+                    <i class="fi fi-rs-star"></i>
+                    <i class="fi fi-rs-star"></i>
+                  </div>
+                  <p class="review__description">
+                    Great low price and works well
+                  </p>
+                  <span class="review__date">August 23, 2022 at 19:45 pm</span>
+                </div>
+              </div>
+              <div class="review__single">
+                <div>
+                  <img
+                    src="../../../assets/images/avatar-3.jpg"
+                    alt=""
+                    class="review__img"
+                  />
+                  <h4 class="review__title">Moh Benz</h4>
+                </div>
+                <div class="review__data">
+                  <div class="review__rating">
+                    <i class="fi fi-rs-star"></i>
+                    <i class="fi fi-rs-star"></i>
+                    <i class="fi fi-rs-star"></i>
+                    <i class="fi fi-rs-star"></i>
+                    <i class="fi fi-rs-star"></i>
+                  </div>
+                  <p class="review__description">
+                    Authentic and beautiful, Love these ways more than ever
+                    expected, They are great earphones.
+                  </p>
+                  <span class="review__date">March 2, 2021 at 10:01 am</span>
+                </div>
+              </div>
+            </div>
+            <div class="review__form">
+              <h4 class="review__form-title">Add a review</h4>
+              <div class="rate__product">
+                <i class="fi fi-rs-star"></i>
+                <i class="fi fi-rs-star"></i>
+                <i class="fi fi-rs-star"></i>
+                <i class="fi fi-rs-star"></i>
+                <i class="fi fi-rs-star"></i>
+              </div>
+              <form action="" class="form grid">
+                <textarea
+                  class="form__input textarea"
+                  placeholder="Write Comment"
+                ></textarea>
+                <div class="form__group grid">
+                  <input type="text" placeholder="Name" class="form__input">
+                  <input type="email" placeholder="Email" class="form__input">
+                </div>
+                <div class="form__btn">
+                  <button class="btn">Submit Review</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!--=============== PRODUCTS ===============-->
+      <section class="products container section--lg">
+        <h3 class="section__title"><span>Related</span> Products</h3>
+        <div class="products__container grid">
+          <div class="product__item">
+            <div class="product__banner">
+              <a href="../details/" class="product__images">
+                <img
+                  src="../../../assets/images/products/AN550012_3849.png"
+                  alt=""
+                  class="product__img default"
+                />
+                <img
+                  src="../../../assets/images/products/AN550012_3849.png"
+                  alt=""
+                  class="product__img hover"
+                />
+              </a>
+              <div class="product__actions">
+                <a href="#" class="action__btn" aria-label="Quick View">
+                  <i class="fi fi-rs-eye"></i>
+                </a>
+                <a
+                  href="#"
+                  class="action__btn"
+                  aria-label="Add to Wishlist"
+                >
+                  <i class="fi fi-rs-heart"></i>
+                </a>
+                <a href="#" class="action__btn" aria-label="Compare">
+                  <i class="fi fi-rs-shuffle"></i>
+                </a>
+              </div>
+              <div class="product__badge light-pink">Hot</div>
+            </div>
+            <div class="product__content">
+              <span class="product__category">Eyewear</span>
+              <a href="../details/">
+                <h3 class="product__title">Colorful Pattern Frames</h3>
+              </a>
+              <div class="product__rating">
+                <i class="fi fi-rs-star"></i>
+                <i class="fi fi-rs-star"></i>
+                <i class="fi fi-rs-star"></i>
+                <i class="fi fi-rs-star"></i>
+                <i class="fi fi-rs-star"></i>
+              </div>
+              <div class="product__price flex">
+                <span class="new__price">$238.85</span>
+                <span class="old__price">$245.8</span>
+              </div>
+              <a
+                href="#"
+                class="action__btn cart__btn"
+                aria-label="Add To Cart"
+              >
+                <i class="fi fi-rs-shopping-bag-add"></i>
+              </a>
+            </div>
+          </div>
+          <div class="product__item">
+            <div class="product__banner">
+              <a href="../details/" class="product__images">
+                <img
+                  src="../../../assets/images/products/AN550012_3849.png"
+                  alt=""
+                  class="product__img default"
+                />
+                <img
+                  src="../../../assets/images/products/AN550012_3849.png"
+                  alt=""
+                  class="product__img hover"
+                />
+              </a>
+              <div class="product__actions">
+                <a href="#" class="action__btn" aria-label="Quick View">
+                  <i class="fi fi-rs-eye"></i>
+                </a>
+                <a
+                  href="#"
+                  class="action__btn"
+                  aria-label="Add to Wishlist"
+                >
+                  <i class="fi fi-rs-heart"></i>
+                </a>
+                <a href="#" class="action__btn" aria-label="Compare">
+                  <i class="fi fi-rs-shuffle"></i>
+                </a>
+              </div>
+              <div class="product__badge light-green">Hot</div>
+            </div>
+            <div class="product__content">
+              <span class="product__category">Eyewear</span>
+              <a href="../details/">
+                <h3 class="product__title">Colorful Pattern Frames</h3>
+              </a>
+              <div class="product__rating">
+                <i class="fi fi-rs-star"></i>
+                <i class="fi fi-rs-star"></i>
+                <i class="fi fi-rs-star"></i>
+                <i class="fi fi-rs-star"></i>
+                <i class="fi fi-rs-star"></i>
+              </div>
+              <div class="product__price flex">
+                <span class="new__price">$238.85</span>
+                <span class="old__price">$245.8</span>
+              </div>
+              <a
+                href="#"
+                class="action__btn cart__btn"
+                aria-label="Add To Cart"
+              >
+                <i class="fi fi-rs-shopping-bag-add"></i>
+              </a>
+            </div>
+          </div>
+          <div class="product__item">
+            <div class="product__banner">
+              <a href="../details/" class="product__images">
+                <img
+                  src="../../../assets/images/products/AN550012_3849.png"
+                  alt=""
+                  class="product__img default"
+                />
+                <img
+                  src="../../../assets/images/products/AN550012_3849.png"
+                  alt=""
+                  class="product__img hover"
+                />
+              </a>
+              <div class="product__actions">
+                <a href="#" class="action__btn" aria-label="Quick View">
+                  <i class="fi fi-rs-eye"></i>
+                </a>
+                <a
+                  href="#"
+                  class="action__btn"
+                  aria-label="Add to Wishlist"
+                >
+                  <i class="fi fi-rs-heart"></i>
+                </a>
+                <a href="#" class="action__btn" aria-label="Compare">
+                  <i class="fi fi-rs-shuffle"></i>
+                </a>
+              </div>
+              <div class="product__badge light-orange">Hot</div>
+            </div>
+            <div class="product__content">
+              <span class="product__category">Eyewear</span>
+              <a href="../details/">
+                <h3 class="product__title">Colorful Pattern Frames</h3>
+              </a>
+              <div class="product__rating">
+                <i class="fi fi-rs-star"></i>
+                <i class="fi fi-rs-star"></i>
+                <i class="fi fi-rs-star"></i>
+                <i class="fi fi-rs-star"></i>
+                <i class="fi fi-rs-star"></i>
+              </div>
+              <div class="product__price flex">
+                <span class="new__price">$238.85</span>
+                <span class="old__price">$245.8</span>
+              </div>
+              <a
+                href="#"
+                class="action__btn cart__btn"
+                aria-label="Add To Cart"
+              >
+                <i class="fi fi-rs-shopping-bag-add"></i>
+              </a>
+            </div>
+          </div>
+          <div class="product__item">
+            <div class="product__banner">
+              <a href="../details/" class="product__images">
+                <img
+                  src="../../../assets/images/products/AN550012_3849.png"
+                  alt=""
+                  class="product__img default"
+                />
+                <img
+                  src="../../../assets/images/products/AN550012_3849.png"
+                  alt=""
+                  class="product__img hover"
+                />
+              </a>
+              <div class="product__actions">
+                <a href="#" class="action__btn" aria-label="Quick View">
+                  <i class="fi fi-rs-eye"></i>
+                </a>
+                <a
+                  href="#"
+                  class="action__btn"
+                  aria-label="Add to Wishlist"
+                >
+                  <i class="fi fi-rs-heart"></i>
+                </a>
+                <a href="#" class="action__btn" aria-label="Compare">
+                  <i class="fi fi-rs-shuffle"></i>
+                </a>
+              </div>
+              <div class="product__badge light-blue">Hot</div>
+            </div>
+            <div class="product__content">
+              <span class="product__category">Eyewear</span>
+              <a href="../details/">
+                <h3 class="product__title">Colorful Pattern Frames</h3>
+              </a>
+              <div class="product__rating">
+                <i class="fi fi-rs-star"></i>
+                <i class="fi fi-rs-star"></i>
+                <i class="fi fi-rs-star"></i>
+                <i class="fi fi-rs-star"></i>
+                <i class="fi fi-rs-star"></i>
+              </div>
+              <div class="product__price flex">
+                <span class="new__price">$238.85</span>
+                <span class="old__price">$245.8</span>
+              </div>
+              <a
+                href="#"
+                class="action__btn cart__btn"
+                aria-label="Add To Cart"
+              >
+                <i class="fi fi-rs-shopping-bag-add"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!--=============== NEWSLETTER ===============-->
+      <section class="newsletter section" data-include="components/newsletter"></section>
+    </main>
+
+    <!--=============== FOOTER ===============-->
+    <footer class="footer container" data-include="layout/Footer"></footer>
+
+    <!--=============== SWIPER JS ===============-->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <!--=============== VIRTUAL TRY ON MODAL ===============-->
+    <div id="tryon-container"></div>
+    <script>
+        fetch('../../components/VirtualTryOn.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('tryon-container').innerHTML = data;
+                // Re-run scripts inside the loaded component
+                const scripts = document.getElementById('tryon-container').querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    newScript.text = oldScript.text;
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+            });
+    </script>
+
+    <!--=============== MAIN JS ===============-->
+    <script src="../../../js/main.js"></script>
+    <script>
+      (function () {
+        const productMap = {
+          1: {
+            name: "Aviator Edge 2.0",
+            brand: "Ray-Ban",
+            image: "../../../assets/images/products/AN550012_3849.png",
+            basePrice: 229,
+            comparePrice: 269
+          },
+          2: {
+            name: "Urban Focus",
+            brand: "Molsion",
+            image: "../../../assets/images/products/AN550016_3796.png",
+            basePrice: 165,
+            comparePrice: 199
+          },
+          3: {
+            name: "Trail Carbon X",
+            brand: "Oakley",
+            image: "../../../assets/images/products/AN550021_3933.png",
+            basePrice: 289,
+            comparePrice: 329
+          },
+          4: {
+            name: "BlueGuard Lite",
+            brand: "Gentle Monster",
+            image: "../../../assets/images/products/AN550030_3896.png",
+            basePrice: 139,
+            comparePrice: 175
+          },
+          5: {
+            name: "Classic Horizon",
+            brand: "Molsion",
+            image: "../../../assets/images/products/AN550012_3849.png",
+            basePrice: 179,
+            comparePrice: 220
+          },
+          6: {
+            name: "Sunline Drift",
+            brand: "Ray-Ban",
+            image: "../../../assets/images/products/AN550030_3896.png",
+            basePrice: 254,
+            comparePrice: 298
+          }
+        };
+
+        const params = new URLSearchParams(window.location.search);
+        const productId = Number(params.get("id"));
+        const productNameFromQuery = params.get("name");
+        const activeProduct = productMap[productId] || {
+          name: "Premium Acetate Optical Frames",
+          brand: "Eyewear Collective",
+          image: "../../../assets/images/products/AN550012_3849.png",
+          basePrice: 116,
+          comparePrice: 160
+        };
+        const displayName = productNameFromQuery ? productNameFromQuery.trim() : activeProduct.name;
+
+        let basePrice = activeProduct.basePrice;
+        let comparePrice = activeProduct.comparePrice;
+
+        const titleEl = document.getElementById("details-title");
+        const brandEl = document.getElementById("details-brand");
+        const breadcrumbEl = document.getElementById("breadcrumb-product");
+        const mainImageEl = document.getElementById("details-main-image");
+
+        titleEl.textContent = displayName;
+        brandEl.textContent = activeProduct.brand;
+        breadcrumbEl.textContent = displayName;
+        mainImageEl.src = activeProduct.image;
+        mainImageEl.alt = displayName;
+        document.title = `${displayName} — EYEWEAR.UTH`;
+
+        const colorLinks = Array.from(document.querySelectorAll("#variant-colors .color__link"));
+        const sizeLinks = Array.from(document.querySelectorAll("#variant-sizes .size__link"));
+        const lensSelect = document.getElementById("lens-package");
+        const quantityInput = document.getElementById("quantity-input");
+        const orderTypeInputs = Array.from(document.querySelectorAll("input[name='order_type']"));
+
+        const ui = {
+          priceCurrent: document.getElementById("price-current"),
+          priceOld: document.getElementById("price-old"),
+          priceDiscount: document.getElementById("price-discount"),
+          lineBase: document.getElementById("line-base"),
+          lineVariant: document.getElementById("line-variant"),
+          lineLens: document.getElementById("line-lens"),
+          lineQty: document.getElementById("line-qty"),
+          lineTotal: document.getElementById("line-total"),
+          variantSku: document.getElementById("variant-sku"),
+          variantStock: document.getElementById("variant-stock")
+        };
+
+        const stockMap = {
+          M: 8,
+          L: 5,
+          XL: 3,
+          XXL: 1
+        };
+
+        function money(value) {
+          return `$${value.toFixed(2)}`;
+        }
+
+        function getActiveColor() {
+          return colorLinks.find((el) => el.dataset.active === "1") || colorLinks[0];
+        }
+
+        function getActiveSize() {
+          return sizeLinks.find((el) => el.classList.contains("size-active")) || sizeLinks[0];
+        }
+
+        function getOrderType() {
+          const selected = orderTypeInputs.find((input) => input.checked);
+          return selected ? selected.value : "instock";
+        }
+
+        function getOrderTypeCharge() {
+          const orderType = getOrderType();
+          if (orderType === "preorder") {
+            return -8;
+          }
+          return 0;
+        }
+
+        function updatePricing() {
+          const activeColor = getActiveColor();
+          const activeSize = getActiveSize();
+
+          const colorFee = Number(activeColor.dataset.additional || 0);
+          const sizeFee = Number(activeSize.dataset.additional || 0);
+          const lensFee = Number(lensSelect.value || 0);
+          const orderFee = getOrderTypeCharge();
+          const qty = Math.max(1, Math.min(10, Number(quantityInput.value || 1)));
+
+          quantityInput.value = String(qty);
+
+          const variantFee = colorFee + sizeFee;
+          const unitPrice = basePrice + variantFee + lensFee + orderFee;
+          const total = unitPrice * qty;
+          const discount = Math.max(comparePrice - unitPrice, 0);
+
+          ui.priceCurrent.textContent = money(unitPrice);
+          ui.priceOld.textContent = money(comparePrice);
+          ui.priceDiscount.textContent = `Save ${money(discount)}`;
+
+          ui.lineBase.textContent = money(basePrice);
+          ui.lineVariant.textContent = money(variantFee + orderFee);
+          ui.lineLens.textContent = money(lensFee);
+          ui.lineQty.textContent = String(qty);
+          ui.lineTotal.textContent = money(total);
+
+          const sizeCode = activeSize.dataset.size;
+          const colorCode = (activeColor.dataset.color || "TOR").slice(0, 3).toUpperCase();
+          ui.variantSku.textContent = `EYC-ACETATE-${sizeCode}-${colorCode}`;
+
+          const currentStock = stockMap[sizeCode] || 0;
+          if (getOrderType() === "preorder") {
+            ui.variantStock.textContent = "Pre-order available (10-14 days)";
+          } else {
+            ui.variantStock.textContent = `${currentStock} Items in Stock`;
+          }
+        }
+
+        colorLinks.forEach((link, index) => {
+          if (index === 0) {
+            link.dataset.active = "1";
+            link.style.boxShadow = "0 0 0 2px #ffffff, 0 0 0 4px var(--first-color)";
+          }
+
+          link.addEventListener("click", (event) => {
+            event.preventDefault();
+            colorLinks.forEach((el) => {
+              el.dataset.active = "0";
+              el.style.boxShadow = "none";
+            });
+
+            link.dataset.active = "1";
+            link.style.boxShadow = "0 0 0 2px #ffffff, 0 0 0 4px var(--first-color)";
+            updatePricing();
+          });
+        });
+
+        sizeLinks.forEach((link) => {
+          link.addEventListener("click", (event) => {
+            event.preventDefault();
+            sizeLinks.forEach((el) => el.classList.remove("size-active"));
+            link.classList.add("size-active");
+            updatePricing();
+          });
+        });
+
+        lensSelect.addEventListener("change", updatePricing);
+        quantityInput.addEventListener("input", updatePricing);
+        orderTypeInputs.forEach((input) => input.addEventListener("change", updatePricing));
+
+        updatePricing();
+      })();
+    </script>
+  </body>
+</html>
+
+
