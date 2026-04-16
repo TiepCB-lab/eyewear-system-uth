@@ -30,12 +30,16 @@ class AuthController
         try {
             $user = $this->authService->register($data);
             http_response_code(201);
+            $successMessage = $user['resend_verification'] ?? false
+                ? 'Tài khoản đã tồn tại nhưng chưa xác thực. Email xác thực đã được gửi lại. Vui lòng kiểm tra email.'
+                : 'Đăng ký thành công. Email xác thực đã được gửi. Vui lòng kiểm tra email.';
             return [
-                'message' => 'Registration successful',
+                'message' => $successMessage,
                 'user' => $user,
                 'verification_url' => $user['verification_url'] ?? null,
                 'email_sent' => $user['email_sent'] ?? false,
                 'email_error' => $user['email_error'] ?? null,
+                'resend_verification' => $user['resend_verification'] ?? false,
             ];
         } catch (\Exception $e) {
             $message = $e->getMessage();
@@ -48,7 +52,7 @@ class AuthController
                 http_response_code(400);
             }
             return [
-                'message' => 'Registration failed',
+                'message' => $message,
                 'error' => $message
             ];
         }
