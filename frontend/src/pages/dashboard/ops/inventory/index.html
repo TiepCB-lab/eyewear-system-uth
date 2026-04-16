@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management — EYEWEAR.UTH Staff Portal</title>
+    
+    <!--=============== FLATICON ===============-->
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.0.0/uicons-regular-straight/css/uicons-regular-straight.css" />
+    
+    <!--=============== CSS ===============-->
+    <link rel="stylesheet" href="../../../../../assets/css/styles.css" />
+    <link rel="stylesheet" href="../../../../../assets/css/admin.css" />
+    
+    <style>
+        /* =============== INVENTORY PAGE STYLES =============== */
+        
+        .admin-body {
+            background: linear-gradient(180deg, #f8fffc 0%, #ffffff 35%, #ffffff 100%);
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fdfb 100%);
+            border-right: 1px solid var(--border-color);
+        }
+
+        .sidebar .nav__logo {
+            padding: 0.25rem 0.4rem 1.2rem;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .brand-name {
+            font-family: var(--second-font);
+            font-size: 1.5rem;
+            font-weight: var(--weight-700);
+            color: var(--first-color);
+            line-height: 1;
+        }
+
+        .brand-tag {
+            color: var(--text-color-light);
+            font-size: 0.73rem;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .ops-chip {
+            margin-top: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.4rem 0.65rem;
+            border-radius: 99px;
+            background: var(--first-color-alt);
+            color: var(--first-color);
+            font-size: 0.74rem;
+            font-weight: var(--weight-700);
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: var(--first-color-alt);
+            color: var(--first-color);
+            font-weight: var(--weight-500);
+        }
+
+        .sidebar-link {
+            font-weight: var(--weight-500);
+        }
+
+        .sidebar-link i {
+            width: 1.15rem;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        .admin-main {
+            padding: 2.1rem;
+        }
+        
+        .breadcrumb {
+            background: var(--first-color-alt);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+            position: relative;
+        }
+        
+        .breadcrumb::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 1px;
+            background: rgba(0, 0, 0, 0.03);
+        }
+        
+        .breadcrumb__list {
+            gap: 1rem;
+        }
+        
+        .breadcrumb__link {
+            color: var(--text-color-light);
+            font-size: var(--small-font-size);
+            font-weight: var(--weight-500);
+        }
+        
+        .breadcrumb__link a {
+            color: var(--text-color);
+            font-weight: var(--weight-600);
+            transition: all 0.3s var(--transition);
+        }
+        
+        .breadcrumb__link a:hover {
+            color: var(--first-color);
+        }
+        
+        .inventory-section {
+            padding: 2rem 0;
+            position: relative;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.2rem 1.4rem;
+            box-shadow: 0 8px 20px rgba(0, 154, 133, 0.06);
+        }
+
+        .section-title-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+        
+        .section-header h2 {
+            margin: 0;
+            color: var(--title-color);
+            font-family: var(--second-font);
+            font-size: clamp(2rem, 3vw, 2.6rem);
+            font-weight: var(--weight-700);
+            letter-spacing: 0.4px;
+            line-height: 1.1;
+            position: relative;
+            padding-bottom: 0.8rem;
+        }
+        
+        .section-header h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 72px;
+            height: 3px;
+            background: var(--first-color);
+            border-radius: 999px;
+        }
+
+        .section-subtitle {
+            color: var(--text-color);
+            font-size: 0.95rem;
+            font-weight: var(--weight-500);
+            letter-spacing: 0.2px;
+            max-width: 42ch;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn-export {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.8rem 1.4rem;
+            background: var(--first-color);
+            color: white;
+            border: 2px solid var(--first-color);
+            border-radius: 0.35rem;
+            cursor: pointer;
+            font-weight: var(--weight-700);
+            transition: all 0.3s var(--transition);
+            font-size: var(--normal-font-size);
+            box-shadow: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-export::before {
+            display: none;
+        }
+        
+        .btn-export:hover {
+            background: white;
+            color: var(--first-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0, 154, 133, 0.15);
+        }
+        
+        .btn-export--secondary {
+            background: white;
+            color: var(--first-color);
+            border-color: var(--border-color);
+        }
+
+        .btn-export--secondary:hover {
+            background: var(--first-color-alt);
+            border-color: var(--first-color);
+            color: var(--first-color);
+        }
+        
+        /* Filter Section */
+        .filter-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2.5rem;
+            box-shadow: 0 10px 24px rgba(0, 154, 133, 0.07);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .filter-title {
+            margin-bottom: 1rem;
+            font-family: var(--second-font);
+            font-size: 1.12rem;
+            color: var(--title-color);
+            font-weight: var(--weight-700);
+            letter-spacing: 0.3px;
+        }
+        
+        .filter-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--first-color), rgba(0, 154, 133, 0));
+            border-radius: 50%;
+        }
+        
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .filter-group label {
+            font-size: 0.78rem;
+            font-weight: var(--weight-600);
+            color: var(--title-color);
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+        }
+        
+        .filter-group input,
+        .filter-group select {
+            padding: 0.85rem 1rem;
+            border: 1px solid var(--border-color-alt);
+            border-radius: 0.35rem;
+            font-size: var(--normal-font-size);
+            background: white;
+            color: var(--text-color);
+            font-family: var(--body-font);
+            transition: all 0.3s var(--transition);
+            font-weight: var(--weight-500);
+        }
+
+        .filter-group input::placeholder {
+            color: var(--text-color-light);
+            letter-spacing: 0.15px;
+        }
+        
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: var(--first-color);
+            box-shadow: 0 0 0 4px rgba(0, 154, 133, 0.15), 0 8px 20px rgba(0, 154, 133, 0.12);
+            background: white;
+            transform: translateY(-2px);
+        }
+        
+        /* Summary Stats */
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-box {
+            background: white;
+            color: var(--text-color);
+            padding: 1.5rem 1.2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 24px rgba(0, 154, 133, 0.07);
+            border: 1px solid var(--border-color);
+            border-top: 4px solid var(--first-color);
+            text-align: center;
+            transition: all 0.4s var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle, rgba(0, 154, 133, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            transition: all 0.4s var(--transition);
+        }
+        
+        .stat-box:hover::before {
+            transform: scale(1.2);
+        }
+        
+        .stat-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 14px 28px rgba(0, 154, 133, 0.12);
+        }
+
+        .stat-box:nth-child(2) {
+            border-top-color: #129074;
+        }
+
+        .stat-box:nth-child(3) {
+            border-top-color: #0f8469;
+        }
+
+        .stat-box:nth-child(4) {
+            border-top-color: #0b765e;
+        }
+        
+        .stat-label {
+            font-size: 0.74rem;
+            opacity: 1;
+            margin-bottom: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            font-weight: var(--weight-600);
+            color: var(--text-color-light);
+        }
+        
+        .stat-value {
+            font-family: var(--second-font);
+            font-size: clamp(2rem, 4.2vw, 3rem);
+            font-weight: var(--weight-700);
+            line-height: 1;
+            color: var(--first-color);
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.4px;
+            text-shadow: none;
+        }
+        
+        /* Table Container */
+        .table-container {
+            background: white;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 24px rgba(0, 154, 133, 0.08);
+        }
+        
+        .table-container table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .table-container thead {
+            background: var(--first-color);
+            border-bottom: none;
+        }
+        
+        .table-container th {
+            padding: 1rem 1.2rem;
+            text-align: left;
+            font-weight: var(--weight-700);
+            color: white;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1.25px;
+            font-family: var(--second-font);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .table-container tbody tr {
+            border-bottom: 1px solid rgba(0, 154, 133, 0.08);
+            transition: all 0.3s var(--transition);
+        }
+        
+        .table-container tbody tr:hover {
+            background: linear-gradient(90deg, var(--first-color-alt) 0%, rgba(255, 255, 255, 0.5) 100%);
+            box-shadow: inset 0 0 15px rgba(0, 154, 133, 0.1);
+        }
+        
+        .table-container tbody tr:nth-child(even) {
+            background: rgba(0, 154, 133, 0.02);
+        }
+        
+        .table-container td {
+            padding: 0.95rem 1.2rem;
+            font-size: var(--normal-font-size);
+            color: var(--text-color);
+        }
+        
+        .product-cell {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .product-image {
+            width: 70px;
+            height: 70px;
+            border-radius: 12px;
+            object-fit: cover;
+            background: linear-gradient(135deg, var(--first-color-alt) 0%, rgba(0, 154, 133, 0.1) 100%);
+            border: 2px solid rgba(0, 154, 133, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 154, 133, 0.1);
+            transition: all 0.3s var(--transition);
+        }
+        
+        .product-cell:hover .product-image {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 8px 20px rgba(0, 154, 133, 0.2);
+        }
+        
+        .product-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .product-name {
+            font-family: var(--second-font);
+            font-weight: var(--weight-700);
+            color: var(--title-color);
+            font-size: 1rem;
+            line-height: 1.25;
+            letter-spacing: 0.2px;
+            transition: all 0.3s var(--transition);
+        }
+        
+        .product-cell:hover .product-name {
+            color: var(--first-color);
+        }
+        
+        .product-sku {
+            font-size: 0.73rem;
+            color: var(--text-color);
+            font-family: 'Courier New', monospace;
+            font-weight: var(--weight-600);
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+        }
+        
+        .variant-badge {
+            display: inline-block;
+            padding: 0.4rem 0.85rem;
+            background: linear-gradient(135deg, #e9fbf4 0%, #d4f5e8 100%);
+            color: #0a8f6e;
+            border-radius: 20px;
+            font-size: var(--smaller-font-size);
+            font-weight: var(--weight-600);
+            margin-right: 0.5rem;
+            margin-bottom: 0.35rem;
+            border: 1px solid rgba(12, 157, 121, 0.25);
+            letter-spacing: 0.35px;
+            transition: all 0.3s var(--transition);
+        }
+        
+        .variant-badge:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(12, 157, 121, 0.18);
+        }
+        
+        .stock-cell {
+            text-align: center;
+            font-weight: var(--weight-600);
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .stock-input {
+            width: 100px;
+            padding: 0.8rem 0.9rem;
+            border: 2px solid var(--first-color);
+            border-radius: 10px;
+            text-align: center;
+            font-weight: var(--weight-700);
+            font-size: var(--normal-font-size);
+            color: var(--first-color);
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 154, 133, 0.15);
+            transition: all 0.3s var(--transition);
+        }
+        
+        .stock-input:focus {
+            outline: none;
+            border-color: var(--first-color);
+            box-shadow: 0 0 0 4px rgba(0, 154, 133, 0.2), 0 8px 20px rgba(0, 154, 133, 0.15);
+            transform: scale(1.05);
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1.2rem;
+            border-radius: 25px;
+            font-size: 0.69rem;
+            font-weight: var(--weight-700);
+            text-transform: uppercase;
+            letter-spacing: 0.95px;
+            font-family: var(--second-font);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s var(--transition);
+        }
+        
+        .status-badge:hover {
+            transform: scale(1.08);
+        }
+        
+        .status-in-stock {
+            background: linear-gradient(135deg, var(--first-color-alt) 0%, rgba(0, 154, 133, 0.15) 100%);
+            color: var(--first-color);
+            border: 2px solid var(--first-color);
+        }
+        
+        .status-low-stock {
+            background: #fff9ef;
+            color: #9a6a00;
+            border: 2px solid #efcc83;
+        }
+        
+        .status-out-of-stock {
+            background: #f6faf8;
+            color: #4d6860;
+            border: 2px solid #bfd3cc;
+        }
+        
+        .btn-small {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: var(--weight-600);
+            font-size: 0.78rem;
+            letter-spacing: 0.25px;
+            transition: all 0.3s var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-right: 0.3rem;
+        }
+        
+        .btn-edit {
+            background: var(--first-color);
+            color: white;
+            border: 1px solid var(--first-color);
+            box-shadow: none;
+        }
+        
+        .btn-edit:hover {
+            background: white;
+            color: var(--first-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0, 154, 133, 0.15);
+        }
+        
+        .btn-save {
+            background: #0c8d6d;
+            color: white;
+            border: 1px solid #0c8d6d;
+            display: none;
+            box-shadow: none;
+        }
+        
+        .btn-save:hover {
+            background: white;
+            color: #0c8d6d;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0, 154, 133, 0.15);
+        }
+        
+        .btn-cancel {
+            background: linear-gradient(135deg, #ffffff 0%, #f2fcf7 100%);
+            color: #0a8f6e;
+            border: 1px solid rgba(12, 157, 121, 0.35);
+            display: none;
+            box-shadow: none;
+        }
+        
+        .btn-cancel:hover {
+            background: linear-gradient(135deg, #f6fffb 0%, #e8f9f2 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(12, 157, 121, 0.2);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-color-light);
+            background: linear-gradient(135deg, var(--first-color-alt) 0%, rgba(255, 255, 255, 0.5) 100%);
+            border-radius: 16px;
+            margin-top: 2rem;
+        }
+        
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.3;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+        
+        .empty-state h3 {
+            color: var(--title-color);
+            font-weight: var(--weight-700);
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .alert-box {
+            padding: 1.2rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-weight: var(--weight-600);
+            font-size: var(--normal-font-size);
+            letter-spacing: 0.2px;
+            line-height: 1.45;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .alert-box::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: rgba(255, 255, 255, 0.4);
+        }
+        
+        @keyframes slideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .alert-success {
+            background: #eefcf7;
+            color: var(--first-color);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 20px rgba(0, 154, 133, 0.12);
+        }
+        
+        .alert-error {
+            background: #f5faf8;
+            color: #2f4f45;
+            border: 1px solid #c6d8d2;
+            box-shadow: 0 8px 20px rgba(95, 143, 128, 0.1);
+        }
+        
+        @media screen and (max-width: 768px) {
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .table-container {
+                overflow-x: auto;
+            }
+        }
+    </style>
+
+    <!--=============== LAYOUT LOADER ===============-->
+    <script src="../../../../../assets/js/core/layout-loader.js" defer></script>
+</head>
+<body class="admin-body">
+    <aside class="sidebar">
+        <a href="../dashboard/index.html" class="nav__logo">
+            <div class="brand-name">EYEWEAR.UTH</div>
+            <span class="brand-tag">Operations Control Center</span>
+            <span class="ops-chip"><i class="fi fi-rs-pulse"></i> Live Monitoring</span>
+        </a>
+
+        <nav>
+            <ul class="sidebar-nav">
+                <li><a href="../dashboard/index.html" class="sidebar-link"><i class="fi fi-rs-chart-pie"></i> Dashboard</a></li>
+                <li><a href="../inventory/index.html" class="sidebar-link active"><i class="fi fi-rs-box"></i> Inventory</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="admin-main">
+        <!--=============== BREADCRUMB ===============-->
+        <section class="breadcrumb">
+            <ul class="breadcrumb__list flex container">
+                <li><a href="../dashboard/index.html" class="breadcrumb__link">Operations</a></li>
+                <li><span class="breadcrumb__link">></span></li>
+                <li><span class="breadcrumb__link">Inventory</span></li>
+            </ul>
+        </section>
+
+        <!--=============== INVENTORY SECTION ===============-->
+        <section class="inventory-section container section--lg">
+            <div class="section-header">
+                <div class="section-title-wrap">
+                    <h2>Inventory Management</h2>
+                    <p class="section-subtitle">Monitor stock health and update quantities in real time</p>
+                </div>
+                <div class="btn-group">
+                    <button class="btn-export" onclick="exportToCSV()">
+                        <i class="fi fi-rs-download"></i> Export CSV
+                    </button>
+                    <button class="btn-export btn-export--secondary" onclick="refreshData()">
+                        <i class="fi fi-rs-refresh"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Alert Container -->
+            <div id="alertContainer"></div>
+
+            <!-- Summary Stats -->
+            <div class="summary-stats">
+                <div class="stat-box">
+                    <div class="stat-label">Total SKUs</div>
+                    <div class="stat-value" id="totalSkus">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Total Stock</div>
+                    <div class="stat-value" id="totalStock">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Low Stock Items</div>
+                    <div class="stat-value" id="lowStock">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Out of Stock</div>
+                    <div class="stat-value" id="outOfStock">0</div>
+                </div>
+            </div>
+
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <h3 class="filter-title">Filter Inventory</h3>
+                <div class="filter-grid">
+                    <div class="filter-group">
+                        <label for="searchProduct">Search Product / SKU</label>
+                        <input 
+                            type="text" 
+                            id="searchProduct" 
+                            placeholder="Enter product name or SKU..."
+                            onkeyup="filterInventory()"
+                        />
+                    </div>
+                    <div class="filter-group">
+                        <label for="filterCategory">Category</label>
+                        <select id="filterCategory" onchange="filterInventory()">
+                            <option value="">All Categories</option>
+                            <option value="optical">Optical Frames</option>
+                            <option value="sunglasses">Sunglasses</option>
+                            <option value="bluelight">Blue Light</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filterStatus">Stock Status</label>
+                        <select id="filterStatus" onchange="filterInventory()">
+                            <option value="">All Items</option>
+                            <option value="in-stock">In Stock</option>
+                            <option value="low-stock">Low Stock</option>
+                            <option value="out-of-stock">Out of Stock</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Table -->
+            <div class="table-container">
+                <table id="inventoryTable">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Variant</th>
+                            <th>SKU</th>
+                            <th>Current Stock</th>
+                            <th>Reserved</th>
+                            <th>Available</th>
+                            <th>Reorder Level</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventoryTableBody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <div class="empty-icon">📦</div>
+                    <h3>No Products Found</h3>
+                    <p>Try adjusting your search or filters</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!--=============== SCRIPTS ===============-->
+    <script>
+        // Mock Inventory Data (8 SKUs)
+        const mockInventory = [
+            {
+                id: 1,
+                name: "Premium Acetate Optical",
+                image: "../../../../../assets/img/products/AN550012_3849.png",
+                category: "optical",
+                variants: [
+                    { sku: "AN550012-BLK-54", color: "Black", size: "54mm", stock: 45, reserved: 5, reorderLevel: 10 },
+                    { sku: "AN550012-BRN-54", color: "Brown", size: "54mm", stock: 2, reserved: 1, reorderLevel: 10 },
+                    { sku: "AN550012-BLU-54", color: "Blue", size: "54mm", stock: 28, reserved: 2, reorderLevel: 10 }
+                ]
+            },
+            {
+                id: 2,
+                name: "Blue Light Pro Frame",
+                image: "../../../../../assets/img/products/AN550016_3796.png",
+                category: "bluelight",
+                variants: [
+                    { sku: "AN550016-BLU-52", color: "Blue", size: "52mm", stock: 0, reserved: 0, reorderLevel: 15 },
+                    { sku: "AN550016-BLK-52", color: "Black", size: "52mm", stock: 18, reserved: 3, reorderLevel: 15 }
+                ]
+            },
+            {
+                id: 3,
+                name: "Polarized Aviator",
+                image: "../../../../../assets/img/products/AN550012_3849.png",
+                category: "sunglasses",
+                variants: [
+                    { sku: "AVT-001-GLD-56", color: "Gold", size: "56mm", stock: 65, reserved: 8, reorderLevel: 10 },
+                    { sku: "AVT-001-SLV-56", color: "Silver", size: "56mm", stock: 3, reserved: 0, reorderLevel: 10 }
+                ]
+            }
+        ];
+
+        let inventoryData = [];
+        let editingRow = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadInventory();
+            updateStats();
+        });
+
+        function loadInventory() {
+            // Flatten the data structure for table display
+            inventoryData = [];
+            mockInventory.forEach(product => {
+                product.variants.forEach(variant => {
+                    inventoryData.push({
+                        ...variant,
+                        productName: product.name,
+                        productImage: product.image,
+                        category: product.category,
+                        productId: product.id
+                    });
+                });
+            });
+            renderTable();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('inventoryTableBody');
+            const emptyState = document.getElementById('emptyState');
+            const table = document.getElementById('inventoryTable');
+
+            tbody.innerHTML = '';
+
+            if (inventoryData.length === 0) {
+                table.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            table.style.display = 'table';
+            emptyState.style.display = 'none';
+
+            inventoryData.forEach((item, index) => {
+                const available = item.stock - item.reserved;
+                let statusClass = 'status-in-stock';
+                let statusText = 'In Stock';
+                
+                if (item.stock === 0) {
+                    statusClass = 'status-out-of-stock';
+                    statusText = 'Out of Stock';
+                } else if (item.stock <= item.reorderLevel) {
+                    statusClass = 'status-low-stock';
+                    statusText = 'Low Stock';
+                }
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div class="product-cell">
+                            <img src="${item.productImage}" alt="" class="product-image" onerror="this.src='../../../../../assets/img/placeholder.png'">
+                            <div class="product-info">
+                                <div class="product-name">${item.productName}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div>
+                            <span class="variant-badge">${item.color}</span>
+                            <span class="variant-badge">${item.size}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="product-sku">${item.sku}</span>
+                    </td>
+                    <td class="stock-cell">
+                        <span id="stockDisplay-${index}">${item.stock}</span>
+                        <input 
+                            type="number" 
+                            id="stockInput-${index}" 
+                            class="stock-input" 
+                            value="${item.stock}" 
+                            style="display: none;" 
+                            min="0"
+                        />
+                    </td>
+                    <td class="stock-cell">${item.reserved}</td>
+                    <td class="stock-cell" id="availableCell-${index}">${available}</td>
+                    <td class="stock-cell">${item.reorderLevel}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-small btn-edit" id="editBtn-${index}" onclick="startEdit(${index})">
+                                <i class="fi fi-rs-edit"></i> Edit
+                            </button>
+                            <button class="btn-small btn-save" id="saveBtn-${index}" onclick="saveEdit(${index})">
+                                <i class="fi fi-rs-check"></i> Save
+                            </button>
+                            <button class="btn-small btn-cancel" id="cancelBtn-${index}" onclick="cancelEdit(${index})">
+                                <i class="fi fi-rs-cross"></i> Cancel
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function startEdit(index) {
+            if (editingRow !== null && editingRow !== index) {
+                cancelEdit(editingRow);
+            }
+
+            editingRow = index;
+            document.getElementById(`stockDisplay-${index}`).style.display = 'none';
+            document.getElementById(`stockInput-${index}`).style.display = 'block';
+            document.getElementById(`editBtn-${index}`).style.display = 'none';
+            document.getElementById(`saveBtn-${index}`).style.display = 'inline-flex';
+            document.getElementById(`cancelBtn-${index}`).style.display = 'inline-flex';
+            document.getElementById(`stockInput-${index}`).focus();
+        }
+
+        function cancelEdit(index) {
+            document.getElementById(`stockDisplay-${index}`).style.display = 'block';
+            document.getElementById(`stockInput-${index}`).style.display = 'none';
+            document.getElementById(`editBtn-${index}`).style.display = 'inline-flex';
+            document.getElementById(`saveBtn-${index}`).style.display = 'none';
+            document.getElementById(`cancelBtn-${index}`).style.display = 'none';
+            document.getElementById(`stockInput-${index}`).value = inventoryData[index].stock;
+            editingRow = null;
+        }
+
+        function saveEdit(index) {
+            const newStock = parseInt(document.getElementById(`stockInput-${index}`).value);
+            
+            if (isNaN(newStock) || newStock < 0) {
+                showAlert('Please enter a valid quantity', 'error');
+                return;
+            }
+
+            const oldStock = inventoryData[index].stock;
+            inventoryData[index].stock = newStock;
+            
+            // Update available
+            const available = newStock - inventoryData[index].reserved;
+            document.getElementById(`availableCell-${index}`).textContent = available;
+            document.getElementById(`stockDisplay-${index}`).textContent = newStock;
+
+            cancelEdit(index);
+            showAlert(`Stock updated successfully: ${inventoryData[index].sku}`, 'success');
+            updateStats();
+        }
+
+        function filterInventory() {
+            const searchTerm = document.getElementById('searchProduct').value.toLowerCase();
+            const categoryFilter = document.getElementById('filterCategory').value;
+            const statusFilter = document.getElementById('filterStatus').value;
+
+            inventoryData = [];
+            mockInventory.forEach(product => {
+                product.variants.forEach(variant => {
+                    const item = {
+                        ...variant,
+                        productName: product.name,
+                        productImage: product.image,
+                        category: product.category,
+                        productId: product.id
+                    };
+
+                    const matchesSearch = 
+                        product.name.toLowerCase().includes(searchTerm) ||
+                        variant.sku.toLowerCase().includes(searchTerm) ||
+                        variant.color.toLowerCase().includes(searchTerm);
+
+                    const matchesCategory = !categoryFilter || product.category === categoryFilter;
+
+                    let matchesStatus = true;
+                    if (statusFilter === 'in-stock') {
+                        matchesStatus = item.stock > item.reorderLevel;
+                    } else if (statusFilter === 'low-stock') {
+                        matchesStatus = item.stock > 0 && item.stock <= item.reorderLevel;
+                    } else if (statusFilter === 'out-of-stock') {
+                        matchesStatus = item.stock === 0;
+                    }
+
+                    if (matchesSearch && matchesCategory && matchesStatus) {
+                        inventoryData.push(item);
+                    }
+                });
+            });
+
+            renderTable();
+        }
+
+        function updateStats() {
+            let total = 0, lowStock = 0, outOfStock = 0;
+            
+            mockInventory.forEach(product => {
+                product.variants.forEach(variant => {
+                    total += variant.stock;
+                    if (variant.stock === 0) outOfStock++;
+                    else if (variant.stock <= variant.reorderLevel) lowStock++;
+                });
+            });
+
+            document.getElementById('totalSkus').textContent = mockInventory.reduce((sum, p) => sum + p.variants.length, 0);
+            document.getElementById('totalStock').textContent = total;
+            document.getElementById('lowStock').textContent = lowStock;
+            document.getElementById('outOfStock').textContent = outOfStock;
+        }
+
+        function showAlert(message, type) {
+            const container = document.getElementById('alertContainer');
+            const alertBox = document.createElement('div');
+            alertBox.className = `alert-box alert-${type}`;
+            alertBox.innerHTML = `<i class="fi fi-rs-${type === 'success' ? 'check-circle' : 'alert'}"></i>${message}`;
+            
+            container.innerHTML = '';
+            container.appendChild(alertBox);
+
+            setTimeout(() => alertBox.remove(), 4000);
+        }
+
+        function exportToCSV() {
+            const headers = ['Product', 'Color', 'Size', 'SKU', 'Stock', 'Reserved', 'Available', 'Reorder Level'];
+            const rows = inventoryData.map(item => [
+                item.productName,
+                item.color,
+                item.size,
+                item.sku,
+                item.stock,
+                item.reserved,
+                item.stock - item.reserved,
+                item.reorderLevel
+            ]);
+
+            const csv = [
+                headers.join(','),
+                ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+            ].join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `inventory-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+
+            showAlert('CSV exported successfully', 'success');
+        }
+
+        function refreshData() {
+            loadInventory();
+            showAlert('Data refreshed', 'success');
+        }
+    </script>
+</body>
+</html>

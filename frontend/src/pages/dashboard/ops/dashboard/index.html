@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.0.0/uicons-regular-straight/css/uicons-regular-straight.css">
+    <link rel="stylesheet" href="../../../../../assets/css/styles.css">
+    <link rel="stylesheet" href="../../../../../assets/css/admin.css">
+    <title>Operations — EYEWEAR.UTH</title>
+    <style>
+        .admin-body {
+            background: linear-gradient(180deg, #f6fcfa 0%, #ffffff 60%);
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fdfb 100%);
+            border-right: 1px solid var(--border-color);
+        }
+
+        .sidebar .nav__logo {
+            padding: 0.25rem 0.4rem 1.2rem;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .brand-name {
+            font-family: var(--second-font);
+            font-size: 1.5rem;
+            font-weight: var(--weight-700);
+            color: var(--first-color);
+            line-height: 1;
+        }
+
+        .brand-tag {
+            color: var(--text-color-light);
+            font-size: 0.73rem;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .ops-chip {
+            margin-top: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.4rem 0.65rem;
+            border-radius: 99px;
+            background: var(--first-color-alt);
+            color: var(--first-color);
+            font-size: 0.74rem;
+            font-weight: var(--weight-700);
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: var(--first-color-alt);
+            color: var(--first-color);
+            font-weight: var(--weight-500);
+        }
+
+        .sidebar-link {
+            font-weight: var(--weight-500);
+        }
+
+        .sidebar-link i {
+            width: 1.15rem;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        .admin-main {
+            padding: 2.1rem;
+        }
+
+        .ops-topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.9rem;
+            margin-bottom: 1.5rem;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 0.8rem;
+            padding: 1rem 1.1rem;
+            box-shadow: 0 8px 20px rgba(0, 154, 133, 0.06);
+        }
+
+        .ops-title {
+            margin: 0;
+            font-family: var(--second-font);
+            font-size: clamp(1.5rem, 2.2vw, 2rem);
+            color: var(--title-color);
+            letter-spacing: 0.3px;
+        }
+
+        .ops-subtitle {
+            margin-top: 0.2rem;
+            color: var(--text-color-light);
+            font-size: 0.86rem;
+            letter-spacing: 0.2px;
+        }
+
+        .topbar-actions {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-ghost {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            height: 40px;
+            line-height: 37px;
+            padding-inline: 1rem;
+            background: white;
+            border: 1px solid var(--border-color);
+            color: var(--first-color);
+            border-radius: 0.35rem;
+            font-size: 0.78rem;
+            font-weight: var(--weight-700);
+        }
+
+        .btn-ghost:hover {
+            background: var(--first-color-alt);
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(170px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.1rem;
+        }
+
+        .kpi-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 0.8rem;
+            padding: 1rem 1rem;
+            box-shadow: 0 8px 20px rgba(0, 154, 133, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            inset: 0 auto auto 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--first-color), rgba(0, 154, 133, 0));
+        }
+
+        .kpi-label {
+            color: var(--text-color-light);
+            text-transform: uppercase;
+            letter-spacing: 0.85px;
+            font-size: 0.71rem;
+            font-weight: var(--weight-700);
+            margin-bottom: 0.55rem;
+        }
+
+        .kpi-value {
+            color: var(--first-color);
+            font-size: 2rem;
+            line-height: 1;
+            font-family: var(--second-font);
+            font-weight: var(--weight-700);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .kpi-note {
+            margin-top: 0.35rem;
+            color: var(--text-color);
+            font-size: 0.8rem;
+        }
+
+        .ops-layout {
+            display: grid;
+            grid-template-columns: 1.75fr 1fr;
+            gap: 1rem;
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 0.8rem;
+            box-shadow: 0 8px 20px rgba(0, 154, 133, 0.05);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.95rem 1rem;
+            border-bottom: 1px solid var(--border-color-alt);
+        }
+
+        .panel-title {
+            margin: 0;
+            font-family: var(--second-font);
+            font-size: 1rem;
+        }
+
+        .panel-subtitle {
+            color: var(--text-color-light);
+            font-size: 0.78rem;
+        }
+
+        .queue-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .queue-table th,
+        .queue-table td {
+            padding: 0.82rem 1rem;
+            text-align: left;
+        }
+
+        .queue-table th {
+            color: var(--text-color-light);
+            font-size: 0.69rem;
+            letter-spacing: 0.95px;
+            text-transform: uppercase;
+            font-family: var(--second-font);
+        }
+
+        .queue-table tbody tr {
+            border-top: 1px solid var(--border-color-alt);
+        }
+
+        .queue-table tbody tr:hover {
+            background: #f8fdfb;
+        }
+
+        .order-id {
+            font-family: var(--second-font);
+            font-weight: var(--weight-700);
+            color: var(--title-color);
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.34rem 0.64rem;
+            border-radius: 999px;
+            font-size: 0.68rem;
+            letter-spacing: 0.65px;
+            text-transform: uppercase;
+            font-weight: var(--weight-700);
+            border: 1px solid transparent;
+        }
+
+        .status-progress {
+            color: #0a7a60;
+            background: #e9fbf4;
+            border-color: #a8dbc9;
+        }
+
+        .status-wait {
+            color: #906100;
+            background: #fff8ea;
+            border-color: #edd29b;
+        }
+
+        .status-qc {
+            color: #2f5b52;
+            background: #f1f8f5;
+            border-color: #c7dbd4;
+        }
+
+        .status-ready {
+            color: #066f58;
+            background: #e3f8f0;
+            border-color: #92cfba;
+        }
+
+        .btn-inline {
+            height: 34px;
+            line-height: 31px;
+            padding-inline: 0.72rem;
+            font-size: 0.72rem;
+            font-weight: var(--weight-700);
+        }
+
+        .panel-stack {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .mini-card {
+            padding: 1rem;
+        }
+
+        .warning-item {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 0.6rem;
+            align-items: center;
+            padding: 0.6rem 0;
+            border-bottom: 1px dashed var(--border-color-alt);
+        }
+
+        .warning-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .warning-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #f1b752;
+            box-shadow: 0 0 0 3px #fff4dc;
+        }
+
+        .warning-title {
+            color: var(--title-color);
+            font-size: 0.82rem;
+            font-weight: var(--weight-700);
+        }
+
+        .warning-meta {
+            color: var(--text-color-light);
+            font-size: 0.73rem;
+        }
+
+        .warning-badge {
+            font-size: 0.67rem;
+            color: #8f6100;
+            background: #fff7e8;
+            border: 1px solid #f0d39a;
+            border-radius: 0.4rem;
+            padding: 0.24rem 0.45rem;
+            font-weight: var(--weight-700);
+        }
+
+        .workload-item {
+            margin-bottom: 0.85rem;
+        }
+
+        .workload-head {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.28rem;
+            font-size: 0.78rem;
+        }
+
+        .workload-name {
+            color: var(--title-color);
+            font-weight: var(--weight-600);
+        }
+
+        .workload-percent {
+            color: var(--first-color);
+            font-weight: var(--weight-700);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .workload-bar {
+            width: 100%;
+            height: 8px;
+            background: #edf7f4;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .workload-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--first-color), #1cb189);
+            border-radius: inherit;
+        }
+
+        .pickup-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            gap: 0.55rem;
+        }
+
+        .pickup-list li {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            align-items: center;
+            border: 1px solid var(--border-color-alt);
+            border-radius: 0.5rem;
+            padding: 0.55rem 0.65rem;
+            font-size: 0.78rem;
+        }
+
+        .pickup-list strong {
+            color: var(--title-color);
+            font-size: 0.8rem;
+        }
+
+        .pickup-list span {
+            color: var(--text-color-light);
+            font-variant-numeric: tabular-nums;
+        }
+
+        @media screen and (max-width: 1200px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, minmax(180px, 1fr));
+            }
+
+            .ops-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .sidebar {
+                position: static;
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .admin-body {
+                display: block;
+            }
+
+            .admin-main {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .queue-table {
+                min-width: 780px;
+            }
+
+            .panel.scrollable {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body class="admin-body">
+    <aside class="sidebar">
+        <a href="../dashboard/index.html" class="nav__logo">
+            <div class="brand-name">EYEWEAR.UTH</div>
+            <span class="brand-tag">Operations Control Center</span>
+            <span class="ops-chip"><i class="fi fi-rs-pulse"></i> Live Monitoring</span>
+        </a>
+
+        <nav>
+            <ul class="sidebar-nav">
+                <li><a href="../dashboard/" class="sidebar-link active"><i class="fi fi-rs-chart-pie"></i> Dashboard</a></li>
+                <li><a href="../inventory/index.html" class="sidebar-link"><i class="fi fi-rs-box"></i> Inventory</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="admin-main">
+        <section class="ops-topbar">
+            <div>
+                <h1 class="ops-title">Operations Dashboard</h1>
+                <p class="ops-subtitle">Track lab throughput, identify bottlenecks, and keep shipment SLA on schedule.</p>
+            </div>
+            <div class="topbar-actions">
+                <button class="btn btn--sm"><i class="fi fi-rs-refresh"></i> Sync Queue</button>
+                <button class="btn-ghost"><i class="fi fi-rs-print"></i> Shift Report</button>
+            </div>
+        </section>
+
+        <section class="kpi-grid">
+            <article class="kpi-card">
+                <div class="kpi-label">Orders In Lab</div>
+                <div class="kpi-value">28</div>
+                <div class="kpi-note">+4 compared to previous shift</div>
+            </article>
+            <article class="kpi-card">
+                <div class="kpi-label">Shipped Today</div>
+                <div class="kpi-value">42</div>
+                <div class="kpi-note">Target completion: 84%</div>
+            </article>
+            <article class="kpi-card">
+                <div class="kpi-label">Pending QC</div>
+                <div class="kpi-value">12</div>
+                <div class="kpi-note">3 orders require manager approval</div>
+            </article>
+            <article class="kpi-card">
+                <div class="kpi-label">Avg Turnaround</div>
+                <div class="kpi-value">6.2h</div>
+                <div class="kpi-note">Improved by 0.8h this week</div>
+            </article>
+        </section>
+
+        <section class="ops-layout">
+            <article class="panel scrollable">
+                <header class="panel-header">
+                    <div>
+                        <h2 class="panel-title">Active Production Queue</h2>
+                        <p class="panel-subtitle">Current orders and next actions</p>
+                    </div>
+                </header>
+
+                <table class="queue-table">
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Customer</th>
+                            <th>Current Step</th>
+                            <th>Status</th>
+                            <th>Assignee</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="order-id">#12540</td>
+                            <td>Duc Tiep</td>
+                            <td>Lens Cutting</td>
+                            <td><span class="status-pill status-progress">In Progress</span></td>
+                            <td>Nam P.</td>
+                            <td><button class="btn btn-inline">Send to QC</button></td>
+                        </tr>
+                        <tr>
+                            <td class="order-id">#12541</td>
+                            <td>Minh Thu</td>
+                            <td>Frame Mounting</td>
+                            <td><span class="status-pill status-wait">Waiting</span></td>
+                            <td>Duy N.</td>
+                            <td><button class="btn btn-inline">Start Mounting</button></td>
+                        </tr>
+                        <tr>
+                            <td class="order-id">#12542</td>
+                            <td>Hoang Nam</td>
+                            <td>QC Inspection</td>
+                            <td><span class="status-pill status-qc">Verifying</span></td>
+                            <td>Linh T.</td>
+                            <td><button class="btn btn-inline">QC Pass</button></td>
+                        </tr>
+                        <tr>
+                            <td class="order-id">#12543</td>
+                            <td>Jacky Chan</td>
+                            <td>Packaging</td>
+                            <td><span class="status-pill status-ready">Ready</span></td>
+                            <td>Khoi M.</td>
+                            <td><button class="btn btn-inline">Create Shipment</button></td>
+                        </tr>
+                        <tr>
+                            <td class="order-id">#12544</td>
+                            <td>Quynh Anh</td>
+                            <td>Lens Coating</td>
+                            <td><span class="status-pill status-progress">In Progress</span></td>
+                            <td>Phuc L.</td>
+                            <td><button class="btn btn-inline">Mark Complete</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </article>
+
+            <div class="panel-stack">
+                <article class="panel mini-card">
+                    <header class="panel-header" style="padding: 0 0 0.85rem; border-bottom: 1px solid var(--border-color-alt); margin-bottom: 0.5rem;">
+                        <h3 class="panel-title">Bottleneck Alerts</h3>
+                    </header>
+
+                    <div class="warning-item">
+                        <span class="warning-dot"></span>
+                        <div>
+                            <div class="warning-title">Coating station overloaded</div>
+                            <div class="warning-meta">7 jobs waiting over 35 minutes</div>
+                        </div>
+                        <span class="warning-badge">High</span>
+                    </div>
+                    <div class="warning-item">
+                        <span class="warning-dot"></span>
+                        <div>
+                            <div class="warning-title">QC queue rising</div>
+                            <div class="warning-meta">12 pending checks</div>
+                        </div>
+                        <span class="warning-badge">Medium</span>
+                    </div>
+                    <div class="warning-item">
+                        <span class="warning-dot"></span>
+                        <div>
+                            <div class="warning-title">Mounting material low</div>
+                            <div class="warning-meta">Estimated stock for 1.5 days</div>
+                        </div>
+                        <span class="warning-badge">Monitor</span>
+                    </div>
+                </article>
+
+                <article class="panel mini-card">
+                    <header class="panel-header" style="padding: 0 0 0.85rem; border-bottom: 1px solid var(--border-color-alt); margin-bottom: 0.6rem;">
+                        <h3 class="panel-title">Team Workload</h3>
+                    </header>
+
+                    <div class="workload-item">
+                        <div class="workload-head">
+                            <span class="workload-name">Nam P.</span>
+                            <span class="workload-percent">88%</span>
+                        </div>
+                        <div class="workload-bar"><div class="workload-fill" style="width: 88%;"></div></div>
+                    </div>
+
+                    <div class="workload-item">
+                        <div class="workload-head">
+                            <span class="workload-name">Linh T.</span>
+                            <span class="workload-percent">73%</span>
+                        </div>
+                        <div class="workload-bar"><div class="workload-fill" style="width: 73%;"></div></div>
+                    </div>
+
+                    <div class="workload-item">
+                        <div class="workload-head">
+                            <span class="workload-name">Duy N.</span>
+                            <span class="workload-percent">61%</span>
+                        </div>
+                        <div class="workload-bar"><div class="workload-fill" style="width: 61%;"></div></div>
+                    </div>
+                </article>
+
+                <article class="panel mini-card">
+                    <header class="panel-header" style="padding: 0 0 0.85rem; border-bottom: 1px solid var(--border-color-alt); margin-bottom: 0.7rem;">
+                        <h3 class="panel-title">Pickups (Next 2 Hours)</h3>
+                    </header>
+
+                    <ul class="pickup-list">
+                        <li><strong>#12510 - Bao Anh</strong><span>09:20</span></li>
+                        <li><strong>#12521 - Nhat Minh</strong><span>09:45</span></li>
+                        <li><strong>#12532 - Gia Huy</strong><span>10:15</span></li>
+                    </ul>
+                </article>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
