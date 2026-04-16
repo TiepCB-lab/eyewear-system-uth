@@ -45,3 +45,4 @@ if (isset($_POST['login'])) {
     <input type="password" name="password" placeholder="Mật khẩu" required><br><br>
     <button type="submit" name="login">Đăng nhập</button>
 </form>
+<p><a href="forgot_password.php">Quên mật khẩu?</a></p>
