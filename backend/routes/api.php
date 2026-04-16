@@ -13,6 +13,8 @@ use App\Http\Controllers\Api\V1\CheckoutController;
 use App\Http\Controllers\Api\V1\PaymentController;
 use App\Http\Controllers\Api\V1\SalesController;
 use App\Http\Controllers\Api\V1\SupportTicketController;
+use App\Http\Controllers\Api\V1\OperationsController;
+use App\Http\Controllers\Api\V1\DashboardController;
 
 Router::get('/', [HealthController::class, 'index']);
 Router::get('api/health', [HealthController::class, 'index']);
@@ -26,6 +28,18 @@ Router::group(['prefix' => 'api/v1/products'], function () {
 
 Router::group(['prefix' => 'api/v1/admin/inventory'], function () {
     Router::put('stock', [InventoryController::class, 'updateStock']);
+});
+
+Router::group(['prefix' => 'api/v1/ops'], function () {
+    Router::get('/', [OperationsController::class, 'index']);
+    Router::post('advance', [OperationsController::class, 'advanceProduction']);
+    Router::post('shipments', [OperationsController::class, 'createShipment']);
+    Router::put('shipments', [OperationsController::class, 'updateShipment']);
+});
+
+Router::group(['prefix' => 'api/v1/dashboard'], function () {
+    Router::get('/', [DashboardController::class, 'index']);
+    Router::get('operations', [DashboardController::class, 'operations']);
 });
 
 // Backward-compatible aliases
