@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Api\V1;
 
@@ -15,8 +15,8 @@ class SupportTicketController
 
     public function index(): array
     {
-        $isStaff = $_GET['role'] ?? 'user'; // Mock auth role
-        $userId = 1; // Mock customer ID for testing
+        $isStaff = $_GET['role'] ?? 'user'; // Giả lập auth
+        $userId = 1; // Giả lập user customer ID
 
         try {
             if ($isStaff === 'staff') {
@@ -56,7 +56,7 @@ class SupportTicketController
         $input = json_decode(file_get_contents('php://input'), true) ?? [];
         $subject = $input['subject'] ?? '';
         $message = $input['message'] ?? '';
-        $userId = 1; // Mock userId
+        $userId = 1; // Giả lập userId
 
         if (!$subject || !$message) {
             http_response_code(400);

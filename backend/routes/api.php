@@ -15,7 +15,6 @@ use App\Http\Controllers\Api\V1\SalesController;
 use App\Http\Controllers\Api\V1\SupportTicketController;
 use App\Http\Controllers\Api\V1\OperationsController;
 use App\Http\Controllers\Api\V1\DashboardController;
-use App\Http\Controllers\Api\V1\AdminController;
 
 Router::get('/', [HealthController::class, 'index']);
 Router::get('api/health', [HealthController::class, 'index']);
@@ -41,30 +40,6 @@ Router::group(['prefix' => 'api/v1/ops'], function () {
 Router::group(['prefix' => 'api/v1/dashboard'], function () {
     Router::get('/', [DashboardController::class, 'index']);
     Router::get('operations', [DashboardController::class, 'operations']);
-});
-
-Router::group(['prefix' => 'api/v1/admin', 'middleware' => ['auth:sanctum', 'role:system_admin|manager']], function () {
-    // Staff management
-    Router::get('staff', [AdminController::class, 'listStaff']);
-    Router::post('staff', [AdminController::class, 'createStaff']);
-    Router::get('staff/show', [AdminController::class, 'getStaff']);
-    Router::put('staff/update', [AdminController::class, 'updateStaff']);
-    Router::delete('staff/delete', [AdminController::class, 'deleteStaff']);
-
-    // Role management
-    Router::get('roles', [AdminController::class, 'listRoles']);
-    Router::get('roles/show', [AdminController::class, 'getRole']);
-
-    // System configuration
-    Router::post('config', [AdminController::class, 'setConfig']);
-    Router::get('config', [AdminController::class, 'getConfig']);
-
-    // Voucher management
-    Router::post('vouchers', [AdminController::class, 'createVoucher']);
-    Router::get('vouchers', [AdminController::class, 'listVouchers']);
-    Router::get('vouchers/show', [AdminController::class, 'getVoucher']);
-    Router::put('vouchers/update', [AdminController::class, 'updateVoucher']);
-    Router::delete('vouchers/delete', [AdminController::class, 'deleteVoucher']);
 });
 
 // Backward-compatible aliases

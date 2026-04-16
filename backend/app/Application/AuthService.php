@@ -9,6 +9,7 @@ class AuthService
 {
     public function register(array $data)
     {
+        // Lấy kết nối PDO thực tế từ Database Instance
         $db = Database::getInstance();
 
         // 1. Kiểm tra Role 'customer'
@@ -16,13 +17,13 @@ class AuthService
         $roleStmt->execute(['customer']);
         $role = $roleStmt->fetch();
         if (!$role) {
-            $db->exec("INSERT IGNORE INTO role (id, name, description) VALUES (1, 'system_admin', 'Administrator'), (2, 'manager', 'Manager'), (3, 'sales_staff', 'Sales'), (4, 'operations_staff', 'Operations'), (5, 'customer', 'Customer')");
-            $roleId = 5;
+            $db->exec("INSERT IGNORE INTO role (id, name, description) VALUES (1, 'admin', 'Administrator'), (2, 'staff', 'Staff Member'), (3, 'customer', 'Customer')");
+            $roleId = 3;
         } else {
             $roleId = $role['id'];
         }
 
-        // 2. Kiểm tra email trong bảng user
+        // 2. Kiểm tra email trong bảng `user`
         $stmt = $db->prepare('SELECT id, status, verify_token, full_name FROM `user` WHERE email = ?');
         $stmt->execute([$data['email']]);
         $existingUser = $stmt->fetch();
@@ -35,56 +36,71 @@ class AuthService
                 }
 
                 $verificationUrl = $this->buildVerificationUrl($verifyToken);
+                $emailError = null;
                 try {
                     $this->sendVerificationEmail($data['email'], $data['name'] ?: $existingUser['full_name'] ?: $data['email'], $verifyToken);
-                } catch (\Exception $e) {}
+                } catch (\Exception $e) {
+                    $emailError = $e->getMessage();
+                }
 
-                return [
+                $result = [
                     'id' => $existingUser['id'],
                     'name' => $data['name'] ?: $existingUser['full_name'],
                     'email' => $data['email'],
-                    'roles' => ['customer'],
+                    'role' => 'customer',
                     'verification_url' => $verificationUrl,
-                    'email_sent' => true,
+                    'email_sent' => $emailError === null,
                     'resend_verification' => true,
                 ];
+
+                if ($emailError !== null) {
+                    $result['email_error'] = $emailError;
+                }
+
+                return $result;
             }
-            throw new \Exception('Email already exists.');
+
+            throw new \Exception('Email already exists. Please use another email.');
         }
 
         $hash = password_hash($data['password'], PASSWORD_DEFAULT);
         $verifyToken = bin2hex(random_bytes(16));
 
-        // 3. Chèn vào bảng user
-        $stmt = $db->prepare('INSERT INTO `user` (full_name, email, password_hash, verify_token, status) VALUES (?, ?, ?, ?, ?)');
-        $stmt->execute([$data['name'], $data['email'], $hash, $verifyToken, 'inactive']);
+        // 3. Chèn dữ liệu (Khớp hoàn toàn với các cột: full_name, email, password_hash, role_id, status, verify_token)
+        $stmt = $db->prepare('INSERT INTO `user` (role_id, full_name, email, password_hash, verify_token, status) VALUES (?, ?, ?, ?, ?, ?)');
+        $stmt->execute([$roleId, $data['name'], $data['email'], $hash, $verifyToken, 'inactive']);
         $userId = $db->lastInsertId();
 
-        // 4. Gán vai trò mặc định (Customer) vào bảng trung gian user_roles
-        $roleInsert = $db->prepare('INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)');
-        $roleInsert->execute([$userId, $roleId]);
-
         $verificationUrl = $this->buildVerificationUrl($verifyToken);
+        $emailError = null;
+
         try {
             $this->sendVerificationEmail($data['email'], $data['name'] ?? $data['email'], $verifyToken);
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+            $emailError = $e->getMessage();
+        }
 
-        return [
+        $result = [
             'id' => $userId,
             'name' => $data['name'],
             'email' => $data['email'],
-            'roles' => ['customer'],
+            'role' => 'customer',
             'verification_url' => $verificationUrl,
-            'email_sent' => true,
+            'email_sent' => $emailError === null,
         ];
+
+        if ($emailError !== null) {
+            $result['email_error'] = $emailError;
+        }
+
+        return $result;
     }
 
     public function login(array $credentials)
     {
         $db = Database::getInstance();
         
-        // Truy vấn user
-        $stmt = $db->prepare('SELECT * FROM `user` WHERE email = ?');
+        $stmt = $db->prepare('SELECT u.*, r.name as role_name FROM `user` u JOIN role r ON u.role_id = r.id WHERE u.email = ?');
         $stmt->execute([$credentials['email']]);
         $user = $stmt->fetch();
 
@@ -93,15 +109,10 @@ class AuthService
         }
 
         if ($user['status'] !== 'active') {
-            throw new \Exception('Please verify your email or contact admin.');
+            throw new \Exception('Please verify your email before logging in.');
         }
 
-        // Lấy toàn bộ Role của User qua bảng trung gian
-        $roleStmt = $db->prepare('SELECT r.name FROM role r JOIN user_roles ur ON r.id = ur.role_id WHERE ur.user_id = ?');
-        $roleStmt->execute([$user['id']]);
-        $roles = $roleStmt->fetchAll(\PDO::FETCH_COLUMN);
-
-        $tokenBody = $user['id'] . ':' . implode(',', $roles) . ':' . time();
+        $tokenBody = $user['id'] . ':' . $user['role_name'] . ':' . time();
         $token = base64_encode($tokenBody);
 
         return [
@@ -109,7 +120,7 @@ class AuthService
                 'id' => $user['id'],
                 'name' => $user['full_name'],
                 'email' => $user['email'],
-                'roles' => $roles
+                'role' => $user['role_name']
             ],
             'token' => $token
         ];
@@ -118,6 +129,7 @@ class AuthService
     public function verifyEmail(string $token): string
     {
         $db = Database::getInstance();
+        
         $stmt = $db->prepare('SELECT id, email FROM `user` WHERE verify_token = ?');
         $stmt->execute([$token]);
         $user = $stmt->fetch();
@@ -135,25 +147,26 @@ class AuthService
     public function getUserIdFromToken(string $token): ?int
     {
         $decoded = base64_decode($token, true);
-        if ($decoded === false) return null;
+        if ($decoded === false) {
+            return null;
+        }
+
         $parts = explode(':', $decoded);
-        return (count($parts) >= 1 && is_numeric($parts[0])) ? (int)$parts[0] : null;
+        if (count($parts) < 1 || !is_numeric($parts[0])) {
+            return null;
+        }
+
+        return (int)$parts[0];
     }
 
     public function getUserById(int $userId): ?array
     {
         $db = Database::getInstance();
-        $stmt = $db->prepare('SELECT id, full_name, email, status FROM `user` WHERE id = ?');
+        $stmt = $db->prepare('SELECT u.id, u.full_name, u.email, r.name as role_name FROM `user` u JOIN role r ON u.role_id = r.id WHERE u.id = ?');
         $stmt->execute([$userId]);
         $user = $stmt->fetch();
 
-        if (!$user) return null;
-
-        $roleStmt = $db->prepare('SELECT r.name FROM role r JOIN user_roles ur ON r.id = ur.role_id WHERE ur.user_id = ?');
-        $roleStmt->execute([$userId]);
-        $user['roles'] = $roleStmt->fetchAll(\PDO::FETCH_COLUMN);
-
-        return $user;
+        return $user ?: null;
     }
 
     private function sendVerificationEmail(string $email, string $name, string $token): void

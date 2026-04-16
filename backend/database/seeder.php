@@ -137,45 +137,7 @@ try {
     ON DUPLICATE KEY UPDATE price = VALUES(price);
     ");
 
-    echo "Successfully seeded product data.\n";
-
-    // 7. Users and Many-to-Many Roles (Password: password123)
-    $passHash = password_hash('password123', PASSWORD_DEFAULT);
-    
-    // Insert Users
-    $pdo->exec("
-    INSERT INTO `user` (full_name, email, password_hash, status) VALUES
-        ('System Admin', 'admin@eyewear.com', '$passHash', 'active'),
-        ('Project Manager', 'manager@eyewear.com', '$passHash', 'active'),
-        ('Sales Staff', 'sales@eyewear.com', '$passHash', 'active'),
-        ('Multi Role User', 'multi@eyewear.com', '$passHash', 'active'),
-        ('Test Customer', 'customer@eyewear.com', '$passHash', 'active')
-    ON DUPLICATE KEY UPDATE full_name = VALUES(full_name);
-    ");
-
-    $adminId = $pdo->query("SELECT id FROM `user` WHERE email = 'admin@eyewear.com'")->fetchColumn();
-    $managerId = $pdo->query("SELECT id FROM `user` WHERE email = 'manager@eyewear.com'")->fetchColumn();
-    $salesId = $pdo->query("SELECT id FROM `user` WHERE email = 'sales@eyewear.com'")->fetchColumn();
-    $multiId = $pdo->query("SELECT id FROM `user` WHERE email = 'multi@eyewear.com'")->fetchColumn();
-    $customerId = $pdo->query("SELECT id FROM `user` WHERE email = 'customer@eyewear.com'")->fetchColumn();
-
-    $roleAdmin = $pdo->query("SELECT id FROM role WHERE name = 'system_admin'")->fetchColumn();
-    $roleManager = $pdo->query("SELECT id FROM role WHERE name = 'manager'")->fetchColumn();
-    $roleSales = $pdo->query("SELECT id FROM role WHERE name = 'sales_staff'")->fetchColumn();
-    $roleCustomer = $pdo->query("SELECT id FROM role WHERE name = 'customer'")->fetchColumn();
-
-    // Assign Roles in user_roles
-    $pdo->exec("
-    INSERT IGNORE INTO user_roles (user_id, role_id) VALUES
-        ($adminId, $roleAdmin),
-        ($managerId, $roleManager),
-        ($salesId, $roleSales),
-        ($customerId, $roleCustomer),
-        ($multiId, $roleManager),
-        ($multiId, $roleSales)
-    ");
-
-    echo "Successfully seeded all data including users and multiple roles.\n";
+    echo "Successfully seeded all data for Member 3 testing.\n";
     
 } catch (PDOException $e) {
     echo "Seed failed: " . $e->getMessage() . "\n";

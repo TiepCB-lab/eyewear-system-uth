@@ -1,37 +1,37 @@
 <?php
 session_start();
-include 'dp.php'; // Đã sửa từ db thành dp
+include 'dp.php'; // File kết nối PDO của bạn
 
 if (isset($_POST['login'])) {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    // Truy vấn bảng accounts
-    $stmt = $conn->prepare("SELECT * FROM `user` WHERE email = ?");
+    // 1. Sửa bảng 'accounts' thành 'user' cho đúng với database hiện tại
+    $stmt = $conn->prepare("SELECT * FROM user WHERE email = ?");
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 
-    // 1. Kiểm tra user có tồn tại và mật khẩu có đúng không
-    // Lưu ý: đổi thành $user['password_hash'] cho khớp với database
+    // 2. Kiểm tra user có tồn tại và mật khẩu (password_hash)
     if ($user && password_verify($password, $user['password_hash'])) {
         
-        // 2. Kiểm tra trạng thái xác thực mail
-        if ($user['status'] !== 'active') {
-            die("Tài khoản này chưa được xác thực email. Vui lòng kiểm tra hộp thư!");
+        // 3. Kiểm tra trạng thái xác thực (status trong bảng của bạn)
+        // Nếu status = 0 là chưa xác thực, status = 1 là đã xong
+        if ($user['status'] == 0) {
+            die("<script>alert('Tài khoản này chưa được xác thực email. Vui lòng kiểm tra hộp thư!'); window.location='login.php';</script>");
         }
 
-        // 3. Đăng nhập thành công, lưu thông tin vào Session
+        // 4. Lưu thông tin vào Session
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['full_name'] = $user['full_name'];
         $_SESSION['role_id'] = $user['role_id'];
 
-        // 4. Phân quyền hướng trang (1 là Admin, 2 là User)
+        // 5. Phân quyền hướng trang (1 là Admin, 2 là User)
         if ($user['role_id'] == 1) {
             header("Location: admin_dashboard.php");
         } else {
-            header("Location: http://127.0.0.1:5500/frontend/src/pages/shop/");
+            header("Location: index.php");
         }
-        exit(); // Luôn dùng exit sau header để dừng code
+        exit(); 
 
     } else {
         echo "<script>alert('Email hoặc mật khẩu không chính xác!');</script>";
@@ -39,7 +39,7 @@ if (isset($_POST['login'])) {
 }
 ?>
 
-<form method="POST">
+<form method="POST" style="margin-top: 20px;">
     <h2>Đăng nhập Hệ thống</h2>
     <input type="email" name="email" placeholder="Email" required><br><br>
     <input type="password" name="password" placeholder="Mật khẩu" required><br><br>

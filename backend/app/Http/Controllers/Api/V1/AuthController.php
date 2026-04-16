@@ -90,38 +90,19 @@ class AuthController
     public function verify()
     {
         $token = $_GET['token'] ?? null;
-        $config = $this->loadConfig();
-        $frontendUrl = rtrim($config['FRONTEND_URL'] ?? 'http://localhost:5500', '/');
-
         if (!$token) {
-            header("Location: {$frontendUrl}/src/pages/auth/?verified=0&error=" . urlencode('Verification token is required.'));
+            header('Location: http://127.0.0.1:5500/frontend/src/pages/auth/?verified=0&error=' . urlencode('Verification token is required.'));
             exit;
         }
 
         try {
             $email = $this->authService->verifyEmail($token);
-            header("Location: {$frontendUrl}/src/pages/auth/?verified=1&email=" . urlencode($email));
+            header('Location: http://127.0.0.1:5500/frontend/src/pages/auth/?verified=1&email=' . urlencode($email));
             exit;
         } catch (\Exception $e) {
-            header("Location: {$frontendUrl}/src/pages/auth/?verified=0&error=" . urlencode($e->getMessage()));
+            header('Location: http://127.0.0.1:5500/frontend/src/pages/auth/?verified=0&error=' . urlencode($e->getMessage()));
             exit;
         }
-    }
-
-    private function loadConfig(): array
-    {
-        $envPath = dirname(__DIR__, 5) . '/.env';
-        if (!is_file($envPath)) return [];
-        
-        $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        $config = [];
-        foreach ($lines as $line) {
-            if (str_contains($line, '=')) {
-                [$name, $value] = explode('=', $line, 2);
-                $config[trim($name)] = trim($value, " \t\n\r\0\x0B\"'");
-            }
-        }
-        return $config;
     }
 
     private function getBearerToken(): ?string

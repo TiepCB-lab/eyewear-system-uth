@@ -78,40 +78,6 @@ class Router
         ];
     }
 
-    private static function runMiddleware(array $middleware): bool
-    {
-        foreach ($middleware as $item) {
-            if (!is_string($item) || $item === '') {
-                continue;
-            }
-
-            [$name, $parameter] = array_pad(explode(':', $item, 2), 2, null);
-
-            if ($name === 'auth') {
-                if (!\App\Http\Middleware\AuthMiddleware::handle($parameter)) {
-                    return false;
-                }
-                continue;
-            }
-
-            if ($name === 'role') {
-                $roles = $parameter ? array_values(array_filter(array_map('trim', explode('|', $parameter)))) : [];
-                if (!\App\Http\Middleware\RoleMiddleware::handle($roles)) {
-                    return false;
-                }
-                continue;
-            }
-
-            if ($name === 'cors') {
-                if (!\App\Http\Middleware\CorsMiddleware::handle()) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
     public static function dispatch(string $method, string $uri): void
     {
         $uri = rtrim(parse_url($uri, PHP_URL_PATH), '/');
@@ -119,10 +85,6 @@ class Router
 
         foreach (self::$routes as $route) {
             if ($route['method'] === $method && $route['uri'] === $uri) {
-                if (!self::runMiddleware($route['middleware'])) {
-                    return;
-                }
-
                 // Very basic Dependency Injection for simple controllers
                 $controllerClass = $route['action'][0];
                 $methodName = $route['action'][1];
