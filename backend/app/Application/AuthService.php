@@ -23,15 +23,14 @@ class AuthService
             $roleId = $role['id'];
         }
 
-        // 2. Kiểm tra email trong bảng accounts
-        $stmt = $db->prepare('SELECT id, status, verify_token, full_name FROM accounts WHERE email = ?');
+        $stmt = $db->prepare('SELECT id, status, verify_token, full_name FROM `user` WHERE email = ?');
         $stmt->execute([$data['email']]);
         $existingUser = $stmt->fetch();
         if ($existingUser) {
-            if ((int)$existingUser['status'] === 0) {
+            if ($existingUser['status'] === 'inactive') {
                 $verifyToken = $existingUser['verify_token'] ?: bin2hex(random_bytes(16));
                 if (!$existingUser['verify_token']) {
-                    $updateToken = $db->prepare('UPDATE accounts SET verify_token = ? WHERE id = ?');
+                    $updateToken = $db->prepare('UPDATE `user` SET verify_token = ? WHERE id = ?');
                     $updateToken->execute([$verifyToken, $existingUser['id']]);
                 }
 
@@ -66,9 +65,8 @@ class AuthService
         $hash = password_hash($data['password'], PASSWORD_DEFAULT);
         $verifyToken = bin2hex(random_bytes(16));
 
-        // 3. Chèn dữ liệu (Khớp hoàn toàn với các cột: full_name, email, password_hash, role_id, status, verify_token)
-        $stmt = $db->prepare('INSERT INTO accounts (role_id, full_name, email, password_hash, verify_token, status) VALUES (?, ?, ?, ?, ?, ?)');
-        $stmt->execute([$roleId, $data['name'], $data['email'], $hash, $verifyToken, 0]);
+        $stmt = $db->prepare('INSERT INTO `user` (role_id, full_name, email, password_hash, verify_token, status) VALUES (?, ?, ?, ?, ?, ?)');
+        $stmt->execute([$roleId, $data['name'], $data['email'], $hash, $verifyToken, 'active']);
         $userId = $db->lastInsertId();
 
         $verificationUrl = $this->buildVerificationUrl($verifyToken);
@@ -100,16 +98,12 @@ class AuthService
     {
         $db = Database::getInstance();
         
-        $stmt = $db->prepare('SELECT u.*, r.name as role_name FROM accounts u JOIN role r ON u.role_id = r.id WHERE u.email = ?');
+        $stmt = $db->prepare('SELECT u.*, r.name as role_name FROM `user` u JOIN role r ON u.role_id = r.id WHERE u.email = ?');
         $stmt->execute([$credentials['email']]);
         $user = $stmt->fetch();
 
         if (!$user || !password_verify($credentials['password'], $user['password_hash'])) {
             throw new \Exception('Invalid credentials');
-        }
-
-        if ((int) $user['status'] !== 1) {
-            throw new \Exception('Please verify your email before logging in.');
         }
 
         $tokenBody = $user['id'] . ':' . $user['role_name'] . ':' . time();
@@ -130,7 +124,7 @@ class AuthService
     {
         $db = Database::getInstance();
         
-        $stmt = $db->prepare('SELECT id, email FROM accounts WHERE verify_token = ?');
+        $stmt = $db->prepare('SELECT id, email FROM `user` WHERE verify_token = ?');
         $stmt->execute([$token]);
         $user = $stmt->fetch();
 
@@ -138,7 +132,7 @@ class AuthService
             throw new \Exception('Invalid or expired verification token.');
         }
 
-        $update = $db->prepare("UPDATE accounts SET status = 1, verify_token = NULL WHERE id = ?");
+        $update = $db->prepare("UPDATE `user` SET status = 'active', verify_token = NULL WHERE id = ?");
         $update->execute([$user['id']]);
 
         return $user['email'];
@@ -162,7 +156,7 @@ class AuthService
     public function getUserById(int $userId): ?array
     {
         $db = Database::getInstance();
-        $stmt = $db->prepare('SELECT u.id, u.full_name, u.email, r.name as role_name FROM accounts u JOIN role r ON u.role_id = r.id WHERE u.id = ?');
+        $stmt = $db->prepare('SELECT u.id, u.full_name, u.email, r.name as role_name FROM `user` u JOIN role r ON u.role_id = r.id WHERE u.id = ?');
         $stmt->execute([$userId]);
         $user = $stmt->fetch();
 
