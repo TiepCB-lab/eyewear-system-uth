@@ -30,31 +30,31 @@ class Router
         self::$currentMiddleware = $previousMiddleware;
     }
 
-    public static function get(string $uri, array $action): static
+    public static function get(string $uri, array $action): self
     {
         self::addRoute('GET', $uri, $action);
         return new static();
     }
 
-    public static function post(string $uri, array $action): static
+    public static function post(string $uri, array $action): self
     {
         self::addRoute('POST', $uri, $action);
         return new static();
     }
 
-    public static function put(string $uri, array $action): static
+    public static function put(string $uri, array $action): self
     {
         self::addRoute('PUT', $uri, $action);
         return new static();
     }
 
-    public static function delete(string $uri, array $action): static
+    public static function delete(string $uri, array $action): self
     {
         self::addRoute('DELETE', $uri, $action);
         return new static();
     }
 
-    public function middleware($middleware): static
+    public function middleware($middleware): self
     {
         $lastIdx = count(self::$routes) - 1;
         if ($lastIdx >= 0) {
