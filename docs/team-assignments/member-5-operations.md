@@ -12,51 +12,53 @@ This member owns the **back-office workflow**: Production (lens cutting, frame m
 ---
 
 ## ✅ TODO Checklist
-
-### Database (Schema)
-- [x] Create `shipment` table in `database/schema.sql`
-- [x] Add production columns to `order` table in `database/schema.sql`
-
-### Backend — Application Layer (Services)
-- [ ] Complete `OperationsService.php` in `app/Application/`
-  - Manage production steps (Lens cutting -> Mounting -> QC)
-  - Shipment creation and tracking updates
-- [ ] Complete `DashboardService.php` in `app/Application/`
-  - Aggregate statistics (Revenue, Top products, Active orders)
-- [ ] Complete `AdminService.php` in `app/Application/`
-  - Management of users and system configuration
-
-### Backend — Controllers & Routes
-- [ ] Implement `OperationsController.php` in `app/Http/Controllers/Api/V1/`
-- [ ] Implement `DashboardController.php` in `app/Http/Controllers/Api/V1/`
-- [ ] Define routes in `routes/api.php` under `api/v1/ops` and `api/v1/dashboard`
-
-### Frontend (Vanilla JS)
-- [ ] Implement `src/pages/dashboard/admin/index.html` (Full management view)
-- [ ] Implement `src/pages/dashboard/staff/index.html` (Operations & Shipping view)
-- [ ] Create `src/services/adminService.js` and `src/services/dashboardService.js`
-
-### Testing
-- [ ] Test API: Advancing an order through production steps
-- [ ] Test API: Creating a shipment and checking status updates
-- [ ] Analytics: verifying revenue matching with paid orders
-
----
-
-## 📁 Files Owned
-
-### Backend
-- `app/Application/OperationsService.php`
-- `app/Application/DashboardService.php`
-- `app/Application/AdminService.php`
-- `app/Http/Controllers/Api/V1/OperationsController.php`
-- `app/Http/Controllers/Api/V1/DashboardController.php`
-
-### Frontend
-- `frontend/src/pages/dashboard/admin/index.html`
-- `frontend/src/pages/dashboard/staff/index.html`
-- `frontend/src/services/adminService.js`
-- `frontend/src/services/dashboardService.js`
+ 
+ ### Database (Schema)
+ - [x] Create `shipment` in `database/schema.sql`
+ - [x] Add production status columns (`production_status`) to `order` table.
+ 
+ ### Backend — Application Layer (Services)
+ - [ ] Complete `OperationsService.php`:
+   - Manage production steps (Lens cutting -> Mounting -> QC).
+   - Shipment creation and tracking assignment.
+ - [ ] Complete `DashboardService.php`:
+   - Aggregate statistics (Revenue, Top products, Active orders).
+ - [ ] Complete `AdminService.php`:
+   - Management of staff members and system configuration.
+ 
+ ### Backend — Controllers & Routes
+ - [ ] Implement `OperationsController`, `DashboardController`, `AdminController`.
+ - [ ] Define API Endpoints for operations and analytics reports.
+ 
+ ### Frontend (Vanilla JS)
+ - [x] Created common Dashboard Shell (`pages/dashboard/index.html`).
+ - [x] Created `analytics.html` module: Revenue charts and manager reports.
+ - [x] Created `ops.html` module: Production workflow and shipping for Ops Staff.
+ - [x] Created `users.html` module: Staff management and RBAC configuration (Admin).
+ - [ ] Define API endpoints in `js/services/adminService.js` and `js/services/dashboardService.js`.
+ 
+ ### Testing
+ - [ ] Test API: Advancing an order through production steps.
+ - [ ] Test API: Creating a shipment and verifying order status update.
+ - [ ] Analytics: Ensuring revenue matches paid invoices.
+ 
+ ---
+ 
+ ## 📁 Files Owned
+ 
+ ### Backend
+ - `app/Application/OperationsService.php`
+ - `app/Application/DashboardService.php`
+ - `app/Application/AdminService.php`
+ - `app/Http/Controllers/Api/V1/OperationsController.php`
+ - `app/Http/Controllers/Api/V1/DashboardController.php`
+ 
+ ### Frontend
+ - `frontend/pages/dashboard/index.html` (Shell)
+ - `frontend/pages/dashboard/modules/analytics.html`
+ - `frontend/pages/dashboard/modules/ops.html`
+ - `frontend/pages/dashboard/modules/users.html`
+ - `frontend/js/services/dashboardService.js`
 
 ---
 

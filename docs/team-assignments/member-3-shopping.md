@@ -12,52 +12,49 @@ This member owns the **transactional flow**: Adding items to the cart (including
 ---
 
 ## ✅ TODO Checklist
-
-### Database (Schema)
-- [x] Create `cart` table in `database/schema.sql`
-- [x] Create `cartitem` table in `database/schema.sql`
-- [x] Create `prescription` table in `database/schema.sql`
-
-### Backend — Application Layer (Services)
-- [ ] Complete `CartService.php` in `app/Application/`
-  - Add/Update/Remove items from cart session or DB
-  - Calculate cart totals including lens additional prices
-- [ ] Complete `PrescriptionService.php` in `app/Application/`
-  - Validation of OD/OS values (Sph, Cyl, Axis, PD)
-- [ ] Complete `CheckoutService.php` in `app/Application/`
-  - Convert cart to pending order
-  - Apply promotion codes (if any)
-
-### Backend — Controllers & Routes
-- [ ] Implement `CartController.php` in `app/Http/Controllers/Api/V1/`
-- [ ] Implement `PrescriptionController.php` (if needed)
-- [ ] Define routes in `routes/api.php` under `api/v1/cart` prefix
-
-### Frontend (Vanilla JS)
-- [ ] Implement `src/pages/cart/index.html` (Item list, quantity controls, subtotal)
-- [ ] Implement `src/pages/checkout/index.html` (Shipping info, summary, prescription upload/entry)
-- [ ] Create `src/services/cartService.js` (Fetch API for cart sync)
-- [ ] Implement dynamic price updates in Cart UI
-
-### Testing
-- [ ] Test adding variants with different lenses to cart
-- [ ] Test prescription validation logic
-- [ ] Test checkout flow (ensuring total_amount is calculated correctly)
-
----
-
-## 📁 Files Owned
-
-### Backend
-- `app/Application/CartService.php`
-- `app/Application/PrescriptionService.php`
-- `app/Application/CheckoutService.php`
-- `app/Http/Controllers/Api/V1/CartController.php`
-
-### Frontend
-- `frontend/src/pages/cart/index.html`
-- `frontend/src/pages/checkout/index.html`
-- `src/services/cartService.js`
+ 
+ ### Database (Schema)
+ - [x] Create `cart`, `cartitem`, `prescription` in `database/schema.sql`
+ 
+ ### Backend — Application Layer (Services)
+ - [ ] Complete `CartService.php`:
+   - Add/Update/Remove items from cart (Session or Database).
+   - Calculate totals including lens additional options/pricing.
+ - [ ] Complete `PrescriptionService.php`:
+   - Validate prescription parameters (OD/OS: Sph, Cyl, Axis, PD).
+ - [ ] Complete `CheckoutService.php`:
+   - Convert cart to pending order.
+   - Categorize orders: Stock, Pre-order, or Prescription Order.
+ 
+ ### Backend — Controllers & Routes
+ - [ ] Implement `CartController.php` and `PrescriptionController.php`.
+ - [ ] Define API Endpoints for cart management and order placement.
+ 
+ ### Frontend (Vanilla JS)
+ - [ ] Implement `pages/cart/index.html`: Item list, quantity controls, total calculation.
+ - [ ] Implement `pages/checkout/index.html`: Shipping info, prescription entry, order type selection.
+ - [ ] Create `js/services/cartService.js`: Sync cart with server.
+ - [ ] Implement dynamic price updates based on lens selection (Single Product Details).
+ 
+ ### Testing
+ - [ ] Test adding variants with lens options to cart.
+ - [ ] Test prescription validation logic.
+ - [ ] Test checkout flow (correct calculation and order type detection).
+ 
+ ---
+ 
+ ## 📁 Files Owned
+ 
+ ### Backend
+ - `app/Application/CartService.php`
+ - `app/Application/PrescriptionService.php`
+ - `app/Application/CheckoutService.php`
+ - `app/Http/Controllers/Api/V1/CartController.php`
+ 
+ ### Frontend
+ - `frontend/pages/cart/index.html`
+ - `frontend/pages/checkout/index.html`
+ - `frontend/js/services/cartService.js`
 
 ---
 
