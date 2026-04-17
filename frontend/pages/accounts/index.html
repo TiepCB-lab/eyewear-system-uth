@@ -25,9 +25,14 @@
     <title>My Account — EYEWEAR.UTH</title>
   </head>
   <body>
-    <!--=============== HEADER ===============-->
+    <!--======= STAFF SIDEBAR (Shows only if layout-staff class present) =======-->
+    <aside class="staff-sidebar-placeholder sidebar" data-include="layout/StaffSidebar"></aside>
+
     <!--=============== HEADER ===============-->
     <header class="header" data-include="layout/Header"></header>
+    
+    <!-- Admin Header (Shows only if on staff context) -->
+    <header class="admin-header flex" data-include="layout/AdminHeader" style="display: none;"></header>
 
     <!--=============== MAIN ===============-->
     <main class="main">

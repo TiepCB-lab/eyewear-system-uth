@@ -1,0 +1,66 @@
+<!--=============== OVERVIEW MODULE ===============-->
+<div class="metrics-grid">
+    <div data-permission="view_admin_dashboard" class="metric-card">
+        <div class="metric-label">Server Status</div>
+        <div class="metric-value">99.9%</div>
+        <div class="badge badge-shipped">Online</div>
+    </div>
+    <div data-permission="view_manager_dashboard" class="metric-card">
+        <div class="metric-label">Daily Revenue</div>
+        <div class="metric-value">$1,240.50</div>
+        <div class="badge badge-shipped">+12%</div>
+    </div>
+    <div data-permission="view_sales_dashboard" class="metric-card">
+        <div class="metric-label">New Orders</div>
+        <div class="metric-value" id="overview-new-orders">...</div>
+        <div class="badge badge-pending">To Review</div>
+    </div>
+    <div data-permission="view_ops_dashboard" class="metric-card">
+        <div class="metric-label">To Pack</div>
+        <div class="metric-value">42</div>
+        <div class="badge badge-pending">Priority</div>
+    </div>
+</div>
+
+<div class="admin-table container" style="margin-top: 2rem; background: #fff; padding: 2rem; border-radius: 12px; box-shadow: var(--card-shadow);">
+    <h3 class="table__title">Recent Activity</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Event</th>
+                <th>User</th>
+                <th>Time</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Database Backup</td>
+                <td>System</td>
+                <td>02:00 AM</td>
+                <td><span class="badge badge-shipped">Success</span></td>
+            </tr>
+            <tr>
+                <td>Stock Update: Aviator</td>
+                <td>Ops Staff</td>
+                <td>10:45 AM</td>
+                <td><span class="badge badge-pending">Pending</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script type="module">
+    import { salesService } from '../../js/services/supportService.js';
+    import { getCurrentUserPermissions } from '../../js/core/rbac.js';
+
+    async function loadStats() {
+        const { hasPermission } = await getCurrentUserPermissions();
+        if (hasPermission('view_sales_dashboard')) {
+            const res = await salesService.getPendingOrders();
+            const el = document.getElementById('overview-new-orders');
+            if (el) el.innerText = res?.data?.length || 0;
+        }
+    }
+    loadStats();
+</script>

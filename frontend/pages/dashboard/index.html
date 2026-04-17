@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Hub — EYEWEAR.UTH</title>
+    
+    <!--=============== FLATICON ===============-->
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.0.0/uicons-regular-straight/css/uicons-regular-straight.css" />
+    
+    <!--=============== CSS ===============-->
+    <link rel="stylesheet" href="../../assets/css/styles.css" />
+    <link rel="stylesheet" href="../../assets/css/admin.css" />
+
+    <!--=============== SCRIPTS ===============-->
+    <script src="../../js/core/layout-loader.js" defer></script>
+    <script type="module" src="../../js/core/ui-permissions.js" defer></script>
+</head>
+<body class="admin-body">
+    <!--=============== SIDEBAR ===============-->
+    <aside class="sidebar" data-include="layout/StaffSidebar"></aside>
+
+    <!--=============== MAIN CONTENT ===============-->
+    <main class="admin-main">
+        <header class="admin-header flex" data-include="layout/AdminHeader"></header>
+
+        <section class="section">
+            <h2 class="section__title">Dashboard Hub</h2>
+            
+            <div id="dashboard-modules" class="dashboard-modules-container">
+                <!-- Modules will be loaded here dynamically -->
+                <div class="loading-spinner">Initializing...</div>
+            </div>
+        </section>
+    </main>
+
+    <style>
+        .dashboard-modules-container {
+            background: var(--container-color);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color-alt);
+            min-height: 70vh;
+        }
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            font-size: 1.2rem;
+            color: var(--text-color-light);
+        }
+        .error-msg {
+            color: #d9534f;
+            padding: 2rem;
+            text-align: center;
+            font-weight: 500;
+        }
+    </style>
+
+    <script type="module" src="../../js/pages/dashboard.js"></script>
+</body>
+</html>

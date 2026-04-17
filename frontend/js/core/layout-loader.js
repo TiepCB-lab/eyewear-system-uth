@@ -13,13 +13,24 @@
     async function loadComponent(el) {
         const componentPath = el.getAttribute('data-include');
         let mappedPath = componentPath;
+        const isStaffLayout = document.body.classList.contains('layout-staff');
         
-        // Logical mapping
-        if (componentPath === 'layout/Header') mappedPath = 'header';
+        // Logical mapping with Context Override
+        if (componentPath === 'layout/Header') {
+            mappedPath = isStaffLayout ? 'header-admin' : 'header'; 
+        }
+        
         if (componentPath === 'layout/Footer') mappedPath = 'footer';
         if (componentPath === 'layout/StaffSidebar') mappedPath = 'sidebar-staff';
         if (componentPath === 'layout/CustomerSidebar') mappedPath = 'sidebar-customer';
-        if (componentPath === 'layout/AdminHeader') mappedPath = 'header'; // Fallback if admin-profile removed
+        if (componentPath === 'layout/AdminHeader') mappedPath = 'header-admin';
+
+        // Contextual UI Overrides for Profile Page etc.
+        if (isStaffLayout) {
+            if (componentPath === 'layout/Header') {
+                mappedPath = 'header-admin'; 
+            }
+        }
         
         let url;
         if (componentPath.startsWith('layout/')) {
@@ -56,6 +67,9 @@
             
             el.classList.remove('component-loading');
             el.classList.add('component-loaded');
+
+            // Dispatch global event for other scripts (like ui-permissions.js)
+            window.dispatchEvent(new CustomEvent('content-loaded', { detail: { element: el, path: componentPath } }));
         } catch (err) {
             console.error(`LayoutLoader Error [${componentPath}]:`, err);
             el.innerHTML = `<div style="color:#d9534f; padding:10px; border:1px solid #d9534f;">Failed to load ${componentPath}</div>`;
@@ -142,7 +156,8 @@
 
     async function updateAuthUI() {
         const portalArea = document.getElementById('header-user-portal');
-        if (!portalArea) return;
+        const adminPortal = document.getElementById('admin-user-portal');
+        if (!portalArea && !adminPortal) return;
 
         try {
             const { default: authService } = await import(projectRoot + 'js/services/authService.js');
@@ -150,35 +165,69 @@
             
             if (user && user.status !== 'error') {
                 const displayName = user.full_name || user.name || user.username || 'User';
-                const isStaff = ['admin', 'manager', 'staff'].includes(user.role) || authService.isStaff();
+                const isStaff = authService.isStaff();
+                const isCustomer = authService.isCustomer();
                 
-                portalArea.innerHTML = `
-                    <div class="user-info dropdown">
-                        <div class="user-trigger">
-                            <i class="fi fi-rs-user"></i>
-                            <span>Hi, ${displayName}</span>
-                            <i class="fi fi-rs-angle-small-down"></i>
+                // Content for Customer Portal (Header)
+                if (portalArea) {
+                    portalArea.innerHTML = `
+                        <div class="user-info dropdown">
+                            <div class="user-trigger">
+                                <i class="fi fi-rs-user"></i>
+                                <span>Hi, ${displayName}</span>
+                                <i class="fi fi-rs-angle-small-down"></i>
+                            </div>
+                            <div class="user-dropdown">
+                                <a href="/pages/accounts/" class="dropdown__item">
+                                    <i class="fi fi-rs-settings-sliders"></i> My Profile
+                                </a>
+                                ${isStaff ? `
+                                <a href="/pages/dashboard/index.html" class="dropdown__item" style="color: var(--first-color); font-weight: bold;">
+                                    <i class="fi fi-rs-apps"></i> Admin Dashboard
+                                </a>
+                                ` : ''}
+                                <div class="dropdown__divider"></div>
+                                <a href="#" class="dropdown__item logout-btn">
+                                    <i class="fi fi-rs-sign-out-alt"></i> Logout
+                                </a>
+                            </div>
                         </div>
-                        <div class="user-dropdown">
-                            <a href="/pages/accounts/" class="dropdown__item">
-                                <i class="fi fi-rs-settings-sliders"></i> My Profile
-                            </a>
-                            ${isStaff ? `
-                            <a href="/pages/dashboard/portal.html" class="dropdown__item" style="color: var(--first-color); font-weight: bold;">
-                                <i class="fi fi-rs-apps"></i> Admin Dashboard
-                            </a>
-                            ` : ''}
-                            <div class="dropdown__divider"></div>
-                            <a href="#" id="logout-btn" class="dropdown__item">
-                                <i class="fi fi-rs-sign-out-alt"></i> Logout
-                            </a>
+                    `;
+                }
+
+                // Content for Staff Portal (Admin Header)
+                if (adminPortal) {
+                    adminPortal.innerHTML = `
+                        <div class="user-info dropdown">
+                            <div class="user-trigger flex" style="gap: 0.5rem;">
+                                <img src="/assets/images/avatar-1.jpg" style="width: 32px; border-radius: 50%;" onerror="this.style.display='none'">
+                                <span>${displayName}</span>
+                                <i class="fi fi-rs-angle-small-down"></i>
+                            </div>
+                            <div class="user-dropdown" style="right: 0; left: auto;">
+                                <a href="/pages/dashboard/index.html?view=profile" class="dropdown__item">
+                                    <i class="fi fi-rs-user"></i> My Profile
+                                </a>
+                                ${isCustomer ? `
+                                <a href="/" class="dropdown__item" style="color: var(--first-color); font-weight: bold;">
+                                    <i class="fi fi-rs-shopping-cart"></i> Switch to Shop
+                                </a>
+                                ` : ''}
+                                <div class="dropdown__divider"></div>
+                                <a href="#" class="dropdown__item logout-btn">
+                                    <i class="fi fi-rs-sign-out-alt"></i> Logout
+                                </a>
+                            </div>
                         </div>
-                    </div>
-                `;
-                document.getElementById('logout-btn').onclick = (e) => {
-                    e.preventDefault();
-                    authService.logout().then(() => window.location.href = '/');
-                };
+                    `;
+                }
+
+                document.querySelectorAll('.logout-btn').forEach(btn => {
+                    btn.onclick = (e) => {
+                        e.preventDefault();
+                        authService.logout().then(() => window.location.href = '/');
+                    };
+                });
             }
         } catch (e) {
             console.warn("AuthUI Update failed:", e);
@@ -187,5 +236,10 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('[data-include]').forEach(loadComponent);
+        
+        // Load role/layout enforcement
+        import(`${projectRoot}js/core/layout-guard.js`).then(m => {
+            // Guard already initializes on DOMContentLoaded in its own file
+        }).catch(err => console.error("Failed to load LayoutGuard:", err));
     });
 })();
