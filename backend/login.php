@@ -29,7 +29,7 @@ if (isset($_POST['login'])) {
         if ($user['role_id'] == 1) {
             header("Location: admin_dashboard.php");
         } else {
-            header("Location: http://127.0.0.1:5500/frontend/src/pages/shop/");
+            header("Location: http://localhost:5500/pages/shop/");
         }
         exit(); // Luôn dùng exit sau header để dừng code
 
