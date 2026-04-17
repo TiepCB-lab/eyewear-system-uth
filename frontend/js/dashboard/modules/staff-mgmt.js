@@ -1,4 +1,4 @@
-import adminService from '../../../../js/services/adminService.js';
+import adminService from '../../services/adminService.js';
 
 const staffTableBody = document.getElementById('staffTableBody');
 const staffModal = document.getElementById('staffModal');

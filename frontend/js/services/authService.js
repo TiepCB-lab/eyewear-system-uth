@@ -38,15 +38,40 @@ class AuthService {
 
   // Lấy danh sách Roles từ dữ liệu đã lưu (nếu có)
   getUserRoles() {
-    const user = JSON.parse(localStorage.getItem('user_info') || '{}');
-    return user.roles || [];
+    const userJson = localStorage.getItem('user_info');
+    if (!userJson) return [];
+    try {
+      const user = JSON.parse(userJson);
+      // Support both array and single string
+      if (Array.isArray(user.roles)) return user.roles;
+      if (user.role) return [user.role];
+    } catch (e) {
+      console.error("Error parsing user roles", e);
+    }
+    return [];
+  }
+
+  getStaffRoles() {
+    return ['system_admin', 'manager', 'sales_staff', 'operations_staff'];
   }
 
   // Kiểm tra xem User có quyền Staff không
   isStaff() {
-    const staffRoles = ['system_admin', 'manager', 'sales_staff', 'operations_staff'];
+    const staffRoles = this.getStaffRoles();
     const userRoles = this.getUserRoles();
     return userRoles.some(role => staffRoles.includes(role));
+  }
+
+  // Kiểm tra xem User có quyền Customer không
+  isCustomer() {
+    return this.getUserRoles().includes('customer');
+  }
+
+  // Determine which side of the app the user belongs to primarily
+  getPrimaryContext() {
+    if (this.isStaff()) return 'staff';
+    if (this.isCustomer()) return 'customer';
+    return 'guest';
   }
 
   hasRole(roleName) {

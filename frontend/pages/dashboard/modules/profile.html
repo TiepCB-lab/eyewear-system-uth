@@ -1,0 +1,110 @@
+<div class="profile-module">
+    <div class="module-header flex" style="justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div>
+            <h2 class="section__title" style="margin-bottom: 0.5rem;">Personal Profile</h2>
+            <p class="text-color-light">Manage your staff account information and preferences.</p>
+        </div>
+    </div>
+
+    <div class="grid" style="grid-template-columns: 1fr 2fr; gap: 2rem; align-items: start;">
+        <!-- Profile Card -->
+        <div class="profile-card" style="background: #fff; padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color-alt); text-align: center;">
+            <div class="avatar-wrapper" style="position: relative; width: 120px; height: 120px; margin: 0 auto 1.5rem;">
+                <img src="/assets/images/avatar-1.jpg" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid var(--first-color-alt);">
+                <button class="btn--sm" style="position: absolute; bottom: 0; right: 0; padding: 0.5rem; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fi fi-rs-camera"></i>
+                </button>
+            </div>
+            <h3 id="profile-name-full" style="margin-bottom: 0.25rem;">Loading...</h3>
+            <p id="profile-role-badge" style="display: inline-block; padding: 0.25rem 1rem; background: var(--first-color-alt); color: var(--first-color); border-radius: 50px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase;"></p>
+            
+            <div class="profile-stats grid" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border-color-alt);">
+                <div>
+                    <h4 style="font-size: 1.2rem;">124</h4>
+                    <p style="font-size: 0.75rem; color: var(--text-color-light);">Tasks Done</p>
+                </div>
+                <div>
+                    <h4 style="font-size: 1.2rem;">98%</h4>
+                    <p style="font-size: 0.75rem; color: var(--text-color-light);">Success Rate</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Area -->
+        <div class="profile-form-area" style="background: #fff; padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color-alt);">
+            <div class="tabs__content">
+                <h3 class="tab__header" style="margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 2px solid var(--first-color-alt);">Account Settings</h3>
+                <form id="staff-profile-form" class="form grid">
+                    <div class="form__group grid" style="grid-template-columns: 1fr 1fr;">
+                        <div class="input-wrap">
+                            <label style="display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem;">Full Name</label>
+                            <input type="text" name="name" class="form__input" style="width: 100%;" readonly />
+                        </div>
+                        <div class="input-wrap">
+                            <label style="display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem;">Email Address</label>
+                            <input type="email" name="email" class="form__input" style="width: 100%;" readonly />
+                        </div>
+                    </div>
+
+                    <div class="form__group grid" style="grid-template-columns: 1fr 1fr;">
+                        <div class="input-wrap">
+                            <label style="display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem;">Phone Number</label>
+                            <input type="text" name="phone" placeholder="No phone set" class="form__input" style="width: 100%;" />
+                        </div>
+                        <div class="input-wrap">
+                            <label style="display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem;">Birthdate</label>
+                            <input type="date" name="birthdate" class="form__input" style="width: 100%;" />
+                        </div>
+                    </div>
+
+                    <div class="input-wrap">
+                        <label style="display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem;">Workspace Address</label>
+                        <textarea name="address" class="form__input" style="width: 100%; height: 80px; padding-top: 0.75rem;"></textarea>
+                    </div>
+
+                    <div style="margin-top: 1rem; display: flex; gap: 1rem;">
+                        <button type="submit" class="btn btn--md">Update Profile</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import profileService from '/js/services/profileService.js';
+    import authService from '/js/services/authService.js';
+
+    async function loadProfile() {
+        try {
+            const res = await profileService.getProfile();
+            const profile = res.profile;
+            const user = profile.user || {};
+
+            const form = document.getElementById('staff-profile-form');
+            form.querySelector('input[name="name"]').value = user.name || '';
+            form.querySelector('input[name="email"]').value = user.email || '';
+            form.querySelector('input[name="phone"]').value = profile.phone || '';
+            form.querySelector('input[name="birthdate"]').value = profile.birthdate || '';
+            form.querySelector('textarea[name="address"]').value = profile.address || '';
+
+            document.getElementById('profile-name-full').textContent = user.name || 'Staff User';
+            document.getElementById('profile-role-badge').textContent = user.role_name || 'Staff';
+        } catch (e) {
+            console.error("Profile load error:", e);
+        }
+    }
+
+    document.getElementById('staff-profile-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.target));
+        try {
+            await profileService.updateProfile(data);
+            alert('Your profile has been updated!');
+        } catch (err) {
+            alert('Error updating profile: ' + err.message);
+        }
+    });
+
+    loadProfile();
+</script>

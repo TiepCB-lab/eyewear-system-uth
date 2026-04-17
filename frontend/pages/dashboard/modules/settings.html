@@ -1,0 +1,50 @@
+<!--=============== SETTINGS MODULE ===============-->
+<h1 class="section__title">Global Settings & Management</h1>
+
+<div class="grid" style="grid-template-columns: 1fr 1.5fr; gap: 1.5rem;">
+    <!-- Column 1: Roles Management -->
+    <div class="metric-card">
+        <h3 class="footer__title">Personnel & Roles</h3>
+        <div class="grid" style="gap: 1rem;">
+            <div style="padding: 1rem; border: 1px solid var(--border-color-alt); border-radius: 8px;">
+                <strong>System Admin:</strong> <span id="countAdmin">Loading...</span>
+            </div>
+            <div style="padding: 1rem; border: 1px solid var(--border-color-alt); border-radius: 8px;">
+                <strong>Managers:</strong> <span id="countManager">Loading...</span>
+            </div>
+            <div style="padding: 1rem; border: 1px solid var(--border-color-alt); border-radius: 8px;">
+                <strong>Sales Staff:</strong> <span id="countSales">Loading...</span>
+            </div>
+            <div style="padding: 1rem; border: 1px solid var(--border-color-alt); border-radius: 8px;">
+                <strong>Operations Staff:</strong> <span id="countOps">Loading...</span>
+            </div>
+            <button onclick="dashboard.switchView('users')" class="btn btn--sm" style="width: 100%;">Manage All Staff</button>
+        </div>
+    </div>
+
+    <!-- Column 2: Pricing & Policies -->
+    <div class="metric-card">
+        <h3 class="footer__title">Pricing & Combo Rules</h3>
+        <form class="form grid" id="settingsForm" onsubmit="handleSettingsSubmit(event)">
+            <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label>Default Lens Fee ($)</label>
+                    <input type="number" class="form__input" id="lensFee" step="0.01" value="50.00">
+                </div>
+                <div>
+                    <label>Combo Discount (%)</label>
+                    <input type="number" class="form__input" id="comboDiscount" step="0.1" value="15">
+                </div>
+            </div>
+            <div class="mb-1" style="margin-top: 1rem;">
+                <label>Warranty Policy (Months)</label>
+                <input type="number" class="form__input" id="warrantyMonths" value="12">
+            </div>
+            <h3 class="footer__title" style="margin-top: 1.5rem;">Promotion Rules</h3>
+            <textarea class="form__input" id="promotionRules" rows="4">Buy Frame + Digital Lens -> Get 20% off total frame price.</textarea>
+            <button type="submit" class="btn btn--md" style="margin-top: 1rem;">Apply System Changes</button>
+        </form>
+    </div>
+</div>
+
+<script type="module" src="/js/dashboard/modules/system-settings.js"></script>

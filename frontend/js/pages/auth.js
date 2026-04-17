@@ -105,12 +105,13 @@ import authService from '../services/authService.js';
             try {
                 const response = await authService.login({ email, password });
 
-                // Redirect based on role
-                const role = response.user.role;
-                if (['admin', 'manager', 'staff'].includes(role)) {
-                    window.location.href = '../dashboard/portal.html';
+                // Redirect based on role context
+                const context = authService.getPrimaryContext();
+                
+                if (context === 'staff') {
+                    window.location.href = '../dashboard/index.html';
                 } else {
-                    window.location.href = '../accounts/';
+                    window.location.href = '/'; // Home/Shop
                 }
             } catch (error) {
                 alert('Login failed: ' + (error.response?.data?.message || error.message));

@@ -39,6 +39,47 @@
 
   /*========== Transition ==========*/
   --transition: cubic-bezier(0, 0, 0.05, 1);
+
+  /*========== Layout Context ==========*/
+  --sidebar-width: 280px;
+}
+
+/*=============== LAYOUT CONTEXT RULES ===============*/
+/* Hidden by default unless in correct context */
+.staff-sidebar-placeholder { display: none; }
+
+body.layout-staff {
+  background-color: #f8f9fa; /* Sleek dashboard background */
+}
+
+/* Shift main content if staff sidebar is present */
+body.layout-staff .main,
+body.layout-staff .admin-main {
+  margin-left: var(--sidebar-width);
+  transition: margin-left 0.3s var(--transition);
+}
+
+body.layout-staff .staff-sidebar-placeholder {
+  display: block;
+}
+
+/* Show admin elements in staff context */
+body.layout-staff .admin-header {
+  display: flex !important;
+}
+
+/* Hide customer elements in staff context */
+body.layout-staff .header:not(.admin-header),
+body.layout-staff .footer,
+body.layout-staff .newsletter {
+  display: none !important;
+}
+
+@media screen and (max-width: 1200px) {
+  body.layout-staff .main,
+  body.layout-staff .admin-main {
+    margin-left: 0;
+  }
 }
 
 /* Responsive typography */
@@ -137,6 +178,17 @@ table {
 
 .section--lg {
   padding-block: 4rem;
+}
+
+/* Dashboard View Specifics */
+body.is-dashboard-view .section {
+  padding-block: 0 2rem;
+}
+
+body.is-dashboard-view .main, 
+body.is-dashboard-view .admin-main {
+    background: #f8f9fa;
+    min-height: 100vh;
 }
 
 .section__title {

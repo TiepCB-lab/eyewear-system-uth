@@ -1,0 +1,127 @@
+import { getCurrentUserPermissions } from '../core/rbac.js';
+
+/**
+ * Main Dashboard Controller
+ * Handles dynamic module loading and view switching
+ */
+class DashboardController {
+    constructor() {
+        this.modulesContainer = document.getElementById('dashboard-modules');
+        this.currentView = null;
+    }
+
+    async init() {
+        console.log('Dashboard Controller Initialized');
+        this.setupNavigation();
+        this.handleInitialLoad();
+    }
+
+    setupNavigation() {
+        // Listen for sidebar link clicks if they are within the same page
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('.sidebar-link');
+            if (link && link.dataset.view) {
+                e.preventDefault();
+                const view = link.dataset.view;
+                this.switchView(view);
+                
+                // Update URL without reload
+                const url = new URL(window.location);
+                url.searchParams.set('view', view);
+                window.history.pushState({}, '', url);
+            }
+        });
+
+        // Handle browser back/forward
+        window.addEventListener('popstate', () => {
+            this.handleInitialLoad();
+        });
+    }
+
+    async handleInitialLoad() {
+        const params = new URLSearchParams(window.location.search);
+        const view = params.get('view') || 'overview';
+        await this.switchView(view);
+    }
+
+    async switchView(viewName) {
+        if (this.currentView === viewName) return;
+
+        console.log(`Switching to view: ${viewName}`);
+        this.currentView = viewName;
+
+        // Show loading state
+        this.modulesContainer.innerHTML = '<div class="loading-spinner">Loading module...</div>';
+
+        try {
+            const { hasPermission } = await getCurrentUserPermissions();
+            
+            // Map view names to permissions
+            const viewPermissions = {
+                'overview': null, // Public staff overview
+                'orders': 'manage_orders',
+                'inventory': 'manage_inventory',
+                'products': 'view_products',
+                'analytics': 'view_manager_dashboard',
+                'users': 'manage_users',
+                'settings': 'manage_system',
+                'profile': null // Self-profile is allowed for all staff
+            };
+
+            const requiredPermission = viewPermissions[viewName];
+            if (requiredPermission && !hasPermission(requiredPermission)) {
+                this.modulesContainer.innerHTML = '<div class="error-msg">Access Denied: You do not have permission to view this module.</div>';
+                return;
+            }
+
+            // Load module HTML
+            const modulePath = `/pages/dashboard/modules/${viewName}.html`;
+            const response = await fetch(modulePath);
+            if (!response.ok) throw new Error(`Module ${viewName} not found`);
+            
+            const html = await response.text();
+            this.modulesContainer.innerHTML = html;
+
+            // Update sidebar active state
+            this.updateSidebarActive(viewName);
+
+            // Re-run scripts in the module
+            this.executeModuleScripts(this.modulesContainer);
+
+        } catch (error) {
+            console.error('Module load error:', error);
+            this.modulesContainer.innerHTML = `<div class="error-msg">Error loading module: ${error.message}</div>`;
+        }
+    }
+
+    updateSidebarActive(viewName) {
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            if (link.dataset.view === viewName) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
+    }
+
+    executeModuleScripts(container) {
+        container.querySelectorAll('script').forEach(oldScript => {
+            const newScript = document.createElement('script');
+            Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+            
+            if (oldScript.src) {
+                // If it's an external file, we need a new tag to load it correctly
+                newScript.src = oldScript.src;
+            } else {
+                newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+            }
+            
+            oldScript.parentNode.replaceChild(newScript, oldScript);
+        });
+    }
+}
+
+const dashboard = new DashboardController();
+document.addEventListener('DOMContentLoaded', () => dashboard.init());
+
+export default dashboard;
