@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.0.0/uicons-regular-straight/css/uicons-regular-straight.css"/>
     <link rel="stylesheet" href="../../../../assets/css/styles.css">
     <link rel="stylesheet" href="../../../../assets/css/admin.css">
     <title>Admin Dashboard — EYEWEAR.UTH</title>
 </head>
 <body class="admin-body">
+    <script type="module" src="./dashboard.js"></script>
+
     <!-- Sidebar Wrapper -->
     <aside class="sidebar">
         <a href="../../../index.html" class="nav__logo">
@@ -38,18 +41,18 @@
         <div class="metrics-grid">
             <div class="metric-card">
                 <p class="metric-label">Total Revenue (Monthly)</p>
-                <h3 class="metric-value">$42,850</h3>
-                <span style="color: #28a745;">↑ 12.5% from last month</span>
+                <h3 class="metric-value" id="totalRevenue">Loading...</h3>
+                <span id="revenueChange" style="color: #28a745;">Calculating...</span>
             </div>
             <div class="metric-card">
                 <p class="metric-label">Active Orders</p>
-                <h3 class="metric-value">124</h3>
-                <span>15 pending lab work</span>
+                <h3 class="metric-value" id="activeOrders">Loading...</h3>
+                <span id="pendingOrders">Calculating...</span>
             </div>
             <div class="metric-card">
-                <p class="metric-label">Low Stock Alerts</p>
-                <h3 class="metric-value" style="color: #dc3545;">8</h3>
-                <span>Aviator Classic Gold, Wayfarer Black...</span>
+                <p class="metric-label">Paid Orders</p>
+                <h3 class="metric-value" id="paidOrders">Loading...</h3>
+                <span>Total verified orders</span>
             </div>
         </div>
 
@@ -66,28 +69,17 @@
                             <th>Status</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="topProductsTable">
                         <tr>
-                            <td>Premium Acetate Optical</td>
-                            <td>156</td>
-                            <td>$18,400</td>
-                            <td><span class="badge badge-shipped" style="background:#d4edda; color:#155724;">In Stock</span></td>
-                        </tr>
-                        <tr>
-                            <td>Classic Aviator Gold</td>
-                            <td>89</td>
-                            <td>$12,300</td>
-                            <td><span class="badge badge-pending" style="background:#fff3cd; color:#856404;">Low Stock</span></td>
+                            <td colspan="4" style="text-align: center; padding: 2rem;">Loading products...</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
             <div class="metric-card">
-                <h3 class="footer__title">Recent Activity</h3>
-                <ul class="footer__links" style="font-size: 0.9rem;">
-                    <li style="margin-bottom: 1rem;"><strong>#154:</strong> QC Passed by Jacky</li>
-                    <li style="margin-bottom: 1rem;"><strong>#158:</strong> Lens Cutting Started</li>
-                    <li style="margin-bottom: 1rem;"><strong>Admin:</strong> Updated Price AN55...</li>
+                <h3 class="footer__title">Staff Overview</h3>
+                <ul class="footer__links" style="font-size: 0.9rem;" id="staffList">
+                    <li style="text-align: center; padding: 2rem;">Loading staff...</li>
                 </ul>
             </div>
         </div>
