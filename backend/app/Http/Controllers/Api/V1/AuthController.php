@@ -94,16 +94,16 @@ class AuthController
         $frontendUrl = rtrim($config['FRONTEND_URL'] ?? 'http://localhost:5500', '/');
 
         if (!$token) {
-            header("Location: {$frontendUrl}/src/pages/auth/?verified=0&error=" . urlencode('Verification token is required.'));
+            header("Location: {$frontendUrl}/pages/auth/?verified=0&error=" . urlencode('Verification token is required.'));
             exit;
         }
 
         try {
             $email = $this->authService->verifyEmail($token);
-            header("Location: {$frontendUrl}/src/pages/auth/?verified=1&email=" . urlencode($email));
+            header("Location: {$frontendUrl}/pages/auth/?verified=1&email=" . urlencode($email));
             exit;
         } catch (\Exception $e) {
-            header("Location: {$frontendUrl}/src/pages/auth/?verified=0&error=" . urlencode($e->getMessage()));
+            header("Location: {$frontendUrl}/pages/auth/?verified=0&error=" . urlencode($e->getMessage()));
             exit;
         }
     }

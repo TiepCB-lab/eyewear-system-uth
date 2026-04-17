@@ -14,14 +14,14 @@ if (isset($_GET['token']) && !empty($_GET['token'])) {
         $sql = "UPDATE `user` SET status = 'active', verify_token = NULL WHERE verify_token = ?";
         $conn->prepare($sql)->execute([$token]);
         
-        header('Location: http://127.0.0.1:5500/frontend/src/pages/auth/?verified=1');
+        header('Location: http://localhost:5500/pages/auth/?verified=1');
         exit;
     } else {
-        header('Location: http://127.0.0.1:5500/frontend/src/pages/auth/?verified=0&error=' . urlencode('Mã xác thực không hợp lệ hoặc đã hết hạn.'));
+        header('Location: http://localhost:5500/pages/auth/?verified=0&error=' . urlencode('Mã xác thực không hợp lệ hoặc đã hết hạn.'));
         exit;
     }
 } else {
-    header('Location: http://127.0.0.1:5500/frontend/src/pages/auth/?verified=0&error=' . urlencode('Không tìm thấy mã xác thực!'));
+    header('Location: http://localhost:5500/pages/auth/?verified=0&error=' . urlencode('Không tìm thấy mã xác thực!'));
     exit;
 }
 ?>
