@@ -12,7 +12,9 @@ class PaymentController
     {
         $this->paymentService = $paymentService;
     }
-
+/**
+     * Customer gọi: Chọn phương thức và xử lý thanh toán khi đặt hàng
+     */
     public function process(): array
     {
         $input = json_decode(file_get_contents('php://input'), true) ?? [];
@@ -31,6 +33,31 @@ class PaymentController
             return [
                 'data' => $payment,
                 'message' => 'Payment processed successfully'
+            ];
+        } catch (\Exception $e) {
+            http_response_code(400);
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+/**
+     * Staff gọi: Xác nhận đã thu tiền thủ công (Bank Transfer / COD sau giao hàng)
+     */
+    public function confirm(): array
+    {
+        $input     = json_decode(file_get_contents('php://input'), true) ?? [];
+        $paymentId = $input['payment_id'] ?? null;
+
+        if (!$paymentId) {
+            http_response_code(400);
+            return ['error' => 'Payment ID is required'];
+        }
+
+        try {
+            $payment = $this->paymentService->confirmPayment((int) $paymentId);
+            return [
+                'data'    => $payment,
+                'message' => 'Payment confirmed successfully',
             ];
         } catch (\Exception $e) {
             http_response_code(400);
