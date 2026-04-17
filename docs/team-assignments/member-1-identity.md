@@ -12,61 +12,50 @@ This member owns the entry point: Login, Registration, Session/Token protection,
 ---
 
 ## ✅ TODO Checklist
-
-### Database (Schema)
-- [x] Create `role` table in `database/schema.sql`
-- [x] Create `user` table in `database/schema.sql`
-- [x] Create `profiles` table in `database/schema.sql`
-- [x] Implement seed data for roles (`database/seeder.php`)
-
-### Backend — Application Layer (Services)
-- [ ] Complete `AuthService.php` in `app/Application/`
-  - Register (customer only)
-  - Login (returns user data + token simulation)
-  - Logout
-- [ ] Complete `ProfileService.php` in `app/Application/`
-  - Get current profile by user ID
-  - Update profile details (phone, address, etc.)
-
-### Backend — Controllers & Routes
-- [ ] Implement `AuthController.php` in `app/Http/Controllers/Api/V1/`
-  - `register()`: Validate name, email, password
-  - `login()`: Verify credentials
-  - `me()`: Return current authenticated user
-- [ ] Implement `ProfileController.php` in `app/Http/Controllers/Api/V1/`
-  - `show()`: View personal info
-  - `update()`: Save profile changes
-- [ ] Define routes in `routes/api.php` under `api/auth` prefix
-
-### Frontend (Vanilla JS)
-- [ ] Finalize `src/pages/auth/index.html` (Dual Login/Register form)
-- [ ] Implement `src/pages/accounts/index.html` (User profile dashboard)
-- [ ] Create `src/services/authService.js` (Fetch API wrappers)
-- [ ] Implement `src/components/auth/PrivateRoute.js` logic to protect Dashboard pages
-
-### Testing
-- [ ] Test Registration with valid/invalid data (check `user` table)
-- [ ] Test Login with existing users (check response roles)
-- [ ] Test Profile Update (check `profiles` table updates)
-
----
-
-## 📁 Files Owned
-
-### Backend
-- `app/Application/AuthService.php`
-- `app/Application/ProfileService.php`
-- `app/Http/Controllers/Api/V1/AuthController.php`
-- `app/Http/Controllers/Api/V1/ProfileController.php`
-- `database/schema.sql` (User/Profile/Role sections)
-- `database/seeder.php` (Role seeding)
-
-### Frontend
-- `frontend/src/pages/auth/index.html`
-- `frontend/src/pages/accounts/index.html`
-- `frontend/src/services/authService.js`
-- `frontend/src/components/auth/PrivateRoute.js`
-
+ 
+ ### Database (Schema)
+ - [x] Create `role`, `user`, `profiles` tables in `database/schema.sql`
+ - [x] Implement seed data for roles (`database/seeder.php`)
+ 
+ ### Backend — Application Layer (Services)
+ - [ ] Complete `AuthService.php`: Register, Login, Logout.
+ - [x] Complete `ProfileService.php`: Get info & Update Profile.
+ 
+ ### Backend — Controllers & Routes
+ - [ ] Implement `AuthController.php`: `register()`, `login()`, `me()`.
+ - [x] Implement `ProfileController.php`: `show()`, `update()`.
+ - [ ] Define API Endpoints in `routes/api.php` under `api/auth` prefix.
+ 
+ ### Frontend (Vanilla JS)
+ - [x] Finalize `auth/index.html`: Dual Login/Register form.
+ - [x] Implement `js/core/rbac.js`: RBAC permission engine.
+ - [x] Implement `js/core/layout-guard.js`: Access protection & Layout switching (Staff vs Customer).
+ - [x] Finalize login redirection logic in `js/pages/auth.js`.
+ - [x] Create `profile.html` module in Dashboard.
+ 
+ ### Testing
+ - [ ] Test new user registration (must have default `customer` role).
+ - [ ] Test login for each role (Staff to Dashboard, Customer to Shop).
+ - [x] Test Route Protection: Staff without Customer role cannot access Shop.
+ 
+ ---
+ 
+ ## 📁 Files Owned
+ 
+ ### Backend
+ - `app/Application/AuthService.php`
+ - `app/Application/ProfileService.php`
+ - `app/Http/Controllers/Api/V1/AuthController.php`
+ - `app/Http/Controllers/Api/V1/ProfileController.php`
+ - `database/schema.sql` (User/Profile/Role sections)
+ 
+ ### Frontend
+ - `frontend/pages/auth/index.html`
+ - `frontend/js/core/rbac.js`
+ - `frontend/js/core/layout-guard.js`
+ - `frontend/js/pages/auth.js`
+ - `frontend/pages/dashboard/modules/profile.html`
+ - `frontend/js/services/authService.js`
 ---
 
 ## 🔗 Dependencies

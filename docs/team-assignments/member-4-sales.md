@@ -12,54 +12,54 @@ This member owns the **financial and customer service** side: Payment status tra
 ---
 
 ## ✅ TODO Checklist
-
-### Database (Schema)
-- [x] Create `payment` table in `database/schema.sql`
-- [x] Create `supportticket` table in `database/schema.sql`
-- [x] Create `ticket_replies` table in `database/schema.sql`
-
-### Backend — Application Layer (Services)
-- [ ] Complete `PaymentService.php` in `app/Application/`
-  - Process simulated payment (COD, Bank Transfer)
-  - Update `order.status` based on payment completion
-- [ ] Complete `SalesVerificationService.php` in `app/Application/` (Staff only)
-  - Verify manual orders before they go to production
-- [ ] Complete `SupportTicketService.php` in `app/Application/`
-  - Ticket lifecycle (Open, In-progress, Resolved, Closed)
-  - Reply logic for customers and staff
-
-### Backend — Controllers & Routes
-- [ ] Implement `PaymentController.php` in `app/Http/Controllers/Api/V1/`
-- [ ] Implement `SalesController.php` (for staff management)
-- [ ] Implement `SupportTicketController.php`
-- [ ] Define routes in `routes/api.php` under `api/v1/payments`, `api/v1/support`
-
-### Frontend (Vanilla JS)
-- [ ] Implement `src/pages/payment/index.html` (Payment selection and confirmation)
-- [ ] Implement `src/pages/accounts/` (Order History view for customers)
-- [ ] Implement `src/pages/dashboard/staff/` (Order verification and Support management)
-- [ ] Create `src/services/paymentService.js` and `src/services/supportService.js`
-
-### Testing
-- [ ] Test API: Payment status transition (Pending -> Paid)
-- [ ] Test API: Staff verification updating order status
-- [ ] Test API: Multi-turn ticket replies
-
----
-
-## 📁 Files Owned
-
-### Backend
-- `app/Application/PaymentService.php`
-- `app/Application/SalesVerificationService.php`
-- `app/Application/SupportTicketService.php`
-- `app/Http/Controllers/Api/V1/PaymentController.php`
-
-### Frontend
-- `frontend/src/pages/payment/index.html`
-- `frontend/src/pages/accounts/index.html` (Order tracking section)
-- `frontend/src/services/paymentService.js`
-- `frontend/src/services/supportService.js`
+ 
+ ### Database (Schema)
+ - [x] Create `payment`, `supportticket`, `ticket_replies` in `database/schema.sql`
+ 
+ ### Backend — Application Layer (Services)
+ - [ ] Complete `PaymentService.php`:
+   - Process payment confirmation (simulated COD, Bank Transfer).
+   - Update order status (`order.status`) based on payment detection.
+ - [ ] Complete `SalesVerificationService.php` (Staff only):
+   - Verify Prescription order parameters before production.
+   - Process complaints: exchange/returns, warranty, refunds.
+ - [ ] Complete `SupportTicketService.php`:
+   - Ticket lifecycle management (Open, In-progress, Resolved, Closed).
+   - Reply logic for customers and staff.
+ 
+ ### Backend — Controllers & Routes
+ - [ ] Implement `PaymentController`, `SalesController`, `SupportTicketController`.
+ - [ ] Define API Endpoints for payments and support system.
+ 
+ ### Frontend (Vanilla JS)
+ - [ ] Implement `pages/payment/index.html`: Selection and confirmation UI.
+ - [x] Integrated Order History into `pages/accounts/index.html` for customers.
+ - [x] Finalized `orders.html` module in Dashboard: Order management and approval.
+ - [ ] Create `support.html` module in Dashboard: Ticket management and support responses.
+ - [ ] Create `js/services/paymentService.js` and `js/services/supportService.js`.
+ 
+ ### Testing
+ - [ ] Test API: Payment status transition (Pending -> Paid).
+ - [ ] Test API: Staff verification updating order workflow.
+ - [ ] Test API: Support ticket multi-turn reply flow.
+ 
+ ---
+ 
+ ## 📁 Files Owned
+ 
+ ### Backend
+ - `app/Application/PaymentService.php`
+ - `app/Application/SalesVerificationService.php`
+ - `app/Application/SupportTicketService.php`
+ - `app/Http/Controllers/Api/V1/PaymentController.php`
+ 
+ ### Frontend
+ - `frontend/pages/payment/index.html`
+ - `frontend/pages/accounts/index.html` (Order tracking section)
+ - `frontend/pages/dashboard/modules/orders.html`
+ - `frontend/pages/dashboard/modules/support.html`
+ - `frontend/js/services/paymentService.js`
+ - `frontend/js/services/supportService.js`
 
 ---
 
