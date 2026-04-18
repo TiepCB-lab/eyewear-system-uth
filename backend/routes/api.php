@@ -91,9 +91,16 @@ Router::group(['prefix' => 'api/v1/cart'], function () {
     Router::delete('delete', [CartController::class, 'destroy']);
 });
 
+use App\Http\Controllers\Api\V1\PrescriptionController;
+
 // Member 3 - Checkout Routes
 Router::group(['prefix' => 'api/v1/checkout'], function () {
     Router::post('/', [CheckoutController::class, 'store']);
+});
+
+Router::group(['prefix' => 'api/v1/prescriptions'], function () {
+    Router::get('/', [PrescriptionController::class, 'index']);
+    Router::post('/', [PrescriptionController::class, 'store']);
 });
 
 // Member 4 - Sales, Payments & Support Routes

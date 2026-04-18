@@ -35,7 +35,21 @@ class CatalogService
 				MIN(COALESCE(v.price_override, p.base_price + v.additional_price, p.base_price)) AS min_price,
 				MAX(COALESCE(v.price_override, p.base_price + v.additional_price, p.base_price)) AS max_price,
 				COALESCE(SUM(v.stock_quantity), 0) AS total_stock,
-				COUNT(v.id) AS variant_count
+				COUNT(v.id) AS variant_count,
+				(
+					SELECT image_2d_url
+					FROM productvariant v2
+					WHERE v2.product_id = p.id
+					ORDER BY COALESCE(v2.price_override, p.base_price + v2.additional_price, p.base_price) ASC, v2.id ASC
+					LIMIT 1
+				) AS thumbnail,
+				(
+					SELECT id
+					FROM productvariant v2
+					WHERE v2.product_id = p.id
+					ORDER BY COALESCE(v2.price_override, p.base_price + v2.additional_price, p.base_price) ASC, v2.id ASC
+					LIMIT 1
+				) AS first_variant_id
 			FROM product p
 			LEFT JOIN category c ON c.id = p.category_id
 			LEFT JOIN productvariant v ON v.product_id = p.id
@@ -75,6 +89,8 @@ class CatalogService
 				'variant_count' => (int) $row['variant_count'],
 				'total_stock' => (int) $row['total_stock'],
 				'in_stock' => ((int) $row['total_stock']) > 0,
+				'thumbnail' => $row['thumbnail'],
+				'first_variant_id' => $row['first_variant_id'] ? (int) $row['first_variant_id'] : null,
 			];
 		}, $rows);
 
