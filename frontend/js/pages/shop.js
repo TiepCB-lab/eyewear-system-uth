@@ -1,71 +1,6 @@
-const catalogProducts = [
-  {
-    id: 1,
-    name: "Aviator Edge 2.0",
-    category: "Sunglasses",
-    brand: "Ray-Ban",
-    gender: "unisex",
-    price: 229,
-    stock: 14,
-    image: "/assets/images/products/AN550012_3849.png",
-    badge: "Hot"
-  },
-  {
-    id: 2,
-    name: "Urban Focus",
-    category: "Optical",
-    brand: "Molsion",
-    gender: "women",
-    price: 165,
-    stock: 8,
-    image: "/assets/images/products/AN550015_3817.png",
-    badge: "New"
-  },
-  {
-    id: 3,
-    name: "Trail Carbon X",
-    category: "Sunglasses",
-    brand: "Oakley",
-    gender: "men",
-    price: 289,
-    stock: 4,
-    image: "/assets/images/products/AN550016_3796.png",
-    badge: "Low stock"
-  },
-  {
-    id: 4,
-    name: "Night Reader Pro",
-    category: "Blue Light",
-    brand: "Gentle Monster",
-    gender: "unisex",
-    price: 199,
-    stock: 22,
-    image: "/assets/images/products/AN550021_3933.png",
-    badge: "Best seller"
-  },
-  {
-    id: 5,
-    name: "M Street Lite",
-    category: "Optical",
-    brand: "Molsion",
-    gender: "men",
-    price: 129,
-    stock: 0,
-    image: "/assets/images/products/AN550029_3863.png",
-    badge: "Restock soon"
-  },
-  {
-    id: 6,
-    name: "Sunline Drift",
-    category: "Sunglasses",
-    brand: "Ray-Ban",
-    gender: "women",
-    price: 254,
-    stock: 9,
-    image: "/assets/images/products/AN550030_3896.png",
-    badge: "Trending"
-  }
-];
+import apiClient from '../services/apiClient.js';
+
+let catalogProducts = [];
 
 const state = {
   view: "grid",
@@ -129,7 +64,7 @@ function initFilterUI() {
 
     if (priceRange) {
         priceRange.addEventListener("input", (e) => {
-            priceValue.textContent = `$${e.target.value}`;
+            priceValue.textContent = window.formatVND ? window.formatVND(e.target.value) : `${e.target.value} VND`;
             renderProducts();
         });
     }
@@ -163,10 +98,7 @@ function writeCart(items) {
 }
 
 function syncCartBadge() {
-  const totalQty = readCart().reduce((sum, item) => sum + Number(item.quantity || 0), 0);
-  document.querySelectorAll('.header__action-btn[title="Cart"] .count').forEach((el) => {
-    el.textContent = String(totalQty);
-  });
+  window.dispatchEvent(new CustomEvent('content-loaded', { detail: { path: 'layout/Header' } }));
 }
 
 function showToast(message) {
@@ -185,28 +117,22 @@ function showToast(message) {
   }, 1400);
 }
 
-window.addToCart = function(productId) {
-  const product = catalogProducts.find((item) => item.id === Number(productId));
-  if (!product) return;
-
-  const cartItems = readCart();
-  const found = cartItems.find((item) => item.id === product.id);
-
-  if (found) {
-    found.quantity += 1;
-  } else {
-    cartItems.push({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      quantity: 1
+window.addToCart = async function(variantId) {
+  try {
+    const res = await apiClient.post('/v1/cart', {
+        variant_id: Number(variantId),
+        quantity: 1
     });
+    showToast('Đã thêm sản phẩm vào giỏ!');
+    syncCartBadge();
+  } catch (err) {
+    if(err.response && err.response.status === 401) {
+        alert('Vui lòng đăng nhập để thêm vào giỏ hàng.');
+        window.location.href = '../auth/';
+    } else {
+        alert('Có lỗi xảy ra: ' + (err.response?.data?.message || err.message));
+    }
   }
-
-  writeCart(cartItems);
-  syncCartBadge();
-  showToast(`${product.name} added to cart`);
 };
 
 function getCheckedValues(containerId) {
@@ -239,7 +165,7 @@ function getFilteredProducts() {
   const categoryValues = getCheckedValues("categoryFilters");
   const brandValues = getCheckedValues("brandFilters");
   const gender = getSelectedGender();
-  const maxPrice = priceRange ? Number(priceRange.value) : 1000;
+  const maxPrice = priceRange ? Number(priceRange.value) : 5000000;
 
   const filtered = catalogProducts.filter((item) => {
     const keywordMatch = item.name.toLowerCase().includes(keyword) ||
@@ -259,19 +185,27 @@ function getFilteredProducts() {
 }
 
 function renderProductCard(item) {
-  const detailUrl = `../details/index.html?id=${encodeURIComponent(item.id)}&name=${encodeURIComponent(item.name)}`;
-  const oldPrice = (item.price * 1.1).toFixed(1);
+  const detailUrl = `../details/index.html?id=${encodeURIComponent(item.product_id)}&name=${encodeURIComponent(item.name)}`;
+  const displayPrice = window.formatVND ? window.formatVND(item.price) : item.price + ' VND';
+  // Old price markup demo
+  const displayOldPrice = window.formatVND ? window.formatVND(item.price * 1.2) : (item.price * 1.2) + ' VND';
+
+  // Fix absolute path to proper relative path for the shop page depth
+  let imagePath = item.image;
+  if(imagePath.startsWith('/')) {
+      imagePath = '../../' + imagePath.substring(1);
+  }
 
   return productCardTemplate
     .replaceAll("{{DETAIL_URL}}", detailUrl)
-    .replaceAll("{{IMAGE}}", item.image)
+    .replaceAll("{{IMAGE}}", imagePath)
     .replaceAll("{{NAME}}", item.name)
-    .replaceAll("{{BADGE}}", item.badge)
-    .replaceAll("{{CATEGORY}}", item.category)
-    .replaceAll("{{BRAND}}", item.brand)
-    .replaceAll("{{PRICE}}", item.price)
-    .replaceAll("{{OLD_PRICE}}", oldPrice)
-    .replaceAll("{{ID}}", item.id);
+    .replaceAll("{{BADGE}}", item.badge || '')
+    .replaceAll("{{CATEGORY}}", item.category || 'Eyewear')
+    .replaceAll("{{BRAND}}", item.brand || 'No Brand')
+    .replaceAll("{{PRICE}}", displayPrice)
+    .replaceAll("{{OLD_PRICE}}", displayOldPrice)
+    .replaceAll("{{ID}}", item.id); // Add variant ID!
 }
 
 function renderProducts() {
@@ -289,7 +223,7 @@ function renderProducts() {
 
 // Bootstrap
 document.addEventListener("DOMContentLoaded", async () => {
-    await loadFilterComponent();
+    const isFilterLoaded = await loadFilterComponent();
     await loadProductCardTemplate();
     
     if (sortSelect) {
@@ -317,6 +251,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
+    // LOAD FROM DB
+    try {
+        const res = await apiClient.get('/v1/products');
+        const items = res.data.data;
+        catalogProducts = items.map(p => ({
+            id: p.first_variant_id || p.id,
+            product_id: p.id,
+            name: p.name,
+            category: p.category ? p.category.name : 'Eyewear',
+            brand: p.brand,
+            gender: p.gender,
+            price: parseFloat(p.base_price),
+            stock: parseInt(p.total_stock),
+            image: p.thumbnail || '../../assets/images/products/placeholder.png',
+            badge: p.is_active ? 'Sale' : 'Out'
+        }));
+    } catch(e) {
+        console.error("Failed fetching shop DB logic", e);
+        showToast("Lỗi tải API dữ liệu kính!");
+    }
+
     renderProducts();
-    syncCartBadge();
 });

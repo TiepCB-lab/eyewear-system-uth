@@ -64,63 +64,24 @@
                 </tr>
               </thead>
 
+              <tbody id="checkout-items">
+                <!-- Rendered by JS -->
+              </tbody>
               <tbody>
                 <tr>
-                  <td>
-                    <img
-                      src="../../../assets/images/products/AN550012_3849.png"
-                      alt=""
-                      class="order__img"
-                    />
-                  </td>
-                  <td>
-                    <h3 class="table__title">Yidarton Women Summer Blue</h3>
-                    <p class="table__quantity">x 2</p>
-                  </td>
-                  <td><span class="table__price">$180.00</span></td>
-                </tr>
-                <tr>
-                  <td>
-                    <img
-                      src="../../../assets/images/products/AN550012_3849.png"
-                      alt=""
-                      class="order__img"
-                    />
-                  </td>
-                  <td>
-                    <h3 class="table__title">LDB Moon Summer</h3>
-                    <p class="table__quantity">x 1</p>
-                  </td>
-                  <td><span class="table__price">$65.00</span></td>
-                </tr>
-                <tr>
-                  <td>
-                    <img
-                      src="../../../assets/images/products/AN550012_3849.png"
-                      alt=""
-                      class="order__img"
-                    />
-                  </td>
-                  <td>
-                    <h3 class="table__title">Women Short Sleeve Loose</h3>
-                    <p class="table__quantity">x 2</p>
-                  </td>
-                  <td><span class="table__price">$35.00</span></td>
-                </tr>
-                <tr>
                   <td><span class="order__subtitle">Subtotal</span></td>
-                  <td colspan="2"><span class="table__price">$280.00</span></td>
+                  <td colspan="2"><span class="table__price" id="checkout-subtotal">$0.00</span></td>
                 </tr>
                 <tr>
                   <td><span class="order__subtitle">Shipping</span></td>
                   <td colspan="2">
-                    <span class="table__price">Free Shipping</span>
+                    <span class="table__price" id="checkout-shipping">Free Shipping</span>
                   </td>
                 </tr>
                 <tr>
                   <td><span class="order__subtitle">Total</span></td>
                   <td colspan="2">
-                    <span class="order__grand-total">$280.00</span>
+                    <span class="order__grand-total" id="checkout-total">$0.00</span>
                   </td>
                 </tr>
               </tbody>
@@ -158,7 +119,7 @@
                 <label for="l3" class="payment__label">Paypal</label>
               </div>
             </div>
-            <button class="btn btn--md">Place Order</button>
+            <button type="button" class="btn btn--md" id="place-order-btn">Place Order</button>
           </div>
         </div>
       </section>
@@ -175,6 +136,84 @@
 
     <!--=============== MAIN JS ===============-->
     <script src="../../../js/main.js"></script>
+
+    <script type="module">
+      import { CartService } from '../../../js/services/cartService.js';
+
+      document.addEventListener('DOMContentLoaded', async () => {
+        const tbody = document.getElementById('checkout-items');
+        const subtotalEl = document.getElementById('checkout-subtotal');
+        const totalEl = document.getElementById('checkout-total');
+        const placeOrderBtn = document.getElementById('place-order-btn');
+
+        let cartData = [];
+
+        try {
+          const result = await CartService.getCart();
+          cartData = result.data;
+          const totals = result.totals;
+
+          if (!cartData || cartData.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 2rem;">Giỏ hàng trống</td></tr>';
+            placeOrderBtn.style.display = 'none';
+            return;
+          }
+
+          tbody.innerHTML = '';
+          cartData.forEach(item => {
+            const tr = document.createElement('tr');
+            const pt = item.unit_price * item.quantity;
+            tr.innerHTML = `
+              <td>
+                <img src="${item.image_2d_url || '../../../assets/images/products/placeholder.png'}" alt="" class="order__img" />
+              </td>
+              <td>
+                <h3 class="table__title">${item.product_name}</h3>
+                <p class="table__quantity">x ${item.quantity}</p>
+              </td>
+              <td><span class="table__price">${window.formatVND(pt)}</span></td>
+            `;
+            tbody.appendChild(tr);
+          });
+
+          subtotalEl.innerText = window.formatVND(totals.subtotal);
+          totalEl.innerText = window.formatVND(totals.total);
+
+        } catch(error) {
+          console.error("Failed to load checkout cart", error);
+          tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: red;">Error loading cart</td></tr>';
+        }
+
+        placeOrderBtn.addEventListener('click', async () => {
+           // Get billing info
+           const addressInput = document.querySelector('input[placeholder="Address"]').value;
+           const cityInput = document.querySelector('input[placeholder="City"]').value;
+           const emailInput = document.querySelector('input[placeholder="Email"]').value;
+
+           if(!addressInput || !cityInput) {
+             alert('Vui lòng nhập địa chỉ và thành phố.');
+             return;
+           }
+
+           const fullAddress = addressInput + ', ' + cityInput;
+           
+           placeOrderBtn.disabled = true;
+           placeOrderBtn.innerText = 'Processing...';
+
+           try {
+             // Let checkout service handle the final save
+             const res = await CartService.checkout(fullAddress, fullAddress);
+             alert('Đặt hàng thành công! Order: ' + res.order_number);
+             window.location.href = '../../../index.html'; // Redirect to home or account page
+           } catch(e) {
+             alert('Có lỗi xảy ra: ' + (e.response?.data?.message || e.message));
+             placeOrderBtn.disabled = false;
+             placeOrderBtn.innerText = 'Place Order';
+           }
+        });
+
+      });
+    </script>
   </body>
 </html>
 

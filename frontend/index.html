@@ -2209,6 +2209,100 @@
 
     <!--=============== MAIN JS ===============-->
     <script src="js/main.js"></script>
+
+    <!--=============== DYNAMIC RENDER =============-->
+    <script type="module">
+        import apiClient from './js/services/apiClient.js';
+        import { CartService } from './js/services/cartService.js';
+
+        // Add to Cart global function
+        window.addToCart = async function(variantId) {
+            try {
+                const res = await apiClient.post('/v1/cart', {
+                    variant_id: variantId,
+                    quantity: 1
+                });
+                alert('Đã thêm sản phẩm vào giỏ!');
+                // Trigger badge update
+                window.dispatchEvent(new CustomEvent('content-loaded', { detail: { path: 'layout/Header' } }));
+            } catch (err) {
+                if(err.response && err.response.status === 401) {
+                    alert('Vui lòng đăng nhập để thêm vào giỏ hàng.');
+                    window.location.href = 'pages/auth/';
+                } else {
+                    alert('Có lỗi xảy ra: ' + (err.response?.data?.message || err.message));
+                }
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const featuredContainer = document.querySelector('#featured .products__container');
+            const popularContainer = document.querySelector('#popular .products__container');
+            const newAddedContainer = document.querySelector('#new-added .products__container');
+            
+            if (featuredContainer) featuredContainer.innerHTML = '<p>Loading products...</p>';
+            if (popularContainer) popularContainer.innerHTML = '<p>Loading products...</p>';
+            if (newAddedContainer) newAddedContainer.innerHTML = '<p>Loading products...</p>';
+
+            try {
+                const res = await apiClient.get('/v1/products');
+                const products = res.data.data; // Assuming Laravel pagination or wrapped data
+
+                const renderProducts = (container, items) => {
+                    if(!container) return;
+                    container.innerHTML = '';
+                    items.forEach(p => {
+                        // Use the injected thumbnail and variant ID from backend
+                        const variantId = p.first_variant_id || null;
+                        
+                        // Fallback image handling and remove leading slash to prevent broken relative paths
+                        let rawImg = p.thumbnail || 'assets/images/products/placeholder.png';
+                        if (rawImg.startsWith('/')) {
+                            rawImg = rawImg.substring(1);
+                        }
+                        const imgUrl = rawImg;
+                        
+                        const price = parseFloat(p.base_price || 0);
+
+                        container.innerHTML += `
+                            <div class="product__item">
+                                <div class="product__banner">
+                                    <a href="pages/details/?id=${p.id}" class="product__images">
+                                        <img src="${imgUrl}" alt="${p.name}" class="product__img default" onerror="this.onerror=null; this.src='assets/images/logo.png';" />
+                                    </a>
+                                    <div class="product__actions">
+                                        <a href="#" class="action__btn" aria-label="Quick View"><i class="fi fi-rs-eye"></i></a>
+                                        <a href="#" class="action__btn" aria-label="Add to Wishlist"><i class="fi fi-rs-heart"></i></a>
+                                    </div>
+                                </div>
+                                <div class="product__content">
+                                    <span class="product__category">${p.brand || 'Eyewear'}</span>
+                                    <a href="pages/details/?id=${p.id}">
+                                        <h3 class="product__title">${p.name}</h3>
+                                    </a>
+                                    <div class="product__price flex">
+                                        <span class="new__price">${window.formatVND ? window.formatVND(price) : price + ' VND'}</span>
+                                    </div>
+                                    ${variantId ? `<a href="javascript:void(0)" onclick="addToCart(${variantId})" class="action__btn cart__btn" aria-label="Add To Cart"><i class="fi fi-rs-shopping-bag-add"></i></a>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    });
+                };
+
+                // For demo, we just populate all with same/sliced data
+                renderProducts(featuredContainer, products);
+                renderProducts(popularContainer, products.reverse());
+                renderProducts(newAddedContainer, products);
+
+            } catch(e) {
+                console.error('Lỗi tải sản phẩm:', e);
+                const errStr = '<p style="color:red;">Failed to load products from DB.</p>';
+                if (featuredContainer) featuredContainer.innerHTML = errStr;
+                if (popularContainer) popularContainer.innerHTML = errStr;
+            }
+        });
+    </script>
   </body>
 </html>
 
