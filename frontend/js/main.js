@@ -159,3 +159,38 @@ if (signUpForm) {
         }
     });
 }
+
+/*=============== GLOBAL UTILS & CART BADGE ===============*/
+
+window.formatVND = function(price) {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+};
+
+window.addEventListener('content-loaded', async (e) => {
+    // Only run if the header was just loaded
+    if (e.detail.path === 'layout/Header' || e.detail.path === 'layout/AdminHeader') {
+        const cartCountEl = document.getElementById('cart-count');
+        const wishlistCountEl = document.getElementById('wishlist-count');
+        
+        // Mocking wishlist count via localStorage for now since no backend table yet
+        if (wishlistCountEl) {
+            let wl = JSON.parse(localStorage.getItem('eyewear_wishlist') || '[]');
+            wishlistCountEl.innerText = wl.length;
+        }
+
+        if (cartCountEl) {
+             import('./services/cartService.js').then(module => {
+                 module.CartService.getCart().then(res => {
+                     let totalItems = 0;
+                     if (res.data && res.data.length > 0) {
+                        totalItems = res.data.reduce((sum, item) => sum + parseInt(item.quantity), 0);
+                     }
+                     cartCountEl.innerText = totalItems;
+                 }).catch(err => {
+                     cartCountEl.innerText = 0;
+                 });
+             }).catch(err => console.error("Could not load cartService for badge update", err));
+        }
+    }
+});
+

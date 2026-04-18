@@ -47,74 +47,8 @@
                 <th>Rename</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>
-                  <img
-                    src="../../../assets/images/products/AN550012_3849.png"
-                    alt=""
-                    class="table__img"
-                  />
-                </td>
-                <td>
-                  <h3 class="table__title">
-                    J.Crew Mercantile Women's Frames Frames Short-Sleeve
-                  </h3>
-                  <p class="table__description">
-                    Lorem ipsum dolor sit amet consectetur.
-                  </p>
-                </td>
-                <td>
-                  <span class="table__price">$110</span>
-                </td>
-                <td><input type="number" value="3" class="quantity" /></td>
-                <td><span class="subtotal">$220</span></td>
-                <td><i class="fi fi-rs-trash table__trash"></i></td>
-              </tr>
-              <tr>
-                <td>
-                  <img
-                    src="../../../assets/images/products/AN550012_3849.png"
-                    alt=""
-                    class="table__img"
-                  />
-                </td>
-                <td>
-                  <h3 class="table__title">Amazon Essentials Women's Frames Frames Tank</h3>
-                  <p class="table__description">
-                    Lorem ipsum dolor sit amet consectetur.
-                  </p>
-                </td>
-                <td>
-                  <span class="table__price">$110</span>
-                </td>
-                <td><input type="number" value="3" class="quantity" /></td>
-                <td><span class="subtotal">$220</span></td>
-                <td><i class="fi fi-rs-trash table__trash"></i></td>
-              </tr>
-              <tr>
-                <td>
-                  <img
-                    src="../../../assets/images/products/AN550012_3849.png"
-                    alt=""
-                    class="table__img"
-                  />
-                </td>
-                <td>
-                  <h3 class="table__title">
-                    Amazon Brand - Daily Ritual Women's Frames Frames Jersey
-                  </h3>
-                  <p class="table__description">
-                    Lorem ipsum dolor sit amet consectetur.
-                  </p>
-                </td>
-                <td>
-                  <span class="table__price">$110</span>
-                </td>
-                <td><input type="number" value="3" class="quantity" /></td>
-                <td><span class="subtotal">$220</span></td>
-                <td><i class="fi fi-rs-trash table__trash"></i></td>
-              </tr>
+            <tbody id="cart-items">
+              <!-- Rendered by JS -->
             </tbody>
           </table>
         </div>
@@ -181,15 +115,15 @@
             <table class="cart__total-table">
                 <tr>
                   <td><span class="cart__total-title">Cart Subtotal</span></td>
-                  <td><span class="cart__total-price">$240.00</span></td>
+                  <td><span class="cart__total-price" id="cart-subtotal">$0.00</span></td>
                 </tr>
                 <tr>
                   <td><span class="cart__total-title">Shipping</span></td>
-                  <td><span class="cart__total-price">$10.00</span></td>
+                  <td><span class="cart__total-price">$0.00</span></td>
                 </tr>
                 <tr>
                   <td><span class="cart__total-title">Total</span></td>
-                  <td><span class="cart__total-price">$250.00</span></td>
+                  <td><span class="cart__total-price" id="cart-total">$0.00</span></td>
                 </tr>
             </table>
             <a href="../checkout/" class="btn flex btn--md">
@@ -211,6 +145,98 @@
 
     <!--=============== MAIN JS ===============-->
     <script src="../../../js/main.js"></script>
+
+    <script type="module">
+      import { CartService } from '../../../js/services/cartService.js';
+
+      document.addEventListener('DOMContentLoaded', async () => {
+        const tbody = document.getElementById('cart-items');
+        const subtotalEl = document.getElementById('cart-subtotal');
+        const totalEl = document.getElementById('cart-total');
+
+        const loadCart = async () => {
+          try {
+            const result = await CartService.getCart();
+            const items = result.data;
+            const totals = result.totals;
+
+            tbody.innerHTML = '';
+            
+            if (!items || items.length === 0) {
+              tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Giỏ hàng trống</td></tr>';
+              subtotalEl.innerText = '$0.00';
+              totalEl.innerText = '$0.00';
+              return;
+            }
+
+            items.forEach(item => {
+              const tr = document.createElement('tr');
+              const itemTotal = item.unit_price * item.quantity;
+              
+              tr.innerHTML = `
+                <td>
+                  <img src="${item.image_2d_url || '../../../assets/images/products/placeholder.png'}" alt="${item.product_name}" class="table__img" />
+                </td>
+                <td>
+                  <h3 class="table__title">${item.product_name}</h3>
+                  <p class="table__description">
+                    Color: ${item.color || 'N/A'}, Size: ${item.size || 'N/A'} <br>
+                    ${item.lens_name ? `Lens: ${item.lens_name} (+$${item.lens_price})` : ''}
+                  </p>
+                </td>
+                <td><span class="table__price">${window.formatVND(item.unit_price)}</span></td>
+                <td><input type="number" value="${item.quantity}" class="quantity cart-qty-input" data-id="${item.id}" min="1"/></td>
+                <td><span class="subtotal">${window.formatVND(itemTotal)}</span></td>
+                <td><i class="fi fi-rs-trash table__trash cart-remove-btn" data-id="${item.id}" style="cursor: pointer;"></i></td>
+              `;
+              tbody.appendChild(tr);
+            });
+
+            subtotalEl.innerText = window.formatVND(totals.subtotal);
+            totalEl.innerText = window.formatVND(totals.total);
+
+
+            // Bind events
+            document.querySelectorAll('.cart-qty-input').forEach(input => {
+                input.addEventListener('change', async (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    const qty = parseInt(e.target.value);
+                    if(qty > 0) {
+                        try {
+                            await CartService.updateQuantity(id, qty);
+                            loadCart();
+                        } catch (err) {
+                            alert('Không đủ tồn kho hoặc lỗi cập nhật');
+                            loadCart(); // reset value
+                        }
+                    } else {
+                        await CartService.removeItem(id);
+                        loadCart();
+                    }
+                });
+            });
+
+            document.querySelectorAll('.cart-remove-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    if (confirm('Bạn có muốn xóa sản phẩm này khỏi giỏ hàng?')) {
+                        await CartService.removeItem(id);
+                        loadCart();
+                    }
+                });
+            });
+
+          } catch (error) {
+            console.error('Lỗi khi tải giỏ hàng', error);
+            if(error.response && error.response.status === 401) {
+              tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Vui lòng <a href="../auth/" style="color:var(--first-color);">đăng nhập</a> để xem giỏ hàng.</td></tr>';
+            }
+          }
+        };
+
+        loadCart();
+      });
+    </script>
   </body>
 </html>
 
