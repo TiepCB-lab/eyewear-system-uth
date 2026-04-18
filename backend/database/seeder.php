@@ -105,20 +105,38 @@ try {
     $pdo->exec("
     INSERT INTO product (category_id, name, model_name, slug, base_price, brand, gender) VALUES
         ($catId, 'Ray-Ban Aviator', 'RB3025', 'ray-ban-aviator', 3500000, 'Ray-Ban', 'unisex'),
-        ($catId, 'Oakley Holbrook', 'OO9102', 'oakley-holbrook', 2800000, 'Oakley', 'men')
+        ($catId, 'Oakley Holbrook', 'OO9102', 'oakley-holbrook', 2800000, 'Oakley', 'men'),
+        ($catId, 'J.Crew Mercantile', 'JC-550012', 'jcrew-mercantile', 1150000, 'J.Crew', 'women'),
+        ($catId, 'Daily Ritual Blue', 'DR-550016', 'daily-ritual-blue', 1550000, 'Daily Ritual', 'unisex'),
+        ($catId, 'Luxury Frame 21', 'LF-550021', 'luxury-frame-21', 2500000, 'Luxury', 'unisex'),
+        ($catId, 'Classic Eyewear 29', 'CE-550029', 'classic-eyewear-29', 850000, 'Classic', 'men'),
+        ($catId, 'Vintage Style 30', 'VS-550030', 'vintage-style-30', 920000, 'Vintage', 'women'),
+        ($catId, 'Modern Retro 36', 'MR-550036', 'modern-retro-36', 1450000, 'Modern', 'unisex')
     ON DUPLICATE KEY UPDATE name = VALUES(name);
     ");
 
     $rbId = $pdo->query("SELECT id FROM product WHERE slug = 'ray-ban-aviator'")->fetchColumn();
     $okId = $pdo->query("SELECT id FROM product WHERE slug = 'oakley-holbrook'")->fetchColumn();
+    $jcId = $pdo->query("SELECT id FROM product WHERE slug = 'jcrew-mercantile'")->fetchColumn();
+    $drId = $pdo->query("SELECT id FROM product WHERE slug = 'daily-ritual-blue'")->fetchColumn();
+    $lfId = $pdo->query("SELECT id FROM product WHERE slug = 'luxury-frame-21'")->fetchColumn();
+    $ceId = $pdo->query("SELECT id FROM product WHERE slug = 'classic-eyewear-29'")->fetchColumn();
+    $vsId = $pdo->query("SELECT id FROM product WHERE slug = 'vintage-style-30'")->fetchColumn();
+    $mrId = $pdo->query("SELECT id FROM product WHERE slug = 'modern-retro-36'")->fetchColumn();
 
     // 4. Variants
     $pdo->exec("
-    INSERT INTO productvariant (product_id, sku, color, size, stock_quantity) VALUES
-        ($rbId, 'RB-AVI-GLD', 'Gold', 'L', 50),
-        ($rbId, 'RB-AVI-SLV', 'Silver', 'M', 30),
-        ($okId, 'OK-HOL-BLK', 'Matte Black', 'Standard', 100)
-    ON DUPLICATE KEY UPDATE stock_quantity = VALUES(stock_quantity);
+    INSERT INTO productvariant (product_id, sku, color, size, stock_quantity, image_2d_url) VALUES
+        ($rbId, 'RB-AVI-GLD', 'Gold', 'L', 50, '/assets/images/products/KINH-NEN-TRANG-19.jpeg'),
+        ($rbId, 'RB-AVI-SLV', 'Silver', 'M', 30, '/assets/images/products/KINH-NEN-TRANG-19.jpeg'),
+        ($okId, 'OK-HOL-BLK', 'Matte Black', 'Standard', 100, '/assets/images/products/KINH-NEN-TRANG-19.jpeg'),
+        ($jcId, 'JC-M-GLD', 'Gold', 'M', 45, '/assets/images/products/AN550012_3849.png'),
+        ($drId, 'DR-B-BLK', 'Black', 'M', 55, '/assets/images/products/AN550016_3796.png'),
+        ($lfId, 'LF-21-BRN', 'Brown', 'L', 20, '/assets/images/products/AN550021_3933.png'),
+        ($ceId, 'CE-29-BLK', 'Matte Black', 'M', 30, '/assets/images/products/AN550029_3863.png'),
+        ($vsId, 'VS-30-SLV', 'Silver', 'S', 25, '/assets/images/products/AN550030_3896.png'),
+        ($mrId, 'MR-36-GLD', 'Rose Gold', 'M', 40, '/assets/images/products/AN550036_3832.png')
+    ON DUPLICATE KEY UPDATE stock_quantity = VALUES(stock_quantity), image_2d_url = VALUES(image_2d_url);
     ");
 
     // 5. Inventory sync

@@ -474,3 +474,19 @@ SET @fk_product_category_sql = IF(
 PREPARE stmt_fk_product_category FROM @fk_product_category_sql;
 EXECUTE stmt_fk_product_category;
 DEALLOCATE PREPARE stmt_fk_product_category;
+
+SET @order_order_type_exists = (
+	SELECT COUNT(*)
+	FROM information_schema.COLUMNS
+	WHERE TABLE_SCHEMA = DATABASE()
+	  AND TABLE_NAME = 'order'
+	  AND COLUMN_NAME = 'order_type'
+);
+SET @order_order_type_sql = IF(
+	@order_order_type_exists = 0,
+	'ALTER TABLE `order` ADD COLUMN order_type ENUM(''stock'', ''pre_order'', ''prescription'') DEFAULT ''stock''',
+	'DO 0'
+);
+PREPARE stmt_order_order_type FROM @order_order_type_sql;
+EXECUTE stmt_order_order_type;
+DEALLOCATE PREPARE stmt_order_order_type;

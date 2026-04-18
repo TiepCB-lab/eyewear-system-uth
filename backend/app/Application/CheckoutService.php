@@ -30,12 +30,22 @@ class CheckoutService
             $totals = $this->cartService->getTotals($userId);
             $orderNumber = 'ORD-' . strtoupper(uniqid());
 
+            // Determine Order Type
+            $orderType = 'stock';
+            foreach ($cartItems as $item) {
+                if (!empty($item['prescription_id']) || !empty($item['lens_id'])) {
+                    $orderType = 'prescription';
+                    break;
+                }
+            }
+            // Logic for pre-order could be added here if stock check allows it
+
             // 1. Create Order
             $stmt = $this->db->prepare("
                 INSERT INTO `order` (
                     user_id, order_number, total_amount, shipping_address, billing_address, 
-                    status, placed_at
-                ) VALUES (?, ?, ?, ?, ?, 'pending', NOW())
+                    status, order_type, placed_at
+                ) VALUES (?, ?, ?, ?, ?, 'pending', ?, NOW())
             ");
             
             $stmt->execute([
@@ -43,7 +53,8 @@ class CheckoutService
                 $orderNumber,
                 $totals['total'],
                 $checkoutData['shipping_address'],
-                $checkoutData['billing_address'] ?? $checkoutData['shipping_address']
+                $checkoutData['billing_address'] ?? $checkoutData['shipping_address'],
+                $orderType
             ]);
 
             $orderId = $this->db->lastInsertId();
