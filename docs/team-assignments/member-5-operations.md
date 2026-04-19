@@ -42,6 +42,11 @@ This member owns the **back-office workflow**: Production (lens cutting, frame m
  - [ ] Test API: Creating a shipment and verifying order status update.
  - [ ] Analytics: Ensuring revenue matches paid invoices.
  
+ ### 🚀 Final Phase (Integration & Polish)
+ - [ ] **Codebase Sanitization**: Audit all modules to strip lingering `console.log()` and `var_dump()` debug calls.
+ - [ ] **Environment Prep**: Setup `.env.production` scaffolding and ensure PHP displays no error traces to end users.
+ - [ ] **E2E Ops Workflow**: Test the lifecycle of creating a shipment in Ops Dashboard and verify that Customer Order History accurately reads "Shipping".
+ 
  ---
  
  ## 📁 Files Owned

@@ -38,6 +38,11 @@ This member owns the entry point: Login, Registration, Session/Token protection,
  - [ ] Test login for each role (Staff to Dashboard, Customer to Shop).
  - [x] Test Route Protection: Staff without Customer role cannot access Shop.
  
+ ### 🚀 Final Phase (Integration & Polish)
+ - [ ] **Global Error Handling**: Implement persistent 401 (Unauthorized) redirection across all API calls to force re-authentication.
+ - [ ] **Missing UI Implementation**: Develop missing static pages (`404.html`, `pages/about/index.html`, `pages/contact/index.html`).
+ - [ ] **Profile Purge**: In `pages/accounts/index.html`, replace mock static HTML data for Billing Addresses and Orders with actual Profile API calls.
+ 
  ---
  
  ## 📁 Files Owned

@@ -43,6 +43,11 @@ This member owns the **financial and customer service** side: Payment status tra
  - [ ] Test API: Staff verification updating order workflow.
  - [ ] Test API: Support ticket multi-turn reply flow.
  
+ ### 🚀 Final Phase (Integration & Polish)
+ - [ ] **Production Seed Data**: Revamp `seeder.php` to generate a minimum of 30+ authentic eyewear products with correct VND pricing and imagery.
+ - [ ] **System Test Accounts**: Pre-generate reliable test accounts (`admin@eyewear.com`, `staff@eyewear.com`, `customer@eyewear.com`) for grading.
+ - [ ] **E2E Sales Workflow**: Cross-test Member 3's frontend by logging into the Admin Dashboard to approve and verify incoming payment statuses.
+ 
  ---
  
  ## 📁 Files Owned
