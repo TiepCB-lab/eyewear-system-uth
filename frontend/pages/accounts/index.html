@@ -205,6 +205,12 @@
     <script type="module">
       import profileService from '../../services/profileService.js';
       import authService from '../../services/authService.js';
+      import { supportService } from '../../services/supportService.js';
+      import apiClient from '../../services/apiClient.js';
+
+      // ============================================================
+      // PROFILE SECTION
+      // ============================================================
 
       // Load profile data when page loads
       document.addEventListener('DOMContentLoaded', async () => {
@@ -224,7 +230,6 @@
           }
         } catch (error) {
           console.error('Failed to load profile:', error);
-          // Redirect to Sign In if not authenticated
           if (error.response?.status === 401) {
             window.location.href = '../auth/';
           }
@@ -234,10 +239,8 @@
       // Handle profile update
       document.getElementById('profile-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-
         const formData = new FormData(e.target);
         const data = Object.fromEntries(formData);
-
         try {
           await profileService.updateProfile(data);
           alert('Profile updated successfully!');
@@ -253,79 +256,162 @@
           window.location.href = '../auth/';
         } catch (error) {
           console.error('Logout error:', error);
-          // Force logout anyway
           window.location.href = '../auth/';
         }
       });
-      
-      // Order Tracking Render (Member 4)
+
+      // ============================================================
+      // ORDER TRACKING SECTION (Member 4)
+      // ============================================================
+
+      function getStatusBadge(status) {
+          const map = {
+              pending:    { cls: 'badge-pending',  label: 'Pending' },
+              verified:   { cls: 'badge-qc',       label: 'Verified' },
+              processing: { cls: 'badge-shipped',  label: 'Processing' },
+              shipped:    { cls: 'badge-shipped',  label: 'Shipped' },
+              delivered:  { cls: 'badge-active',   label: 'Delivered' },
+              cancelled:  { cls: 'badge-inactive', label: 'Cancelled' },
+              refunded:   { cls: 'badge-inactive', label: 'Refunded' },
+          };
+          const s = map[status] || { cls: 'badge-pending', label: status };
+          return `<span class="badge ${s.cls}">${s.label}</span>`;
+      }
+
       async function loadOrderTracking() {
           const tbody = document.getElementById('ordersListBody');
-          // Dummy data simulation since OrderList API might belong to M3
-          const mockOrders = [
-              { id: 101, number: '#1357', date: 'March 19, 2026', status: 'verified', total: '$125.00', payment_status: 'paid', production_step: 'lens_cutting' },
-              { id: 102, number: '#2468', date: 'June 29, 2026', status: 'pending', total: '$364.00', payment_status: 'pending', production_step: 'N/A' },
-          ];
-          
-          tbody.innerHTML = mockOrders.map(o => `
-            <tr>
-              <td>${o.number}</td>
-              <td>${o.date}</td>
-              <td>${o.status}</td>
-              <td>${o.total}</td>
-              <td>
-                 ${o.payment_status === 'pending' ? `<a href="../payment/?order_id=${o.id}" class="view__order">Pay Now</a>` : '<span style="color:green">Paid</span>'}
-              </td>
-              <td><strong>${o.payment_status}</strong></td>
-              <td><em>${o.production_step || '-'}</em></td>
-            </tr>
-          `).join('');
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading...</td></tr>';
+          try {
+              // Gọi API của M3 khi đã implement xong (GET /api/v1/orders/my)
+              // Hiện tại sẽ vào catch và hiển thị fallback data
+              const response = await apiClient.get('/v1/orders/my');
+              const orders = response?.data?.data || response?.data?.orders || [];
+
+              if (!orders || orders.length === 0) {
+                  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">You have no orders yet.</td></tr>';
+                  return;
+              }
+
+              tbody.innerHTML = orders.map(o => {
+                  const date = o.created_at ? new Date(o.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) : '-';
+                  const payAction = (o.payment_status === 'pending' || !o.payment_status)
+                      ? `<a href="../payment/?order_id=${o.id}" class="view__order">Pay Now</a>`
+                      : `<span style="color:green;font-weight:600;">Paid ✓</span>`;
+                  return `<tr>
+                      <td><strong>#${o.order_number || o.id}</strong></td>
+                      <td>${date}</td>
+                      <td>${getStatusBadge(o.status)}</td>
+                      <td>${payAction}</td>
+                      <td><strong>${o.payment_status || 'pending'}</strong></td>
+                      <td><em>${o.production_step || '—'}</em></td>
+                  </tr>`;
+              }).join('');
+          } catch (err) {
+              // Fallback: M3 chưa implement API orders/my — hiển thị sample data
+              console.warn('Orders API not available yet (waiting for M3). Showing sample data.');
+              const fallbackOrders = [
+                  { id: 101, order_number: '1357', created_at: '2026-03-19', status: 'verified', payment_status: 'paid', production_step: 'lens_cutting' },
+                  { id: 102, order_number: '2468', created_at: '2026-06-29', status: 'pending', payment_status: 'pending', production_step: null },
+              ];
+              tbody.innerHTML = fallbackOrders.map(o => {
+                  const date = new Date(o.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+                  const payAction = (o.payment_status === 'pending')
+                      ? `<a href="../payment/?order_id=${o.id}" class="view__order">Pay Now</a>`
+                      : `<span style="color:green;font-weight:600;">Paid ✓</span>`;
+                  return `<tr>
+                      <td><strong>#${o.order_number}</strong></td>
+                      <td>${date}</td>
+                      <td>${getStatusBadge(o.status)}</td>
+                      <td>${payAction}</td>
+                      <td><strong>${o.payment_status}</strong></td>
+                      <td><em>${o.production_step || '—'}</em></td>
+                  </tr>`;
+              }).join('');
+          }
       }
-      
+
       document.querySelector('[data-target="#orders"]').addEventListener('click', loadOrderTracking);
-      // Load once if default active
       if (document.querySelector('[data-target="#orders"]').classList.contains('active-tab')) {
           loadOrderTracking();
       }
 
-      // Member 4 - Support Tickets Integration for Accounts
-      import { supportService } from '../../services/supportService.js';
-      
+      // ============================================================
+      // SUPPORT TICKETS SECTION (Member 4)
+      // ============================================================
+
+      function getTicketStatusBadge(status) {
+          const map = {
+              open:        { cls: 'badge-pending',  label: 'Open' },
+              in_progress: { cls: 'badge-qc',       label: 'In Progress' },
+              resolved:    { cls: 'badge-active',   label: 'Resolved' },
+              closed:      { cls: 'badge-inactive', label: 'Closed' },
+          };
+          const s = map[status] || { cls: 'badge-pending', label: status };
+          return `<span class="badge ${s.cls}">${s.label}</span>`;
+      }
+
       async function loadUserTickets() {
           const tbody = document.getElementById('userTicketsList');
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Loading...</td></tr>';
           try {
               const res = await supportService.getTickets(false);
-              if (!res || !res.data || res.data.length === 0) {
-                  tbody.innerHTML = '<tr><td colspan="4">You have no support tickets.</td></tr>';
+              const tickets = res?.data || [];
+              if (tickets.length === 0) {
+                  tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">You have no support tickets yet.</td></tr>';
                   return;
               }
-              tbody.innerHTML = res.data.map(t => `
-                  <tr>
-                      <td><strong>${t.subject}</strong><br><small>${t.message}</small></td>
-                      <td>${t.status}</td>
-                      <td>${t.updated_at}</td>
-                      <td><a href="#" class="view__order" onclick="alert('Viewing Ticket: ${t.id}')">View</a></td>
-                  </tr>
-              `).join('');
+              tbody.innerHTML = tickets.map(t => {
+                  const updated = t.updated_at ? new Date(t.updated_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) : '-';
+                  return `<tr>
+                      <td><strong>${t.subject}</strong><br><small style="color:#666;">${t.message?.substring(0, 80)}${t.message?.length > 80 ? '...' : ''}</small></td>
+                      <td>${getTicketStatusBadge(t.status)}</td>
+                      <td>${updated}</td>
+                      <td><a href="#" class="view__order" onclick="viewTicketDetail(${t.id}); return false;">View</a></td>
+                  </tr>`;
+              }).join('');
           } catch (e) {
-              tbody.innerHTML = '<tr><td colspan="4" style="color:red;">Failed to retrieve tickets.</td></tr>';
+              tbody.innerHTML = '<tr><td colspan="4" style="color:red;text-align:center;">Failed to retrieve tickets.</td></tr>';
           }
       }
 
+      // Xem chi tiết ticket + replies
+      window.viewTicketDetail = async (ticketId) => {
+          try {
+              const res = await supportService.getTicketById(ticketId);
+              const ticket = res?.data;
+              if (!ticket) { alert('Could not load ticket details.'); return; }
+              const replies = ticket.replies || [];
+              const replyHTML = replies.length > 0
+                  ? replies.map(r => `<p style="margin:0.5rem 0; padding:0.5rem; background:#f5f5f5; border-radius:6px;"><strong>Reply:</strong> ${r.message}<br><small>${r.created_at || ''}</small></p>`).join('')
+                  : '<p style="color:#999;">No replies yet.</p>';
+              const msg = `Ticket #${ticket.id}: ${ticket.subject}\nStatus: ${ticket.status}\n\n--- Replies ---\n${replies.map(r => r.message).join('\n') || 'None'}`;
+              alert(msg);
+          } catch (e) {
+              alert('Error loading ticket: ' + e.message);
+          }
+      };
+
       document.getElementById('createTicketForm').addEventListener('submit', async (e) => {
           e.preventDefault();
-          const subject = document.getElementById('ticketSubject').value;
-          const msg = document.getElementById('ticketMessage').value;
+          const subject = document.getElementById('ticketSubject').value.trim();
+          const msg = document.getElementById('ticketMessage').value.trim();
+          if (!subject || !msg) { alert('Please fill in all fields.'); return; }
+          const btn = e.target.querySelector('button[type="submit"]');
+          btn.disabled = true;
+          btn.textContent = 'Submitting...';
           try {
               await supportService.createTicket(subject, msg);
-              alert('Ticket created!');
+              alert('Ticket created successfully! Our team will respond shortly.');
               document.getElementById('createTicketForm').reset();
               loadUserTickets();
-          } catch(err) {
-              alert('Error: ' + err.message);
+          } catch (err) {
+              alert('Error creating ticket: ' + (err.response?.data?.error || err.message));
+          } finally {
+              btn.disabled = false;
+              btn.textContent = 'Create Ticket';
           }
       });
-      
+
       document.querySelector('[data-target="#support-tickets"]').addEventListener('click', loadUserTickets);
 
     </script>

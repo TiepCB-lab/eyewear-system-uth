@@ -106,11 +106,16 @@ Router::group(['prefix' => 'api/v1/prescriptions'], function () {
 // Member 4 - Sales, Payments & Support Routes
 Router::group(['prefix' => 'api/v1/payments'], function () {
     Router::post('process', [PaymentController::class, 'process']);
+    Router::post('confirm', [PaymentController::class, 'confirm']);
+    Router::get('status',  [PaymentController::class, 'status']);
+    Router::get('pending', [PaymentController::class, 'pendingPayments']);
 });
 
 Router::group(['prefix' => 'api/v1/sales'], function () {
     Router::get('pending-orders', [SalesController::class, 'pendingOrders']);
     Router::post('verify', [SalesController::class, 'verify']);
+    Router::post('complaint', [SalesController::class, 'complaint']);
+    Router::get('order-complaints', [SalesController::class, 'orderComplaints']);
 });
 
 Router::group(['prefix' => 'api/v1/support'], function () {
@@ -118,4 +123,6 @@ Router::group(['prefix' => 'api/v1/support'], function () {
     Router::post('/', [SupportTicketController::class, 'store']);
     Router::get('show', [SupportTicketController::class, 'show']);
     Router::post('reply', [SupportTicketController::class, 'reply']);
+    Router::post('status', [SupportTicketController::class, 'updateStatus']);
+    Router::delete('delete', [SupportTicketController::class, 'delete']);
 });

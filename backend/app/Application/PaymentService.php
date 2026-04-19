@@ -35,7 +35,8 @@ class PaymentService
         if ($status === 'paid') {
             $order->update([
                 'status' => 'verified',
-                'payment_status' => 'paid'
+                // payment_status không tồn tại trong bảng order —
+                // trạng thái thanh toán được theo dõi qua bảng payment
             ]);
         }
 
@@ -62,7 +63,7 @@ class PaymentService
         if ($order) {
             $order->update([
                 'status' => 'verified',
-                'payment_status' => 'paid'
+                // payment_status không tồn tại trong bảng order
             ]);
         }
 
