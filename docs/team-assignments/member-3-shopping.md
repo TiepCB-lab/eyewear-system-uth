@@ -17,29 +17,34 @@ This member owns the **transactional flow**: Adding items to the cart (including
  - [x] Create `cart`, `cartitem`, `prescription` in `database/schema.sql`
  
  ### Backend — Application Layer (Services)
- - [ ] Complete `CartService.php`:
+ - [x] Complete `CartService.php`:
    - Add/Update/Remove items from cart (Session or Database).
    - Calculate totals including lens additional options/pricing.
- - [ ] Complete `PrescriptionService.php`:
+ - [x] Complete `PrescriptionService.php`:
    - Validate prescription parameters (OD/OS: Sph, Cyl, Axis, PD).
- - [ ] Complete `CheckoutService.php`:
+ - [x] Complete `CheckoutService.php`:
    - Convert cart to pending order.
    - Categorize orders: Stock, Pre-order, or Prescription Order.
  
  ### Backend — Controllers & Routes
- - [ ] Implement `CartController.php` and `PrescriptionController.php`.
- - [ ] Define API Endpoints for cart management and order placement.
+ - [x] Implement `CartController.php` and `PrescriptionController.php`.
+ - [x] Define API Endpoints for cart management and order placement.
  
  ### Frontend (Vanilla JS)
- - [ ] Implement `pages/cart/index.html`: Item list, quantity controls, total calculation.
- - [ ] Implement `pages/checkout/index.html`: Shipping info, prescription entry, order type selection.
- - [ ] Create `js/services/cartService.js`: Sync cart with server.
- - [ ] Implement dynamic price updates based on lens selection (Single Product Details).
+ - [x] Implement `pages/cart/index.html`: Item list, quantity controls, total calculation.
+ - [x] Implement `pages/checkout/index.html`: Shipping info, prescription entry, order type selection.
+ - [x] Create `js/services/cartService.js`: Sync cart with server.
+ - [x] Implement dynamic price updates based on lens selection (Single Product Details).
  
  ### Testing
- - [ ] Test adding variants with lens options to cart.
- - [ ] Test prescription validation logic.
- - [ ] Test checkout flow (correct calculation and order type detection).
+ - [x] Test adding variants with lens options to cart.
+ - [x] Test prescription validation logic.
+ - [x] Test checkout flow (correct calculation and order type detection).
+ 
+ ### 🚀 Final Phase (Integration & Polish)
+ - [ ] **Homepage Dynamic Data**: Remove mock placeholder backgrounds and banners in `index.html`.
+ - [ ] **E2E Customer Journey**: Simulate the primary funnel: Registration -> Configure Lens Types -> Add to Cart -> Successful Checkout.
+ - [ ] **Edge Case Handling**: Enforce robust UI states (e.g., disable "Add to Cart" when `stock_quantity <= 0`, empty cart fallback messages).
  
  ---
  

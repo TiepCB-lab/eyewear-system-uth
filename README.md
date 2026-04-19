@@ -37,11 +37,12 @@ Bạn cần cài đặt MySQL (thường dùng XAMPP, Laragon hoặc cài rời)
     - Mở file `.env`, tìm các biến `MAIL_...`.
     - Điền `MAIL_USERNAME` và `MAIL_PASSWORD` (App Password của Gmail) để hệ thống có thể gửi mail xác thực.
       \*Cách lấy `MAIL_PASSWORD`:
-      -Vào tài khoản Gmail của bạn.
+      -Vào my accout tài khoảng gmail của bạn.
       -Vào cài đặt bảo mật.
       -Bật xác thực 2 bước.
       -Tạo mật khẩu ứng dụng.
       -Copy mật khẩu ứng dụng vào `MAIL_PASSWORD`.
+      -Xoá các khoảng cách trong `MAIL_PASSWORD`.
 
 ### Bước 2: Chạy Backend (Dành cho API)
 

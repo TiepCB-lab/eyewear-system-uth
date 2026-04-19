@@ -37,6 +37,11 @@ This member owns the **heart of the store**: Branded frames, Lens types, and the
  - [ ] Test API: Stock updates and verification in `inventory` table.
  - [x] UI: Internal modules correctly display product and stock lists.
  
+ ### 🚀 Final Phase (Integration & Polish)
+ - [ ] **Navigation Cleanup**: Systematically identify and replace/remove dead `href="#"` links across the Header, Footer, and Shop menus.
+ - [ ] **Wishlist Integration**: Develop `GET /api/v1/wishlist` and replace static mock elements in `pages/wishlist/index.html`.
+ - [ ] **Newsletter Setup**: Integrate or hide the static newsletter form appearing at the bottom of standard product pages.
+ 
  ---
  
  ## 📁 Files Owned
