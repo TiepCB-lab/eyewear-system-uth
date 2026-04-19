@@ -58,14 +58,16 @@ class DashboardController {
             
             // Map view names to permissions
             const viewPermissions = {
-                'overview': null, // Public staff overview
-                'orders': 'manage_orders',
+                'overview':  null, // Public staff overview
+                'orders':    'manage_orders',
+                'support':   'manage_orders', // Support tickets — Sales staff can access
                 'inventory': 'manage_inventory',
-                'products': 'view_products',
+                'products':  'view_products',
                 'analytics': 'view_manager_dashboard',
-                'users': 'manage_users',
-                'settings': 'manage_system',
-                'profile': null // Self-profile is allowed for all staff
+                'users':     'manage_users',
+                'settings':  'manage_system',
+                'profile':   null, // Self-profile is allowed for all staff
+                'ops':       null, // Operations module
             };
 
             const requiredPermission = viewPermissions[viewName];

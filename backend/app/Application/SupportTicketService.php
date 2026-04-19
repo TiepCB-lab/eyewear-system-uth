@@ -7,6 +7,26 @@ use App\Models\TicketReply;
 use Core\Database;
 
 class SupportTicketService
+    /**
+     * Xóa ticket (chỉ staff được xóa)
+     */
+    public function deleteTicket(int $ticketId, bool $isStaff): bool
+    {
+        if (!$isStaff) {
+            throw new \Exception('Permission denied: Only staff can delete tickets');
+        }
+        $ticket = Ticket::find($ticketId);
+        if (!$ticket) {
+            throw new \Exception('Ticket not found');
+        }
+        // Xóa replies trước (nếu có)
+        $db = Database::getInstance();
+        $stmt = $db->prepare("DELETE FROM ticket_replies WHERE ticket_id = ?");
+        $stmt->execute([$ticketId]);
+        // Xóa ticket
+        $ticket->delete();
+        return true;
+    }
 {
     /**
      * Lấy danh sách ticket theo user (Customer)
@@ -83,20 +103,25 @@ class SupportTicketService
     /**
      * Thêm reply vào ticket
      */
-    public function addReply(int $ticketId, int $userId, string $message): array
+    /**
+     * Thêm reply vào ticket, chỉ chủ ticket hoặc staff mới được reply
+     */
+    public function addReply(int $ticketId, int $userId, string $message, bool $isStaff = false): array
     {
         $ticket = Ticket::find($ticketId);
         if (!$ticket) {
             throw new \Exception('Ticket not found');
         }
-
+        // Chỉ cho phép chủ ticket hoặc staff reply
+        if (!$isStaff && $ticket->user_id !== $userId) {
+            throw new \Exception('Permission denied: Only ticket owner or staff can reply');
+        }
         // Tạo reply
         $reply = TicketReply::create([
             'ticket_id' => $ticketId,
             'user_id' => $userId,
             'message' => $message
         ]);
-
         // Cập nhật thời gian update của ticket và đánh dấu là in_progress nếu đang open
         $updateData = [];
         if ($ticket->status === 'open') {
@@ -105,7 +130,6 @@ class SupportTicketService
         if (!empty($updateData)) {
             $ticket->update($updateData);
         }
-
         return $reply->toArray();
     }
     

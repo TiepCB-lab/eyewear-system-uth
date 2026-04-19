@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../../assets/css/styles.css" />
+  <title>Chi tiết Ticket Hỗ trợ - EYEWEAR.UTH</title>
+</head>
+<body>
+  <header class="header" data-include="layout/Header"></header>
+  <main class="main">
+    <section class="section section--lg">
+      <div class="container" style="max-width: 700px; margin: 0 auto;">
+        <h2 class="section__title">Chi tiết Ticket Hỗ trợ</h2>
+        <div id="ticketDetail" style="background: #fff; padding: 2rem; border-radius: 12px; box-shadow: var(--card-shadow); margin-bottom:2rem;"></div>
+        <div id="replies"></div>
+        <form id="replyForm" class="form" style="background: #fff; padding: 1.5rem; border-radius: 12px; box-shadow: var(--card-shadow); margin-top:2rem;">
+          <div class="form__group">
+            <label for="replyMessage" class="form__label">Trả lời</label>
+            <textarea id="replyMessage" name="replyMessage" class="form__input" rows="3" required></textarea>
+          </div>
+          <button type="submit" class="btn btn--primary" style="width: 100%;">Gửi trả lời</button>
+        </form>
+        <div id="replySuccess" style="display:none; margin-top:1rem; color:green; text-align:center;">Gửi trả lời thành công!</div>
+        <div id="replyError" style="display:none; margin-top:1rem; color:red; text-align:center;"></div>
+      </div>
+    </section>
+  </main>
+  <script type="module">
+    import { supportService } from '../../js/services/supportService.js';
+    // Lấy ticketId từ query string
+    function getQueryParam(name) {
+      const url = new URL(window.location.href);
+      return url.searchParams.get(name);
+    }
+    const ticketId = getQueryParam('id');
+    const ticketDetailDiv = document.getElementById('ticketDetail');
+    const repliesDiv = document.getElementById('replies');
+    const replyForm = document.getElementById('replyForm');
+    const replySuccess = document.getElementById('replySuccess');
+    const replyError = document.getElementById('replyError');
+    async function loadTicketDetail() {
+      try {
+        const res = await supportService.getTicketById(ticketId);
+        const ticket = res.data;
+        ticketDetailDiv.innerHTML = `
+          <div><b>Chủ đề:</b> ${ticket.subject}</div>
+          <div><b>Trạng thái:</b> ${ticket.status}</div>
+          <div><b>Ngày tạo:</b> ${ticket.created_at}</div>
+          <div><b>Nội dung:</b> <br>${ticket.message}</div>
+        `;
+        let repliesHtml = '<h3 style="margin-top:2rem;">Lịch sử trao đổi</h3>';
+        if (ticket.replies && ticket.replies.length > 0) {
+          repliesHtml += ticket.replies.map(r => `
+            <div style="margin-bottom:1.25rem; padding:1rem; background:#f7f7f7; border-radius:8px;">
+              <div><b>Người gửi:</b> ${r.user_id}</div>
+              <div><b>Thời gian:</b> ${r.created_at}</div>
+              <div>${r.message}</div>
+            </div>
+          `).join('');
+        } else {
+          repliesHtml += '<div>Chưa có trao đổi nào.</div>';
+        }
+        repliesDiv.innerHTML = repliesHtml;
+      } catch (err) {
+        ticketDetailDiv.innerHTML = '<div style="color:red;">Không tìm thấy ticket!</div>';
+      }
+    }
+    replyForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      replySuccess.style.display = 'none';
+      replyError.style.display = 'none';
+      const message = replyForm.replyMessage.value.trim();
+      if (!message) return;
+      try {
+        await supportService.replyTicket(ticketId, message);
+        replySuccess.style.display = 'block';
+        replyForm.reset();
+        await loadTicketDetail();
+      } catch (err) {
+        replyError.textContent = err?.response?.data?.error || 'Gửi trả lời thất bại!';
+        replyError.style.display = 'block';
+      }
+    });
+    loadTicketDetail();
+  </script>
+</body>
+</html>

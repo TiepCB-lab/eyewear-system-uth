@@ -1,0 +1,295 @@
+<!--=============== SUPPORT MODULE — Staff Dashboard ===============-->
+<h2 class="section__title">Support Ticket Management</h2>
+
+<div class="metrics-grid">
+    <div class="metric-card">
+        <div class="metric-label">Open Tickets</div>
+        <div class="metric-value" id="support-open-count">...</div>
+        <div class="badge badge-pending">Needs Response</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-label">In Progress</div>
+        <div class="metric-value" id="support-inprogress-count">...</div>
+        <div class="badge badge-qc">Being Handled</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-label">Resolved Today</div>
+        <div class="metric-value" id="support-resolved-count">...</div>
+        <div class="badge badge-active">Closed</div>
+    </div>
+</div>
+
+<!-- Filter & Search -->
+<div class="admin-table container" style="margin-top: 2rem; background: #fff; padding: 2rem; border-radius: 12px; box-shadow: var(--card-shadow);">
+    <div class="flex" style="justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <h3 class="table__title" style="margin:0;">All Customer Support Tickets</h3>
+        <div class="flex" style="gap: 0.75rem; flex-wrap: wrap;">
+            <select id="support-filter-status" class="form__input" style="padding: 0.5rem 1rem; width: auto; font-size: 0.9rem;">
+                <option value="">All Statuses</option>
+                <option value="open">Open</option>
+                <option value="in_progress">In Progress</option>
+                <option value="resolved">Resolved</option>
+                <option value="closed">Closed</option>
+            </select>
+            <button class="btn btn--sm" onclick="window.reloadSupportTickets()">
+                <i class="fi fi-rs-refresh"></i> Refresh
+            </button>
+        </div>
+    </div>
+
+    <table class="table" id="supportTicketsTable">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Customer</th>
+                <th>Subject</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="supportTicketsBody">
+            <tr><td colspan="7" style="text-align:center; padding: 2rem;">Loading tickets...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Ticket Detail Panel (slide-in modal) -->
+<div id="ticketDetailPanel" style="display:none; position:fixed; top:0; right:0; width:420px; height:100vh; background:#fff; box-shadow: -4px 0 20px rgba(0,0,0,0.15); z-index:9999; overflow-y:auto; padding:2rem;">
+    <div class="flex" style="justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+        <h3 class="table__title" style="margin:0;" id="panelTicketTitle">Ticket Details</h3>
+        <button onclick="window.closeSupportPanel()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#666;">&times;</button>
+    </div>
+
+    <div id="panelTicketMeta" style="margin-bottom:1rem; font-size:0.9rem; color:#555;"></div>
+
+    <!-- Status Update -->
+    <div style="margin-bottom:1.5rem; padding:1rem; background:#f9f9f9; border-radius:8px;">
+        <label style="font-weight:600; display:block; margin-bottom:0.5rem;">Update Status:</label>
+        <div class="flex" style="gap:0.5rem; flex-wrap:wrap;">
+            <button class="btn btn--sm" onclick="window.updateSupportStatus('in_progress')" style="background:#f0a500; color:#fff; border:none;">In Progress</button>
+            <button class="btn btn--sm" onclick="window.updateSupportStatus('resolved')" style="background:#28a745; color:#fff; border:none;">Resolved</button>
+            <button class="btn btn--sm" onclick="window.updateSupportStatus('closed')" style="background:#6c757d; color:#fff; border:none;">Close</button>
+        </div>
+    </div>
+
+    <!-- Replies Thread -->
+    <h4 style="margin-bottom:0.75rem; font-weight:600;">Conversation Thread</h4>
+    <div id="panelRepliesContainer" style="max-height:300px; overflow-y:auto; margin-bottom:1rem; padding-right:0.25rem;"></div>
+
+    <!-- Reply Form -->
+    <div style="border-top:1px solid #eee; padding-top:1rem;">
+        <label style="font-weight:600; display:block; margin-bottom:0.5rem;">Staff Reply:</label>
+        <textarea id="staffReplyMessage" placeholder="Type your response to the customer..." class="form__input" style="height:100px; width:100%; margin-bottom:0.75rem;"></textarea>
+        <button class="btn btn--md" onclick="window.sendSupportReply()" style="width:100%;">Send Reply</button>
+    </div>
+</div>
+
+<!-- Overlay -->
+<div id="ticketPanelOverlay" onclick="window.closeSupportPanel()" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); z-index:9998;"></div>
+
+<script type="module">
+    import { supportService } from '/js/services/supportService.js';
+
+    let allTickets = [];
+    let currentTicketId = null;
+
+    // ============================================================
+    // LOAD & RENDER TICKETS
+    // ============================================================
+
+    async function loadSupportTickets() {
+        const tbody = document.getElementById('supportTicketsBody');
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:2rem; color:#888;">Loading tickets...</td></tr>';
+
+        try {
+            const res = await supportService.getTickets(true);
+            allTickets = res?.data || [];
+
+            updateMetrics(allTickets);
+            renderTickets(allTickets);
+        } catch (err) {
+            console.error('Support load error:', err);
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red; padding:2rem;">Failed to load tickets. Please check API connection.</td></tr>';
+        }
+    }
+
+    function updateMetrics(tickets) {
+        const openCount       = tickets.filter(t => t.status === 'open').length;
+        const inProgressCount = tickets.filter(t => t.status === 'in_progress').length;
+        const resolvedCount   = tickets.filter(t => t.status === 'resolved' || t.status === 'closed').length;
+
+        const openEl       = document.getElementById('support-open-count');
+        const inProgressEl = document.getElementById('support-inprogress-count');
+        const resolvedEl   = document.getElementById('support-resolved-count');
+
+        if (openEl) openEl.textContent = openCount;
+        if (inProgressEl) inProgressEl.textContent = inProgressCount;
+        if (resolvedEl) resolvedEl.textContent = resolvedCount;
+    }
+
+    function getStatusBadge(status) {
+        const map = {
+            open:        { cls: 'badge-pending',  label: 'Open' },
+            in_progress: { cls: 'badge-qc',       label: 'In Progress' },
+            resolved:    { cls: 'badge-active',   label: 'Resolved' },
+            closed:      { cls: 'badge-inactive', label: 'Closed' },
+        };
+        const s = map[status] || { cls: 'badge-pending', label: status };
+        return `<span class="badge ${s.cls}">${s.label}</span>`;
+    }
+
+    function getPriorityBadge(priority) {
+        const map = {
+            low:    { cls: 'badge-active',   label: 'Low' },
+            medium: { cls: 'badge-qc',       label: 'Medium' },
+            high:   { cls: 'badge-pending',  label: 'High' },
+            urgent: { cls: 'badge-inactive', label: 'Urgent' },
+        };
+        const s = map[priority] || { cls: 'badge-qc', label: priority || 'Medium' };
+        return `<span class="badge ${s.cls}">${s.label}</span>`;
+    }
+
+    function renderTickets(tickets) {
+        const tbody = document.getElementById('supportTicketsBody');
+        const filterStatus = document.getElementById('support-filter-status')?.value || '';
+        const filtered = filterStatus ? tickets.filter(t => t.status === filterStatus) : tickets;
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:2rem; color:#888;">${filterStatus ? 'No tickets with this status.' : 'No open support tickets. All clear! ✓'}</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = filtered.map((t, idx) => {
+            const created = t.created_at ? new Date(t.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '-';
+            return `<tr>
+                <td><strong>#${t.id}</strong></td>
+                <td>${t.user_id ? `User #${t.user_id}` : 'N/A'}</td>
+                <td>
+                    <strong>${escapeHtml(t.subject)}</strong><br>
+                    <small style="color:#888;">${escapeHtml((t.message || '').substring(0, 60))}${(t.message || '').length > 60 ? '...' : ''}</small>
+                </td>
+                <td>${getStatusBadge(t.status)}</td>
+                <td>${getPriorityBadge(t.priority)}</td>
+                <td>${created}</td>
+                <td>
+                    <button class="btn btn--sm" onclick="window.openTicketPanel(${t.id})" style="margin-bottom: 0.25rem;">
+                        View / Reply
+                    </button>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // ============================================================
+    // TICKET DETAIL PANEL
+    // ============================================================
+
+    window.openTicketPanel = async (ticketId) => {
+        currentTicketId = ticketId;
+        const panel   = document.getElementById('ticketDetailPanel');
+        const overlay = document.getElementById('ticketPanelOverlay');
+        panel.style.display   = 'block';
+        overlay.style.display = 'block';
+
+        document.getElementById('panelTicketTitle').textContent   = `Ticket #${ticketId}`;
+        document.getElementById('panelTicketMeta').innerHTML      = '<em>Loading details...</em>';
+        document.getElementById('panelRepliesContainer').innerHTML = '<em style="color:#aaa;">Loading replies...</em>';
+
+        try {
+            const res = await supportService.getTicketById(ticketId);
+            const ticket  = res?.data;
+            if (!ticket) throw new Error('Ticket not found');
+
+            document.getElementById('panelTicketTitle').textContent = `Ticket #${ticket.id}: ${ticket.subject}`;
+            document.getElementById('panelTicketMeta').innerHTML = `
+                <p><strong>Status:</strong> ${getStatusBadge(ticket.status)}</p>
+                <p><strong>Priority:</strong> ${getPriorityBadge(ticket.priority)}</p>
+                <p><strong>User #${ticket.user_id || 'N/A'}</strong> — ${ticket.created_at ? new Date(ticket.created_at).toLocaleString() : '-'}</p>
+                <p style="margin-top:0.5rem; padding:0.75rem; background:#f9f9f9; border-radius:6px; border-left:3px solid #ddd;">${escapeHtml(ticket.message)}</p>
+            `;
+
+            const replies = ticket.replies || [];
+            if (replies.length === 0) {
+                document.getElementById('panelRepliesContainer').innerHTML = '<p style="color:#aaa; text-align:center; padding:1rem;">No replies yet. Be the first to respond!</p>';
+            } else {
+                document.getElementById('panelRepliesContainer').innerHTML = replies.map(r => `
+                    <div style="margin-bottom:0.75rem; padding:0.75rem; background:#f0f4ff; border-radius:8px; border-left:3px solid #4e7af0;">
+                        <small style="color:#888; display:block; margin-bottom:0.25rem;">${r.created_at ? new Date(r.created_at).toLocaleString() : ''} — User #${r.user_id}</small>
+                        <p style="margin:0;">${escapeHtml(r.message)}</p>
+                    </div>
+                `).join('');
+            }
+        } catch (err) {
+            document.getElementById('panelTicketMeta').innerHTML = `<span style="color:red;">Error: ${err.message}</span>`;
+        }
+    };
+
+    window.closeSupportPanel = () => {
+        document.getElementById('ticketDetailPanel').style.display   = 'none';
+        document.getElementById('ticketPanelOverlay').style.display  = 'none';
+        document.getElementById('staffReplyMessage').value           = '';
+        currentTicketId = null;
+    };
+
+    // ============================================================
+    // REPLY & STATUS UPDATE
+    // ============================================================
+
+    window.sendSupportReply = async () => {
+        if (!currentTicketId) return;
+        const msg = document.getElementById('staffReplyMessage').value.trim();
+        if (!msg) { alert('Please enter a reply message.'); return; }
+
+        const btn = document.querySelector('#ticketDetailPanel button[onclick="window.sendSupportReply()"]');
+        if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+
+        try {
+            await supportService.replyTicket(currentTicketId, msg);
+            document.getElementById('staffReplyMessage').value = '';
+            // Reload the panel to show new reply
+            await window.openTicketPanel(currentTicketId);
+            // Also reload ticket list to reflect updated status
+            loadSupportTickets();
+        } catch (err) {
+            alert('Failed to send reply: ' + (err.response?.data?.error || err.message));
+        } finally {
+            if (btn) { btn.disabled = false; btn.textContent = 'Send Reply'; }
+        }
+    };
+
+    window.updateSupportStatus = async (newStatus) => {
+        if (!currentTicketId) return;
+        if (!confirm(`Update ticket status to "${newStatus}"?`)) return;
+
+        try {
+            await supportService.updateTicketStatus(currentTicketId, newStatus);
+            alert(`Ticket status updated to "${newStatus}"`);
+            await window.openTicketPanel(currentTicketId);
+            loadSupportTickets();
+        } catch (err) {
+            alert('Failed to update status: ' + (err.response?.data?.error || err.message));
+        }
+    };
+
+    window.reloadSupportTickets = () => {
+        loadSupportTickets();
+    };
+
+    // ============================================================
+    // FILTER EVENTS
+    // ============================================================
+
+    document.getElementById('support-filter-status').addEventListener('change', () => {
+        renderTickets(allTickets);
+    });
+
+    // Initial load
+    loadSupportTickets();
+</script>
