@@ -234,6 +234,40 @@
         }
     }
 
+    // Global Event Listener for dynamic badge syncing across all pages
+    window.addEventListener('content-loaded', async (e) => {
+        if (e.detail.path === 'layout/Header' || e.detail.path === 'layout/AdminHeader') {
+            const cartCountEl = document.getElementById('cart-count');
+            const wishlistCountEl = document.getElementById('wishlist-count');
+            
+            if (wishlistCountEl) {
+                let wl = JSON.parse(localStorage.getItem('eyewear_wishlist') || '[]');
+                wishlistCountEl.innerText = wl.length;
+            }
+
+            if (cartCountEl) {
+                 // 1. Instant Synchronous Update to Prevent UI Flicker (FOUC)
+                 const cachedCount = localStorage.getItem('eyewear_cart_count');
+                 if (cachedCount !== null) cartCountEl.innerText = cachedCount;
+
+                 // 2. Asynchronous API fetch for ultimate accuracy
+                 import(projectRoot + 'js/services/cartService.js').then(module => {
+                     module.CartService.getCart().then(res => {
+                         let totalItems = 0;
+                         if (res.data && res.data.length > 0) {
+                            totalItems = res.data.reduce((sum, item) => sum + parseInt(item.quantity), 0);
+                         }
+                         cartCountEl.innerText = totalItems;
+                         localStorage.setItem('eyewear_cart_count', totalItems); // Save for next page load
+                     }).catch(err => {
+                         cartCountEl.innerText = 0;
+                         localStorage.setItem('eyewear_cart_count', 0);
+                     });
+                 }).catch(err => console.error("LayoutLoader: Could not load cartService for badge update", err));
+            }
+        }
+    });
+
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('[data-include]').forEach(loadComponent);
         

@@ -195,8 +195,8 @@
             subtotalEl.innerText = window.formatVND(totals.subtotal);
             totalEl.innerText = window.formatVND(totals.total);
 
-
-            // Bind events
+            // Trigger header badge update globally!
+            window.dispatchEvent(new CustomEvent('content-loaded', { detail: { path: 'layout/Header' } }));            // Bind events
             document.querySelectorAll('.cart-qty-input').forEach(input => {
                 input.addEventListener('change', async (e) => {
                     const id = e.target.getAttribute('data-id');
