@@ -178,11 +178,11 @@
                                 <i class="fi fi-rs-angle-small-down"></i>
                             </div>
                             <div class="user-dropdown">
-                                <a href="/pages/accounts/" class="dropdown__item">
+                                <a href="/frontend/pages/accounts/" class="dropdown__item">
                                     <i class="fi fi-rs-settings-sliders"></i> My Profile
                                 </a>
                                 ${isStaff ? `
-                                <a href="/pages/dashboard/index.html" class="dropdown__item" style="color: var(--first-color); font-weight: bold;">
+                                <a href="/frontend/pages/dashboard/index.html" class="dropdown__item" style="color: var(--first-color); font-weight: bold;">
                                     <i class="fi fi-rs-apps"></i> Admin Dashboard
                                 </a>
                                 ` : ''}
@@ -205,11 +205,11 @@
                                 <i class="fi fi-rs-angle-small-down"></i>
                             </div>
                             <div class="user-dropdown" style="right: 0; left: auto;">
-                                <a href="/pages/dashboard/index.html?view=profile" class="dropdown__item">
+                                <a href="/frontend/pages/dashboard/index.html?view=profile" class="dropdown__item">
                                     <i class="fi fi-rs-user"></i> My Profile
                                 </a>
                                 ${isCustomer ? `
-                                <a href="/" class="dropdown__item" style="color: var(--first-color); font-weight: bold;">
+                                <a href="/frontend/index.html" class="dropdown__item" style="color: var(--first-color); font-weight: bold;">
                                     <i class="fi fi-rs-shopping-cart"></i> Switch to Shop
                                 </a>
                                 ` : ''}
@@ -225,7 +225,7 @@
                 document.querySelectorAll('.logout-btn').forEach(btn => {
                     btn.onclick = (e) => {
                         e.preventDefault();
-                        authService.logout().then(() => window.location.href = '/');
+                        authService.logout().then(() => window.location.href = '/frontend/index.html');
                     };
                 });
             }

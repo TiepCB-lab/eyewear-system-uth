@@ -75,6 +75,8 @@ Router::group(['prefix' => 'api/auth'], function () {
     Router::post('register', [AuthController::class, 'register']);
     Router::post('login', [AuthController::class, 'login']);
     Router::get('verify', [AuthController::class, 'verify']);
+    Router::post('forgot-password', [AuthController::class, 'forgotPassword']);
+    Router::post('reset-password', [AuthController::class, 'resetPassword']);
     Router::post('logout', [AuthController::class, 'logout']);
     Router::get('me', [AuthController::class, 'me'])->middleware('auth:sanctum');
 });

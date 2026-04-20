@@ -31,8 +31,8 @@ class AuthController
             $user = $this->authService->register($data);
             http_response_code(201);
             $successMessage = $user['resend_verification'] ?? false
-                ? 'Tài khoản đã tồn tại nhưng chưa xác thực. Email xác thực đã được gửi lại. Vui lòng kiểm tra email.'
-                : 'Đăng ký thành công. Email xác thực đã được gửi. Vui lòng kiểm tra email.';
+                ? 'This account already exists but is not verified. A verification email has been resent. Please check your inbox.'
+                : 'Registration successful. A verification email has been sent. Please check your inbox.';
             return [
                 'message' => $successMessage,
                 'user' => $user,
@@ -91,7 +91,7 @@ class AuthController
     {
         $token = $_GET['token'] ?? null;
         $config = $this->loadConfig();
-        $frontendUrl = rtrim($config['FRONTEND_URL'] ?? 'http://localhost:5500', '/');
+        $frontendUrl = rtrim($config['FRONTEND_URL'] ?? 'http://127.0.0.1:5500/frontend', '/');
 
         if (!$token) {
             header("Location: {$frontendUrl}/pages/auth/?verified=0&error=" . urlencode('Verification token is required.'));
@@ -105,6 +105,60 @@ class AuthController
         } catch (\Exception $e) {
             header("Location: {$frontendUrl}/pages/auth/?verified=0&error=" . urlencode($e->getMessage()));
             exit;
+        }
+    }
+
+    public function forgotPassword()
+    {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $email = trim((string)($data['email'] ?? ''));
+
+        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            http_response_code(422);
+            return ['message' => 'Invalid email address.'];
+        }
+
+        try {
+            $result = $this->authService->requestPasswordReset($email);
+            return [
+                'message' => $result['message'] ?? 'Email already exists. Password reset link has been sent.',
+                'email_exists' => $result['email_exists'] ?? null,
+                'email_sent' => $result['email_sent'] ?? true,
+                'reset_url' => $result['reset_url'] ?? null,
+                'email_error' => $result['email_error'] ?? null,
+            ];
+        } catch (\Exception $e) {
+            http_response_code(400);
+            return [
+                'message' => $e->getMessage(),
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
+    public function resetPassword()
+    {
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if (!is_array($data)) {
+            http_response_code(400);
+            return ['message' => 'Invalid request payload.'];
+        }
+
+        try {
+            $this->authService->resetPassword($data);
+            return ['message' => 'Password reset successful. You can sign in now.'];
+        } catch (\Exception $e) {
+            $message = strtolower($e->getMessage());
+            if (str_contains($message, 'expired') || str_contains($message, 'invalid')) {
+                http_response_code(422);
+            } else {
+                http_response_code(400);
+            }
+            return [
+                'message' => $e->getMessage(),
+                'error' => $e->getMessage(),
+            ];
         }
     }
 
