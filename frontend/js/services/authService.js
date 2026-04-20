@@ -16,6 +16,16 @@ class AuthService {
     return response.data;
   }
 
+  async forgotPassword(email) {
+    const response = await apiClient.post('/auth/forgot-password', { email });
+    return response.data;
+  }
+
+  async resetPassword(payload) {
+    const response = await apiClient.post('/auth/reset-password', payload);
+    return response.data;
+  }
+
   async getCurrentUser() {
     const response = await apiClient.get('/auth/me');
     return response.data;
