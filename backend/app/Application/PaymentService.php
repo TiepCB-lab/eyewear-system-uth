@@ -31,12 +31,12 @@ class PaymentService
             'paid_at' => $status === 'paid' ? date('Y-m-d H:i:s') : null,
         ]);
 
-        // 3. Cập nhật Order nếu đã thanh toán xong
+        // 3. Cập nhật Order status để chuyển qua Sales Verification
+        // Không set 'verified' - chỉ update status để follow workflow
         if ($status === 'paid') {
             $order->update([
-                'status' => 'verified',
-                // payment_status không tồn tại trong bảng order —
-                // trạng thái thanh toán được theo dõi qua bảng payment
+                'status' => 'paid',
+                // Nhân viên sales sẽ verify sau
             ]);
         }
 
@@ -60,13 +60,29 @@ class PaymentService
         ]);
 
         $order = Order::find($payment->order_id);
-        if ($order) {
+        if ($order && $order->status === 'pending') {
             $order->update([
-                'status' => 'verified',
-                // payment_status không tồn tại trong bảng order
+                'status' => 'paid',
+                // Nhân viên sales sẽ verify sau
             ]);
         }
 
         return $payment->toArray();
+    }
+
+    /**
+     * Lấy danh sách thanh toán đang chờ xác nhận (Staff)
+     */
+    public function pendingPayments(): array
+    {
+        $db = Database::getInstance();
+        $stmt = $db->query("SELECT * FROM payment WHERE status = 'pending' ORDER BY created_at ASC");
+        
+        $payments = [];
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $payments[] = $row;
+        }
+        
+        return $payments;
     }
 }
