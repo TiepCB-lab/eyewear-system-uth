@@ -37,7 +37,7 @@ export async function protectDashboard() {
 
 function denyAccess(area) {
     alert(`Access Denied: You do not have permission to view ${area}.`);
-    window.location.href = '/pages/auth/index.html';
+    window.location.href = '/frontend/pages/auth/index.html';
 }
 
 // Auto-run if imported directly

@@ -7,6 +7,8 @@ use PHPMailer\PHPMailer\Exception;
 
 class AuthService
 {
+    private const RESET_TOKEN_TTL_SECONDS = 3600;
+
     public function register(array $data)
     {
         $db = Database::getInstance();
@@ -132,6 +134,113 @@ class AuthService
         return $user['email'];
     }
 
+    public function requestPasswordReset(string $email): array
+    {
+        $db = Database::getInstance();
+        $normalizedEmail = strtolower(trim($email));
+
+        $stmt = $db->prepare('SELECT id, full_name, email, status FROM `user` WHERE email = ? LIMIT 1');
+        $stmt->execute([$normalizedEmail]);
+        $user = $stmt->fetch();
+
+        if (!$user) {
+            return [
+                'email_exists' => false,
+                'email_sent' => false,
+                'message' => 'Email is not registered. Please sign up.',
+            ];
+        }
+
+        $token = bin2hex(random_bytes(32));
+        $tokenHash = hash('sha256', $token);
+
+        $upsert = $db->prepare(
+            'INSERT INTO password_reset_tokens (email, token, created_at) VALUES (?, ?, NOW())
+             ON DUPLICATE KEY UPDATE token = VALUES(token), created_at = VALUES(created_at)'
+        );
+        $upsert->execute([$normalizedEmail, $tokenHash]);
+
+        $resetUrl = $this->buildResetPasswordUrl($normalizedEmail, $token);
+
+        try {
+            $this->sendResetPasswordEmail($normalizedEmail, $user['full_name'] ?: $normalizedEmail, $resetUrl);
+            return [
+                'email_exists' => true,
+                'email_sent' => true,
+                'message' => 'Email already exists. Password reset link has been sent.',
+            ];
+        } catch (\Exception $e) {
+            return [
+                'email_exists' => true,
+                'email_sent' => false,
+                'message' => 'Email already exists, but we could not send the reset link. Please try again later.',
+                'reset_url' => $resetUrl,
+                'email_error' => $e->getMessage(),
+            ];
+        }
+    }
+
+    public function resetPassword(array $data): void
+    {
+        $email = strtolower(trim($data['email'] ?? ''));
+        $token = trim((string) ($data['token'] ?? ''));
+        $password = (string) ($data['password'] ?? '');
+        $passwordConfirmation = (string) ($data['password_confirmation'] ?? '');
+
+        // Guard against token corruption from copied URLs (spaces/newlines/encoded chars).
+        $normalizedToken = preg_replace('/\s+/', '', rawurldecode($token));
+
+        if ($email === '' || $normalizedToken === '') {
+            throw new \Exception('Invalid email or reset token.');
+        }
+
+        if (strlen($password) < 6) {
+            throw new \Exception('New password must be at least 6 characters.');
+        }
+
+        if ($password !== $passwordConfirmation) {
+            throw new \Exception('Password confirmation does not match.');
+        }
+
+        $db = Database::getInstance();
+        $stmt = $db->prepare('SELECT email, token, created_at FROM password_reset_tokens WHERE email = ? LIMIT 1');
+        $stmt->execute([$email]);
+        $record = $stmt->fetch();
+
+        if (!$record) {
+            throw new \Exception('Invalid or expired password reset request.');
+        }
+
+        $createdAt = strtotime((string) $record['created_at']);
+        if (!$createdAt || ($createdAt + self::RESET_TOKEN_TTL_SECONDS) < time()) {
+            $this->deleteResetToken($email);
+            throw new \Exception('Password reset link has expired. Please request a new one.');
+        }
+
+        $incomingHash = hash('sha256', $normalizedToken);
+        $storedToken = (string) $record['token'];
+        $isValidToken = hash_equals($storedToken, $incomingHash) || hash_equals($storedToken, $normalizedToken);
+
+        if (!$isValidToken) {
+            throw new \Exception('Invalid password reset token.');
+        }
+
+        $userStmt = $db->prepare('SELECT id FROM `user` WHERE email = ? LIMIT 1');
+        $userStmt->execute([$email]);
+        $user = $userStmt->fetch();
+
+        if (!$user) {
+            $this->deleteResetToken($email);
+            throw new \Exception('Account does not exist.');
+        }
+
+        $newHash = password_hash($password, PASSWORD_DEFAULT);
+        $update = $db->prepare('UPDATE `user` SET password_hash = ? WHERE id = ?');
+        $update->execute([$newHash, $user['id']]);
+
+        $this->deleteResetToken($email);
+    }
+
     public function getUserIdFromToken(string $token): ?int
     {
         $decoded = base64_decode($token, true);
@@ -202,11 +311,84 @@ class AuthService
         }
     }
 
+    private function sendResetPasswordEmail(string $email, string $name, string $resetUrl): void
+    {
+        $config = $this->loadEnvConfig();
+        $mailHost = $config['MAIL_HOST'] ?? 'smtp.gmail.com';
+        $mailPort = $config['MAIL_PORT'] ?? 587;
+        $mailEncryption = $config['MAIL_ENCRYPTION'] ?? 'tls';
+        $mailUsername = $config['MAIL_USERNAME'] ?? '';
+        $mailPassword = $config['MAIL_PASSWORD'] ?? '';
+        $mailFrom = $config['MAIL_FROM_ADDRESS'] ?? $mailUsername;
+        $mailFromName = $config['MAIL_FROM_NAME'] ?? 'Eyewear System';
+
+        if (!$mailUsername || !$mailPassword) {
+            throw new \Exception('SMTP email configuration is missing.');
+        }
+
+        if (!class_exists(PHPMailer::class)) {
+            require_once dirname(__DIR__, 2) . '/PHPMailer/Exception.php';
+            require_once dirname(__DIR__, 2) . '/PHPMailer/PHPMailer.php';
+            require_once dirname(__DIR__, 2) . '/PHPMailer/SMTP.php';
+        }
+
+        $mail = new PHPMailer(true);
+        $mail->isSMTP();
+        $mail->Host = $mailHost;
+        $mail->SMTPAuth = true;
+        $mail->Username = $mailUsername;
+        $mail->Password = $mailPassword;
+        $mail->SMTPSecure = $mailEncryption;
+        $mail->Port = (int) $mailPort;
+        $mail->CharSet = 'UTF-8';
+
+        $mail->setFrom($mailFrom, $mailFromName);
+        $mail->addAddress($email);
+        $mail->isHTML(true);
+        $mail->Subject = 'Dat lai mat khau Eyewear';
+        $mail->Body = "Chao {$name},<br><br>Ban vua yeu cau dat lai mat khau.<br>Vui long nhan vao link duoi day (hieu luc 60 phut):<br><br><a href=\"{$resetUrl}\">{$resetUrl}</a>";
+
+        if (!$mail->send()) {
+            throw new \Exception('Could not send reset password email.');
+        }
+    }
+
     private function buildVerificationUrl(string $token): string
     {
         $config = $this->loadEnvConfig();
         $appUrl = rtrim($config['APP_URL'] ?? 'http://localhost:8000', '/');
         return $appUrl . '/api/auth/verify?token=' . urlencode($token);
+    }
+
+    private function buildResetPasswordUrl(string $email, string $token): string
+    {
+        $frontendUrl = $this->resolveFrontendBaseUrl();
+        return $frontendUrl . '/pages/auth/reset-password.html?email=' . urlencode($email) . '&token=' . urlencode($token);
+    }
+
+    private function resolveFrontendBaseUrl(): string
+    {
+        $config = $this->loadEnvConfig();
+        $frontendUrl = rtrim($config['FRONTEND_URL'] ?? 'http://127.0.0.1:5500/frontend', '/');
+        $parsed = parse_url($frontendUrl);
+        $path = $parsed['path'] ?? '';
+
+        if ($path === '' || $path === '/') {
+            return $frontendUrl . '/frontend';
+        }
+
+        if (!str_contains($path, '/frontend')) {
+            return $frontendUrl . '/frontend';
+        }
+
+        return $frontendUrl;
+    }
+
+    private function deleteResetToken(string $email): void
+    {
+        $db = Database::getInstance();
+        $delete = $db->prepare('DELETE FROM password_reset_tokens WHERE email = ?');
+        $delete->execute([$email]);
     }
 
     private function parseEnvFile(string $path): array
