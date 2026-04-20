@@ -18,13 +18,13 @@ This member owns the entry point: Login, Registration, Session/Token protection,
  - [x] Implement seed data for roles (`database/seeder.php`)
  
  ### Backend — Application Layer (Services)
- - [ ] Complete `AuthService.php`: Register, Login, Logout.
+ - [x] Complete `AuthService.php`: Register, Login, Logout.
  - [x] Complete `ProfileService.php`: Get info & Update Profile.
  
  ### Backend — Controllers & Routes
- - [ ] Implement `AuthController.php`: `register()`, `login()`, `me()`.
+ - [x] Implement `AuthController.php`: `register()`, `login()`, `me()`.
  - [x] Implement `ProfileController.php`: `show()`, `update()`.
- - [ ] Define API Endpoints in `routes/api.php` under `api/auth` prefix.
+ - [x] Define API Endpoints in `routes/api.php` under `api/auth` prefix.
  
  ### Frontend (Vanilla JS)
  - [x] Finalize `auth/index.html`: Dual Login/Register form.
@@ -34,14 +34,14 @@ This member owns the entry point: Login, Registration, Session/Token protection,
  - [x] Create `profile.html` module in Dashboard.
  
  ### Testing
- - [ ] Test new user registration (must have default `customer` role).
- - [ ] Test login for each role (Staff to Dashboard, Customer to Shop).
+ - [x] Test new user registration (must have default `customer` role).
+ - [x] Test login for each role (Staff to Dashboard, Customer to Shop).
  - [x] Test Route Protection: Staff without Customer role cannot access Shop.
  
  ### 🚀 Final Phase (Integration & Polish)
- - [ ] **Global Error Handling**: Implement persistent 401 (Unauthorized) redirection across all API calls to force re-authentication.
- - [ ] **Missing UI Implementation**: Develop missing static pages (`404.html`, `pages/about/index.html`, `pages/contact/index.html`).
- - [ ] **Profile Purge**: In `pages/accounts/index.html`, replace mock static HTML data for Billing Addresses and Orders with actual Profile API calls.
+ - [x] **Global Error Handling**: Implement persistent 401 (Unauthorized) redirection across all API calls to force re-authentication.
+ - [x] **Missing UI Implementation**: Develop missing static pages (`404.html`, `pages/about/index.html`, `pages/contact/index.html`).
+ - [x] **Profile Purge**: In `pages/accounts/index.html`, replace mock static HTML data for Billing Addresses and Orders with actual Profile API calls.
  
  ---
  

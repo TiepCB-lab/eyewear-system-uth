@@ -13,8 +13,36 @@ class ProfileService
      */
     public function getProfile(int $userId)
     {
+        $db = Database::getInstance();
+
+        $userStmt = $db->prepare('SELECT id, full_name, email, status FROM `user` WHERE id = ? LIMIT 1');
+        $userStmt->execute([$userId]);
+        $user = $userStmt->fetch(\PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            return null;
+        }
+
         $profile = Profile::firstWhere('user_id', $userId);
-        return $profile ? $profile->toArray() : null;
+        $profileData = $profile ? $profile->toArray() : ['user_id' => $userId, 'phone' => null, 'address' => null, 'avatar' => null, 'birthdate' => null];
+
+        $ordersStmt = $db->prepare(
+            'SELECT o.id, o.order_number, o.status, o.total_amount, o.placed_at, o.production_step,
+                    COALESCE(p.status, o.status) AS payment_status
+             FROM `order` o
+             LEFT JOIN payment p ON p.order_id = o.id
+             WHERE o.user_id = ?
+             ORDER BY o.placed_at DESC
+             LIMIT 5'
+        );
+        $ordersStmt->execute([$userId]);
+        $recentOrders = $ordersStmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        return array_merge($profileData, [
+            'user' => $user,
+            'recent_orders' => $recentOrders,
+            'billing_address' => $profileData['address'] ?? null,
+        ]);
     }
 
     /**
@@ -25,7 +53,13 @@ class ProfileService
         $profile = Profile::firstWhere('user_id', $userId);
 
         if (!$profile) {
-            throw new \Exception('Profile not found');
+            $profile = Profile::create([
+                'user_id' => $userId,
+                'phone' => $data['phone'] ?? null,
+                'address' => $data['address'] ?? null,
+                'birthdate' => $data['birthdate'] ?? null,
+            ]);
+            return $profile->toArray();
         }
 
         $updateData = [];

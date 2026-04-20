@@ -6,7 +6,7 @@ use Core\Model;
 
 class Profile extends Model
 {
-    protected static string $table = 'profile';
+    protected static string $table = 'profiles';
 
     public function user()
     {

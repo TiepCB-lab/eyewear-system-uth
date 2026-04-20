@@ -117,6 +117,12 @@ class AuthService
         ];
     }
 
+    public function logout(?string $token = null): bool
+    {
+        // Stateless token approach: logout is handled client-side by removing the token.
+        return true;
+    }
+
     public function verifyEmail(string $token): string
     {
         $db = Database::getInstance();
