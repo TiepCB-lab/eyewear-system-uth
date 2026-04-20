@@ -1,5 +1,4 @@
-﻿<?php
-
+<?php
 namespace App\Application;
 
 use App\Models\Order;
@@ -64,17 +63,6 @@ class SalesVerificationService
         if (!$order) {
             throw new \Exception('Order not found');
         }
-    /**
-     * Lấy lịch sử khiếu nại/đổi trả của một đơn hàng
-     */
-    public function getOrderComplaints(int $orderId): array
-    {
-        $db = Database::getInstance();
-        $stmt = $db->prepare("SELECT * FROM supportticket WHERE order_id = ? AND subject LIKE '[COMPLAINT]%' ORDER BY created_at DESC");
-        $stmt->execute([$orderId]);
-        $complaints = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        return $complaints;
-    }
 
         $allowed = ['exchange', 'return', 'refund', 'warranty'];
         if (!in_array($type, $allowed, true)) {
@@ -120,5 +108,17 @@ class SalesVerificationService
             'order'  => $order->toArray(),
             'ticket' => $ticket->toArray(),
         ];
+    }
+
+    /**
+     * Lấy lịch sử khiếu nại/đổi trả của một đơn hàng
+     */
+    public function getOrderComplaints(int $orderId): array
+    {
+        $db = Database::getInstance();
+        $stmt = $db->prepare("SELECT * FROM supportticket WHERE order_id = ? AND subject LIKE '[COMPLAINT]%' ORDER BY created_at DESC");
+        $stmt->execute([$orderId]);
+        $complaints = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return $complaints;
     }
 }

@@ -1,32 +1,9 @@
-﻿<?php
-
+<?php
 namespace App\Http\Controllers\Api\V1;
 
 use App\Application\SalesVerificationService;
 
 class SalesController
-    /**
-     * GET /api/v1/sales/order-complaints?order_id=xxx
-     * Lấy lịch sử khiếu nại/đổi trả của một đơn hàng
-     */
-    public function orderComplaints(): array
-    {
-        $orderId = $_GET['order_id'] ?? null;
-        if (!$orderId) {
-            http_response_code(400);
-            return ['error' => 'order_id query parameter is required'];
-        }
-        try {
-            $complaints = $this->salesService->getOrderComplaints((int)$orderId);
-            return [
-                'data' => $complaints,
-                'meta' => ['total' => count($complaints)],
-            ];
-        } catch (\Exception $e) {
-            http_response_code(500);
-            return ['error' => $e->getMessage()];
-        }
-    }
 {
     private SalesVerificationService $salesService;
 
@@ -116,6 +93,29 @@ class SalesController
             ];
         } catch (\Exception $e) {
             http_response_code(400);
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * GET /api/v1/sales/order-complaints?order_id=xxx
+     * Lấy lịch sử khiếu nại/đổi trả của một đơn hàng
+     */
+    public function orderComplaints(): array
+    {
+        $orderId = $_GET['order_id'] ?? null;
+        if (!$orderId) {
+            http_response_code(400);
+            return ['error' => 'order_id query parameter is required'];
+        }
+        try {
+            $complaints = $this->salesService->getOrderComplaints((int)$orderId);
+            return [
+                'data' => $complaints,
+                'meta' => ['total' => count($complaints)],
+            ];
+        } catch (\Exception $e) {
+            http_response_code(500);
             return ['error' => $e->getMessage()];
         }
     }

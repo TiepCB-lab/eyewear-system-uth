@@ -5,32 +5,6 @@ namespace App\Http\Controllers\Api\V1;
 use App\Application\SupportTicketService;
 
 class SupportTicketController
-    /**
-     * DELETE /api/v1/support/delete
-     * Chỉ staff được xóa ticket
-     * Body: { ticket_id: int, is_staff: bool }
-     */
-    public function delete(): array
-    {
-        $input    = json_decode(file_get_contents('php://input'), true) ?? [];
-        $ticketId = $input['ticket_id'] ?? null;
-        $isStaff  = (bool)($input['is_staff'] ?? false); // Thực tế lấy từ Auth session
-
-        if (!$ticketId) {
-            http_response_code(400);
-            return ['error' => 'ticket_id is required'];
-        }
-
-        try {
-            $this->supportService->deleteTicket((int)$ticketId, $isStaff);
-            return [
-                'message' => 'Ticket deleted successfully',
-            ];
-        } catch (\Exception $e) {
-            http_response_code(403);
-            return ['error' => $e->getMessage()];
-        }
-    }
 {
     private SupportTicketService $supportService;
 
@@ -162,6 +136,33 @@ class SupportTicketController
             ];
         } catch (\Exception $e) {
             http_response_code(400);
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * DELETE /api/v1/support/delete
+     * Chỉ staff được xóa ticket
+     * Body: { ticket_id: int, is_staff: bool }
+     */
+    public function delete(): array
+    {
+        $input    = json_decode(file_get_contents('php://input'), true) ?? [];
+        $ticketId = $input['ticket_id'] ?? null;
+        $isStaff  = (bool)($input['is_staff'] ?? false); // Thực tế lấy từ Auth session
+
+        if (!$ticketId) {
+            http_response_code(400);
+            return ['error' => 'ticket_id is required'];
+        }
+
+        try {
+            $this->supportService->deleteTicket((int)$ticketId, $isStaff);
+            return [
+                'message' => 'Ticket deleted successfully',
+            ];
+        } catch (\Exception $e) {
+            http_response_code(403);
             return ['error' => $e->getMessage()];
         }
     }

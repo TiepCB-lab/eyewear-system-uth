@@ -7,26 +7,6 @@ use App\Models\TicketReply;
 use Core\Database;
 
 class SupportTicketService
-    /**
-     * Xóa ticket (chỉ staff được xóa)
-     */
-    public function deleteTicket(int $ticketId, bool $isStaff): bool
-    {
-        if (!$isStaff) {
-            throw new \Exception('Permission denied: Only staff can delete tickets');
-        }
-        $ticket = Ticket::find($ticketId);
-        if (!$ticket) {
-            throw new \Exception('Ticket not found');
-        }
-        // Xóa replies trước (nếu có)
-        $db = Database::getInstance();
-        $stmt = $db->prepare("DELETE FROM ticket_replies WHERE ticket_id = ?");
-        $stmt->execute([$ticketId]);
-        // Xóa ticket
-        $ticket->delete();
-        return true;
-    }
 {
     /**
      * Lấy danh sách ticket theo user (Customer)
@@ -145,5 +125,26 @@ class SupportTicketService
         
         $ticket->update(['status' => $status]);
         return $ticket->toArray();
+    }
+
+    /**
+     * Xóa ticket (chỉ staff được xóa)
+     */
+    public function deleteTicket(int $ticketId, bool $isStaff): bool
+    {
+        if (!$isStaff) {
+            throw new \Exception('Permission denied: Only staff can delete tickets');
+        }
+        $ticket = Ticket::find($ticketId);
+        if (!$ticket) {
+            throw new \Exception('Ticket not found');
+        }
+        // Xóa replies trước (nếu có)
+        $db = Database::getInstance();
+        $stmt = $db->prepare("DELETE FROM ticket_replies WHERE ticket_id = ?");
+        $stmt->execute([$ticketId]);
+        // Xóa ticket
+        $ticket->delete();
+        return true;
     }
 }
