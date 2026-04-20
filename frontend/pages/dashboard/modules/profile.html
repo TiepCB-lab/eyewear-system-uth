@@ -80,16 +80,17 @@
             const res = await profileService.getProfile();
             const profile = res.profile;
             const user = profile.user || {};
+            const staffRole = authService.getUserRoles()[0] || 'staff';
 
             const form = document.getElementById('staff-profile-form');
-            form.querySelector('input[name="name"]').value = user.name || '';
+            form.querySelector('input[name="name"]').value = user.full_name || user.name || '';
             form.querySelector('input[name="email"]').value = user.email || '';
             form.querySelector('input[name="phone"]').value = profile.phone || '';
             form.querySelector('input[name="birthdate"]').value = profile.birthdate || '';
             form.querySelector('textarea[name="address"]').value = profile.address || '';
 
-            document.getElementById('profile-name-full').textContent = user.name || 'Staff User';
-            document.getElementById('profile-role-badge').textContent = user.role_name || 'Staff';
+            document.getElementById('profile-name-full').textContent = user.full_name || user.name || 'Staff User';
+            document.getElementById('profile-role-badge').textContent = staffRole.replace(/_/g, ' ');
         } catch (e) {
             console.error("Profile load error:", e);
         }

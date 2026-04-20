@@ -17,10 +17,10 @@
     />
 
     <!--=============== CSS ===============-->
-    <link rel="stylesheet" href="../../../assets/css/styles.css" />
+    <link rel="stylesheet" href="../../assets/css/styles.css" />
 
     <!--=============== LAYOUT LOADER ===============-->
-    <script src="../../../js/core/layout-loader.js" defer></script>
+    <script src="../../js/core/layout-loader.js" defer></script>
 
     <title>My Account — EYEWEAR.UTH</title>
   </head>
@@ -151,14 +151,11 @@
             <div class="tab__content" content id="address">
               <h3 class="tab__header">Shipping Address</h3>
               <div class="tab__body">
-                <address class="address">
-                  3522 Interstate <br />
-                  75 Business Spur, <br />
-                  Sault Ste. <br />
-                  Marie, Mi 49783
+                <address class="address" id="account-address">
+                  Loading address...
                 </address>
-                <p class="city">New York</p>
-                <a href="#" class="edit">Edit</a>
+                <p class="city" id="account-address-meta"></p>
+                <a href="#" class="edit" id="edit-address-link">Edit</a>
               </div>
             </div>
             <div class="tab__content" content id="change-password">
@@ -203,20 +200,57 @@
 
     <!--=============== PROFILE JS ===============-->
     <script type="module">
-      import profileService from '../../services/profileService.js';
-      import authService from '../../services/authService.js';
-      import { supportService } from '../../services/supportService.js';
-      import apiClient from '../../services/apiClient.js';
+      import profileService from '../../js/services/profileService.js';
+      import authService from '../../js/services/authService.js';
+      import { supportService } from '../../js/services/supportService.js';
+      import apiClient from '../../js/services/apiClient.js';
 
       // ============================================================
       // PROFILE SECTION
       // ============================================================
+
+      function renderOrdersTable(orders) {
+          const tbody = document.getElementById('ordersListBody');
+          if (!orders || orders.length === 0) {
+              tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">You have no orders yet.</td></tr>';
+              return;
+          }
+
+          tbody.innerHTML = orders.map(o => {
+              const date = o.placed_at ? new Date(o.placed_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) : '-';
+              const payAction = (o.payment_status === 'pending' || !o.payment_status)
+                  ? `<a href="../payment/?order_id=${o.id}" class="view__order">Pay Now</a>`
+                  : `<span style="color:green;font-weight:600;">Paid ✓</span>`;
+              return `<tr>
+                  <td><strong>#${o.order_number || o.id}</strong></td>
+                  <td>${date}</td>
+                  <td>${getStatusBadge(o.status)}</td>
+                  <td>${payAction}</td>
+                  <td><strong>${o.payment_status || 'pending'}</strong></td>
+                  <td><em>${o.production_step || '—'}</em></td>
+              </tr>`;
+          }).join('');
+      }
+
+            async function loadOrderTracking() {
+              const tbody = document.getElementById('ordersListBody');
+              tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading...</td></tr>';
+              try {
+                const response = await profileService.getProfile();
+                const profile = response.profile || {};
+                renderOrdersTable(profile.recent_orders || []);
+              } catch (err) {
+                console.error('Orders load error:', err);
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Unable to load your orders right now.</td></tr>';
+              }
+            }
 
       // Load profile data when page loads
       document.addEventListener('DOMContentLoaded', async () => {
         try {
           const response = await profileService.getProfile();
           const profile = response.profile;
+          const user = profile.user || {};
 
           // Populate form
           document.querySelector('input[name="phone"]').value = profile.phone || '';
@@ -226,12 +260,30 @@
           // Update dashboard greeting
           const dashboardTab = document.querySelector('#dashboard .tab__header');
           if (dashboardTab) {
-            dashboardTab.textContent = `Hello ${profile.user?.name || 'User'}`;
+            dashboardTab.textContent = `Hello ${user.full_name || user.name || 'User'}`;
+          }
+
+          const addressBox = document.getElementById('account-address');
+          const addressMeta = document.getElementById('account-address-meta');
+          if (addressBox) {
+            const accountAddress = profile.billing_address || profile.address || 'No address set yet.';
+            addressBox.innerHTML = accountAddress
+              .split('\n')
+              .map(line => line.trim())
+              .filter(Boolean)
+              .join('<br />');
+          }
+          if (addressMeta) {
+            addressMeta.textContent = profile.phone ? `Phone: ${profile.phone}` : 'No phone number set.';
+          }
+
+          if (profile.recent_orders) {
+            renderOrdersTable(profile.recent_orders);
           }
         } catch (error) {
           console.error('Failed to load profile:', error);
           if (error.response?.status === 401) {
-            window.location.href = '../auth/';
+            window.location.href = '/frontend/pages/auth/index.html';
           }
         }
       });
@@ -253,10 +305,10 @@
       document.querySelector('.account__tab:last-child').addEventListener('click', async () => {
         try {
           await authService.logout();
-          window.location.href = '../auth/';
+          window.location.href = '/frontend/pages/auth/index.html';
         } catch (error) {
           console.error('Logout error:', error);
-          window.location.href = '../auth/';
+          window.location.href = '/frontend/pages/auth/index.html';
         }
       });
 
@@ -276,58 +328,6 @@
           };
           const s = map[status] || { cls: 'badge-pending', label: status };
           return `<span class="badge ${s.cls}">${s.label}</span>`;
-      }
-
-      async function loadOrderTracking() {
-          const tbody = document.getElementById('ordersListBody');
-          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading...</td></tr>';
-          try {
-              // Gọi API của M3 khi đã implement xong (GET /api/v1/orders/my)
-              // Hiện tại sẽ vào catch và hiển thị fallback data
-              const response = await apiClient.get('/v1/orders/my');
-              const orders = response?.data?.data || response?.data?.orders || [];
-
-              if (!orders || orders.length === 0) {
-                  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">You have no orders yet.</td></tr>';
-                  return;
-              }
-
-              tbody.innerHTML = orders.map(o => {
-                  const date = o.created_at ? new Date(o.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) : '-';
-                  const payAction = (o.payment_status === 'pending' || !o.payment_status)
-                      ? `<a href="../payment/?order_id=${o.id}" class="view__order">Pay Now</a>`
-                      : `<span style="color:green;font-weight:600;">Paid ✓</span>`;
-                  return `<tr>
-                      <td><strong>#${o.order_number || o.id}</strong></td>
-                      <td>${date}</td>
-                      <td>${getStatusBadge(o.status)}</td>
-                      <td>${payAction}</td>
-                      <td><strong>${o.payment_status || 'pending'}</strong></td>
-                      <td><em>${o.production_step || '—'}</em></td>
-                  </tr>`;
-              }).join('');
-          } catch (err) {
-              // Fallback: M3 chưa implement API orders/my — hiển thị sample data
-              console.warn('Orders API not available yet (waiting for M3). Showing sample data.');
-              const fallbackOrders = [
-                  { id: 101, order_number: '1357', created_at: '2026-03-19', status: 'verified', payment_status: 'paid', production_step: 'lens_cutting' },
-                  { id: 102, order_number: '2468', created_at: '2026-06-29', status: 'pending', payment_status: 'pending', production_step: null },
-              ];
-              tbody.innerHTML = fallbackOrders.map(o => {
-                  const date = new Date(o.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
-                  const payAction = (o.payment_status === 'pending')
-                      ? `<a href="../payment/?order_id=${o.id}" class="view__order">Pay Now</a>`
-                      : `<span style="color:green;font-weight:600;">Paid ✓</span>`;
-                  return `<tr>
-                      <td><strong>#${o.order_number}</strong></td>
-                      <td>${date}</td>
-                      <td>${getStatusBadge(o.status)}</td>
-                      <td>${payAction}</td>
-                      <td><strong>${o.payment_status}</strong></td>
-                      <td><em>${o.production_step || '—'}</em></td>
-                  </tr>`;
-              }).join('');
-          }
       }
 
       document.querySelector('[data-target="#orders"]').addEventListener('click', loadOrderTracking);
@@ -417,7 +417,7 @@
     </script>
 
     <!--=============== MAIN JS ===============-->
-    <script src="../../../js/main.js"></script>
+    <script src="../../js/main.js"></script>
   </body>
 </html>
 
