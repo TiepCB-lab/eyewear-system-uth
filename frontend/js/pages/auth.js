@@ -5,6 +5,7 @@ import authService from '../services/authService.js';
     const signInButton = document.getElementById('signIn');
     const toSignUpMobile = document.getElementById('toSignUpMobile');
     const toSignInMobile = document.getElementById('toSignInMobile');
+    const forgotPasswordLink = document.getElementById('forgot-password-link');
     const container = document.getElementById('auth-container');
 
     const params = new URLSearchParams(window.location.search);
@@ -50,6 +51,30 @@ import authService from '../services/authService.js';
         });
     }
 
+    if (forgotPasswordLink) {
+        forgotPasswordLink.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const emailInput = document.querySelector('.sign-in-container input[name="email"]');
+            const prefilledEmail = emailInput ? emailInput.value.trim() : '';
+            const email = prompt('Nhap email de nhan link dat lai mat khau:', prefilledEmail);
+
+            if (!email) {
+                return;
+            }
+
+            try {
+                const response = await authService.forgotPassword(email.trim());
+                let message = response.message || 'Neu email ton tai trong he thong, link dat lai mat khau da duoc gui.';
+                if (response.email_sent === false && response.reset_url) {
+                    message += '\n\nKhong gui duoc email. Ban co the mo link nay de dat lai mat khau:\n' + response.reset_url;
+                }
+                alert(message);
+            } catch (error) {
+                alert('Yeu cau quen mat khau that bai: ' + (error.response?.data?.message || error.message));
+            }
+        });
+    }
+
     // Handle Registration
     const signUpBtn = document.querySelector('.sign-up-container .btn');
     if (signUpBtn) {
@@ -70,17 +95,23 @@ import authService from '../services/authService.js';
                 return;
             }
 
+            signUpBtn.disabled = true;
+            messageEl.textContent = 'Creating your account and sending verification email. Please wait...';
+            messageEl.classList.add('success');
+
             try {
                 const response = await authService.register({ name, email, password });
                 const message = response.message || 'Registration successful! Verification email sent.';
                 messageEl.textContent = message;
-                messageEl.classList.add('success');
                 alert(message);
                 container.classList.remove("active");
             } catch (error) {
                 const errorMessage = error.response?.data?.message || error.message || 'Registration failed.';
                 messageEl.textContent = errorMessage;
+                messageEl.classList.remove('success');
                 messageEl.classList.add('error');
+            } finally {
+                signUpBtn.disabled = false;
             }
         });
     }
@@ -109,9 +140,9 @@ import authService from '../services/authService.js';
                 const context = authService.getPrimaryContext();
                 
                 if (context === 'staff') {
-                    window.location.href = '../dashboard/index.html';
+                    window.location.href = '/frontend/pages/dashboard/index.html';
                 } else {
-                    window.location.href = '/'; // Home/Shop
+                    window.location.href = '/frontend/index.html';
                 }
             } catch (error) {
                 alert('Login failed: ' + (error.response?.data?.message || error.message));
