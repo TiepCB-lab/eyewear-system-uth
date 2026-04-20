@@ -55,11 +55,16 @@ CREATE TABLE IF NOT EXISTS profiles (
 		ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS password_reset_tokens (
-	email VARCHAR(150) NOT NULL PRIMARY KEY,
-	token VARCHAR(255) NOT NULL,
-	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+DROP TABLE IF EXISTS `password_reset_tokens`;
+CREATE TABLE `password_reset_tokens` (
+	`id` int(11) NOT NULL AUTO_INCREMENT,
+	`email` varchar(150) NOT NULL,
+	`token` varchar(255) NOT NULL,
+	`created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+	PRIMARY KEY (`id`),
+	KEY `email` (`email`),
+	CONSTRAINT `fk_password_reset_user` FOREIGN KEY (`email`) REFERENCES `user` (`email`) ON DELETE CASCADE ON UPDATE CASCADE
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS category (
 	id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
