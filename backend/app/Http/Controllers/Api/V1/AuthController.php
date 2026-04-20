@@ -216,6 +216,8 @@ class AuthController
 
     public function logout()
     {
+        $token = $this->getBearerToken();
+        $this->authService->logout($token);
         return [
             'message' => 'Logged out successfully',
         ];
