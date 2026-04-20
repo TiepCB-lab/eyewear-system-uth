@@ -77,12 +77,12 @@ class DashboardController {
             }
 
             // Load module HTML
-            const modulePath = `/pages/dashboard/modules/${viewName}.html`;
-            const response = await fetch(modulePath);
+            const moduleUrl = new URL(`../../pages/dashboard/modules/${viewName}.html`, import.meta.url);
+            const response = await fetch(moduleUrl);
             if (!response.ok) throw new Error(`Module ${viewName} not found`);
             
             const html = await response.text();
-            this.modulesContainer.innerHTML = html;
+            this.modulesContainer.innerHTML = this.normalizeModulePaths(html);
 
             // Update sidebar active state
             this.updateSidebarActive(viewName);
@@ -120,6 +120,12 @@ class DashboardController {
             
             oldScript.parentNode.replaceChild(newScript, oldScript);
         });
+    }
+
+    normalizeModulePaths(html) {
+        return html
+            .replace(/(src|href)="\/(?!\/)/g, '$1="/frontend/')
+            .replace(/url\(\/(?!\/)/g, 'url(/frontend/');
     }
 }
 

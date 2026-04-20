@@ -12,6 +12,26 @@ if (savedToken) {
   apiClient.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`;
 }
 
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error?.response?.status;
+    if (status === 401) {
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user_info');
+      delete apiClient.defaults.headers.common['Authorization'];
+
+      const currentPath = window.location.pathname.toLowerCase();
+      const isAuthPage = currentPath.includes('/pages/auth/');
+      if (!isAuthPage) {
+        window.location.href = '/frontend/pages/auth/index.html';
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 export default apiClient;
 
 
