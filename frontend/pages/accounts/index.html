@@ -283,7 +283,7 @@
         } catch (error) {
           console.error('Failed to load profile:', error);
           if (error.response?.status === 401) {
-            window.location.href = '/frontend/pages/auth/index.html';
+            window.location.href = '/pages/auth/index.html';
           }
         }
       });
@@ -305,10 +305,10 @@
       document.querySelector('.account__tab:last-child').addEventListener('click', async () => {
         try {
           await authService.logout();
-          window.location.href = '/frontend/pages/auth/index.html';
+          window.location.href = '/pages/auth/index.html';
         } catch (error) {
           console.error('Logout error:', error);
-          window.location.href = '/frontend/pages/auth/index.html';
+          window.location.href = '/pages/auth/index.html';
         }
       });
 
@@ -420,5 +420,6 @@
     <script src="../../js/main.js"></script>
   </body>
 </html>
+
 
 

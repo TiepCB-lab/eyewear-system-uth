@@ -58,7 +58,7 @@ import authService from '../services/authService.js';
       messageEl.classList.add('success');
 
       setTimeout(() => {
-        window.location.href = '/frontend/pages/auth/index.html';
+        window.location.href = '/pages/auth/index.html';
       }, 1200);
     } catch (error) {
       messageEl.textContent = error.response?.data?.message || error.message || 'Dat lai mat khau that bai.';
@@ -71,3 +71,4 @@ import authService from '../services/authService.js';
     }
   });
 })();
+
