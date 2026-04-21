@@ -16,6 +16,8 @@
       href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
     />
 
+    <!-- AOS CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <!--=============== CSS ===============-->
     <link rel="stylesheet" href="assets/css/styles.css" />
 
@@ -31,7 +33,7 @@
     <!--=============== MAIN ===============-->
     <main class="main">
       <!--=============== HOME ===============-->
-      <section class="home section--lg">
+      <section class="home section--lg" data-aos="fade-in">
         <div class="home__container container grid">
           <div class="home__content">
             <span class="home__subtitle">Hot Promotions</span>
@@ -48,7 +50,7 @@
       </section>
 
       <!--=============== CATEGORIES ===============-->
-      <section class="categories container section">
+      <section class="categories container section" data-aos="fade-up">
         <h3 class="section__title"><span>Popular</span> Categories</h3>
         <div class="categories__container swiper">
           <div class="swiper-wrapper">
@@ -128,7 +130,7 @@
       </section>
 
       <!--=============== PRODUCTS ===============-->
-      <section class="products container section">
+      <section class="products container section" data-aos="fade-up">
         <div class="tab__btns">
           <span class="tab__btn active-tab" data-target="#featured"
             >Featured</span
@@ -139,1363 +141,25 @@
 
         <div class="tab__items">
           <div class="tab__item active-tab" content id="featured">
-            <div class="products__container grid">
-              <div class="product__item">
-                <div class="product__banner">
-                  <a href="pages/details/" class="product__images">
-                    <img
-                      src="assets/images/products/AN550012_3849.png"
-                      alt=""
-                      class="product__img default"
-                    />
-                    <img
-                      src="assets/images/products/AN550012_3849(1).jpeg"
-                      alt=""
-                      class="product__img hover"
-                    />
-                  </a>
-                  <div class="product__actions">
-                    <a href="#" class="action__btn" aria-label="Quick View">
-                      <i class="fi fi-rs-eye"></i>
-                    </a>
-                    <a
-                      href="#"
-                      class="action__btn"
-                      aria-label="Add to Wishlist"
-                    >
-                      <i class="fi fi-rs-heart"></i>
-                    </a>
-                    <a href="#" class="action__btn" aria-label="Compare">
-                      <i class="fi fi-rs-shuffle"></i>
-                    </a>
-                  </div>
-                  <div class="product__badge light-pink">Hot</div>
-                </div>
-                <div class="product__content">
-                  <span class="product__category">Optical Frames</span>
-                  <a href="pages/details/">
-                    <h3 class="product__title">Colorful Pattern Frames</h3>
-                  </a>
-                  <div class="product__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <div class="product__price flex">
-                    <span class="new__price">$238.85</span>
-                    <span class="old__price">$245.8</span>
-                  </div>
-                  <a
-                    href="#"
-                    class="action__btn cart__btn"
-                    aria-label="Add To Cart"
-                  >
-                    <i class="fi fi-rs-shopping-bag-add"></i>
-                  </a>
-                </div>
-              </div>
-              <div class="product__item">
-                <div class="product__banner">
-                  <a href="pages/details/" class="product__images">
-                    <img
-                      src="assets/images/products/AN550021_3933.png"
-                      alt=""
-                      class="product__img default"
-                    />
-                    <img
-                      src="assets/images/products/AN550021_3933(1).png"
-                      alt=""
-                      class="product__img hover"
-                    />
-                  </a>
-                  <div class="product__actions">
-                    <a href="#" class="action__btn" aria-label="Quick View">
-                      <i class="fi fi-rs-eye"></i>
-                    </a>
-                    <a
-                      href="#"
-                      class="action__btn"
-                      aria-label="Add to Wishlist"
-                    >
-                      <i class="fi fi-rs-heart"></i>
-                    </a>
-                    <a href="#" class="action__btn" aria-label="Compare">
-                      <i class="fi fi-rs-shuffle"></i>
-                    </a>
-                  </div>
-                  <div class="product__badge light-green">Hot</div>
-                </div>
-                <div class="product__content">
-                  <span class="product__category">Eyewear</span>
-                  <a href="pages/details/">
-                    <h3 class="product__title">Colorful Pattern Frames</h3>
-                  </a>
-                  <div class="product__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <div class="product__price flex">
-                    <span class="new__price">$238.85</span>
-                    <span class="old__price">$245.8</span>
-                  </div>
-                  <a
-                    href="#"
-                    class="action__btn cart__btn"
-                    aria-label="Add To Cart"
-                  >
-                    <i class="fi fi-rs-shopping-bag-add"></i>
-                  </a>
-                </div>
-              </div>
-              <div class="product__item">
-                <div class="product__banner">
-                  <a href="pages/details/" class="product__images">
-                    <img
-                      src="assets/images/products/AN550016_3796.png"
-                      alt=""
-                      class="product__img default"
-                    />
-                    <img
-                      src="assets/images/products/AN550016_3796(1).png"
-                      alt=""
-                      class="product__img hover"
-                    />
-                  </a>
-                  <div class="product__actions">
-                    <a href="#" class="action__btn" aria-label="Quick View">
-                      <i class="fi fi-rs-eye"></i>
-                    </a>
-                    <a
-                      href="#"
-                      class="action__btn"
-                      aria-label="Add to Wishlist"
-                    >
-                      <i class="fi fi-rs-heart"></i>
-                    </a>
-                    <a href="#" class="action__btn" aria-label="Compare">
-                      <i class="fi fi-rs-shuffle"></i>
-                    </a>
-                  </div>
-                  <div class="product__badge light-orange">Hot</div>
-                </div>
-                <div class="product__content">
-                  <span class="product__category">Eyewear</span>
-                  <a href="pages/details/">
-                    <h3 class="product__title">Colorful Pattern Frames</h3>
-                  </a>
-                  <div class="product__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <div class="product__price flex">
-                    <span class="new__price">$238.85</span>
-                    <span class="old__price">$245.8</span>
-                  </div>
-                  <a
-                    href="#"
-                    class="action__btn cart__btn"
-                    aria-label="Add To Cart"
-                  >
-                    <i class="fi fi-rs-shopping-bag-add"></i>
-                  </a>
-                </div>
-              </div>
-              <div class="product__item">
-                <div class="product__banner">
-                  <a href="pages/details/" class="product__images">
-                    <img
-                      src="assets/images/products/AN550021_3933.png"
-                      alt=""
-                      class="product__img default"
-                    />
-                    <img
-                      src="assets/images/products/AN550021_3933(1).png"
-                      alt=""
-                      class="product__img hover"
-                    />
-                  </a>
-                  <div class="product__actions">
-                    <a href="#" class="action__btn" aria-label="Quick View">
-                      <i class="fi fi-rs-eye"></i>
-                    </a>
-                    <a
-                      href="#"
-                      class="action__btn"
-                      aria-label="Add to Wishlist"
-                    >
-                      <i class="fi fi-rs-heart"></i>
-                    </a>
-                    <a href="#" class="action__btn" aria-label="Compare">
-                      <i class="fi fi-rs-shuffle"></i>
-                    </a>
-                  </div>
-                  <div class="product__badge light-blue">Hot</div>
-                </div>
-                <div class="product__content">
-                  <span class="product__category">Eyewear</span>
-                  <a href="pages/details/">
-                    <h3 class="product__title">Colorful Pattern Frames</h3>
-                  </a>
-                  <div class="product__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <div class="product__price flex">
-                    <span class="new__price">$238.85</span>
-                    <span class="old__price">$245.8</span>
-                  </div>
-                  <a
-                    href="#"
-                    class="action__btn cart__btn"
-                    aria-label="Add To Cart"
-                  >
-                    <i class="fi fi-rs-shopping-bag-add"></i>
-                  </a>
-                </div>
-              </div>
-              <div class="product__item">
-                <div class="product__banner">
-                  <a href="pages/details/" class="product__images">
-                    <img
-                      src="assets/images/products/AN550029_3863.png"
-                      alt=""
-                      class="product__img default"
-                    />
-                    <img
-                      src="assets/images/products/AN550029_3863(1).png"
-                      alt=""
-                      class="product__img hover"
-                    />
-                  </a>
-                  <div class="product__actions">
-                    <a href="#" class="action__btn" aria-label="Quick View">
-                      <i class="fi fi-rs-eye"></i>
-                    </a>
-                    <a
-                      href="#"
-                      class="action__btn"
-                      aria-label="Add to Wishlist"
-                    >
-                      <i class="fi fi-rs-heart"></i>
-                    </a>
-                    <a href="#" class="action__btn" aria-label="Compare">
-                      <i class="fi fi-rs-shuffle"></i>
-                    </a>
-                  </div>
-                  <div class="product__badge light-blue">-30%</div>
-                </div>
-                <div class="product__content">
-                  <span class="product__category">Eyewear</span>
-                  <a href="pages/details/">
-                    <h3 class="product__title">Colorful Pattern Frames</h3>
-                  </a>
-                  <div class="product__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <div class="product__price flex">
-                    <span class="new__price">$238.85</span>
-                    <span class="old__price">$245.8</span>
-                  </div>
-                  <a
-                    href="#"
-                    class="action__btn cart__btn"
-                    aria-label="Add To Cart"
-                  >
-                    <i class="fi fi-rs-shopping-bag-add"></i>
-                  </a>
-                </div>
-              </div>
-              <div class="product__item">
-                <div class="product__banner">
-                  <a href="pages/details/" class="product__images">
-                    <img
-                      src="assets/images/products/AN550030_3896.png"
-                      alt=""
-                      class="product__img default"
-                    />
-                    <img
-                      src="assets/images/products/AN550030_3896(1).png"
-                      alt=""
-                      class="product__img hover"
-                    />
-                  </a>
-                  <div class="product__actions">
-                    <a href="#" class="action__btn" aria-label="Quick View">
-                      <i class="fi fi-rs-eye"></i>
-                    </a>
-                    <a
-                      href="#"
-                      class="action__btn"
-                      aria-label="Add to Wishlist"
-                    >
-                      <i class="fi fi-rs-heart"></i>
-                    </a>
-                    <a href="#" class="action__btn" aria-label="Compare">
-                      <i class="fi fi-rs-shuffle"></i>
-                    </a>
-                  </div>
-                  <div class="product__badge light-blue">-22%</div>
-                </div>
-                <div class="product__content">
-                  <span class="product__category">Eyewear</span>
-                  <a href="pages/details/">
-                    <h3 class="product__title">Colorful Pattern Frames</h3>
-                  </a>
-                  <div class="product__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <div class="product__price flex">
-                    <span class="new__price">$238.85</span>
-                    <span class="old__price">$245.8</span>
-                  </div>
-                  <a
-                    href="#"
-                    class="action__btn cart__btn"
-                    aria-label="Add To Cart"
-                  >
-                    <i class="fi fi-rs-shopping-bag-add"></i>
-                  </a>
-                </div>
-              </div>
-              <div class="product__item">
-                <div class="product__banner">
-                  <a href="pages/details/" class="product__images">
-                    <img
-                      src="assets/images/products/AN550036_3832.png"
-                      alt=""
-                      class="product__img default"
-                    />
-                    <img
-                      src="assets/images/products/AN550036_3832(1).png"
-                      alt=""
-                      class="product__img hover"
-                    />
-                  </a>
-                  <div class="product__actions">
-                    <a href="#" class="action__btn" aria-label="Quick View">
-                      <i class="fi fi-rs-eye"></i>
-                    </a>
-                    <a
-                      href="#"
-                      class="action__btn"
-                      aria-label="Add to Wishlist"
-                    >
-                      <i class="fi fi-rs-heart"></i>
-                    </a>
-                    <a href="#" class="action__btn" aria-label="Compare">
-                      <i class="fi fi-rs-shuffle"></i>
-                    </a>
-                  </div>
-                  <div class="product__badge light-green">-22%</div>
-                </div>
-                <div class="product__content">
-                  <span class="product__category">Eyewear</span>
-                  <a href="pages/details/">
-                    <h3 class="product__title">Colorful Pattern Frames</h3>
-                  </a>
-                  <div class="product__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <div class="product__price flex">
-                    <span class="new__price">$238.85</span>
-                    <span class="old__price">$245.8</span>
-                  </div>
-                  <a
-                    href="#"
-                    class="action__btn cart__btn"
-                    aria-label="Add To Cart"
-                  >
-                    <i class="fi fi-rs-shopping-bag-add"></i>
-                  </a>
-                </div>
-              </div>
-              <div class="product__item">
-                <div class="product__banner">
-                  <a href="pages/details/" class="product__images">
-                    <img
-                      src="assets/images/products/AN550012_3849.png"
-                      alt=""
-                      class="product__img default"
-                    />
-                    <img
-                      src="assets/images/products/AN550012_3849.png"
-                      alt=""
-                      class="product__img hover"
-                    />
-                  </a>
-                  <div class="product__actions">
-                    <a href="#" class="action__btn" aria-label="Quick View">
-                      <i class="fi fi-rs-eye"></i>
-                    </a>
-                    <a
-                      href="#"
-                      class="action__btn"
-                      aria-label="Add to Wishlist"
-                    >
-                      <i class="fi fi-rs-heart"></i>
-                    </a>
-                    <a href="#" class="action__btn" aria-label="Compare">
-                      <i class="fi fi-rs-shuffle"></i>
-                    </a>
-                  </div>
-                </div>
-                <div class="product__content">
-                  <span class="product__category">Eyewear</span>
-                  <a href="pages/details/">
-                    <h3 class="product__title">Colorful Pattern Frames</h3>
-                  </a>
-                  <div class="product__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <div class="product__price flex">
-                    <span class="new__price">$238.85</span>
-                    <span class="old__price">$245.8</span>
-                  </div>
-                  <a
-                    href="#"
-                    class="action__btn cart__btn"
-                    aria-label="Add To Cart"
-                  >
-                    <i class="fi fi-rs-shopping-bag-add"></i>
-                  </a>
-                </div>
-              </div>
+            <div class="products__container grid"></div>
             </div>
+          </div>
           </div>
           <div class="tab__item" content id="popular">
-            <div class="products__container grid">
-              <div class="product__item">
-                <div class="product__banner">
-                  <a href="pages/details/" class="product__images">
-                    <img
-                      src="assets/images/products/AN550012_3849.png"
-                      alt=""
-                      class="product__img default"
-                    />
-                    <img
-                      src="assets/images/products/AN550012_3849.png"
-                      alt=""
-                      class="product__img hover"
-                    />
-                  </a>
-                  <div class="product__actions">
-                    <a href="#" class="action__btn" aria-label="Quick View">
-                      <i class="fi fi-rs-eye"></i>
-                    </a>
-                    <a
-                      href="#"
-                      class="action__btn"
-                      aria-label="Add to Wishlist"
-                    >
-                      <i class="fi fi-rs-heart"></i>
-                    </a>
-                    <a href="#" class="action__btn" aria-label="Compare">
-                      <i class="fi fi-rs-shuffle"></i>
-                    </a>
-                  </div>
-                  <div class="product__badge light-pink">Hot</div>
-                </div>
-                <div class="product__content">
-                  <span class="product__category">Eyewear</span>
-                  <a href="pages/details/">
-                    <h3 class="product__title">Colorful Pattern Frames</h3>
-                  </a>
-                  <div class="product__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <div class="product__price flex">
-                    <span class="new__price">$238.85</span>
-                    <span class="old__price">$245.8</span>
-                  </div>
-                  <a
-                    href="#"
-                    class="action__btn cart__btn"
-                    aria-label="Add To Cart"
-                  >
-                    <i class="fi fi-rs-shopping-bag-add"></i>
-                  </a>
-                </div>
-              </div>
-              <div class="product__item">
-                <div class="product__banner">
-                  <a href="pages/details/" class="product__images">
-                    <img
-                      src="assets/images/products/AN550021_3933.png"
-                      alt=""
-                      class="product__img default"
-                    />
-                    <img
-                      src="assets/images/products/AN550021_3933(1).png"
-                      alt=""
-                      class="product__img hover"
-                    />
-                  </a>
-                  <div class="product__actions">
-                    <a href="#" class="action__btn" aria-label="Quick View">
-                      <i class="fi fi-rs-eye"></i>
-                    </a>
-                    <a
-                      href="#"
-                      class="action__btn"
-                      aria-label="Add to Wishlist"
-                    >
-                      <i class="fi fi-rs-heart"></i>
-                    </a>
-                    <a href="#" class="action__btn" aria-label="Compare">
-                      <i class="fi fi-rs-shuffle"></i>
-                    </a>
-                  </div>
-                  <div class="product__badge light-green">Hot</div>
-                </div>
-                <div class="product__content">
-                  <span class="product__category">Eyewear</span>
-                  <a href="pages/details/">
-                    <h3 class="product__title">Colorful Pattern Frames</h3>
-                  </a>
-                  <div class="product__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <div class="product__price flex">
-                    <span class="new__price">$238.85</span>
-                    <span class="old__price">$245.8</span>
-                  </div>
-                  <a
-                    href="#"
-                    class="action__btn cart__btn"
-                    aria-label="Add To Cart"
-                  >
-                    <i class="fi fi-rs-shopping-bag-add"></i>
-                  </a>
-                </div>
-              </div>
-              <div class="product__item">
-                <div class="product__banner">
-                  <a href="pages/details/" class="product__images">
-                    <img
-                      src="assets/images/products/AN550012_3849.png"
-                      alt=""
-                      class="product__img default"
-                    />
-                    <img
-                      src="assets/images/products/AN550012_3849.png"
-                      alt=""
-                      class="product__img hover"
-                    />
-                  </a>
-                  <div class="product__actions">
-                    <a href="#" class="action__btn" aria-label="Quick View">
-                      <i class="fi fi-rs-eye"></i>
-                    </a>
-                    <a
-                      href="#"
-                      class="action__btn"
-                      aria-label="Add to Wishlist"
-                    >
-                      <i class="fi fi-rs-heart"></i>
-                    </a>
-                    <a href="#" class="action__btn" aria-label="Compare">
-                      <i class="fi fi-rs-shuffle"></i>
-                    </a>
-                  </div>
-                  <div class="product__badge light-orange">Hot</div>
-                </div>
-                <div class="product__content">
-                  <span class="product__category">Eyewear</span>
-                  <a href="pages/details/">
-                    <h3 class="product__title">Colorful Pattern Frames</h3>
-                  </a>
-                  <div class="product__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <div class="product__price flex">
-                    <span class="new__price">$238.85</span>
-                    <span class="old__price">$245.8</span>
-                  </div>
-                  <a
-                    href="#"
-                    class="action__btn cart__btn"
-                    aria-label="Add To Cart"
-                  >
-                    <i class="fi fi-rs-shopping-bag-add"></i>
-                  </a>
-                </div>
-              </div>
-              <div class="product__item">
-                <div class="product__banner">
-                  <a href="pages/details/" class="product__images">
-                    <img
-                      src="assets/images/products/AN550021_3933.png"
-                      alt=""
-                      class="product__img default"
-                    />
-                    <img
-                      src="assets/images/products/AN550021_3933(1).png"
-                      alt=""
-                      class="product__img hover"
-                    />
-                  </a>
-                  <div class="product__actions">
-                    <a href="#" class="action__btn" aria-label="Quick View">
-                      <i class="fi fi-rs-eye"></i>
-                    </a>
-                    <a
-                      href="#"
-                      class="action__btn"
-                      aria-label="Add to Wishlist"
-                    >
-                      <i class="fi fi-rs-heart"></i>
-                    </a>
-                    <a href="#" class="action__btn" aria-label="Compare">
-                      <i class="fi fi-rs-shuffle"></i>
-                    </a>
-                  </div>
-                  <div class="product__badge light-blue">Hot</div>
-                </div>
-                <div class="product__content">
-                  <span class="product__category">Eyewear</span>
-                  <a href="pages/details/">
-                    <h3 class="product__title">Colorful Pattern Frames</h3>
-                  </a>
-                  <div class="product__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <div class="product__price flex">
-                    <span class="new__price">$238.85</span>
-                    <span class="old__price">$245.8</span>
-                  </div>
-                  <a
-                    href="#"
-                    class="action__btn cart__btn"
-                    aria-label="Add To Cart"
-                  >
-                    <i class="fi fi-rs-shopping-bag-add"></i>
-                  </a>
-                </div>
-              </div>
-              <div class="product__item">
-                <div class="product__banner">
-                  <a href="pages/details/" class="product__images">
-                    <img
-                      src="assets/images/products/AN550029_3863.png"
-                      alt=""
-                      class="product__img default"
-                    />
-                    <img
-                      src="assets/images/products/AN550029_3863(1).png"
-                      alt=""
-                      class="product__img hover"
-                    />
-                  </a>
-                  <div class="product__actions">
-                    <a href="#" class="action__btn" aria-label="Quick View">
-                      <i class="fi fi-rs-eye"></i>
-                    </a>
-                    <a
-                      href="#"
-                      class="action__btn"
-                      aria-label="Add to Wishlist"
-                    >
-                      <i class="fi fi-rs-heart"></i>
-                    </a>
-                    <a href="#" class="action__btn" aria-label="Compare">
-                      <i class="fi fi-rs-shuffle"></i>
-                    </a>
-                  </div>
-                  <div class="product__badge light-blue">-30%</div>
-                </div>
-                <div class="product__content">
-                  <span class="product__category">Eyewear</span>
-                  <a href="pages/details/">
-                    <h3 class="product__title">Colorful Pattern Frames</h3>
-                  </a>
-                  <div class="product__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <div class="product__price flex">
-                    <span class="new__price">$238.85</span>
-                    <span class="old__price">$245.8</span>
-                  </div>
-                  <a
-                    href="#"
-                    class="action__btn cart__btn"
-                    aria-label="Add To Cart"
-                  >
-                    <i class="fi fi-rs-shopping-bag-add"></i>
-                  </a>
-                </div>
-              </div>
-              <div class="product__item">
-                <div class="product__banner">
-                  <a href="pages/details/" class="product__images">
-                    <img
-                      src="assets/images/products/AN550012_3849.png"
-                      alt=""
-                      class="product__img default"
-                    />
-                    <img
-                      src="assets/images/products/AN550012_3849.png"
-                      alt=""
-                      class="product__img hover"
-                    />
-                  </a>
-                  <div class="product__actions">
-                    <a href="#" class="action__btn" aria-label="Quick View">
-                      <i class="fi fi-rs-eye"></i>
-                    </a>
-                    <a
-                      href="#"
-                      class="action__btn"
-                      aria-label="Add to Wishlist"
-                    >
-                      <i class="fi fi-rs-heart"></i>
-                    </a>
-                    <a href="#" class="action__btn" aria-label="Compare">
-                      <i class="fi fi-rs-shuffle"></i>
-                    </a>
-                  </div>
-                  <div class="product__badge light-blue">-22%</div>
-                </div>
-                <div class="product__content">
-                  <span class="product__category">Eyewear</span>
-                  <a href="pages/details/">
-                    <h3 class="product__title">Colorful Pattern Frames</h3>
-                  </a>
-                  <div class="product__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <div class="product__price flex">
-                    <span class="new__price">$238.85</span>
-                    <span class="old__price">$245.8</span>
-                  </div>
-                  <a
-                    href="#"
-                    class="action__btn cart__btn"
-                    aria-label="Add To Cart"
-                  >
-                    <i class="fi fi-rs-shopping-bag-add"></i>
-                  </a>
-                </div>
-              </div>
-              <div class="product__item">
-                <div class="product__banner">
-                  <a href="pages/details/" class="product__images">
-                    <img
-                      src="assets/images/products/AN550036_3832.png"
-                      alt=""
-                      class="product__img default"
-                    />
-                    <img
-                      src="assets/images/products/AN550036_3832(1).png"
-                      alt=""
-                      class="product__img hover"
-                    />
-                  </a>
-                  <div class="product__actions">
-                    <a href="#" class="action__btn" aria-label="Quick View">
-                      <i class="fi fi-rs-eye"></i>
-                    </a>
-                    <a
-                      href="#"
-                      class="action__btn"
-                      aria-label="Add to Wishlist"
-                    >
-                      <i class="fi fi-rs-heart"></i>
-                    </a>
-                    <a href="#" class="action__btn" aria-label="Compare">
-                      <i class="fi fi-rs-shuffle"></i>
-                    </a>
-                  </div>
-                  <div class="product__badge light-green">-22%</div>
-                </div>
-                <div class="product__content">
-                  <span class="product__category">Eyewear</span>
-                  <a href="pages/details/">
-                    <h3 class="product__title">Colorful Pattern Frames</h3>
-                  </a>
-                  <div class="product__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <div class="product__price flex">
-                    <span class="new__price">$238.85</span>
-                    <span class="old__price">$245.8</span>
-                  </div>
-                  <a
-                    href="#"
-                    class="action__btn cart__btn"
-                    aria-label="Add To Cart"
-                  >
-                    <i class="fi fi-rs-shopping-bag-add"></i>
-                  </a>
-                </div>
-              </div>
-              <div class="product__item">
-                <div class="product__banner">
-                  <a href="pages/details/" class="product__images">
-                    <img
-                      src="assets/images/products/AN550012_3849.png"
-                      alt=""
-                      class="product__img default"
-                    />
-                    <img
-                      src="assets/images/products/AN550012_3849.png"
-                      alt=""
-                      class="product__img hover"
-                    />
-                  </a>
-                  <div class="product__actions">
-                    <a href="#" class="action__btn" aria-label="Quick View">
-                      <i class="fi fi-rs-eye"></i>
-                    </a>
-                    <a
-                      href="#"
-                      class="action__btn"
-                      aria-label="Add to Wishlist"
-                    >
-                      <i class="fi fi-rs-heart"></i>
-                    </a>
-                    <a href="#" class="action__btn" aria-label="Compare">
-                      <i class="fi fi-rs-shuffle"></i>
-                    </a>
-                  </div>
-                </div>
-                <div class="product__content">
-                  <span class="product__category">Eyewear</span>
-                  <a href="pages/details/">
-                    <h3 class="product__title">Colorful Pattern Frames</h3>
-                  </a>
-                  <div class="product__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <div class="product__price flex">
-                    <span class="new__price">$238.85</span>
-                    <span class="old__price">$245.8</span>
-                  </div>
-                  <a
-                    href="#"
-                    class="action__btn cart__btn"
-                    aria-label="Add To Cart"
-                  >
-                    <i class="fi fi-rs-shopping-bag-add"></i>
-                  </a>
-                </div>
-              </div>
+            <div class="products__container grid"></div>
             </div>
           </div>
+          </div>
           <div class="tab__item" content id="new-added">
-            <div class="products__container grid">
-              <div class="product__item">
-                <div class="product__banner">
-                  <a href="pages/details/" class="product__images">
-                    <img
-                      src="assets/images/products/AN550012_3849.png"
-                      alt=""
-                      class="product__img default"
-                    />
-                    <img
-                      src="assets/images/products/AN550012_3849(1).jpeg"
-                      alt=""
-                      class="product__img hover"
-                    />
-                  </a>
-                  <div class="product__actions">
-                    <a href="#" class="action__btn" aria-label="Quick View">
-                      <i class="fi fi-rs-eye"></i>
-                    </a>
-                    <a
-                      href="#"
-                      class="action__btn"
-                      aria-label="Add to Wishlist"
-                    >
-                      <i class="fi fi-rs-heart"></i>
-                    </a>
-                    <a href="#" class="action__btn" aria-label="Compare">
-                      <i class="fi fi-rs-shuffle"></i>
-                    </a>
-                  </div>
-                  <div class="product__badge light-pink">Hot</div>
-                </div>
-                <div class="product__content">
-                  <span class="product__category">Eyewear</span>
-                  <a href="pages/details/">
-                    <h3 class="product__title">Colorful Pattern Frames</h3>
-                  </a>
-                  <div class="product__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <div class="product__price flex">
-                    <span class="new__price">$238.85</span>
-                    <span class="old__price">$245.8</span>
-                  </div>
-                  <a
-                    href="#"
-                    class="action__btn cart__btn"
-                    aria-label="Add To Cart"
-                  >
-                    <i class="fi fi-rs-shopping-bag-add"></i>
-                  </a>
-                </div>
-              </div>
-              <div class="product__item">
-                <div class="product__banner">
-                  <a href="pages/details/" class="product__images">
-                    <img
-                      src="assets/images/products/AN550012_3849.png"
-                      alt=""
-                      class="product__img default"
-                    />
-                    <img
-                      src="assets/images/products/AN550012_3849.png"
-                      alt=""
-                      class="product__img hover"
-                    />
-                  </a>
-                  <div class="product__actions">
-                    <a href="#" class="action__btn" aria-label="Quick View">
-                      <i class="fi fi-rs-eye"></i>
-                    </a>
-                    <a
-                      href="#"
-                      class="action__btn"
-                      aria-label="Add to Wishlist"
-                    >
-                      <i class="fi fi-rs-heart"></i>
-                    </a>
-                    <a href="#" class="action__btn" aria-label="Compare">
-                      <i class="fi fi-rs-shuffle"></i>
-                    </a>
-                  </div>
-                  <div class="product__badge light-green">Hot</div>
-                </div>
-                <div class="product__content">
-                  <span class="product__category">Eyewear</span>
-                  <a href="pages/details/">
-                    <h3 class="product__title">Colorful Pattern Frames</h3>
-                  </a>
-                  <div class="product__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <div class="product__price flex">
-                    <span class="new__price">$238.85</span>
-                    <span class="old__price">$245.8</span>
-                  </div>
-                  <a
-                    href="#"
-                    class="action__btn cart__btn"
-                    aria-label="Add To Cart"
-                  >
-                    <i class="fi fi-rs-shopping-bag-add"></i>
-                  </a>
-                </div>
-              </div>
-              <div class="product__item">
-                <div class="product__banner">
-                  <a href="pages/details/" class="product__images">
-                    <img
-                      src="assets/images/products/AN550012_3849.png"
-                      alt=""
-                      class="product__img default"
-                    />
-                    <img
-                      src="assets/images/products/AN550012_3849.png"
-                      alt=""
-                      class="product__img hover"
-                    />
-                  </a>
-                  <div class="product__actions">
-                    <a href="#" class="action__btn" aria-label="Quick View">
-                      <i class="fi fi-rs-eye"></i>
-                    </a>
-                    <a
-                      href="#"
-                      class="action__btn"
-                      aria-label="Add to Wishlist"
-                    >
-                      <i class="fi fi-rs-heart"></i>
-                    </a>
-                    <a href="#" class="action__btn" aria-label="Compare">
-                      <i class="fi fi-rs-shuffle"></i>
-                    </a>
-                  </div>
-                  <div class="product__badge light-orange">Hot</div>
-                </div>
-                <div class="product__content">
-                  <span class="product__category">Eyewear</span>
-                  <a href="pages/details/">
-                    <h3 class="product__title">Colorful Pattern Frames</h3>
-                  </a>
-                  <div class="product__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <div class="product__price flex">
-                    <span class="new__price">$238.85</span>
-                    <span class="old__price">$245.8</span>
-                  </div>
-                  <a
-                    href="#"
-                    class="action__btn cart__btn"
-                    aria-label="Add To Cart"
-                  >
-                    <i class="fi fi-rs-shopping-bag-add"></i>
-                  </a>
-                </div>
-              </div>
-              <div class="product__item">
-                <div class="product__banner">
-                  <a href="pages/details/" class="product__images">
-                    <img
-                      src="assets/images/products/AN550021_3933.png"
-                      alt=""
-                      class="product__img default"
-                    />
-                    <img
-                      src="assets/images/products/AN550021_3933(1).png"
-                      alt=""
-                      class="product__img hover"
-                    />
-                  </a>
-                  <div class="product__actions">
-                    <a href="#" class="action__btn" aria-label="Quick View">
-                      <i class="fi fi-rs-eye"></i>
-                    </a>
-                    <a
-                      href="#"
-                      class="action__btn"
-                      aria-label="Add to Wishlist"
-                    >
-                      <i class="fi fi-rs-heart"></i>
-                    </a>
-                    <a href="#" class="action__btn" aria-label="Compare">
-                      <i class="fi fi-rs-shuffle"></i>
-                    </a>
-                  </div>
-                  <div class="product__badge light-blue">Hot</div>
-                </div>
-                <div class="product__content">
-                  <span class="product__category">Eyewear</span>
-                  <a href="pages/details/">
-                    <h3 class="product__title">Colorful Pattern Frames</h3>
-                  </a>
-                  <div class="product__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <div class="product__price flex">
-                    <span class="new__price">$238.85</span>
-                    <span class="old__price">$245.8</span>
-                  </div>
-                  <a
-                    href="#"
-                    class="action__btn cart__btn"
-                    aria-label="Add To Cart"
-                  >
-                    <i class="fi fi-rs-shopping-bag-add"></i>
-                  </a>
-                </div>
-              </div>
-              <div class="product__item">
-                <div class="product__banner">
-                  <a href="pages/details/" class="product__images">
-                    <img
-                      src="assets/images/products/AN550012_3849.png"
-                      alt=""
-                      class="product__img default"
-                    />
-                    <img
-                      src="assets/images/products/AN550012_3849.png"
-                      alt=""
-                      class="product__img hover"
-                    />
-                  </a>
-                  <div class="product__actions">
-                    <a href="#" class="action__btn" aria-label="Quick View">
-                      <i class="fi fi-rs-eye"></i>
-                    </a>
-                    <a
-                      href="#"
-                      class="action__btn"
-                      aria-label="Add to Wishlist"
-                    >
-                      <i class="fi fi-rs-heart"></i>
-                    </a>
-                    <a href="#" class="action__btn" aria-label="Compare">
-                      <i class="fi fi-rs-shuffle"></i>
-                    </a>
-                  </div>
-                  <div class="product__badge light-blue">-30%</div>
-                </div>
-                <div class="product__content">
-                  <span class="product__category">Eyewear</span>
-                  <a href="pages/details/">
-                    <h3 class="product__title">Colorful Pattern Frames</h3>
-                  </a>
-                  <div class="product__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <div class="product__price flex">
-                    <span class="new__price">$238.85</span>
-                    <span class="old__price">$245.8</span>
-                  </div>
-                  <a
-                    href="#"
-                    class="action__btn cart__btn"
-                    aria-label="Add To Cart"
-                  >
-                    <i class="fi fi-rs-shopping-bag-add"></i>
-                  </a>
-                </div>
-              </div>
-              <div class="product__item">
-                <div class="product__banner">
-                  <a href="pages/details/" class="product__images">
-                    <img
-                      src="assets/images/products/AN550030_3896.png"
-                      alt=""
-                      class="product__img default"
-                    />
-                    <img
-                      src="assets/images/products/AN550030_3896(1).png"
-                      alt=""
-                      class="product__img hover"
-                    />
-                  </a>
-                  <div class="product__actions">
-                    <a href="#" class="action__btn" aria-label="Quick View">
-                      <i class="fi fi-rs-eye"></i>
-                    </a>
-                    <a
-                      href="#"
-                      class="action__btn"
-                      aria-label="Add to Wishlist"
-                    >
-                      <i class="fi fi-rs-heart"></i>
-                    </a>
-                    <a href="#" class="action__btn" aria-label="Compare">
-                      <i class="fi fi-rs-shuffle"></i>
-                    </a>
-                  </div>
-                  <div class="product__badge light-blue">-22%</div>
-                </div>
-                <div class="product__content">
-                  <span class="product__category">Eyewear</span>
-                  <a href="pages/details/">
-                    <h3 class="product__title">Colorful Pattern Frames</h3>
-                  </a>
-                  <div class="product__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <div class="product__price flex">
-                    <span class="new__price">$238.85</span>
-                    <span class="old__price">$245.8</span>
-                  </div>
-                  <a
-                    href="#"
-                    class="action__btn cart__btn"
-                    aria-label="Add To Cart"
-                  >
-                    <i class="fi fi-rs-shopping-bag-add"></i>
-                  </a>
-                </div>
-              </div>
-              <div class="product__item">
-                <div class="product__banner">
-                  <a href="pages/details/" class="product__images">
-                    <img
-                      src="assets/images/products/AN550012_3849.png"
-                      alt=""
-                      class="product__img default"
-                    />
-                    <img
-                      src="assets/images/products/AN550012_3849.png"
-                      alt=""
-                      class="product__img hover"
-                    />
-                  </a>
-                  <div class="product__actions">
-                    <a href="#" class="action__btn" aria-label="Quick View">
-                      <i class="fi fi-rs-eye"></i>
-                    </a>
-                    <a
-                      href="#"
-                      class="action__btn"
-                      aria-label="Add to Wishlist"
-                    >
-                      <i class="fi fi-rs-heart"></i>
-                    </a>
-                    <a href="#" class="action__btn" aria-label="Compare">
-                      <i class="fi fi-rs-shuffle"></i>
-                    </a>
-                  </div>
-                  <div class="product__badge light-green">-22%</div>
-                </div>
-                <div class="product__content">
-                  <span class="product__category">Eyewear</span>
-                  <a href="pages/details/">
-                    <h3 class="product__title">Colorful Pattern Frames</h3>
-                  </a>
-                  <div class="product__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <div class="product__price flex">
-                    <span class="new__price">$238.85</span>
-                    <span class="old__price">$245.8</span>
-                  </div>
-                  <a
-                    href="#"
-                    class="action__btn cart__btn"
-                    aria-label="Add To Cart"
-                  >
-                    <i class="fi fi-rs-shopping-bag-add"></i>
-                  </a>
-                </div>
-              </div>
-              <div class="product__item">
-                <div class="product__banner">
-                  <a href="pages/details/" class="product__images">
-                    <img
-                      src="assets/images/products/AN550012_3849.png"
-                      alt=""
-                      class="product__img default"
-                    />
-                    <img
-                      src="assets/images/products/AN550012_3849.png"
-                      alt=""
-                      class="product__img hover"
-                    />
-                  </a>
-                  <div class="product__actions">
-                    <a href="#" class="action__btn" aria-label="Quick View">
-                      <i class="fi fi-rs-eye"></i>
-                    </a>
-                    <a
-                      href="#"
-                      class="action__btn"
-                      aria-label="Add to Wishlist"
-                    >
-                      <i class="fi fi-rs-heart"></i>
-                    </a>
-                    <a href="#" class="action__btn" aria-label="Compare">
-                      <i class="fi fi-rs-shuffle"></i>
-                    </a>
-                  </div>
-                </div>
-                <div class="product__content">
-                  <span class="product__category">Eyewear</span>
-                  <a href="pages/details/">
-                    <h3 class="product__title">Colorful Pattern Frames</h3>
-                  </a>
-                  <div class="product__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <div class="product__price flex">
-                    <span class="new__price">$238.85</span>
-                    <span class="old__price">$245.8</span>
-                  </div>
-                  <a
-                    href="#"
-                    class="action__btn cart__btn"
-                    aria-label="Add To Cart"
-                  >
-                    <i class="fi fi-rs-shopping-bag-add"></i>
-                  </a>
-                </div>
-              </div>
+            <div class="products__container grid"></div>
             </div>
+          </div>
           </div>
         </div>
       </section>
 
       <!--=============== DEALS ===============-->
-      <section class="deals section">
+      <section class="deals section" data-aos="fade-up">
         <div class="deals__container container grid">
           <div class="deals__item">
             <div class="deals__group">
@@ -1571,7 +235,7 @@
       </section>
 
       <!--=============== NEW ARRIVALS ===============-->
-      <section class="new__arrivals container section">
+      <section class="new__arrivals container section" data-aos="fade-up">
         <h3 class="section__title"><span>New</span> Arrivals</h3>
         <div class="new__container swiper">
           <div class="swiper-wrapper">
@@ -2207,6 +871,9 @@
     <!--=============== SWIPER JS ===============-->
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
+    <!-- AOS JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>AOS.init({duration: 800, once: true, offset: 50});</script>
     <!--=============== MAIN JS ===============-->
     <script src="js/main.js"></script>
 
@@ -2303,7 +970,82 @@
             }
         });
     </script>
-  </body>
+  
+    <!-- FETCH DYNAMIC PRODUCTS -->
+    <script type="module">
+        import apiClient from './js/services/apiClient.js';
+        
+        async function loadFeaturedProducts() {
+            // Find the featured container, popular container etc.
+            const featuredContainer = document.querySelector('#featured .products__container');
+            const popularContainer = document.querySelector('#popular .products__container');
+            const newAddedContainer = document.querySelector('#new-added .products__container');
+            
+            try {
+                const res = await apiClient.get('/v1/products/list?limit=8');
+                const products = res.data.data;
+
+                if (!products || products.length === 0) return;
+
+                const renderProducts = (container, limit) => {
+                    if(!container) return;
+                    container.innerHTML = '';
+                    products.slice(0, limit).forEach((p, idx) => {
+                        let img = p.variants && p.variants[0] && p.variants[0].image_2d_url ? p.variants[0].image_2d_url : '/assets/images/products/placeholder.png';
+                        if(img.startsWith('/')) img = '.' + img; 
+                        const basePrice = parseFloat(p.base_price);
+                        
+                        const el = document.createElement('div');
+                        el.className = 'product__item';
+                        // Keep AOS on cards
+                        el.setAttribute('data-aos', 'fade-up');
+                        el.setAttribute('data-aos-delay', (idx * 50).toString());
+                        
+                        el.innerHTML = `
+                            <div class="product__banner">
+                                <a href="pages/details/?id=${p.id}" class="product__images">
+                                    <img src="${img}" alt="" class="product__img default" />
+                                    <img src="${img}" alt="" class="product__img hover" />
+                                </a>
+                                <div class="product__actions">
+                                    <a href="#" class="action__btn" aria-label="Quick View"><i class="fi fi-rs-eye"></i></a>
+                                    <a href="#" class="action__btn" aria-label="Add to Wishlist"><i class="fi fi-rs-heart"></i></a>
+                                    <a href="#" class="action__btn" aria-label="Compare"><i class="fi fi-rs-shuffle"></i></a>
+                                </div>
+                                <div class="product__badge light-pink">Hot</div>
+                            </div>
+                            <div class="product__content">
+                                <span class="product__category">${p.brand || 'Luxury'}</span>
+                                <a href="pages/details/?id=${p.id}"><h3 class="product__title">${p.name}</h3></a>
+                                <div class="product__rating">
+                                    <i class="fi fi-rs-star"></i><i class="fi fi-rs-star"></i><i class="fi fi-rs-star"></i><i class="fi fi-rs-star"></i><i class="fi fi-rs-star"></i>
+                                </div>
+                                <div class="product__price flex">
+                                    <span class="new__price">${window.formatVND ? window.formatVND(basePrice) : '
+</html>
+
+
+ + basePrice}</span>
+                                </div>
+                                <a href="#" class="action__btn cart__btn" aria-label="Add To Cart"><i class="fi fi-rs-shopping-bag-add"></i></a>
+                            </div>
+                        `;
+                        container.appendChild(el);
+                    });
+                };
+
+                renderProducts(featuredContainer, 8);
+                renderProducts(popularContainer, 4);
+                renderProducts(newAddedContainer, 4);
+
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadFeaturedProducts);
+    </script>
+</body>
 </html>
 
 
