@@ -178,11 +178,11 @@
                                 <i class="fi fi-rs-angle-small-down"></i>
                             </div>
                             <div class="user-dropdown">
-                                <a href="/frontend/pages/accounts/" class="dropdown__item">
+                                <a href="/pages/accounts/" class="dropdown__item">
                                     <i class="fi fi-rs-settings-sliders"></i> My Profile
                                 </a>
                                 ${isStaff ? `
-                                <a href="/frontend/pages/dashboard/index.html" class="dropdown__item" style="color: var(--first-color); font-weight: bold;">
+                                <a href="/pages/dashboard/index.html" class="dropdown__item" style="color: var(--first-color); font-weight: bold;">
                                     <i class="fi fi-rs-apps"></i> Admin Dashboard
                                 </a>
                                 ` : ''}
@@ -205,11 +205,11 @@
                                 <i class="fi fi-rs-angle-small-down"></i>
                             </div>
                             <div class="user-dropdown" style="right: 0; left: auto;">
-                                <a href="/frontend/pages/dashboard/index.html?view=profile" class="dropdown__item">
+                                <a href="/pages/dashboard/index.html?view=profile" class="dropdown__item">
                                     <i class="fi fi-rs-user"></i> My Profile
                                 </a>
                                 ${isCustomer ? `
-                                <a href="/frontend/index.html" class="dropdown__item" style="color: var(--first-color); font-weight: bold;">
+                                <a href="/index.html" class="dropdown__item" style="color: var(--first-color); font-weight: bold;">
                                     <i class="fi fi-rs-shopping-cart"></i> Switch to Shop
                                 </a>
                                 ` : ''}
@@ -225,7 +225,7 @@
                 document.querySelectorAll('.logout-btn').forEach(btn => {
                     btn.onclick = (e) => {
                         e.preventDefault();
-                        authService.logout().then(() => window.location.href = '/frontend/index.html');
+                        authService.logout().then(() => window.location.href = '/index.html');
                     };
                 });
             }
@@ -276,4 +276,100 @@
             // Guard already initializes on DOMContentLoaded in its own file
         }).catch(err => console.error("Failed to load LayoutGuard:", err));
     });
+
+    // --- EYWEAR CUSTOM UI DIALOG ---
+    const customDialogCss = `
+        .eyewear-dialog-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 99999; opacity: 0; transition: opacity 0.3s ease;
+        }
+        .eyewear-dialog {
+            background: #fff; width: 90%; max-width: 400px;
+            border-radius: 20px; padding: 35px 30px; text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-family: 'Inter', sans-serif;
+        }
+        .eyewear-dialog.show {
+            transform: scale(1) translateY(0);
+        }
+        .eyewear-dialog-icon {
+            font-size: 3.5rem; margin-bottom: 15px;
+        }
+        .eyewear-dialog-icon.success { color: #10b981; }
+        .eyewear-dialog-icon.error { color: #ef4444; }
+        .eyewear-dialog-icon.warning { color: #f59e0b; }
+        .eyewear-dialog-icon.info { color: #0d0d0d; }
+        
+        .eyewear-dialog-title {
+            font-size: 1.25rem; font-weight: 700; color: #1a1a1a; margin-bottom: 10px;
+        }
+        .eyewear-dialog-msg {
+            font-size: 0.95rem; color: #4b5563; margin-bottom: 25px; line-height: 1.5;
+        }
+        .eyewear-dialog-btn {
+            background: #0d0d0d; color: #fff; border: none; padding: 14px 30px;
+            border-radius: 12px; font-weight: 600; font-size: 0.9rem;
+            cursor: pointer; transition: 0.3s; text-transform: uppercase;
+            letter-spacing: 1px; width: 100%;
+        }
+        .eyewear-dialog-btn:hover { background: #262626; transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.2); }
+    `;
+
+    const style = document.createElement('style');
+    style.innerHTML = customDialogCss;
+    document.head.appendChild(style);
+
+    window.originalAlert = window.alert;
+    window.alert = function(message) {
+        return new Promise(resolve => {
+            const overlay = document.createElement('div');
+            overlay.className = 'eyewear-dialog-overlay';
+            
+            let iconClass = 'info', iconShape = 'fi-rs-info';
+            let title = 'Notification';
+            let msgStr = String(message).toLowerCase();
+            
+            if (msgStr.includes('thành công') || msgStr.includes('successfully') || msgStr.includes('created')) {
+                iconClass = 'success'; iconShape = 'fi-rs-check-circle'; title = 'Success';
+            } else if (msgStr.includes('lỗi') || msgStr.includes('fail') || msgStr.includes('error') || msgStr.includes('denied')) {
+                iconClass = 'error'; iconShape = 'fi-rs-cross-circle'; title = 'Error';
+            } else if (msgStr.includes('warning') || msgStr.includes('vui lòng') || msgStr.includes('please')) {
+                iconClass = 'warning'; iconShape = 'fi-rs-exclamation'; title = 'Warning';
+            }
+
+            // Keep HTML characters safe
+            const safeMsg = String(message).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+            overlay.innerHTML = `
+                <div class="eyewear-dialog">
+                    <div class="eyewear-dialog-icon ${iconClass}"><i class="fi ${iconShape}"></i></div>
+                    <h3 class="eyewear-dialog-title">${title}</h3>
+                    <p class="eyewear-dialog-msg">${safeMsg}</p>
+                    <button class="eyewear-dialog-btn">Got It</button>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+
+            // Reflow to play transition
+            overlay.offsetHeight; 
+            overlay.style.opacity = '1';
+            overlay.querySelector('.eyewear-dialog').classList.add('show');
+
+            const btn = overlay.querySelector('.eyewear-dialog-btn');
+            btn.onclick = () => {
+                overlay.style.opacity = '0';
+                overlay.querySelector('.eyewear-dialog').classList.remove('show');
+                setTimeout(() => {
+                    overlay.remove();
+                    resolve();
+                }, 300);
+            };
+        });
+    };
 })();
+

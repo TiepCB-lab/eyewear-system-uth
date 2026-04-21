@@ -96,23 +96,19 @@ import authService from '../services/authService.js';
             }
 
             signUpBtn.disabled = true;
-            messageEl.textContent = 'Creating your account and sending verification email. Please wait...';
-            messageEl.classList.add('success');
+            messageEl.textContent = 'Processing...';
 
-            try {
-                const response = await authService.register({ name, email, password });
-                const message = response.message || 'Registration successful! Verification email sent.';
-                messageEl.textContent = message;
-                alert(message);
-                container.classList.remove("active");
-            } catch (error) {
-                const errorMessage = error.response?.data?.message || error.message || 'Registration failed.';
-                messageEl.textContent = errorMessage;
-                messageEl.classList.remove('success');
-                messageEl.classList.add('error');
-            } finally {
-                signUpBtn.disabled = false;
-            }
+            // Fire async without awaiting immediately to prevent UI blocking
+            authService.register({ name, email, password }).catch(error => {
+                const errorMessage = error.response?.data?.message || 'Email sending failed.';
+                alert('Registration Error: ' + errorMessage);
+            });
+
+            // Instant feedback
+            await alert('Registration successful! Please check your Email Inbox (including Spam folder) to verify your account.');
+            container.classList.remove("active");
+            signUpBtn.disabled = false;
+            messageEl.textContent = '';
         });
     }
 
@@ -140,9 +136,9 @@ import authService from '../services/authService.js';
                 const context = authService.getPrimaryContext();
                 
                 if (context === 'staff') {
-                    window.location.href = '/frontend/pages/dashboard/index.html';
+                    window.location.href = '/pages/dashboard/index.html';
                 } else {
-                    window.location.href = '/frontend/index.html';
+                    window.location.href = '/index.html';
                 }
             } catch (error) {
                 alert('Login failed: ' + (error.response?.data?.message || error.message));
@@ -150,3 +146,4 @@ import authService from '../services/authService.js';
         });
     }
 })();
+

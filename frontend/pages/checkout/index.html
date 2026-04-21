@@ -203,8 +203,8 @@
            try {
              // Let checkout service handle the final save
              const res = await CartService.checkout(fullAddress, fullAddress);
-             alert('Đặt hàng thành công! Order: ' + res.order_number);
-             window.location.href = '../../../index.html'; // Redirect to home or account page
+             await alert('Đặt hàng thành công! Order: ' + res.order_number);
+             window.location.href = '/index.html'; // Redirect to home
            } catch(e) {
              alert('Có lỗi xảy ra: ' + (e.response?.data?.message || e.message));
              placeOrderBtn.disabled = false;
