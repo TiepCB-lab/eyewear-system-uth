@@ -22,9 +22,10 @@ apiClient.interceptors.response.use(
       delete apiClient.defaults.headers.common['Authorization'];
 
       const currentPath = window.location.pathname.toLowerCase();
-      const isAuthPage = currentPath.includes('/pages/auth/');
-      if (!isAuthPage) {
-        window.location.href = '/frontend/pages/auth/index.html';
+      // Only force redirect if the user is in a protected area
+      const isProtectedPage = currentPath.includes('/pages/accounts') || currentPath.includes('/pages/dashboard') || currentPath.includes('/pages/checkout');
+      if (isProtectedPage) {
+        window.location.href = '/pages/auth/index.html';
       }
     }
 
@@ -33,6 +34,7 @@ apiClient.interceptors.response.use(
 );
 
 export default apiClient;
+
 
 
 

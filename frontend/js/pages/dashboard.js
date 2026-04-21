@@ -124,8 +124,8 @@ class DashboardController {
 
     normalizeModulePaths(html) {
         return html
-            .replace(/(src|href)="\/(?!\/)/g, '$1="/frontend/')
-            .replace(/url\(\/(?!\/)/g, 'url(/frontend/');
+            .replace(/(src|href)="\/(?!\/)/g, '$1="/')
+            .replace(/url\(\/(?!\/)/g, 'url(/');
     }
 }
 
@@ -133,3 +133,4 @@ const dashboard = new DashboardController();
 document.addEventListener('DOMContentLoaded', () => dashboard.init());
 
 export default dashboard;
+

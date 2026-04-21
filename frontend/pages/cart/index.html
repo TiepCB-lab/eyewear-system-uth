@@ -126,7 +126,7 @@
                   <td><span class="cart__total-price" id="cart-total">$0.00</span></td>
                 </tr>
             </table>
-            <a href="../checkout/" class="btn flex btn--md">
+            <a href="../checkout/" id="checkout-btn" class="btn flex btn--md">
               <i class="fi fi-rs-box-alt"></i> Proceed To Checkout
             </a>
           </div>
@@ -162,11 +162,17 @@
 
             tbody.innerHTML = '';
             
+            const checkoutBtn = document.getElementById('checkout-btn');
             if (!items || items.length === 0) {
               tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Giỏ hàng trống</td></tr>';
               subtotalEl.innerText = '$0.00';
               totalEl.innerText = '$0.00';
+              checkoutBtn.style.pointerEvents = 'none';
+              checkoutBtn.style.opacity = '0.5';
               return;
+            } else {
+              checkoutBtn.style.pointerEvents = 'auto';
+              checkoutBtn.style.opacity = '1';
             }
 
             items.forEach(item => {

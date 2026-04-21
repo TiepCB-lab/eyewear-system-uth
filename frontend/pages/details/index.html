@@ -779,7 +779,8 @@
           const opt = lensSelect.options[lensSelect.selectedIndex];
           const lensFee = opt && opt.value ? parseFloat(opt.dataset.price) : 0;
           
-          const qty = Math.max(1, Math.min(10, Number(quantityInput.value || 1)));
+          const maxStock = Number(selectedVariant.stock_quantity || 0);
+          const qty = Math.max(1, Math.min(maxStock > 0 ? maxStock : 1, Math.min(10, Number(quantityInput.value || 1))));
           quantityInput.value = String(qty);
 
           const unitPrice = basePrice + variantFee + lensFee;
@@ -797,7 +798,21 @@
           ui.lineTotal.textContent = format(total);
 
           ui.variantSku.textContent = selectedVariant.sku;
-          ui.variantStock.textContent = `${selectedVariant.stock_quantity} Items in Stock`;
+          
+          // Edge case: Out of stock disabling
+          if (maxStock <= 0) {
+              ui.variantStock.textContent = `Out of Stock`;
+              ui.variantStock.style.color = '#d9534f';
+              addToCartBtn.style.pointerEvents = 'none';
+              addToCartBtn.style.opacity = '0.5';
+              addToCartBtn.innerHTML = '<i class="fi fi-rs-shopping-bag"></i> Out of Stock';
+          } else {
+              ui.variantStock.textContent = `${maxStock} Items in Stock`;
+              ui.variantStock.style.color = 'inherit';
+              addToCartBtn.style.pointerEvents = 'auto';
+              addToCartBtn.style.opacity = '1';
+              addToCartBtn.innerHTML = '<i class="fi fi-rs-shopping-bag"></i> Add to Cart';
+          }
         }
 
         // Bind events for color and sizes

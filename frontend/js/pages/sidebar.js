@@ -8,7 +8,7 @@ function initSidebar() {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            authService.logout().then(() => window.location.href = '/frontend/index.html');
+            authService.logout().then(() => window.location.href = '/index.html');
         });
     }
 
@@ -25,6 +25,7 @@ function initSidebar() {
 
 // Initial run
 initSidebar();
+
 
 
 
