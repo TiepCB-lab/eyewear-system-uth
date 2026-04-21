@@ -44,7 +44,7 @@ This member owns the **transactional flow**: Adding items to the cart (including
  ### 🚀 Final Phase (Integration & Polish)
  - [ ] **Homepage Dynamic Data**: Remove mock placeholder backgrounds and banners in `index.html`.
  - [ ] **E2E Customer Journey**: Simulate the primary funnel: Registration -> Configure Lens Types -> Add to Cart -> Successful Checkout.
- - [ ] **Edge Case Handling**: Enforce robust UI states (e.g., disable "Add to Cart" when `stock_quantity <= 0`, empty cart fallback messages).
+ - [x] **Edge Case Handling**: Enforce robust UI states (e.g., disable "Add to Cart" when `stock_quantity <= 0`, empty cart fallback messages).
  
  ---
  

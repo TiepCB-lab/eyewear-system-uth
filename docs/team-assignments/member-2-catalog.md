@@ -20,6 +20,7 @@ This member owns the **heart of the store**: Branded frames, Lens types, and the
  - [ ] Complete `CatalogService.php`: Filter products (brand, category, price), Get categories.
  - [ ] Complete `InventoryService.php`: Update stock quantities, Manage reserved stock (Reservation).
  - [ ] Complete `LensService.php`: Retrieve lens list and pricing by index/features.
+ - [ ] Complete `RecommendationService.php`: Face-shape quiz logic to match eyewear products.
  
  ### Backend — Controllers & Routes
  - [ ] Implement Controllers: `ProductController`, `CategoryController`, `InventoryController`, `LensController`.
@@ -50,6 +51,7 @@ This member owns the **heart of the store**: Branded frames, Lens types, and the
  - `app/Application/CatalogService.php`
  - `app/Application/InventoryService.php`
  - `app/Application/LensService.php`
+ - `app/Application/RecommendationService.php`
  - `app/Http/Controllers/Api/V1/ProductController.php`
  - `app/Http/Controllers/Api/V1/InventoryController.php`
  

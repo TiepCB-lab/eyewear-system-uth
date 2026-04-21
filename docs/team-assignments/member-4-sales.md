@@ -28,8 +28,8 @@ This member owns the **financial and customer service** side: Payment status tra
    - Reply logic for customers and staff.
  
  ### Backend — Controllers & Routes
- - [ ] Implement `PaymentController`, `SalesController`, `SupportTicketController`.
- - [ ] Define API Endpoints for payments and support system.
+ - [ ] Implement `PaymentController`, `SalesController`, `SupportTicketController`, `OrderController`.
+ - [ ] Define API Endpoints for payments, support system, and order tracking (`GET /orders`).
  
  ### Frontend (Vanilla JS)
  - [ ] Implement `pages/payment/index.html`: Selection and confirmation UI.
@@ -56,8 +56,10 @@ This member owns the **financial and customer service** side: Payment status tra
  - `app/Application/PaymentService.php`
  - `app/Application/SalesVerificationService.php`
  - `app/Application/SupportTicketService.php`
+ - `app/Application/OrderService.php`
  - `app/Http/Controllers/Api/V1/PaymentController.php`
- 
+ - `app/Http/Controllers/Api/V1/OrderController.php`
+
  ### Frontend
  - `frontend/pages/payment/index.html`
  - `frontend/pages/accounts/index.html` (Order tracking section)
