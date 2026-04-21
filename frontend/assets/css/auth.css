@@ -21,6 +21,21 @@
   overflow: hidden;
 }
 
+/* Animations for Overlay Images */
+@keyframes floatY {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(3deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+.overlay-img {
+    width: 250px;
+    margin: 20px auto 30px;
+    animation: floatY 6s ease-in-out infinite;
+    filter: drop-shadow(0 20px 30px rgba(0,0,0,0.4));
+    opacity: 0.9;
+}
+
 /* Back Button */
 .auth-back-home {
   position: fixed;
@@ -63,7 +78,7 @@
     overflow: hidden;
     width: 850px;
     max-width: 100%;
-    min-height: 550px;
+    min-height: 620px;
 }
 
 .form-container {
@@ -179,11 +194,13 @@
 }
 
 .auth-brand {
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .auth-brand img {
-    height: 35px;
+    height: 75px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
 }
 
 .auth-form h1 {
@@ -195,7 +212,7 @@
 .auth-form p {
     font-size: 0.9rem;
     color: var(--text-color-light);
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
 }
 
 /* Input Fields */
@@ -256,7 +273,7 @@
 
 /* Socials */
 .social-container {
-    margin: 1.5rem 0;
+    margin: 1rem 0;
 }
 
 .social-container a {
@@ -281,7 +298,7 @@
     color: var(--text-color-light);
     font-size: 0.85rem;
     text-decoration: none;
-    margin: 15px 0;
+    margin: 10px 0;
 }
 
 .forgot-password:hover {
