@@ -1,58 +1,352 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!--=============== FLATICON ===============-->
-    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.0.0/uicons-regular-straight/css/uicons-regular-straight.css" />
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!--=============== FLATICON ===============-->
+        <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.0.0/uicons-regular-straight/css/uicons-regular-straight.css" />
     
-    <!--=============== CSS ===============-->
-    <link rel="stylesheet" href="../../assets/css/styles.css" />
+        <!--=============== CSS ===============-->
+        <link rel="stylesheet" href="../../assets/css/styles.css" />
 
-    <!--=============== LAYOUT LOADER ===============-->
-    <script src="../../js/core/layout-loader.js" defer></script>
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&display=swap");
 
-    <title>About Us — EYEWEAR.UTH</title>
+            .about-page {
+                background:
+                    radial-gradient(circle at top left, rgba(175, 142, 86, 0.12), transparent 24%),
+                    radial-gradient(circle at bottom right, rgba(17, 138, 178, 0.08), transparent 28%),
+                    linear-gradient(180deg, #fffdf9 0%, #ffffff 58%);
+            }
+
+            .about-shell {
+                max-width: 1240px;
+                margin: 0 auto;
+                padding: 3rem 1rem 4rem;
+            }
+
+            .about-hero {
+                display: grid;
+                gap: 0.65rem;
+                margin-bottom: 1.6rem;
+            }
+
+            .about-hero__eyebrow {
+                display: inline-flex;
+                width: fit-content;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.42rem 0.85rem;
+                border-radius: 999px;
+                background: rgba(175, 142, 86, 0.12);
+                color: #9d7a39;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+            }
+
+            .about-hero__title {
+                font-size: clamp(2rem, 4vw, 3.2rem);
+                line-height: 0.98;
+                color: #123337;
+                font-family: "Cormorant Garamond", Georgia, serif;
+                font-weight: 600;
+                letter-spacing: -0.04em;
+                text-wrap: balance;
+                text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65);
+            }
+
+            .about-hero__subtitle {
+                max-width: 100%;
+                width: 100%;
+                color: #5f6c70;
+                font-size: 1rem;
+            }
+
+            .about-layout {
+                display: grid;
+                grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+                gap: 2rem;
+                align-items: start;
+            }
+
+            .about-collage {
+                position: relative;
+                min-height: 860px;
+                display: grid;
+                gap: 0.15rem;
+                align-content: start;
+                margin-top: -1.5rem;
+            }
+
+            .about-collage__card {
+                position: relative;
+                overflow: hidden;
+                border-radius: 22px;
+                background: #fff;
+                box-shadow: 0 18px 42px rgba(31, 42, 45, 0.12);
+                border: 1px solid rgba(175, 142, 86, 0.16);
+            }
+
+            .about-collage__card img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+            }
+
+            .about-collage__back,
+            .about-collage__main {
+                width: 100%;
+            }
+
+            .about-collage__back {
+                height: 42%;
+                min-height: 320px;
+                border-radius: 26px;
+                transform: translateY(2.6rem);
+            }
+
+            .about-collage__main {
+                height: 58%;
+                min-height: 460px;
+                border-radius: 26px;
+                border: 4px solid rgba(88, 153, 163, 0.55);
+            }
+
+            .about-collage__label {
+                position: absolute;
+                top: 4%;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 0.55rem 1.1rem;
+                border-radius: 999px;
+                background: linear-gradient(180deg, #c7a66a 0%, #b99355 100%);
+                color: #3f2f12;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                box-shadow: 0 8px 20px rgba(115, 88, 36, 0.25);
+            }
+
+            .about-copy {
+                display: grid;
+                gap: 1.25rem;
+            }
+
+            .about-story-card {
+                margin-top: 1.5rem;
+                padding: 1.6rem 1.6rem 1.7rem;
+                border-radius: 26px;
+                background: linear-gradient(180deg, rgba(248, 241, 230, 0.98) 0%, rgba(255, 255, 255, 1) 100%);
+                border: 1px solid rgba(175, 142, 86, 0.12);
+                box-shadow: 0 22px 54px rgba(31, 42, 45, 0.08);
+                position: relative;
+                overflow: hidden;
+            }
+
+            .about-story-card::before {
+                content: "";
+                position: absolute;
+                inset: 0 0 auto 0;
+                height: 0;
+            }
+
+            .about-copy__title {
+                font-size: clamp(2rem, 3vw, 2.8rem);
+                line-height: 0.98;
+                color: #123337;
+                font-family: "Cormorant Garamond", Georgia, serif;
+                font-weight: 600;
+                letter-spacing: -0.04em;
+            }
+
+            .about-copy__lead,
+            .about-copy__text {
+                color: #57676d;
+                line-height: 1.8;
+                font-size: 1.02rem;
+            }
+
+            .about-stats {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 1rem;
+                margin-top: 0.5rem;
+            }
+
+            .about-stat,
+            .about-feature {
+                padding: 1rem 1rem 1.1rem;
+                border-radius: 18px;
+                background: #ffffff;
+                border: 1px solid rgba(33, 73, 77, 0.08);
+                box-shadow: 0 10px 26px rgba(31, 42, 45, 0.06);
+            }
+
+            .about-stat {
+                padding: 1rem 1rem 1.1rem;
+            }
+
+            .about-stat i {
+                display: inline-flex;
+                width: 2.2rem;
+                height: 2.2rem;
+                align-items: center;
+                justify-content: center;
+                border-radius: 999px;
+                background: rgba(17, 138, 178, 0.10);
+                color: #118ab2;
+                margin-bottom: 0.8rem;
+            }
+
+            .about-stat h4 {
+                color: #b58b3c;
+                margin-bottom: 0.4rem;
+                font-size: 1.05rem;
+            }
+
+            .about-stat p {
+                color: #35566b;
+                font-size: 0.95rem;
+                line-height: 1.6;
+            }
+
+            .about-features {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 1rem;
+                margin-top: 0.5rem;
+            }
+
+            .about-feature i {
+                display: inline-flex;
+                width: 2.2rem;
+                height: 2.2rem;
+                align-items: center;
+                justify-content: center;
+                border-radius: 999px;
+                background: rgba(17, 138, 178, 0.10);
+                color: #118ab2;
+                margin-bottom: 0.8rem;
+            }
+
+            .about-feature h4 {
+                color: #b58b3c;
+                margin-bottom: 0.35rem;
+                font-size: 1rem;
+            }
+
+            .about-feature p {
+                color: #35566b;
+                font-size: 0.92rem;
+                line-height: 1.55;
+            }
+
+            @media (max-width: 980px) {
+                .about-layout {
+                    grid-template-columns: 1fr;
+                }
+
+                .about-collage {
+                    min-height: 760px;
+                    margin-top: 0;
+                }
+            }
+
+            @media (max-width: 700px) {
+                .about-collage {
+                    min-height: 700px;
+                    margin-top: 0;
+                }
+
+                .about-stats,
+                .about-features {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+
+        <!--=============== LAYOUT LOADER ===============-->
+        <script src="../../js/core/layout-loader.js" defer></script>
+
+        <title>About Us — EYEWEAR.UTH</title>
 </head>
-<body>
-    <!--=============== HEADER ===============-->
-    <header class="header" data-include="layout/Header"></header>
+<body class="about-page">
+        <!--=============== HEADER ===============-->
+        <header class="header" data-include="layout/Header"></header>
 
-    <main class="main container section--lg">
-        <section class="about section">
-            <h2 class="section__title">Our Story</h2>
-            <div class="grid" style="grid-template-columns: 1.2fr 1fr; gap: 4rem; align-items: center;">
-                <div class="about__img">
-                    <img src="/assets/images/home-img.png" alt="about lens" style="border-radius: 2rem; width: 100%;">
-                </div>
-                <div class="about__content">
-                    <h3 class="footer__title">Excellence in Eyewear Since 2026</h3>
-                    <p class="section__description" style="margin-bottom: 1.5rem; line-height: 1.6;">
-                        EYEWEAR.UTH was founded with a simple mission: to provide high-quality, professional optical solutions with a touch of modern style. We believe that everyone deserves to see the world with clarity and confidence.
-                    </p>
-                    <p class="section__description" style="margin-bottom: 1.5rem; line-height: 1.6;">
-                        Our team of experienced opticians and designers work tirelessly to curate the finest selection of frames and lenses, ensuring that every pair we deliver meets our rigorous quality standards.
-                    </p>
-                    <div class="grid" style="grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
-                        <div style="padding: 1.5rem; background: var(--first-color-alt); border-radius: 1rem;">
-                            <h4 style="color: var(--first-color); margin-bottom: 0.5rem;">Professional QC</h4>
-                            <p style="font-size: var(--small-font-size);">Every lens is checked by experts.</p>
+        <main class="main">
+                <section class="section--lg">
+                        <div class="about-shell">
+                                <div class="about-hero">
+                                    <div class="about-hero__eyebrow">The Meaning Behind EVLS</div>
+                                    <h1 class="about-hero__title">EVLS is more than just a name — it’s a vision.</h1>
+                                        <p class="about-hero__subtitle">Short for EEVELENS, EVLS reflects clarity, elegance, and a modern identity built around minimal design, effortless style, and a refined approach to everyday eyewear. It is a name shaped to feel simple, memorable, and timeless.</p>
+                                </div>
+
+                                <div class="about-layout">
+                                        <div class="about-collage" aria-label="About collage images">
+                                                <div class="about-collage__label">Explore the Collection</div>
+
+                                            <div class="about-collage__card about-collage__back">
+                                                <img src="../../assets/images/about%20story_2.jpg" alt="About story collection" />
+                                            </div>
+
+                                            <div class="about-collage__card about-collage__main">
+                                                <img src="../../assets/images/About%20story_1.png" alt="About story portrait" />
+                                                </div>
+                                        </div>
+
+                                        <div class="about-copy">
+                                            <div class="about-story-card">
+                                                <h2 class="about-copy__title">Our Story</h2>
+                                                <p class="about-copy__lead">EEVELENS was born from a simple idea: eyewear should do more than improve vision — it should express who you are.</p>
+                                                <p class="about-copy__text">We combine modern design with reliable optical quality to create glasses that are both stylish and comfortable. Every frame is carefully selected, and every lens is crafted to deliver clarity you can trust in your daily life.</p>
+                                                <p class="about-copy__text">At EVLS, we believe confidence starts with how you see the world — and how the world sees you.</p>
+                                            </div>
+
+                                                <div class="about-stats">
+                                                        <div class="about-stat">
+                                                        <i class="fi fi-rs-shield-check"></i>
+                                                    <h4>Professional Quality Control</h4>
+                                                    <p>Every frame and lens is carefully checked before it reaches you, ensuring a high level of finish and optical standards.</p>
+                                                        </div>
+                                                        <div class="about-stat">
+                                                        <i class="fi fi-rs-truck-side"></i>
+                                                    <h4>Fast Delivery</h4>
+                                                    <p>Orders are processed and shipped quickly so you can receive your glasses as soon as possible without waiting long.</p>
+                                                        </div>
+                                                </div>
+
+                                                <div class="about-features">
+                                                        <div class="about-feature">
+                                                        <i class="fi fi-rs-palette"></i>
+                                                    <h4>Modern Design</h4>
+                                                    <p>Our eyewear is curated from the latest trends and suits many styles, from minimal to bold.</p>
+                                                        </div>
+                                                        <div class="about-feature">
+                                                        <i class="fi fi-rs-star"></i>
+                                                    <h4>Trusted Quality</h4>
+                                                    <p>Premium materials and careful finishing deliver comfort in use and long-lasting durability.</p>
+                                                        </div>
+                                                        <div class="about-feature">
+                                                            <i class="fi fi-rs-phone-call"></i>
+                                                    <h4>Dedicated Customer Care</h4>
+                                                    <p>We are always ready to help you choose, adjust, and answer any questions before and after purchase.</p>
+                                                        </div>
+                                                </div>
+                                        </div>
+                                </div>
                         </div>
-                        <div style="padding: 1.5rem; background: var(--first-color-alt); border-radius: 1rem;">
-                            <h4 style="color: var(--first-color); margin-bottom: 0.5rem;">Fast Shipping</h4>
-                            <p style="font-size: var(--small-font-size);">Get your glasses in no time.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+                </section>
 
-        <!--=============== NEWSLETTER ===============-->
-        <section class="newsletter section" data-include="components/newsletter"></section>
-    </main>
+                <!--=============== NEWSLETTER ===============-->
+                <section class="newsletter section" data-include="components/newsletter"></section>
+        </main>
 
-    <!--=============== FOOTER ===============-->
-    <footer class="footer container" data-include="layout/Footer"></footer>
+        <!--=============== FOOTER ===============-->
+        <footer class="footer container" data-include="layout/Footer"></footer>
 </body>
 </html>
 
