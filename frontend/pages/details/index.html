@@ -50,7 +50,7 @@
                 class="details__small-img"
               />
               <img
-                src="../../../assets/images/products/AN550012_3849(1).jpeg"
+                src="../../../assets/images/products/AN550012_3849(1).png"
                 alt=""
                 class="details__small-img"
               />
@@ -613,7 +613,10 @@
     <div id="tryon-container"></div>
     <script>
         fetch('../../components/VirtualTryOn.html')
-            .then(response => response.text())
+            .then(response => {
+                if (!response.ok) throw new Error('VirtualTryOn component not found');
+                return response.text();
+            })
             .then(data => {
                 document.getElementById('tryon-container').innerHTML = data;
                 // Re-run scripts inside the loaded component
@@ -623,7 +626,8 @@
                     newScript.text = oldScript.text;
                     oldScript.parentNode.replaceChild(newScript, oldScript);
                 });
-            });
+            })
+            .catch(err => console.warn("Optional component [VirtualTryOn] failed to load:", err.message));
     </script>
 
     <!--=============== MAIN JS ===============-->
@@ -671,13 +675,19 @@
         let selectedVariant = null;
 
         try {
-            // Load product data
+            // 1. Load product data (REQUIRED)
             const res = await apiClient.get('/v1/products/show?id=' + productId);
             product = res.data.data;
+        } catch(e) {
+            console.error("Failed to fetch product", e);
+            alert("Sản phẩm không tồn tại hoặc lỗi kết nối.");
+            return;
+        }
 
-            // Load lenses
+        try {
+            // 2. Load lenses (OPTIONAL - don't crash the page if it fails)
             const lensRes = await apiClient.get('/v1/products/lenses/available');
-            const lenses = lensRes.data.data;
+            const lenses = lensRes.data?.data || [];
 
             // Render Lenses
             lensSelect.innerHTML = '<option value="">Frame only (no lens add-on)</option>';
@@ -688,61 +698,60 @@
                 opt.innerText = `${l.name} - ${l.lens_type} (+${format(l.price)})`;
                 lensSelect.appendChild(opt);
             });
-
-            // Set Title & Breadcrumbs
-            titleEl.textContent = product.name;
-            brandEl.textContent = product.brand;
-            breadcrumbEl.textContent = product.name;
-            document.title = `${product.name} — EYEWEAR.UTH`;
-
-            // Extract unique colors and sizes
-            const colors = {};
-            const sizes = {};
-            product.variants.forEach(v => {
-                if(!colors[v.color]) colors[v.color] = [];
-                colors[v.color].push(v);
-                if(!sizes[v.size]) sizes[v.size] = [];
-                sizes[v.size].push(v);
-            });
-
-            // Render Colors
-            colorContainer.innerHTML = '';
-            Object.keys(colors).forEach((color, idx) => {
-                const li = document.createElement('li');
-                const a = document.createElement('a');
-                a.href = '#';
-                a.className = 'color__link ' + (idx === 0 ? 'active' : '');
-                a.dataset.color = color;
-                a.title = color;
-                // mock color background natively
-                const low = color.toLowerCase();
-                a.style.backgroundColor = low.includes('gold') ? 'gold' : low.includes('black') ? 'black' : low.includes('silver') ? 'silver' : 'grey';
-                if(idx === 0) {
-                    a.dataset.active = "1";
-                    a.style.boxShadow = "0 0 0 2px #ffffff, 0 0 0 4px var(--first-color)";
-                }
-                li.appendChild(a);
-                colorContainer.appendChild(li);
-            });
-
-            // Render Sizes
-            sizeContainer.innerHTML = '';
-            Object.keys(sizes).forEach((size, idx) => {
-                const li = document.createElement('li');
-                const a = document.createElement('a');
-                a.href = '#';
-                a.className = 'size__link ' + (idx === 0 ? 'size-active' : '');
-                a.dataset.size = size;
-                a.innerText = size;
-                li.appendChild(a);
-                sizeContainer.appendChild(li);
-            });
-
         } catch(e) {
-            console.error("Failed to fetch product", e);
-            alert("Sản phẩm không tồn tại.");
-            return;
+            console.warn("Failed to load optional lens packages", e);
+            // Just show basic options if API fails
+            lensSelect.innerHTML = '<option value="">Frame only (no lens add-on)</option><option value="0">API Lens Data Unavailable</option>';
         }
+
+        // 3. Render Product Info
+        titleEl.textContent = product.name;
+        brandEl.textContent = product.brand;
+        breadcrumbEl.textContent = product.name;
+        document.title = `${product.name} — EYEWEAR.UTH`;
+
+        // Extract unique colors and sizes
+        const colors = {};
+        const sizes = {};
+        product.variants.forEach(v => {
+            if(!colors[v.color]) colors[v.color] = [];
+            colors[v.color].push(v);
+            if(!sizes[v.size]) sizes[v.size] = [];
+            sizes[v.size].push(v);
+        });
+
+        // Render Colors
+        colorContainer.innerHTML = '';
+        Object.keys(colors).forEach((color, idx) => {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.href = '#';
+            a.className = 'color__link ' + (idx === 0 ? 'active' : '');
+            a.dataset.color = color;
+            a.title = color;
+            // mock color background natively
+            const low = color.toLowerCase();
+            a.style.backgroundColor = low.includes('gold') ? 'gold' : low.includes('black') ? 'black' : low.includes('silver') ? 'silver' : 'grey';
+            if(idx === 0) {
+                a.dataset.active = "1";
+                a.style.boxShadow = "0 0 0 2px #ffffff, 0 0 0 4px var(--first-color)";
+            }
+            li.appendChild(a);
+            colorContainer.appendChild(li);
+        });
+
+        // Render Sizes
+        sizeContainer.innerHTML = '';
+        Object.keys(sizes).forEach((size, idx) => {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.href = '#';
+            a.className = 'size__link ' + (idx === 0 ? 'size-active' : '');
+            a.dataset.size = size;
+            a.innerText = size;
+            li.appendChild(a);
+            sizeContainer.appendChild(li);
+        });
 
         function getActiveColor() {
             const active = colorContainer.querySelector('.color__link[data-active="1"]');

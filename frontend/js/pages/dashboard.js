@@ -17,6 +17,24 @@ class DashboardController {
     }
 
     setupNavigation() {
+        // Sidebar Toggle for Mobile
+        document.addEventListener('click', (e) => {
+            const toggleBtn = e.target.closest('#sidebar-toggle');
+            const closeBtn = e.target.closest('#sidebar-close');
+            const overlay = e.target.closest('.sidebar-overlay');
+            const sidebar = document.querySelector('.sidebar');
+            
+            if (toggleBtn) {
+                sidebar.classList.add('show');
+                this.toggleOverlay(true);
+            }
+            
+            if (closeBtn || overlay) {
+                sidebar.classList.remove('show');
+                this.toggleOverlay(false);
+            }
+        });
+
         // Listen for sidebar link clicks if they are within the same page
         document.addEventListener('click', (e) => {
             const link = e.target.closest('.sidebar-link');
@@ -29,6 +47,12 @@ class DashboardController {
                 const url = new URL(window.location);
                 url.searchParams.set('view', view);
                 window.history.pushState({}, '', url);
+
+                // Close sidebar on mobile after clicking
+                if (window.innerWidth <= 1200) {
+                    document.querySelector('.sidebar').classList.remove('show');
+                    this.toggleOverlay(false);
+                }
             }
         });
 
@@ -36,6 +60,23 @@ class DashboardController {
         window.addEventListener('popstate', () => {
             this.handleInitialLoad();
         });
+    }
+
+    toggleOverlay(show) {
+        let overlay = document.querySelector('.sidebar-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.className = 'sidebar-overlay';
+            document.body.appendChild(overlay);
+        }
+        
+        if (show) {
+            overlay.style.display = 'block';
+            setTimeout(() => overlay.classList.add('show'), 10);
+        } else {
+            overlay.classList.remove('show');
+            setTimeout(() => overlay.style.display = 'none', 300);
+        }
     }
 
     async handleInitialLoad() {

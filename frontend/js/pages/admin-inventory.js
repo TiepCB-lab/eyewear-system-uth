@@ -1,5 +1,5 @@
 // Mock Inventory Data
-const mockInventory = [
+var mockInventory = [
     {
         id: 1,
         name: "Premium Acetate Optical",
@@ -33,14 +33,8 @@ const mockInventory = [
     }
 ];
 
-let inventoryData = [];
-let editingRow = null;
-
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    loadInventory();
-    updateStats();
-});
+var inventoryData = [];
+var editingRow = null;
 
 function loadInventory() {
     inventoryData = [];
@@ -247,3 +241,7 @@ window.refreshData = function() {
     loadInventory();
     showAlert('Data refreshed', 'success');
 };
+
+// Initialize
+loadInventory();
+updateStats();
