@@ -28,6 +28,7 @@ Router::group(['prefix' => 'api/v1/products'], function () {
 });
 
 Router::group(['prefix' => 'api/v1/admin/inventory'], function () {
+    Router::get('/', [InventoryController::class, 'index']);
     Router::put('stock', [InventoryController::class, 'updateStock']);
 });
 

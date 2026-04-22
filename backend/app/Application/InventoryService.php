@@ -109,6 +109,55 @@ class InventoryService
         ];
     }
 
+    /**
+     * Get the full inventory list with product and variant details.
+     */
+    public function getAllInventory(): array
+    {
+        $db = Database::getInstance();
+        $sql = 'SELECT
+                    pv.id AS variant_id,
+                    p.id AS product_id,
+                    p.name AS product_name,
+                    p.brand,
+                    c.name AS category_name,
+                    pv.sku,
+                    pv.color,
+                    pv.size,
+                    pv.image_2d_url,
+                    COALESCE(i.quantity, pv.stock_quantity) AS stock,
+                    COALESCE(i.reserved_quantity, 0) AS reserved,
+                    COALESCE(i.reorder_level, ?) AS reorder_level,
+                    (COALESCE(i.quantity, pv.stock_quantity) - COALESCE(i.reserved_quantity, 0)) AS available
+                FROM productvariant pv
+                INNER JOIN product p ON p.id = pv.product_id
+                LEFT JOIN category c ON c.id = p.category_id
+                LEFT JOIN inventory i ON i.productvariant_id = pv.id
+                ORDER BY p.name ASC, pv.sku ASC';
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute([self::DEFAULT_LOW_STOCK_THRESHOLD]);
+        $rows = $stmt->fetchAll() ?: [];
+
+        return array_map(static function (array $row): array {
+            return [
+                'variant_id' => (int) $row['variant_id'],
+                'product_id' => (int) $row['product_id'],
+                'product_name' => $row['product_name'],
+                'brand' => $row['brand'],
+                'category' => $row['category_name'],
+                'sku' => $row['sku'],
+                'color' => $row['color'],
+                'size' => $row['size'],
+                'image' => $row['image_2d_url'],
+                'stock' => (int) $row['stock'],
+                'reserved' => (int) $row['reserved'],
+                'available' => (int) $row['available'],
+                'reorder_level' => (int) $row['reorder_level']
+            ];
+        }, $rows);
+    }
+
     private function updateSingleVariant(\PDO $db, array $payload, int $index): array
     {
         $variantId = isset($payload['variant_id']) ? (int) $payload['variant_id'] : 0;
