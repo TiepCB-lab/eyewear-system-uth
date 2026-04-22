@@ -14,6 +14,21 @@ class InventoryController
     }
 
     /**
+     * Get all inventory items.
+     */
+    public function index(): array
+    {
+        try {
+            return [
+                'data' => $this->inventoryService->getAllInventory()
+            ];
+        } catch (\Throwable $e) {
+            http_response_code(500);
+            return ['message' => 'Failed to fetch inventory.', 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
      * Update inventory stock for one or many variants.
      *
      * Accepted payload formats:
