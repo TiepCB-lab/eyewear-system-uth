@@ -39,34 +39,49 @@
       
 
       <!--=============== ACCOUNTS ===============-->
-      <section class="accounts section--lg">
+      <section class="accounts section--lg account-redesign">
         <div class="accounts__container container grid">
           <div class="account__tabs">
             <p class="account__tab active-tab" data-target="#dashboard">
-              <i class="fi fi-rs-settings-sliders"></i> Dashboard
+              <i class="fi fi-rs-settings-sliders"></i><span>Dashboard</span>
             </p>
             <p class="account__tab" data-target="#orders">
-              <i class="fi fi-rs-shopping-bag"></i> Orders
+              <i class="fi fi-rs-shopping-bag"></i><span>Orders</span>
             </p>
             <p class="account__tab" data-target="#support-tickets">
-              <i class="fi fi-rs-envelope"></i> Support Tickets
+              <i class="fi fi-rs-envelope"></i><span>Support Tickets</span>
             </p>
             <p class="account__tab" data-target="#update-profile">
-              <i class="fi fi-rs-user"></i> Update Profile
+              <i class="fi fi-rs-user"></i><span>Update Profile</span>
             </p>
             <p class="account__tab" data-target="#address">
-              <i class="fi fi-rs-marker"></i> My Address
+              <i class="fi fi-rs-marker"></i><span>My Address</span>
             </p>
             <p class="account__tab" data-target="#change-password">
-              <i class="fi fi-rs-settings-sliders"></i> Change Password
+              <i class="fi fi-rs-settings-sliders"></i><span>Change Password</span>
             </p>
-            <p class="account__tab"><i class="fi fi-rs-exit"></i> Logout</p>
+            <p class="account__tab"><i class="fi fi-rs-exit"></i><span>Logout</span></p>
           </div>
           <div class="tabs__content">
             <div class="tab__content active-tab" content id="dashboard">
               <h3 class="tab__header">Hello Rosie</h3>
-              <div class="tab__body">
-                <p class="tab__description">
+              <div class="tab__body account-dashboard__body">
+                <div class="profile-overview-card">
+                  <div class="profile-overview-main">
+                    <img id="profile-avatar" src="../../assets/images/avatar-1.jpg" alt="Profile Avatar" class="profile-overview__avatar" />
+                    <div class="profile-overview__identity">
+                      <p class="profile-overview__label">Account Overview</p>
+                      <h4 class="profile-overview__name" id="profile-fullname">Loading...</h4>
+                      <div class="profile-overview__meta-grid">
+                        <p><span>Date of Birth</span><strong id="profile-birthdate">Not set</strong></p>
+                        <p><span>Phone</span><strong id="profile-phone">Not set</strong></p>
+                        <p><span>Email</span><strong id="profile-email">Not set</strong></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <p class="tab__description profile-dashboard__description">
                   From your account dashboard. you can easily check & view your
                   recent order, manage your shipping and billing addresses and
                   edit your password and account details
@@ -76,86 +91,144 @@
             <div class="tab__content" content id="orders">
               <h3 class="tab__header">Your Orders</h3>
               <div class="tab__body">
-                <table class="placed__order-table">
-                  <thead>
-                    <tr>
-                      <th>Orders</th>
-                      <th>Date</th>
-                      <th>Status</th>
-                      <th>Actions</th>
-                      <th>Payment Status</th>
-                      <th>Production Step</th>
-                    </tr>
-                  </thead>
-                  <tbody id="ordersListBody">
-                    <tr>
-                      <td colspan="7">Loading order tracking...</td>
-                    </tr>
-                  </tbody>
-                </table>
+                <div class="account-table-wrap">
+                  <table class="placed__order-table">
+                    <thead>
+                      <tr>
+                        <th>Orders</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                        <th>Payment Status</th>
+                        <th>Production Step</th>
+                      </tr>
+                    </thead>
+                    <tbody id="ordersListBody">
+                      <tr>
+                        <td colspan="7">Loading order tracking...</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
             
             <div class="tab__content" content id="support-tickets">
               <h3 class="tab__header">Support Tickets</h3>
               <div class="tab__body">
-                <form id="createTicketForm" class="form grid" style="margin-bottom: 2rem;">
+                <form id="createTicketForm" class="form grid account-panel-form">
                   <input type="text" id="ticketSubject" placeholder="Subject / Reason" class="form__input" required />
-                  <textarea id="ticketMessage" placeholder="Detailed message..." class="form__input" style="height: 100px;" required></textarea>
+                  <textarea id="ticketMessage" placeholder="Detailed message..." class="form__input account-textarea" required></textarea>
                   <button type="submit" class="btn btn--md">Create Ticket</button>
                 </form>
                 
-                <table class="placed__order-table">
-                  <thead>
-                    <tr>
-                      <th>Subject</th>
-                      <th>Status</th>
-                      <th>Update</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody id="userTicketsList">
-                    <tr><td colspan="4">Loading tickets...</td></tr>
-                  </tbody>
-                </table>
+                <div class="account-table-wrap">
+                  <table class="placed__order-table">
+                    <thead>
+                      <tr>
+                        <th>Subject</th>
+                        <th>Status</th>
+                        <th>Update</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="userTicketsList">
+                      <tr><td colspan="4">Loading tickets...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
             <div class="tab__content" content id="update-profile">
               <h3 class="tab__header">Update Profile</h3>
-              <div class="tab__body">
-                <form class="form grid" id="profile-form">
-                  <input
-                    type="text"
-                    placeholder="Phone"
-                    class="form__input"
-                    name="phone"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Address"
-                    class="form__input"
-                    name="address"
-                  />
-                  <input
-                    type="date"
-                    placeholder="Birthdate"
-                    class="form__input"
-                    name="birthdate"
-                  />
-                  <div class="form__btn">
-                    <button type="submit" class="btn btn--md">Save</button>
-                  </div>
-                </form>
+              <div class="tab__body account-profile-editor">
+                <div class="profile-editor__intro">
+                  <h4>Personal Details</h4>
+                  <p>Keep your profile updated so orders, support, and delivery information stay accurate.</p>
+                </div>
+                <div class="profile-editor__grid">
+                  <form class="form grid account-panel-form profile-avatar-form" id="avatar-form">
+                    <button type="button" class="profile-avatar-form__preview" id="profile-avatar-trigger" aria-label="Change profile photo">
+                      <img id="profile-editor-avatar" src="../../assets/images/avatar-1.jpg" alt="Avatar Preview" class="profile-avatar-form__image" />
+                      <span class="profile-avatar-form__badge">Change photo</span>
+                    </button>
+                    <input id="profile-editor-name-input" type="text" class="form__input profile-avatar-form__name-input" placeholder="Enter your full name" />
+                    <input id="avatar-input" type="file" accept="image/png,image/jpeg,image/webp" class="profile-avatar-form__file-input" name="avatar" />
+                    <p class="profile-editor__hint">Click the photo to choose a new avatar.</p>
+                  </form>
+
+                  <form class="form grid profile-details-form" id="profile-form">
+                    <input id="profile-full-name" type="hidden" name="full_name" />
+                    <div class="profile-details-form__group">
+                      <label class="profile-editor__label" for="profile-email-input">Email</label>
+                      <input
+                        id="profile-email-input"
+                        type="email"
+                        placeholder="Email"
+                        class="form__input"
+                        readonly
+                      />
+                    </div>
+                    <div class="profile-details-form__group">
+                      <label class="profile-editor__label" for="profile-birthdate-input">Birthdate</label>
+                      <input
+                        id="profile-birthdate-input"
+                        type="date"
+                        placeholder="Birthdate"
+                        class="form__input"
+                        name="birthdate"
+                      />
+                    </div>
+                  </form>
+                </div>
+                <div class="profile-editor__actions">
+                  <button type="submit" form="profile-form" class="btn btn--md">Save Changes</button>
+                </div>
               </div>
             </div>
             <div class="tab__content" content id="address">
               <h3 class="tab__header">Shipping Address</h3>
               <div class="tab__body">
-                <address class="address" id="account-address">
-                  Loading address...
-                </address>
-                <p class="city" id="account-address-meta"></p>
-                <a href="#" class="edit" id="edit-address-link">Edit</a>
+                <div class="address-panel" id="address-view">
+                  <address class="address" id="account-address">
+                    Loading address...
+                  </address>
+                  <p class="city" id="account-address-meta"></p>
+                  <button type="button" class="edit address-edit-btn" id="edit-address-link">Edit Address</button>
+                </div>
+
+                <form class="address-editor" id="address-editor" hidden>
+                  <div class="profile-editor__intro address-editor__intro">
+                    <h4>Update Shipping Details</h4>
+                    <p>Edit your delivery information here without opening another profile screen.</p>
+                  </div>
+
+                  <div class="profile-details-form__group profile-details-form__group--full">
+                    <label class="profile-editor__label" for="address-phone-input">Phone Number</label>
+                    <input
+                      id="address-phone-input"
+                      type="text"
+                      placeholder="Enter your phone"
+                      class="form__input"
+                      name="phone"
+                    />
+                  </div>
+
+                  <div class="profile-details-form__group profile-details-form__group--full">
+                    <label class="profile-editor__label" for="address-text-input">Address</label>
+                    <textarea
+                      id="address-text-input"
+                      placeholder="Enter your shipping address"
+                      class="form__input account-textarea address-editor__textarea"
+                      name="address"
+                    ></textarea>
+                  </div>
+
+                  <div class="address-editor__actions">
+                    <button type="button" class="btn btn--md btn--outline" id="cancel-address-edit">Cancel</button>
+                    <button type="submit" class="btn btn--md">Save Address</button>
+                  </div>
+                </form>
               </div>
             </div>
             <div class="tab__content" content id="change-password">
@@ -245,45 +318,128 @@
               }
             }
 
+      function formatBirthdate(value) {
+        if (!value) return 'Not set';
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return 'Not set';
+        return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+      }
+
+      function normalizeAvatarUrl(avatar) {
+        if (!avatar) return '../../assets/images/avatar-1.jpg';
+        if (avatar.startsWith('http://') || avatar.startsWith('https://')) return avatar;
+        if (avatar.startsWith('/')) return `http://localhost:8000${avatar}`;
+        return `http://localhost:8000/${avatar.replace(/^\/+/, '')}`;
+      }
+
+      async function loadProfileData() {
+        const response = await profileService.getProfile();
+        const profile = response.profile || {};
+        const user = profile.user || {};
+
+        const fullNameInput = document.querySelector('input[name="full_name"]');
+        const birthdateInput = document.querySelector('input[name="birthdate"]');
+        const profileEmailInput = document.getElementById('profile-email-input');
+        const profileEditorNameInput = document.getElementById('profile-editor-name-input');
+
+        if (fullNameInput) fullNameInput.value = user.full_name || user.name || '';
+        if (profileEditorNameInput) profileEditorNameInput.value = user.full_name || user.name || '';
+        if (birthdateInput) birthdateInput.value = profile.birthdate || '';
+        if (profileEmailInput) profileEmailInput.value = user.email || '';
+
+        const dashboardTab = document.querySelector('#dashboard .tab__header');
+        const displayName = user.full_name || user.name || 'User';
+        if (dashboardTab) {
+          dashboardTab.textContent = `Hello ${displayName}`;
+        }
+
+        const fullNameEl = document.getElementById('profile-fullname');
+        const birthdateEl = document.getElementById('profile-birthdate');
+        const phoneEl = document.getElementById('profile-phone');
+        const emailEl = document.getElementById('profile-email');
+        const avatarEl = document.getElementById('profile-avatar');
+        const editorAvatarEl = document.getElementById('profile-editor-avatar');
+        const avatarSrc = normalizeAvatarUrl(profile.avatar);
+
+        if (fullNameEl) fullNameEl.textContent = displayName;
+        if (birthdateEl) birthdateEl.textContent = formatBirthdate(profile.birthdate);
+        if (phoneEl) phoneEl.textContent = profile.phone || 'Not set';
+        if (emailEl) emailEl.textContent = user.email || 'Not set';
+        if (avatarEl) {
+          avatarEl.src = avatarSrc;
+          avatarEl.onerror = () => {
+            avatarEl.src = '../../assets/images/avatar-1.jpg';
+          };
+        }
+
+        if (editorAvatarEl) {
+          editorAvatarEl.src = avatarSrc;
+          editorAvatarEl.onerror = () => {
+            editorAvatarEl.src = '../../assets/images/avatar-1.jpg';
+          };
+        }
+
+        const headerGreeting = document.querySelector('.user-trigger span');
+        if (headerGreeting && displayName) {
+          headerGreeting.textContent = `Hi, ${displayName}`;
+        }
+
+        const addressBox = document.getElementById('account-address');
+        const addressMeta = document.getElementById('account-address-meta');
+        const addressPhoneInput = document.getElementById('address-phone-input');
+        const addressTextInput = document.getElementById('address-text-input');
+        if (addressBox) {
+          const accountAddress = profile.billing_address || profile.address || 'No address set yet.';
+          addressBox.innerHTML = accountAddress
+            .split('\n')
+            .map(line => line.trim())
+            .filter(Boolean)
+            .join('<br />');
+        }
+        if (addressMeta) {
+          addressMeta.textContent = profile.phone ? `Phone: ${profile.phone}` : 'No phone number set.';
+        }
+        if (addressPhoneInput) {
+          addressPhoneInput.value = profile.phone || '';
+        }
+        if (addressTextInput) {
+          addressTextInput.value = profile.address || '';
+        }
+
+        if (profile.recent_orders) {
+          renderOrdersTable(profile.recent_orders);
+        }
+
+        return profile;
+      }
+
+      const avatarTrigger = document.getElementById('profile-avatar-trigger');
+      const avatarInput = document.getElementById('avatar-input');
+      const avatarPreview = document.getElementById('profile-editor-avatar');
+
+      if (avatarTrigger && avatarInput) {
+        avatarTrigger.addEventListener('click', () => avatarInput.click());
+      }
+
+      if (avatarInput && avatarPreview) {
+        avatarInput.addEventListener('change', () => {
+          const file = avatarInput.files?.[0];
+          if (!file) return;
+
+          const previewUrl = URL.createObjectURL(file);
+          avatarPreview.src = previewUrl;
+          avatarPreview.onload = () => URL.revokeObjectURL(previewUrl);
+        });
+      }
+
       // Load profile data when page loads
       document.addEventListener('DOMContentLoaded', async () => {
         try {
-          const response = await profileService.getProfile();
-          const profile = response.profile;
-          const user = profile.user || {};
-
-          // Populate form
-          document.querySelector('input[name="phone"]').value = profile.phone || '';
-          document.querySelector('input[name="address"]').value = profile.address || '';
-          document.querySelector('input[name="birthdate"]').value = profile.birthdate || '';
-
-          // Update dashboard greeting
-          const dashboardTab = document.querySelector('#dashboard .tab__header');
-          if (dashboardTab) {
-            dashboardTab.textContent = `Hello ${user.full_name || user.name || 'User'}`;
-          }
-
-          const addressBox = document.getElementById('account-address');
-          const addressMeta = document.getElementById('account-address-meta');
-          if (addressBox) {
-            const accountAddress = profile.billing_address || profile.address || 'No address set yet.';
-            addressBox.innerHTML = accountAddress
-              .split('\n')
-              .map(line => line.trim())
-              .filter(Boolean)
-              .join('<br />');
-          }
-          if (addressMeta) {
-            addressMeta.textContent = profile.phone ? `Phone: ${profile.phone}` : 'No phone number set.';
-          }
-
-          if (profile.recent_orders) {
-            renderOrdersTable(profile.recent_orders);
-          }
+          await loadProfileData();
         } catch (error) {
           console.error('Failed to load profile:', error);
           if (error.response?.status === 401) {
-            window.location.href = '/pages/auth/index.html';
+            window.location.href = '../auth/index.html';
           }
         }
       });
@@ -291,24 +447,118 @@
       // Handle profile update
       document.getElementById('profile-form').addEventListener('submit', async (e) => {
         e.preventDefault();
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const fileInput = document.getElementById('avatar-input');
+        const file = fileInput?.files?.[0];
+
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = file ? 'Saving...' : 'Saving...';
+        }
+
         const formData = new FormData(e.target);
         const data = Object.fromEntries(formData);
         try {
           await profileService.updateProfile(data);
+          if (file) {
+            await profileService.uploadAvatar(file);
+            fileInput.value = '';
+          }
+          await loadProfileData();
           alert('Profile updated successfully!');
         } catch (error) {
           alert('Failed to update profile: ' + (error.response?.data?.message || error.message));
+        } finally {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Save Changes';
+          }
         }
       });
+
+      const profileEditorNameInput = document.getElementById('profile-editor-name-input');
+      const hiddenProfileNameInput = document.getElementById('profile-full-name');
+      if (profileEditorNameInput && hiddenProfileNameInput) {
+        profileEditorNameInput.addEventListener('input', () => {
+          hiddenProfileNameInput.value = profileEditorNameInput.value;
+        });
+      }
+
+      const editAddressLink = document.getElementById('edit-address-link');
+      const addressView = document.getElementById('address-view');
+      const addressEditor = document.getElementById('address-editor');
+      const cancelAddressEdit = document.getElementById('cancel-address-edit');
+      const addressEditorForm = document.getElementById('address-editor');
+
+      function openAddressEditor() {
+        if (addressView) addressView.hidden = true;
+        if (addressEditor) addressEditor.hidden = false;
+
+        setTimeout(() => {
+          const addressInput = document.getElementById('address-text-input');
+          if (addressInput) {
+            addressInput.focus();
+            addressInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 50);
+      }
+
+      function closeAddressEditor() {
+        if (addressEditor) addressEditor.hidden = true;
+        if (addressView) addressView.hidden = false;
+      }
+
+      if (editAddressLink) {
+        editAddressLink.addEventListener('click', (e) => {
+          e.preventDefault();
+
+          openAddressEditor();
+        });
+      }
+
+      if (cancelAddressEdit) {
+        cancelAddressEdit.addEventListener('click', () => {
+          closeAddressEditor();
+        });
+      }
+
+      if (addressEditorForm) {
+        addressEditorForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+
+          const submitBtn = addressEditorForm.querySelector('button[type="submit"]');
+          const formData = new FormData(addressEditorForm);
+          const data = Object.fromEntries(formData);
+
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Saving...';
+          }
+
+          try {
+            await profileService.updateProfile(data);
+            await loadProfileData();
+            closeAddressEditor();
+            alert('Address updated successfully!');
+          } catch (error) {
+            alert('Failed to update address: ' + (error.response?.data?.message || error.message));
+          } finally {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.textContent = 'Save Address';
+            }
+          }
+        });
+      }
 
       // Handle logout
       document.querySelector('.account__tab:last-child').addEventListener('click', async () => {
         try {
           await authService.logout();
-          window.location.href = '/pages/auth/index.html';
+          window.location.href = '../auth/index.html';
         } catch (error) {
           console.error('Logout error:', error);
-          window.location.href = '/pages/auth/index.html';
+          window.location.href = '../auth/index.html';
         }
       });
 

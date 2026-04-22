@@ -26,6 +26,27 @@ class AuthService {
     return response.data;
   }
 
+  async verifyEmail(token) {
+    const response = await fetch(`${apiClient.defaults.baseURL}/auth/verify?token=${encodeURIComponent(token)}`, {
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+
+    let data = {};
+    try {
+      data = await response.json();
+    } catch (error) {
+      data = {};
+    }
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Verification failed.');
+    }
+
+    return data;
+  }
+
   async getCurrentUser() {
     const response = await apiClient.get('/auth/me');
     return response.data;
