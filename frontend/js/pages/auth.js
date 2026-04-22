@@ -1,6 +1,16 @@
 import authService from '../services/authService.js';
 
 (function() {
+    // If already logged in, redirect away
+    if (authService.isAuthenticated()) {
+        const context = authService.getPrimaryContext();
+        if (context === 'staff') {
+            window.location.href = '/pages/dashboard/index.html';
+        } else {
+            window.location.href = '/index.html';
+        }
+        return;
+    }
     const signUpButton = document.getElementById('signUp');
     const signInButton = document.getElementById('signIn');
     const toSignUpMobile = document.getElementById('toSignUpMobile');
@@ -136,9 +146,9 @@ import authService from '../services/authService.js';
                 const context = authService.getPrimaryContext();
                 
                 if (context === 'staff') {
-                    window.location.href = '/frontend/pages/dashboard/index.html';
+                    window.location.href = '/pages/dashboard/index.html';
                 } else {
-                    window.location.href = '/frontend/index.html';
+                    window.location.href = '/index.html';
                 }
             } catch (error) {
                 alert('Login failed: ' + (error.response?.data?.message || error.message));
