@@ -91,18 +91,39 @@ class AuthController
     {
         $token = $_GET['token'] ?? null;
         $config = $this->loadConfig();
-        $frontendUrl = rtrim($config['FRONTEND_URL'] ?? 'http://127.0.0.1:5500/frontend', '/');
+        $frontendUrl = $this->normalizeFrontendUrl($config['FRONTEND_URL'] ?? 'http://localhost:5500');
+        $expectsJson = str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json');
+
+        $respondJson = function (int $statusCode, array $payload) use ($expectsJson) {
+            if (!$expectsJson) {
+                return false;
+            }
+
+            http_response_code($statusCode);
+            header('Content-Type: application/json; charset=UTF-8');
+            echo json_encode($payload);
+            return true;
+        };
 
         if (!$token) {
+            if ($respondJson(400, ['verified' => false, 'message' => 'Verification token is required.'])) {
+                return;
+            }
             header("Location: {$frontendUrl}/pages/auth/?verified=0&error=" . urlencode('Verification token is required.'));
             exit;
         }
 
         try {
             $email = $this->authService->verifyEmail($token);
+            if ($respondJson(200, ['verified' => true, 'email' => $email, 'message' => 'Email verified successfully.'])) {
+                return;
+            }
             header("Location: {$frontendUrl}/pages/auth/?verified=1&email=" . urlencode($email));
             exit;
         } catch (\Exception $e) {
+            if ($respondJson(422, ['verified' => false, 'message' => $e->getMessage()])) {
+                return;
+            }
             header("Location: {$frontendUrl}/pages/auth/?verified=0&error=" . urlencode($e->getMessage()));
             exit;
         }
@@ -176,6 +197,12 @@ class AuthController
             }
         }
         return $config;
+    }
+
+    private function normalizeFrontendUrl(string $frontendUrl): string
+    {
+        $frontendUrl = rtrim($frontendUrl, '/');
+        return preg_replace('#/frontend$#', '', $frontendUrl) ?? $frontendUrl;
     }
 
     private function getBearerToken(): ?string

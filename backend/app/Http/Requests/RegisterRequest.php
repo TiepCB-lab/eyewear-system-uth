@@ -1,6 +1,6 @@
 <?php
 // PHẢI Ở TRÊN CÙNG: Cho phép Frontend từ cổng 5500 truy cập
-header("Access-Control-Allow-Origin: http://127.0.0.1:5500");
+header("Access-Control-Allow-Origin: http://localhost:5500");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
 header("Content-Type: application/json; charset=UTF-8");
@@ -68,8 +68,7 @@ try {
         $mail->isHTML(true);
         $mail->Subject = 'Xac thuc tai khoan';
         
-        // Link xác thực qua XAMPP (Cổng 80)
-        $verifyLink = "http://localhost/EYEWEAR-SYSTEM-UTH/backend/verify.php?token=$token";
+        $verifyLink = "http://localhost:5500/pages/auth/?token=" . urlencode($token);
 
         $mail->Body = "Chào $full_name, <br>Bấm vào link để kích hoạt: <a href='$verifyLink'>KÍCH HOẠT</a>";
         

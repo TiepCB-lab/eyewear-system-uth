@@ -50,6 +50,18 @@ class ProfileService
      */
     public function updateProfile(int $userId, array $data)
     {
+        $db = Database::getInstance();
+
+        if (isset($data['full_name'])) {
+            $fullName = trim((string) $data['full_name']);
+            if ($fullName === '') {
+                throw new \Exception('Full name cannot be empty');
+            }
+
+            $updateUserStmt = $db->prepare('UPDATE `user` SET full_name = ? WHERE id = ?');
+            $updateUserStmt->execute([$fullName, $userId]);
+        }
+
         $profile = Profile::firstWhere('user_id', $userId);
 
         if (!$profile) {
@@ -59,7 +71,7 @@ class ProfileService
                 'address' => $data['address'] ?? null,
                 'birthdate' => $data['birthdate'] ?? null,
             ]);
-            return $profile->toArray();
+            return $this->getProfile($userId);
         }
 
         $updateData = [];
@@ -71,7 +83,7 @@ class ProfileService
             $profile->update($updateData);
         }
 
-        return $profile->toArray();
+        return $this->getProfile($userId);
     }
 
     /**
@@ -82,7 +94,14 @@ class ProfileService
         $profile = Profile::firstWhere('user_id', $userId);
 
         if (!$profile) {
-            throw new \Exception('Profile not found');
+            $profile = Profile::create([
+                'user_id' => $userId,
+                'phone' => null,
+                'address' => null,
+                'birthdate' => null,
+                'avatar' => $filePath,
+            ]);
+            return $profile->toArray();
         }
 
         $profile->update(['avatar' => $filePath]);

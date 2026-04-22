@@ -18,12 +18,13 @@ function loadFrontendUrl(): string
         foreach ($lines as $line) {
             if (str_starts_with(trim($line), 'FRONTEND_URL=')) {
                 [, $value] = explode('=', $line, 2);
-                return rtrim(trim($value, " \t\n\r\0\x0B\"'"), '/');
+                $frontendUrl = rtrim(trim($value, " \t\n\r\0\x0B\"'"), '/');
+                return preg_replace('#/frontend$#', '', $frontendUrl) ?? $frontendUrl;
             }
         }
     }
 
-    return 'http://127.0.0.1:5500/frontend';
+    return 'http://localhost:5500';
 }
 
 $frontendUrl = loadFrontendUrl();

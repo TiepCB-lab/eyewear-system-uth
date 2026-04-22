@@ -86,6 +86,7 @@ Router::group(['prefix' => 'api/auth'], function () {
 Router::group(['prefix' => 'api/profile', 'middleware' => 'auth:sanctum'], function () {
     Router::get('/', [ProfileController::class, 'show']);
     Router::put('/', [ProfileController::class, 'update']);
+    Router::post('avatar', [ProfileController::class, 'uploadAvatar']);
 });
 
 Router::group(['prefix' => 'api/v1/cart'], function () {
