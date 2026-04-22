@@ -281,7 +281,6 @@ class AuthService
         $mailPassword = $config['MAIL_PASSWORD'] ?? '';
         $mailFrom = $config['MAIL_FROM_ADDRESS'] ?? $mailUsername;
         $mailFromName = $config['MAIL_FROM_NAME'] ?? 'Eyewear System';
-        $appUrl = rtrim($config['APP_URL'] ?? 'http://localhost:8000', '/');
 
         if (!$mailUsername || !$mailPassword) {
             throw new \Exception('SMTP email configuration is missing.');
@@ -307,10 +306,11 @@ class AuthService
         $mail->setFrom($mailFrom, $mailFromName);
         $mail->addAddress($email);
         $mail->isHTML(true);
-        $mail->Subject = 'Xác thực tài khoản Eyewear';
+        $mail->Subject = '[EVLS] Xác thực tài khoản của bạn';
 
-        $verifyLink = $appUrl . '/api/auth/verify?token=' . urlencode($token);
-        $mail->Body = "Chào {$name},<br><br>Vui lòng kích hoạt tài khoản tại đây:<br><br><a href=\"{$verifyLink}\">{$verifyLink}</a>";
+        $verifyLink = $this->buildVerificationUrl($token);
+        $logoHtml = $this->buildEmbeddedLogoHtml($mail);
+        $mail->Body = $this->buildVerificationEmailHtml($name, $verifyLink, $logoHtml);
 
         if (!$mail->send()) {
             throw new \Exception('Could not send verification email.');
@@ -351,8 +351,9 @@ class AuthService
         $mail->setFrom($mailFrom, $mailFromName);
         $mail->addAddress($email);
         $mail->isHTML(true);
-        $mail->Subject = 'Dat lai mat khau Eyewear';
-        $mail->Body = "Chao {$name},<br><br>Ban vua yeu cau dat lai mat khau.<br>Vui long nhan vao link duoi day (hieu luc 60 phut):<br><br><a href=\"{$resetUrl}\">{$resetUrl}</a>";
+        $mail->Subject = '[EVLS] Dat lai mat khau cua ban';
+        $logoHtml = $this->buildEmbeddedLogoHtml($mail);
+        $mail->Body = $this->buildResetPasswordEmailHtml($name, $resetUrl, $logoHtml);
 
         if (!$mail->send()) {
             throw new \Exception('Could not send reset password email.');
@@ -362,8 +363,77 @@ class AuthService
     private function buildVerificationUrl(string $token): string
     {
         $config = $this->loadEnvConfig();
-        $appUrl = rtrim($config['APP_URL'] ?? 'http://localhost:8000', '/');
-        return $appUrl . '/api/auth/verify?token=' . urlencode($token);
+        $frontendUrl = rtrim($config['FRONTEND_URL'] ?? 'http://localhost:5500', '/');
+        $frontendUrl = preg_replace('#/frontend$#', '', $frontendUrl) ?? $frontendUrl;
+        return $frontendUrl . '/pages/auth/?token=' . urlencode($token);
+    }
+
+        private function buildVerificationEmailHtml(string $name, string $verifyLink, string $logoHtml = ''): string
+        {
+                $safeName = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
+                $safeLink = htmlspecialchars($verifyLink, ENT_QUOTES, 'UTF-8');
+                $logoBlock = $logoHtml === '' ? '' : '<div style="text-align: center; padding: 20px 28px 8px 28px;">' . $logoHtml . '</div>';
+
+                return <<<HTML
+<div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #1f2937; background: #f7faf9; padding: 24px;">
+    <div style="max-width: 620px; margin: 0 auto; background: #ffffff; border: 1px solid #e4ede9; border-radius: 18px; overflow: hidden;">
+        {$logoBlock}
+        <div style="background: linear-gradient(135deg, #0f8b7c, #0b6f63); color: #fff; padding: 22px 28px;">
+            <h2 style="margin: 0; font-size: 22px;">[EVLS] Xác thực tài khoản của bạn</h2>
+        </div>
+        <div style="padding: 28px; font-size: 15px;">
+            <p style="margin: 0 0 14px 0;">Chào {$safeName},</p>
+            <p style="margin: 0 0 14px 0;">Cảm ơn bạn đã tin tưởng và lựa chọn đồng hành cùng EVLS.</p>
+            <p style="margin: 0 0 18px 0;">Để hoàn tất việc đăng ký và bắt đầu trải nghiệm mua sắm, bạn vui lòng nhấn vào nút xác nhận bên dưới:</p>
+            <p style="text-align: center; margin: 28px 0;">
+                <a href="{$safeLink}" style="display: inline-block; background: #0f8b7c; color: #fff; text-decoration: none; font-weight: 700; padding: 14px 24px; border-radius: 999px;">Xác nhận Email của tôi</a>
+            </p>
+            <p style="margin: 0 0 14px 0;">Việc xác thực này giúp bảo mật tài khoản của bạn và đảm bảo bạn không bỏ lỡ bất kỳ ưu đãi đặc quyền nào từ EVLS.</p>
+            <p style="margin: 24px 0 0 0; font-size: 13px; color: #6b7280;">Nếu nút không hoạt động, bạn có thể mở liên kết sau: <br><a href="{$safeLink}" style="color: #0f8b7c; word-break: break-all;">{$safeLink}</a></p>
+        </div>
+    </div>
+</div>
+HTML;
+        }
+
+    private function buildResetPasswordEmailHtml(string $name, string $resetUrl, string $logoHtml = ''): string
+    {
+        $safeName = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
+        $safeLink = htmlspecialchars($resetUrl, ENT_QUOTES, 'UTF-8');
+        $logoBlock = $logoHtml === '' ? '' : '<div style="text-align: center; padding: 20px 28px 8px 28px;">' . $logoHtml . '</div>';
+
+        return <<<HTML
+<div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #1f2937; background: #f7faf9; padding: 24px;">
+    <div style="max-width: 620px; margin: 0 auto; background: #ffffff; border: 1px solid #e4ede9; border-radius: 18px; overflow: hidden;">
+        {$logoBlock}
+        <div style="background: linear-gradient(135deg, #0f8b7c, #0b6f63); color: #fff; padding: 22px 28px;">
+            <h2 style="margin: 0; font-size: 22px;">[EVLS] Dat lai mat khau cua ban</h2>
+        </div>
+        <div style="padding: 28px; font-size: 15px;">
+            <p style="margin: 0 0 14px 0;">Chao {$safeName},</p>
+            <p style="margin: 0 0 14px 0;">Ban vua gui yeu cau dat lai mat khau cho tai khoan EVLS.</p>
+            <p style="margin: 0 0 18px 0;">De tiep tuc, vui long nhan vao nut ben duoi. Link co hieu luc trong 60 phut:</p>
+            <p style="text-align: center; margin: 28px 0;">
+                <a href="{$safeLink}" style="display: inline-block; background: #0f8b7c; color: #fff; text-decoration: none; font-weight: 700; padding: 14px 24px; border-radius: 999px;">Dat lai mat khau</a>
+            </p>
+            <p style="margin: 0 0 14px 0;">Neu ban khong yeu cau thao tac nay, hay bo qua email nay de bao ve tai khoan.</p>
+            <p style="margin: 24px 0 0 0; font-size: 13px; color: #6b7280;">Neu nut khong hoat dong, ban co the mo lien ket sau:<br><a href="{$safeLink}" style="color: #0f8b7c; word-break: break-all;">{$safeLink}</a></p>
+        </div>
+    </div>
+</div>
+HTML;
+    }
+
+    private function buildEmbeddedLogoHtml(PHPMailer $mail): string
+    {
+        $logoPath = dirname(__DIR__, 2) . '/frontend/assets/images/logo.png';
+        if (!is_file($logoPath)) {
+            return '';
+        }
+
+        $cid = 'evls-logo';
+        $mail->addEmbeddedImage($logoPath, $cid, 'logo.png', 'base64', 'image/png');
+        return '<img src="cid:' . $cid . '" alt="EVLS" style="max-width: 240px; width: 100%; height: auto; display: inline-block;" />';
     }
 
     private function buildResetPasswordUrl(string $email, string $token): string
@@ -375,19 +445,8 @@ class AuthService
     private function resolveFrontendBaseUrl(): string
     {
         $config = $this->loadEnvConfig();
-        $frontendUrl = rtrim($config['FRONTEND_URL'] ?? 'http://127.0.0.1:5500/frontend', '/');
-        $parsed = parse_url($frontendUrl);
-        $path = $parsed['path'] ?? '';
-
-        if ($path === '' || $path === '/') {
-            return $frontendUrl . '/frontend';
-        }
-
-        if (!str_contains($path, '/frontend')) {
-            return $frontendUrl . '/frontend';
-        }
-
-        return $frontendUrl;
+        $frontendUrl = rtrim($config['FRONTEND_URL'] ?? 'http://localhost:5500', '/');
+        return preg_replace('#/frontend$#', '', $frontendUrl) ?? $frontendUrl;
     }
 
     private function deleteResetToken(string $email): void

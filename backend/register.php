@@ -68,10 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        $path = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
-        $verifyLink = "$protocol://$host$path/verify.php?token=$token";
+        $verifyLink = 'http://localhost:5500/pages/auth/?token=' . urlencode($token);
 
         $mail = new PHPMailer(true);
         $mail->isSMTP();
@@ -86,8 +83,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mail->setFrom('nhuy1532005@gmail.com', 'Eyewear System');
         $mail->addAddress($email);
         $mail->isHTML(true);
-        $mail->Subject = 'Xác thực tài khoản Eyewear';
-        $mail->Body = "Chào $full_name,<br><br>Vui lòng bấm vào link bên dưới để kích hoạt tài khoản của bạn:<br><br><a href='$verifyLink'>$verifyLink</a><br><br>Xin cảm ơn!";
+                $mail->Subject = '[EVLS] Xác thực tài khoản của bạn';
+                $mail->Body = "
+                <div style='font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #1f2937; background: #f7faf9; padding: 24px;'>
+                    <div style='max-width: 620px; margin: 0 auto; background: #ffffff; border: 1px solid #e4ede9; border-radius: 18px; overflow: hidden;'>
+                        <div style='background: linear-gradient(135deg, #0f8b7c, #0b6f63); color: #fff; padding: 22px 28px;'>
+                            <h2 style='margin: 0; font-size: 22px;'>[EVLS] Xác thực tài khoản của bạn</h2>
+                        </div>
+                        <div style='padding: 28px; font-size: 15px;'>
+                            <p style='margin: 0 0 14px 0;'>Chào $full_name,</p>
+                            <p style='margin: 0 0 14px 0;'>Cảm ơn bạn đã tin tưởng và lựa chọn đồng hành cùng EVLS.</p>
+                            <p style='margin: 0 0 18px 0;'>Để hoàn tất việc đăng ký và bắt đầu trải nghiệm mua sắm, bạn vui lòng nhấn vào nút xác nhận bên dưới:</p>
+                            <p style='text-align: center; margin: 28px 0;'>
+                                <a href='$verifyLink' style='display: inline-block; background: #0f8b7c; color: #fff; text-decoration: none; font-weight: 700; padding: 14px 24px; border-radius: 999px;'>Xác nhận Email của tôi</a>
+                            </p>
+                            <p style='margin: 0 0 14px 0;'>Việc xác thực này giúp bảo mật tài khoản của bạn và đảm bảo bạn không bỏ lỡ bất kỳ ưu đãi đặc quyền nào từ EVLS.</p>
+                            <p style='margin: 24px 0 0 0; font-size: 13px; color: #6b7280;'>Nếu nút không hoạt động, bạn có thể mở liên kết sau:<br><a href='$verifyLink' style='color: #0f8b7c; word-break: break-all;'>$verifyLink</a></p>
+                        </div>
+                    </div>
+                </div>";
 
         $mail->send();
         echo "Đăng ký thành công! Hãy kiểm tra hộp thư của bạn để kích hoạt tài khoản.";
