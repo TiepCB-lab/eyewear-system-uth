@@ -20,11 +20,7 @@ function parse_env_file(string $path): array {
 
     foreach ($lines as $line) {
         $line = trim($line);
-        if ($line === '' || str_starts_with($line, '#') || str_starts_with($line, ';')) {
-            continue;
-        }
-
-        if (!str_contains($line, '=')) {
+        if ($line === '' || str_starts_with($line, '#') || str_starts_with($line, ';') || !str_contains($line, '=')) {
             continue;
         }
 
@@ -42,134 +38,188 @@ function parse_env_file(string $path): array {
     return $result;
 }
 
-function load_env_config() {
-    $candidates = [
+function load_env_config(): array {
+    foreach ([
         APP_ROOT . DIRECTORY_SEPARATOR . '.env.local',
         APP_ROOT . DIRECTORY_SEPARATOR . '.env',
         dirname(APP_ROOT) . DIRECTORY_SEPARATOR . '.env',
-    ];
-
-    foreach ($candidates as $path) {
+    ] as $path) {
         if (is_file($path)) {
-            $config = parse_env_file($path);
-            if (is_array($config)) {
-                return $config;
-            }
+            return parse_env_file($path);
         }
     }
+
     return [];
 }
 
 echo "Starting Database Seeder...\n";
 
 $config = load_env_config();
-
-$host = env_value($config, ['DB_HOST', 'MYSQL_HOST'], '127.0.0.1');
-$port = env_value($config, ['DB_PORT', 'MYSQL_PORT'], '3306');
-$database = env_value($config, ['DB_DATABASE', 'MYSQL_DATABASE'], 'eyewear_system');
+$dsn = sprintf(
+    'mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4',
+    env_value($config, ['DB_HOST', 'MYSQL_HOST'], '127.0.0.1'),
+    env_value($config, ['DB_PORT', 'MYSQL_PORT'], '3306'),
+    env_value($config, ['DB_DATABASE', 'MYSQL_DATABASE'], 'eyewear_system')
+);
 $username = env_value($config, ['DB_USERNAME', 'MYSQL_USER'], 'root');
 $password = env_value($config, ['DB_PASSWORD', 'MYSQL_PASSWORD'], '');
 
 try {
-    $dsn = 'mysql:host=' . $host . ';port=' . $port . ';dbname=' . $database . ';charset=utf8mb4';
     $pdo = new PDO($dsn, $username, $password, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     ]);
-    
-    echo "Connected to database '{$database}'.\n";
 
-    // 1. Roles
-    $pdo->exec("
-    INSERT INTO role (name, description) VALUES
-        ('system_admin', 'Cấu hình và quản trị chức năng hệ thống'),
-        ('manager', 'Quản lý quy định, sản phẩm, giá, nhân sự, doanh thu'),
-        ('sales_staff', 'Tiếp nhận đơn, ưu đãi, khiếu nại, xác nhận thông số kính'),
-        ('operations_staff', 'Đóng gói, giao vận, gia công tròng kính'),
-        ('customer', 'Xem sản phẩm, đặt hàng, quản lý tài khoản')
-    ON DUPLICATE KEY UPDATE description = VALUES(description);
-    ");
+    echo "Connected to database.\n";
 
-    // 2. Categories
-    $pdo->exec("
-    INSERT INTO category (name, slug, description) VALUES
-        ('Gọng kính', 'gong-kinh', 'Các loại gọng kính thời trang'),
-        ('Kính râm', 'kinh-ram', 'Kính chống nắng và bảo vệ mắt'),
-        ('Tròng kính', 'trong-kinh', 'Các loại tròng kính thuốc')
-    ON DUPLICATE KEY UPDATE name = VALUES(name);
-    ");
+    $pdo->exec("\n        INSERT INTO role (name, description) VALUES\n            ('system_admin', 'Cấu hình và quản trị chức năng hệ thống'),\n            ('manager', 'Quản lý quy định, sản phẩm, giá, nhân sự, doanh thu'),\n            ('sales_staff', 'Tiếp nhận đơn, ưu đãi, khiếu nại, xác nhận thông số kính'),\n            ('operations_staff', 'Đóng gói, giao vận, gia công tròng kính'),\n            ('customer', 'Xem sản phẩm, đặt hàng, quản lý tài khoản')\n        ON DUPLICATE KEY UPDATE description = VALUES(description);\n    ");
 
-    // 3. Products
-    $catId = $pdo->query("SELECT id FROM category WHERE slug = 'gong-kinh'")->fetchColumn();
-    
-    $pdo->exec("
-    INSERT INTO product (category_id, name, model_name, slug, base_price, brand, gender) VALUES
-        ($catId, 'Ray-Ban Aviator', 'RB3025', 'ray-ban-aviator', 3500000, 'Ray-Ban', 'unisex'),
-        ($catId, 'Oakley Holbrook', 'OO9102', 'oakley-holbrook', 2800000, 'Oakley', 'men'),
-        ($catId, 'J.Crew Mercantile', 'JC-550012', 'jcrew-mercantile', 1150000, 'J.Crew', 'women'),
-        ($catId, 'Daily Ritual Blue', 'DR-550016', 'daily-ritual-blue', 1550000, 'Daily Ritual', 'unisex'),
-        ($catId, 'Luxury Frame 21', 'LF-550021', 'luxury-frame-21', 2500000, 'Luxury', 'unisex'),
-        ($catId, 'Classic Eyewear 29', 'CE-550029', 'classic-eyewear-29', 850000, 'Classic', 'men'),
-        ($catId, 'Vintage Style 30', 'VS-550030', 'vintage-style-30', 920000, 'Vintage', 'women'),
-        ($catId, 'Modern Retro 36', 'MR-550036', 'modern-retro-36', 1450000, 'Modern', 'unisex')
-    ON DUPLICATE KEY UPDATE name = VALUES(name);
-    ");
+    $pdo->exec("\n        INSERT INTO category (name, slug, description) VALUES\n            ('Gọng kính', 'gong-kinh', 'Các loại gọng kính thời trang'),\n            ('Kính râm', 'kinh-ram', 'Kính chống nắng và bảo vệ mắt'),\n            ('Tròng kính', 'trong-kinh', 'Các loại tròng kính thuốc')\n        ON DUPLICATE KEY UPDATE name = VALUES(name);\n    ");
 
-    $rbId = $pdo->query("SELECT id FROM product WHERE slug = 'ray-ban-aviator'")->fetchColumn();
-    $okId = $pdo->query("SELECT id FROM product WHERE slug = 'oakley-holbrook'")->fetchColumn();
-    $jcId = $pdo->query("SELECT id FROM product WHERE slug = 'jcrew-mercantile'")->fetchColumn();
-    $drId = $pdo->query("SELECT id FROM product WHERE slug = 'daily-ritual-blue'")->fetchColumn();
-    $lfId = $pdo->query("SELECT id FROM product WHERE slug = 'luxury-frame-21'")->fetchColumn();
-    $ceId = $pdo->query("SELECT id FROM product WHERE slug = 'classic-eyewear-29'")->fetchColumn();
-    $vsId = $pdo->query("SELECT id FROM product WHERE slug = 'vintage-style-30'")->fetchColumn();
-    $mrId = $pdo->query("SELECT id FROM product WHERE slug = 'modern-retro-36'")->fetchColumn();
+    $categoryIds = [
+        'gong-kinh' => (int) $pdo->query("SELECT id FROM category WHERE slug = 'gong-kinh'")->fetchColumn(),
+        'kinh-ram' => (int) $pdo->query("SELECT id FROM category WHERE slug = 'kinh-ram'")->fetchColumn(),
+        'trong-kinh' => (int) $pdo->query("SELECT id FROM category WHERE slug = 'trong-kinh'")->fetchColumn(),
+    ];
 
-    // 4. Variants
-    $pdo->exec("
-    INSERT INTO productvariant (product_id, sku, color, size, stock_quantity, image_2d_url) VALUES
-        ($rbId, 'RB-AVI-GLD', 'Gold', 'L', 50, '/assets/images/products/KINH-NEN-TRANG-19.jpeg'),
-        ($rbId, 'RB-AVI-SLV', 'Silver', 'M', 30, '/assets/images/products/KINH-NEN-TRANG-19.jpeg'),
-        ($okId, 'OK-HOL-BLK', 'Matte Black', 'Standard', 100, '/assets/images/products/KINH-NEN-TRANG-19.jpeg'),
-        ($jcId, 'JC-M-GLD', 'Gold', 'M', 45, '/assets/images/products/AN550012_3849.png'),
-        ($drId, 'DR-B-BLK', 'Black', 'M', 55, '/assets/images/products/AN550016_3796.png'),
-        ($lfId, 'LF-21-BRN', 'Brown', 'L', 20, '/assets/images/products/AN550021_3933.png'),
-        ($ceId, 'CE-29-BLK', 'Matte Black', 'M', 30, '/assets/images/products/AN550029_3863.png'),
-        ($vsId, 'VS-30-SLV', 'Silver', 'S', 25, '/assets/images/products/AN550030_3896.png'),
-        ($mrId, 'MR-36-GLD', 'Rose Gold', 'M', 40, '/assets/images/products/AN550036_3832.png')
-    ON DUPLICATE KEY UPDATE stock_quantity = VALUES(stock_quantity), image_2d_url = VALUES(image_2d_url);
-    ");
+    $pdo->exec("\n        DELETE inventory\n        FROM inventory\n        INNER JOIN productvariant ON inventory.productvariant_id = productvariant.id\n        INNER JOIN product ON productvariant.product_id = product.id\n        WHERE product.slug LIKE 'evls-%';\n    ");
+    $pdo->exec("\n        DELETE cartitem\n        FROM cartitem\n        INNER JOIN productvariant ON cartitem.productvariant_id = productvariant.id\n        INNER JOIN product ON productvariant.product_id = product.id\n        WHERE product.slug LIKE 'evls-%';\n    ");
+    $pdo->exec("\n        DELETE orderitem\n        FROM orderitem\n        INNER JOIN productvariant ON orderitem.productvariant_id = productvariant.id\n        INNER JOIN product ON productvariant.product_id = product.id\n        WHERE product.slug LIKE 'evls-%';\n    ");
+    $pdo->exec("\n        DELETE productvariant\n        FROM productvariant\n        INNER JOIN product ON productvariant.product_id = product.id\n        WHERE product.slug LIKE 'evls-%';\n    ");
+    $pdo->exec("DELETE FROM product WHERE slug LIKE 'evls-%';");
 
-    // 5. Inventory sync
-    $pdo->exec("
-    INSERT INTO inventory (productvariant_id, quantity) 
-    SELECT id, stock_quantity FROM productvariant
-    ON DUPLICATE KEY UPDATE quantity = VALUES(quantity);
-    ");
+    $productStmt = $pdo->prepare("\n        INSERT INTO product (category_id, name, model_name, slug, base_price, brand, gender)\n        VALUES (?, ?, ?, ?, ?, ?, ?)\n        ON DUPLICATE KEY UPDATE\n            category_id = VALUES(category_id),\n            name = VALUES(name),\n            model_name = VALUES(model_name),\n            base_price = VALUES(base_price),\n            brand = VALUES(brand),\n            gender = VALUES(gender)\n    ");
 
-    // 6. Lenses
-    $pdo->exec("
-    INSERT INTO lens (name, lens_type, type, material, price) VALUES
-        ('Cơ bản', 'Basic', 'single_vision', 'Plastic', 200000),
-        ('Chống ánh sáng xanh', 'BlueCut', 'single_vision', 'Poly', 500000),
-        ('Đổi màu khói', 'Photochromic', 'single_vision', 'HighIndex', 1200000)
-    ON DUPLICATE KEY UPDATE price = VALUES(price);
-    ");
+    $variantStmt = $pdo->prepare("\n        INSERT INTO productvariant (product_id, sku, color, size, stock_quantity, image_2d_url)\n        VALUES (?, ?, ?, ?, ?, ?)\n        ON DUPLICATE KEY UPDATE\n            product_id = VALUES(product_id),\n            color = VALUES(color),\n            size = VALUES(size),\n            stock_quantity = VALUES(stock_quantity),\n            image_2d_url = VALUES(image_2d_url)\n    ");
+
+    $imagePool = [
+        '/assets/images/products/ELVS_Tròn trà.png',
+        '/assets/images/products/EVLS_Lục giác nâu.jpg',
+        '/assets/images/products/EVLS_Lục giác.png',
+        '/assets/images/products/EVLS_Lục giác_xám.png',
+        '/assets/images/products/EVLS_mắt mèo trà.jpeg',
+        '/assets/images/products/EVLS_oval nâu.jpeg',
+        '/assets/images/products/EVLS_oval trà.jpeg',
+        '/assets/images/products/EVLS_oval đen.jpeg',
+        '/assets/images/products/EVLS_tròn cf.png',
+        '/assets/images/products/EVLS_Tròn ghi.jpg',
+        '/assets/images/products/EVLS_tròn hồng.jpeg',
+        '/assets/images/products/EVLS_tròn không gọng.jpeg',
+        '/assets/images/products/EVLS_Tròn kim loại.jpg',
+        '/assets/images/products/EVLS_Tròn màu.jpg',
+        '/assets/images/products/EVLS_tròn xám.jpeg',
+        '/assets/images/products/EVLS_Tròn đen trên.jpg',
+        '/assets/images/products/EVLS_Tròn đen.jpg',
+        '/assets/images/products/EVLS_Tròn.png',
+        '/assets/images/products/EVLS_vuông ghi.jpeg',
+        '/assets/images/products/EVLS_vuông kim loại.png',
+        '/assets/images/products/EVLS_vuông nâu.png',
+        '/assets/images/products/EVLS_Tròn đen đẹp.jpg',
+        '/assets/images/products/EVLS_vuông trà.jpeg',
+        '/assets/images/products/EVLS_vuông tròn đen.png',
+        '/assets/images/products/EVLS_vuông trắng.jpg',
+        '/assets/images/products/EVLS_vuông xám.png',
+        '/assets/images/products/EVLS_vuông xéo ghi.png',
+        '/assets/images/products/EVLS_vuông đen to.jpeg',
+        '/assets/images/products/EVLS_vuông đen.png',
+        '/assets/images/products/EVLS_đen vuông.jpeg',
+    ];
+
+    $groups = [
+        [
+            'category' => 'gong-kinh',
+            'prefix' => 'EVLS Clear Frame',
+            'model' => 'EVLS-CLR',
+            'brand' => 'EVLS',
+            'gender' => 'women',
+            'color' => 'Clear',
+            'size' => 'M',
+            'base_price' => 400000,
+            'stock' => 30,
+            'count' => 8,
+        ],
+        [
+            'category' => 'gong-kinh',
+            'prefix' => 'EVLS Black Square',
+            'model' => 'EVLS-BLK',
+            'brand' => 'EVLS',
+            'gender' => 'unisex',
+            'color' => 'Black',
+            'size' => 'L',
+            'base_price' => 500000,
+            'stock' => 32,
+            'count' => 8,
+        ],
+        [
+            'category' => 'kinh-ram',
+            'prefix' => 'EVLS Sun Style',
+            'model' => 'EVLS-SUN',
+            'brand' => 'EVLS',
+            'gender' => 'women',
+            'color' => 'Brown',
+            'size' => 'L',
+            'base_price' => 620000,
+            'stock' => 24,
+            'count' => 7,
+        ],
+        [
+            'category' => 'trong-kinh',
+            'prefix' => 'EVLS Lens Pro',
+            'model' => 'EVLS-LENS',
+            'brand' => 'EVLS',
+            'gender' => 'unisex',
+            'color' => 'Blue Cut',
+            'size' => 'Standard',
+            'base_price' => 720000,
+            'stock' => 40,
+            'count' => 7,
+        ],
+    ];
+
+    $productIndex = 1;
+    foreach ($groups as $group) {
+        for ($i = 0; $i < $group['count']; $i++) {
+            $sequence = str_pad((string) $productIndex, 2, '0', STR_PAD_LEFT);
+            $stockOffset = ($i % 5) * 3;
+            $name = $group['prefix'] . ' ' . $sequence;
+            $modelName = $group['model'] . '-' . $sequence;
+            $slug = strtolower(str_replace(' ', '-', $name));
+            $sku = $group['model'] . '-' . $sequence;
+            $image = $imagePool[($productIndex - 1) % count($imagePool)];
+            $price = $group['base_price'] + ($i * 10000);
+
+            $productStmt->execute([
+                $categoryIds[$group['category']],
+                $name,
+                $modelName,
+                $slug,
+                $price,
+                $group['brand'],
+                $group['gender'],
+            ]);
+
+            $productId = (int) $pdo->query("SELECT id FROM product WHERE slug = " . $pdo->quote($slug))->fetchColumn();
+            $variantStmt->execute([
+                $productId,
+                $sku,
+                $group['color'],
+                $group['size'],
+                $group['stock'] + $stockOffset,
+                $image,
+            ]);
+
+            $productIndex++;
+        }
+    }
+
+    $pdo->exec("\n        INSERT INTO inventory (productvariant_id, quantity)\n        SELECT id, stock_quantity FROM productvariant\n        ON DUPLICATE KEY UPDATE quantity = VALUES(quantity);\n    ");
+
+    $pdo->exec("\n        INSERT INTO lens (name, lens_type, type, material, price) VALUES\n            ('Cơ bản', 'Basic', 'single_vision', 'Plastic', 200000),\n            ('Chống ánh sáng xanh', 'BlueCut', 'single_vision', 'Poly', 500000),\n            ('Đổi màu khói', 'Photochromic', 'single_vision', 'HighIndex', 1200000)\n        ON DUPLICATE KEY UPDATE price = VALUES(price);\n    ");
 
     echo "Successfully seeded product data.\n";
 
-    // 7. Users and Many-to-Many Roles (Password: password123)
     $passHash = password_hash('password123', PASSWORD_DEFAULT);
-    
-    // Insert Users
-    $pdo->exec("
-    INSERT INTO `user` (full_name, email, password_hash, status) VALUES
-        ('System Admin', 'admin@eyewear.com', '$passHash', 'active'),
-        ('Project Manager', 'manager@eyewear.com', '$passHash', 'active'),
-        ('Sales Staff', 'sales@eyewear.com', '$passHash', 'active'),
-        ('Multi Role User', 'multi@eyewear.com', '$passHash', 'active'),
-        ('Test Customer', 'customer@eyewear.com', '$passHash', 'active')
-    ON DUPLICATE KEY UPDATE full_name = VALUES(full_name);
-    ");
+    $pdo->exec("\n        INSERT INTO `user` (full_name, email, password_hash, status) VALUES\n            ('System Admin', 'admin@eyewear.com', '$passHash', 'active'),\n            ('Project Manager', 'manager@eyewear.com', '$passHash', 'active'),\n            ('Sales Staff', 'sales@eyewear.com', '$passHash', 'active'),\n            ('Multi Role User', 'multi@eyewear.com', '$passHash', 'active'),\n            ('Test Customer', 'customer@eyewear.com', '$passHash', 'active')\n        ON DUPLICATE KEY UPDATE full_name = VALUES(full_name);\n    ");
 
     $adminId = $pdo->query("SELECT id FROM `user` WHERE email = 'admin@eyewear.com'")->fetchColumn();
     $managerId = $pdo->query("SELECT id FROM `user` WHERE email = 'manager@eyewear.com'")->fetchColumn();
@@ -182,19 +232,9 @@ try {
     $roleSales = $pdo->query("SELECT id FROM role WHERE name = 'sales_staff'")->fetchColumn();
     $roleCustomer = $pdo->query("SELECT id FROM role WHERE name = 'customer'")->fetchColumn();
 
-    // Assign Roles in user_roles
-    $pdo->exec("
-    INSERT IGNORE INTO user_roles (user_id, role_id) VALUES
-        ($adminId, $roleAdmin),
-        ($managerId, $roleManager),
-        ($salesId, $roleSales),
-        ($customerId, $roleCustomer),
-        ($multiId, $roleManager),
-        ($multiId, $roleSales)
-    ");
+    $pdo->exec("\n        INSERT IGNORE INTO user_roles (user_id, role_id) VALUES\n            ($adminId, $roleAdmin),\n            ($managerId, $roleManager),\n            ($salesId, $roleSales),\n            ($customerId, $roleCustomer),\n            ($multiId, $roleManager),\n            ($multiId, $roleSales)\n    ");
 
     echo "Successfully seeded all data including users and multiple roles.\n";
-    
 } catch (PDOException $e) {
     echo "Seed failed: " . $e->getMessage() . "\n";
 }
