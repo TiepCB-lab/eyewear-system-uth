@@ -128,7 +128,7 @@ window.addToCart = async function(variantId) {
   } catch (err) {
     if(err.response && err.response.status === 401) {
         alert('Vui lòng đăng nhập để thêm vào giỏ hàng.');
-        window.location.href = '../auth/';
+        window.location.href = '/pages/auth/index.html';
     } else {
         alert('Có lỗi xảy ra: ' + (err.response?.data?.message || err.message));
     }
