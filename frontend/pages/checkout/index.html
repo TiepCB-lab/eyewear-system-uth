@@ -203,8 +203,13 @@
            try {
              // Let checkout service handle the final save
              const res = await CartService.checkout(fullAddress, fullAddress);
-             await alert('Đặt hàng thành công! Order: ' + res.order_number);
-             window.location.href = '/index.html'; // Redirect to home
+             const order = res?.data;
+             if (!order?.order_id) {
+               throw new Error('Không lấy được mã đơn hàng sau khi đặt hàng.');
+             }
+
+             alert('Đặt hàng thành công! Order: ' + (order.order_number || order.order_id));
+             window.location.href = `../payment/?order_id=${encodeURIComponent(order.order_id)}&amount=${encodeURIComponent(order.total ?? '')}`;
            } catch(e) {
              alert('Có lỗi xảy ra: ' + (e.response?.data?.message || e.message));
              placeOrderBtn.disabled = false;
