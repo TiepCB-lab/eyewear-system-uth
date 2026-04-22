@@ -1,6 +1,6 @@
 import authService from '../services/authService.js';
 
-(function() {
+(async function() {
     // If already logged in, redirect away
     if (authService.isAuthenticated()) {
         const context = authService.getPrimaryContext();
@@ -19,9 +19,37 @@ import authService from '../services/authService.js';
     const container = document.getElementById('auth-container');
 
     const params = new URLSearchParams(window.location.search);
-    const verified = params.get('verified');
-    const verifiedEmail = params.get('email');
-    const verifyError = params.get('error');
+    let verified = params.get('verified');
+    let verifiedEmail = params.get('email');
+    let verifyError = params.get('error');
+    const token = params.get('token');
+
+    if (token) {
+        try {
+            const result = await authService.verifyEmail(token);
+            verified = '1';
+            verifiedEmail = result.email || verifiedEmail;
+            verifyError = null;
+
+            const nextUrl = new URL(window.location.href);
+            nextUrl.searchParams.delete('token');
+            nextUrl.searchParams.delete('error');
+            nextUrl.searchParams.set('verified', '1');
+            if (verifiedEmail) {
+                nextUrl.searchParams.set('email', verifiedEmail);
+            }
+            window.history.replaceState({}, '', nextUrl);
+        } catch (error) {
+            verified = '0';
+            verifyError = error.message || 'Invalid token.';
+
+            const nextUrl = new URL(window.location.href);
+            nextUrl.searchParams.delete('token');
+            nextUrl.searchParams.set('verified', '0');
+            nextUrl.searchParams.set('error', verifyError);
+            window.history.replaceState({}, '', nextUrl);
+        }
+    }
 
     if (verified === '1') {
         container.classList.remove('active');

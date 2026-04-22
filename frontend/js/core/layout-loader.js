@@ -107,32 +107,40 @@
 
     function highlightActiveElements(container) {
         const currentPath = window.location.pathname.toLowerCase().replace(/\/index\.html$/, '').replace(/\/$/, '') || '/';
+        const isHomePath = currentPath === '/' || /\/(index|home)$/.test(currentPath) || /\/frontend$/.test(currentPath);
+
+        function isPathMatch(pathname, targetPath) {
+            if (targetPath === '/') return isHomePath;
+            return pathname === targetPath ||
+                pathname.startsWith(targetPath + '/') ||
+                pathname.endsWith(targetPath);
+        }
         
         // 1. Highlight Text Links
         const navLinks = container.querySelectorAll('.nav__link');
+        const navCandidates = [];
         navLinks.forEach(link => {
             link.classList.remove('active-link');
             const href = link.getAttribute('href');
             if (!href) return;
 
-            // Normalize link path (handle absolute URLs)
             let linkPath;
             try {
                 linkPath = new URL(href, window.location.origin).pathname.toLowerCase();
             } catch (e) {
                 linkPath = href.toLowerCase();
             }
-            
+
             const cleanHref = linkPath.replace(/\/index\.html$/, '').replace(/\/$/, '') || '/';
-
-            // Match logic
-            const isMatch = (cleanHref === '/' && currentPath === '/') || 
-                           (cleanHref !== '/' && (currentPath === cleanHref || currentPath.startsWith(cleanHref + '/')));
-
-            if (isMatch) {
-                link.classList.add('active-link');
-            }
+            navCandidates.push({ link, cleanHref });
         });
+
+        const matches = navCandidates.filter(item => isPathMatch(currentPath, item.cleanHref));
+        if (matches.length > 0) {
+            // Prefer the most specific path, so /pages/accounts wins over /
+            matches.sort((a, b) => b.cleanHref.length - a.cleanHref.length);
+            matches[0].link.classList.add('active-link');
+        }
 
         // 2. Highlight Icons (Wishlist, Cart)
         const actionBtns = container.querySelectorAll('.header__action-btn');
@@ -178,11 +186,11 @@
                                 <i class="fi fi-rs-angle-small-down"></i>
                             </div>
                             <div class="user-dropdown">
-                                <a href="/pages/accounts/" class="dropdown__item">
+                                <a href="${projectRoot}pages/accounts/index.html" class="dropdown__item">
                                     <i class="fi fi-rs-settings-sliders"></i> My Profile
                                 </a>
                                 ${isStaff ? `
-                                <a href="/pages/dashboard/index.html" class="dropdown__item" style="color: var(--first-color); font-weight: bold;">
+                                <a href="${projectRoot}pages/dashboard/index.html" class="dropdown__item" style="color: var(--first-color); font-weight: bold;">
                                     <i class="fi fi-rs-apps"></i> Admin Dashboard
                                 </a>
                                 ` : ''}
@@ -205,11 +213,11 @@
                                 <i class="fi fi-rs-angle-small-down"></i>
                             </div>
                             <div class="user-dropdown" style="right: 0; left: auto;">
-                                <a href="/pages/dashboard/index.html?view=profile" class="dropdown__item">
+                                <a href="${projectRoot}pages/dashboard/index.html?view=profile" class="dropdown__item">
                                     <i class="fi fi-rs-user"></i> My Profile
                                 </a>
                                 ${isCustomer ? `
-                                <a href="/index.html" class="dropdown__item" style="color: var(--first-color); font-weight: bold;">
+                                <a href="${projectRoot}index.html" class="dropdown__item" style="color: var(--first-color); font-weight: bold;">
                                     <i class="fi fi-rs-shopping-cart"></i> Switch to Shop
                                 </a>
                                 ` : ''}
@@ -225,7 +233,7 @@
                 document.querySelectorAll('.logout-btn').forEach(btn => {
                     btn.onclick = (e) => {
                         e.preventDefault();
-                        authService.logout().then(() => window.location.href = '/index.html');
+                        authService.logout().then(() => window.location.href = `${projectRoot}index.html`);
                     };
                 });
             }
