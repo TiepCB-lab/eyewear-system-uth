@@ -4,7 +4,7 @@ let catalogProducts = [];
 
 const state = {
   view: "grid",
-  sort: "featured",
+  sort: "price-asc",
   searchQuery: ""
 };
 

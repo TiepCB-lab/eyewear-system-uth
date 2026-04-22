@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\CartController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\LensController;
 use App\Http\Controllers\Api\V1\CheckoutController;
+use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\PaymentController;
 use App\Http\Controllers\Api\V1\SalesController;
 use App\Http\Controllers\Api\V1\SupportTicketController;
@@ -98,6 +99,11 @@ use App\Http\Controllers\Api\V1\PrescriptionController;
 // Member 3 - Checkout Routes
 Router::group(['prefix' => 'api/v1/checkout'], function () {
     Router::post('/', [CheckoutController::class, 'store']);
+});
+
+Router::group(['prefix' => 'api/v1/orders'], function () {
+    Router::get('/', [OrderController::class, 'index']);
+    Router::get('show', [OrderController::class, 'show']);
 });
 
 Router::group(['prefix' => 'api/v1/prescriptions'], function () {

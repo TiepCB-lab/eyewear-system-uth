@@ -136,9 +136,9 @@ import authService from '../services/authService.js';
                 const context = authService.getPrimaryContext();
                 
                 if (context === 'staff') {
-                    window.location.href = '/pages/dashboard/index.html';
+                    window.location.href = '/frontend/pages/dashboard/index.html';
                 } else {
-                    window.location.href = '/index.html';
+                    window.location.href = '/frontend/index.html';
                 }
             } catch (error) {
                 alert('Login failed: ' + (error.response?.data?.message || error.message));

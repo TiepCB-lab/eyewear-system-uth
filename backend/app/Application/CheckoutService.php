@@ -11,10 +11,10 @@ class CheckoutService
     private PDO $db;
     private CartService $cartService;
 
-    public function __construct(CartService $cartService)
+    public function __construct(?CartService $cartService = null)
     {
         $this->db = Database::getInstance();
-        $this->cartService = $cartService;
+        $this->cartService = $cartService ?? new CartService();
     }
 
     public function processCheckout(int $userId, array $checkoutData)

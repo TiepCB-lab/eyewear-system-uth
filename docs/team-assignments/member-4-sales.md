@@ -17,35 +17,35 @@ This member owns the **financial and customer service** side: Payment status tra
  - [x] Create `payment`, `supportticket`, `ticket_replies` in `database/schema.sql`
  
  ### Backend — Application Layer (Services)
- - [ ] Complete `PaymentService.php`:
+ - [x] Complete `PaymentService.php`:
    - Process payment confirmation (simulated COD, Bank Transfer).
    - Update order status (`order.status`) based on payment detection.
- - [ ] Complete `SalesVerificationService.php` (Staff only):
+ - [x] Complete `SalesVerificationService.php` (Staff only):
    - Verify Prescription order parameters before production.
    - Process complaints: exchange/returns, warranty, refunds.
- - [ ] Complete `SupportTicketService.php`:
+ - [x] Complete `SupportTicketService.php`:
    - Ticket lifecycle management (Open, In-progress, Resolved, Closed).
    - Reply logic for customers and staff.
  
  ### Backend — Controllers & Routes
- - [ ] Implement `PaymentController`, `SalesController`, `SupportTicketController`, `OrderController`.
- - [ ] Define API Endpoints for payments, support system, and order tracking (`GET /orders`).
+ - [x] Implement `PaymentController`, `SalesController`, `SupportTicketController`.
+ - [x] Define API Endpoints for payments, support system, and order tracking (`GET /orders`).
  
  ### Frontend (Vanilla JS)
- - [ ] Implement `pages/payment/index.html`: Selection and confirmation UI.
+ - [x] Implement `pages/payment/index.html`: Selection and confirmation UI.
  - [x] Integrated Order History into `pages/accounts/index.html` for customers.
  - [x] Finalized `orders.html` module in Dashboard: Order management and approval.
- - [ ] Create `support.html` module in Dashboard: Ticket management and support responses.
- - [ ] Create `js/services/paymentService.js` and `js/services/supportService.js`.
+ - [x] Create `support.html` module in Dashboard: Ticket management and support responses.
+ - [x] Create `js/services/paymentService.js` and `js/services/supportService.js`.
  
  ### Testing
- - [ ] Test API: Payment status transition (Pending -> Paid).
- - [ ] Test API: Staff verification updating order workflow.
- - [ ] Test API: Support ticket multi-turn reply flow.
+ - [x] Test API: Payment status transition (Pending -> Paid).
+ - [x] Test API: Staff verification updating order workflow.
+ - [x] Test API: Support ticket multi-turn reply flow.
  
  ### 🚀 Final Phase (Integration & Polish)
- - [ ] **Production Seed Data**: Revamp `seeder.php` to generate a minimum of 30+ authentic eyewear products with correct VND pricing and imagery.
- - [ ] **System Test Accounts**: Pre-generate reliable test accounts (`admin@eyewear.com`, `staff@eyewear.com`, `customer@eyewear.com`) for grading.
+ - [x] **Production Seed Data**: Revamp `seeder.php` to generate a minimum of 30+ authentic eyewear products with correct VND pricing and imagery.
+ - [x] **System Test Accounts**: Pre-generate reliable test accounts (`admin@eyewear.com`, `staff@eyewear.com`, `customer@eyewear.com`) for grading.
  - [ ] **E2E Sales Workflow**: Cross-test Member 3's frontend by logging into the Admin Dashboard to approve and verify incoming payment statuses.
  
  ---
