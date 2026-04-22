@@ -1,7 +1,10 @@
-<div class="sidebar-top" style="padding: 1.5rem; border-bottom: 1px solid var(--border-color-alt); margin-bottom: 1rem;">
+<div class="sidebar-top flex" style="padding: 1.5rem; border-bottom: 1px solid var(--border-color-alt); margin-bottom: 1rem; justify-content: space-between; align-items: center;">
     <a href="/pages/dashboard/index.html" class="nav__logo">
         <img src="/assets/images/logo.png" alt="Logo" class="nav__logo-img" style="width: 140px;">
     </a>
+    <button id="sidebar-close" class="sidebar-close" style="display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-color-light);">
+        <i class="fi fi-rs-cross-small"></i>
+    </button>
 </div>
 
 <nav class="sidebar-nav" id="sidebar-nav" style="display: flex; flex-direction: column; gap: 0.25rem; padding-inline: 1rem;">

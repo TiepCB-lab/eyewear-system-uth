@@ -21,36 +21,40 @@
 
 <div class="admin-table container" style="margin-top: 2rem; background: #fff; padding: 2rem; border-radius: 12px; box-shadow: var(--card-shadow);">
     <h3 class="table__title">Pending Order Verification</h3>
-    <table class="table" id="ordersTable">
-        <thead>
-            <tr>
-                <th>Order #</th>
-                <th>Status</th>
-                <th>Total</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody id="ordersListBody">
-            <tr><td colspan="4">Loading orders...</td></tr>
-        </tbody>
-    </table>
+    <div class="table__container">
+        <table class="table" id="ordersTable">
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="ordersListBody">
+                <tr><td colspan="4">Loading orders...</td></tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <div class="admin-table container" style="margin-top: 2rem; background: #fff; padding: 2rem; border-radius: 12px; box-shadow: var(--card-shadow);">
     <h3 class="table__title">Open Support Tickets (Customer Care)</h3>
-    <table class="table" id="ticketsTable">
-        <thead>
-            <tr>
-                <th>Customer Inquiry</th>
-                <th>Status</th>
-                <th>Priority</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody id="ticketsListBody">
-            <tr><td colspan="4">Loading tickets...</td></tr>
-        </tbody>
-    </table>
+    <div class="table__container">
+        <table class="table" id="ticketsTable">
+            <thead>
+                <tr>
+                    <th>Customer Inquiry</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="ticketsListBody">
+                <tr><td colspan="4">Loading tickets...</td></tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script type="module">
