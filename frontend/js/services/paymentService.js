@@ -44,6 +44,19 @@ export const paymentService = {
     },
 
     /**
+     * Lấy chi tiết đơn hàng để hiển thị số tiền thanh toán
+     */
+    async getOrderDetail(orderId) {
+        try {
+            const response = await apiClient.get('/v1/orders/show', { params: { id: orderId } });
+            return response.data;
+        } catch (error) {
+            console.error('Payment getOrderDetail Error:', error);
+            throw error;
+        }
+    },
+
+    /**
      * Lấy danh sách thanh toán đang chờ xác nhận (Staff)
      */
     async getPendingPayments() {

@@ -13,12 +13,228 @@
     <!--=============== CSS ===============-->
     <link rel="stylesheet" href="../../../assets/css/styles.css" />
 
+    <style>
+      .payment-page {
+        background:
+          radial-gradient(circle at top left, rgba(17, 138, 178, 0.10), transparent 26%),
+          radial-gradient(circle at bottom right, rgba(42, 157, 143, 0.08), transparent 30%),
+          linear-gradient(180deg, #f7fbfc 0%, #ffffff 55%);
+      }
+
+      .payment-shell {
+        max-width: 1160px;
+        margin: 0 auto;
+        padding: 3rem 1rem 4rem;
+      }
+
+      .payment-hero {
+        display: grid;
+        gap: 0.65rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .payment-hero__eyebrow {
+        display: inline-flex;
+        width: fit-content;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.42rem 0.85rem;
+        border-radius: 999px;
+        background: rgba(17, 138, 178, 0.10);
+        color: #0f7b93;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+
+      .payment-hero__title {
+        font-size: clamp(2rem, 4vw, 3rem);
+        line-height: 1.05;
+        color: #17212a;
+      }
+
+      .payment-hero__subtitle {
+        max-width: 62ch;
+        color: #60707f;
+        font-size: 1rem;
+      }
+
+      .payment-layout {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.5rem;
+        align-items: stretch;
+      }
+
+      .payment-bill,
+      .payment-method {
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+        min-height: 430px;
+        display: flex;
+        border: 1px solid rgba(17, 138, 178, 0.10);
+        border-radius: 26px;
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+      }
+
+      .payment-bill::before,
+      .payment-method::before {
+        content: '';
+        position: absolute;
+        inset: 0 auto auto 0;
+        height: 5px;
+        width: 100%;
+        background: linear-gradient(90deg, #118ab2 0%, #2a9d8f 100%);
+      }
+
+      .payment-panel {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        min-height: 430px;
+        padding: 1.6rem;
+      }
+
+      .payment-section-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 999px;
+        background: rgba(42, 157, 143, 0.08);
+        color: #186e66;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .bill-title {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px dashed rgba(17, 138, 178, 0.18);
+        margin-bottom: 1rem;
+      }
+
+      .bill-title h3,
+      .method-title h3 {
+        font-size: 1.5rem;
+        color: #17212a;
+      }
+
+      .bill-number {
+        font-weight: 800;
+        color: #118ab2;
+      }
+
+      .bill-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .bill-table tr + tr {
+        border-top: 1px solid rgba(17, 138, 178, 0.08);
+      }
+
+      .bill-table td {
+        padding: 0.95rem 0;
+        vertical-align: top;
+      }
+
+      .bill-label {
+        color: #6b7a88;
+        font-size: 0.92rem;
+      }
+
+      .bill-value {
+        text-align: right;
+        color: #1d2731;
+        font-weight: 700;
+      }
+
+      .bill-total td {
+        padding-top: 1.1rem;
+        font-size: 1.1rem;
+      }
+
+      .bill-total .bill-value {
+        font-size: 1.65rem;
+        color: #118ab2;
+      }
+
+      .bill-tip {
+        margin-top: 0.5rem;
+        padding: 0.9rem 1rem;
+        border-radius: 16px;
+        background: linear-gradient(180deg, rgba(17, 138, 178, 0.08) 0%, rgba(42, 157, 143, 0.05) 100%);
+        color: #34515f;
+        line-height: 1.6;
+      }
+
+      .method-title {
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid rgba(17, 138, 178, 0.08);
+      }
+
+      .payment__methods {
+        display: grid;
+        gap: 0.9rem;
+      }
+
+      .payment__option {
+        padding: 0.95rem 1rem;
+        border-radius: 16px;
+        border: 1px solid rgba(17, 138, 178, 0.12);
+        background: #ffffff;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+      }
+
+      .payment__option:hover {
+        transform: translateY(-1px);
+        border-color: rgba(17, 138, 178, 0.28);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+      }
+
+      .payment__option .payment__label {
+        width: 100%;
+        font-weight: 600;
+        color: #243240;
+      }
+
+      .payment-action {
+        margin-top: auto;
+      }
+
+      .payment-action .btn {
+        width: 100%;
+      }
+
+      #paymentResult {
+        min-height: 2rem;
+        margin-top: 1rem;
+        text-align: center;
+        font-weight: 700;
+      }
+
+      @media (max-width: 900px) {
+        .payment-layout {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+
     <!--=============== LAYOUT LOADER ===============-->
     <script src="../../../js/core/layout-loader.js" defer></script>
 
     <title>Checkout Payment — EYEWEAR.UTH</title>
   </head>
-  <body>
+  <body class="payment-page">
     <!--=============== HEADER ===============-->
     <header class="header" data-include="layout/Header"></header>
 
@@ -28,55 +244,81 @@
 
       <!--=============== PAYMENT ===============-->
       <section class="checkout section--lg">
-        <div class="checkout__container container grid" style="justify-content: center;">
-          
-          <div class="checkout__group" style="max-width: 600px; width: 100%;">
-            <h3 class="section__title">Payment Confirmation</h3>
-            
-            <table class="order__table" style="margin-bottom: 2rem;">
-              <tbody>
-                <tr>
-                  <td><span class="order__subtitle">Order Number</span></td>
-                  <td><h3 class="table__title" id="displayOrderId">...</h3></td>
-                </tr>
-                <tr>
-                  <td><span class="order__subtitle">Total Payable</span></td>
-                  <td><span class="order__grand-total" id="displayAmount">$0.00</span></td>
-                </tr>
-              </tbody>
-            </table>
-
-            <form id="paymentForm">
-              <div class="payment__methods">
-                <h3 class="checkout__title payment__title">Select Payment Method</h3>
-                
-                <div class="payment__option flex">
-                  <input type="radio" name="payment_method" id="l1" value="cod" checked class="payment__input" />
-                  <label for="l1" class="payment__label">Cash on Delivery (COD)</label>
-                </div>
-                
-                <div class="payment__option flex">
-                  <input type="radio" name="payment_method" id="l2" value="bank_transfer" class="payment__input" />
-                  <label for="l2" class="payment__label">Direct Bank Transfer</label>
-                </div>
-                
-                <div class="payment__option flex">
-                  <input type="radio" name="payment_method" id="l3" value="e_wallet" class="payment__input" />
-                  <label for="l3" class="payment__label">E-Wallet (MoMo/ZaloPay)</label>
-                </div>
-                
-                <div class="payment__option flex">
-                  <input type="radio" name="payment_method" id="l4" value="card" class="payment__input" />
-                  <label for="l4" class="payment__label">Credit / Debit Card</label>
-                </div>
-              </div>
-              
-              <button type="submit" class="btn btn--md" id="btnSubmit" style="margin-top: 1.5rem; width: 100%;">Process Payment</button>
-            </form>
-            
-            <div id="paymentResult" style="margin-top: 2rem; font-weight: 700; text-align: center; font-size: var(--h3-font-size);"></div>
+        <div class="payment-shell">
+          <div class="payment-hero">
+            <div class="payment-hero__eyebrow">Checkout Payment</div>
+            <h1 class="payment-hero__title">Finalize your order</h1>
+            <p class="payment-hero__subtitle">Review the bill on the left, choose how you want to pay on the right, and complete checkout in one step.</p>
           </div>
 
+          <div class="payment-layout">
+            <div class="payment-bill">
+              <div class="payment-panel">
+                <div class="bill-title">
+                  <h3>Bill</h3>
+                  <span class="bill-number" id="displayOrderId">#...</span>
+                </div>
+
+                <table class="bill-table">
+                  <tbody>
+                    <tr>
+                      <td class="bill-label">Order number</td>
+                      <td class="bill-value" id="billOrderNumber">...</td>
+                    </tr>
+                    <tr>
+                      <td class="bill-label">Shipping</td>
+                      <td class="bill-value">Free</td>
+                    </tr>
+                    <tr>
+                      <td class="bill-label">Estimated delivery</td>
+                      <td class="bill-value">3-5 days</td>
+                    </tr>
+                    <tr class="bill-total">
+                      <td class="bill-label">Total payable</td>
+                      <td class="bill-value" id="displayAmount">0 đ</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <div class="bill-tip">
+                  Tip: Receive your order in 3-5 days.
+                </div>
+              </div>
+            </div>
+
+            <div class="payment-method">
+              <div class="payment-panel">
+                <div class="method-title">
+                  <h3>Payment method</h3>
+                </div>
+
+                <form id="paymentForm">
+                  <div class="payment__methods">
+                    <div class="payment__option flex">
+                      <input type="radio" name="payment_method" id="l1" value="cod" checked class="payment__input" />
+                      <label for="l1" class="payment__label">Cash on Delivery (COD)</label>
+                    </div>
+
+                    <div class="payment__option flex">
+                      <input type="radio" name="payment_method" id="l2" value="bank_transfer" class="payment__input" />
+                      <label for="l2" class="payment__label">Direct Bank Transfer</label>
+                    </div>
+
+                    <div class="payment__option flex">
+                      <input type="radio" name="payment_method" id="l3" value="e_wallet" class="payment__input" />
+                      <label for="l3" class="payment__label">E-Wallet (MoMo / ZaloPay)</label>
+                    </div>
+                  </div>
+
+                  <div class="payment-action">
+                    <button type="submit" class="btn btn--md" id="btnSubmit">Process Payment</button>
+                  </div>
+                </form>
+
+                <div id="paymentResult"></div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
       
@@ -90,22 +332,70 @@
     <!--=============== MAIN JS ===============-->
     <script src="../../../js/main.js"></script>
     <script type="module">
-        import { paymentService } from '../../services/paymentService.js';
+        import { paymentService } from '../../../js/services/paymentService.js';
 
         const queryParams = new URLSearchParams(window.location.search);
         const currentOrder = {
-            id: queryParams.get('order_id') || 101,
-            amount: 199.99
+          id: queryParams.get('order_id') || '',
+          amount: Number(queryParams.get('amount')) || 0
         };
 
-        document.getElementById('displayOrderId').innerText = '#' + currentOrder.id;
-        document.getElementById('displayAmount').innerText = '$' + currentOrder.amount;
+        const displayOrderId = document.getElementById('displayOrderId');
+        const billOrderNumber = document.getElementById('billOrderNumber');
+        const displayAmount = document.getElementById('displayAmount');
+        const resultDiv = document.getElementById('paymentResult');
+        const paymentForm = document.getElementById('paymentForm');
+        const btn = document.getElementById('btnSubmit');
 
-        document.getElementById('paymentForm').addEventListener('submit', async (e) => {
+        const formatVND = (value) => {
+          const amount = Number(value) || 0;
+          return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
+          }).format(amount);
+        };
+
+        const renderAmount = (amount) => {
+          displayAmount.innerText = amount > 0 ? formatVND(amount) : '0 đ';
+        };
+
+        const loadOrderAmount = async () => {
+          if (!currentOrder.id) {
+            resultDiv.innerHTML = '<span style="color: red;">Order ID is missing.</span>';
+            btn.disabled = true;
+            return;
+          }
+
+          displayOrderId.innerText = '#' + currentOrder.id;
+          billOrderNumber.innerText = '#' + currentOrder.id;
+          renderAmount(currentOrder.amount);
+
+          if (currentOrder.amount > 0) {
+            return;
+          }
+
+          try {
+            const orderResponse = await paymentService.getOrderDetail(currentOrder.id);
+            const orderData = orderResponse?.data || {};
+            currentOrder.amount = Number(orderData.total_amount) || Number(orderData.payment_amount) || 0;
+            renderAmount(currentOrder.amount);
+          } catch (error) {
+            console.error('Failed to load order detail', error);
+            resultDiv.innerHTML = '<span style="color: red;">Unable to load order total.</span>';
+          }
+        };
+
+        loadOrderAmount();
+
+        paymentForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            if (!currentOrder.id) {
+              resultDiv.innerHTML = '<span style="color: red;">Order ID is missing.</span>';
+              return;
+            }
+
             const method = document.querySelector('input[name="payment_method"]:checked').value;
-            const resultDiv = document.getElementById('paymentResult');
-            const btn = document.getElementById('btnSubmit');
 
             btn.disabled = true;
             btn.innerText = 'Processing...';
