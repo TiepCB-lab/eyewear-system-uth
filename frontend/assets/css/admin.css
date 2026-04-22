@@ -34,7 +34,7 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding: 0.8rem 1rem;
+    padding: 1rem 1.25rem;
     color: #495057;
     text-decoration: none;
     border-radius: 8px;
@@ -44,14 +44,158 @@
 
 .sidebar-link:hover, .sidebar-link.active {
     background: var(--first-color-alt);
-    color: #fff;
+    color: var(--first-color);
 }
 
 /* Content Area */
 .admin-main {
     margin-left: var(--sidebar-width);
     flex: 1;
-    padding: 2rem;
+    padding: 3.5rem 3rem;
+    transition: all 0.3s;
+    background-color: var(--admin-bg);
+}
+
+/* Sidebar Overlay */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    z-index: 999;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.sidebar-overlay.show {
+    display: block;
+    opacity: 1;
+}
+
+/* Responsive Dashboard */
+@media screen and (max-width: 1200px) {
+    .sidebar {
+        left: -100%;
+        z-index: 1000;
+        transition: left 0.3s ease;
+        box-shadow: 10px 0 30px rgba(0,0,0,0.1);
+    }
+
+    .sidebar.show {
+        left: 0;
+    }
+
+    .admin-main {
+        margin-left: 0;
+        padding: 2rem 1.5rem;
+        width: 100%;
+    }
+
+    .sidebar-toggle, .sidebar-close {
+        display: block !important;
+    }
+
+    .admin-header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        width: 100%;
+    }
+
+    .metrics-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.25rem;
+    }
+
+    .admin-table {
+        padding: 2rem !important;
+    }
+
+    .dashboard-modules-container {
+        padding: 2rem !important;
+    }
+
+    .filter-grid {
+        flex-direction: column !important;
+        gap: 1.25rem !important;
+    }
+
+    .filter-group {
+        width: 100% !important;
+    }
+
+    .filter-group input, .filter-group select {
+        width: 100% !important;
+    }
+
+    .table__title {
+        font-size: 1.1rem !important;
+    }
+
+    .metric-value {
+        font-size: 1.8rem !important;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .admin-main {
+        padding: 0.75rem;
+    }
+
+    .admin-header-content {
+        padding: 0.75rem 1rem !important;
+    }
+}
+
+/* Force full width for dashboard elements */
+body.admin-body .container {
+    max-width: 100% !important;
+    margin-inline: 0 !important;
+    padding-inline: 0 !important;
+}
+
+.admin-table.container {
+    width: 100% !important;
+}
+
+.filter-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.filter-group.search {
+    flex: 2 1 300px;
+}
+
+.filter-group.select {
+    flex: 1 1 200px;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-color-light);
+}
+
+.filter-group input, .filter-group select {
+    padding: 0.75rem 1.25rem;
+    border: 1px solid var(--border-color-alt);
+    border-radius: 10px;
+    background: #f8f9fa;
+    font-size: 0.95rem;
+    color: var(--text-color);
 }
 
 /* Metrics Cards */
@@ -64,20 +208,29 @@
 
 .metric-card {
     background: #fff;
-    padding: 1.5rem;
-    border-radius: 12px;
+    padding: 2rem;
+    border-radius: 16px;
     box-shadow: var(--card-shadow);
+    transition: transform 0.3s;
+}
+
+.metric-card:hover {
+    transform: translateY(-5px);
 }
 
 .metric-value {
-    font-size: 1.8rem;
+    font-size: 2rem;
     font-weight: 800;
-    margin: 0.5rem 0;
+    margin: 0.75rem 0;
+    color: var(--first-color);
 }
 
 .metric-label {
-    color: #6c757d;
-    font-size: 0.9rem;
+    color: var(--text-color-light);
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 /* Status Badges */
@@ -92,3 +245,199 @@
 .badge-cutting { background: #cce5ff; color: #004085; }
 .badge-qc { background: #e2e3e5; color: #383d41; }
 .badge-shipped { background: #d4edda; color: #155724; }
+
+/*=============== INVENTORY TABLE ===============*/
+.table__container {
+    overflow-x: auto;
+    margin-top: 1rem;
+}
+
+.admin-table {
+    padding: 3rem !important;
+    margin-top: 3rem !important;
+}
+
+.table__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--first-color);
+    margin: 0;
+}
+
+.inventory-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color-alt);
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.inventory__table thead th {
+    background: #f8f9fa;
+    color: #495057;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.inventory__table th, 
+.inventory__table td {
+    padding: 1.5rem 1.25rem !important;
+    text-align: left !important;
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f3f5;
+}
+
+.inventory__table th:first-child, 
+.inventory__table td:first-child {
+    padding-left: 0 !important;
+}
+
+.inventory__table th:last-child, 
+.inventory__table td:last-child {
+    padding-right: 0 !important;
+}
+
+.inventory__table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* Specific Inventory Module Styles */
+#inventoryTable {
+    table-layout: auto;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #fff;
+}
+
+#inventoryTable th, 
+#inventoryTable td {
+    padding: 1.5rem 1.25rem !important;
+    vertical-align: middle;
+    text-align: left;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+#inventoryTable th {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.product-cell {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    min-width: 280px;
+}
+
+.product-image {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 4px;
+    flex-shrink: 0;
+}
+
+.product-name {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.variant-badge {
+    display: inline-block;
+    padding: 0.25rem 0.6rem;
+    background: #f1f5f9;
+    color: #475569;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-right: 0.4rem;
+}
+
+.product-sku {
+    font-family: 'Monaco', 'Consolas', monospace;
+    font-size: 0.85rem;
+    color: #64748b;
+    background: #f8fafc;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+}
+
+.stock-cell {
+    text-align: center !important;
+    font-weight: 600;
+    min-width: 100px;
+}
+
+#inventoryTable th:last-child, 
+#inventoryTable td:last-child {
+    text-align: center !important;
+    min-width: 220px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.btn-small {
+    padding: 0.5rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.btn-edit { background: #f0fdfa; color: #0d9488; border-color: #ccfbf1; }
+.btn-edit:hover { background: #0d9488; color: #fff; }
+
+.btn-save { background: #ecfdf5; color: #059669; border-color: #d1fae5; display: none; }
+.btn-save:hover { background: #059669; color: #fff; }
+
+.btn-cancel { background: #fff1f2; color: #e11d48; border-color: #ffe4e6; display: none; }
+.btn-cancel:hover { background: #e11d48; color: #fff; }
+
+.status-badge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.status-in-stock { background: #dcfce7; color: #166534; }
+.status-low-stock { background: #fef9c3; color: #854d0e; }
+.status-out-of-stock { background: #fee2e2; color: #991b1b; }
+
+.stock-input {
+    width: 60px;
+    padding: 0.4rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: 600;
+}
