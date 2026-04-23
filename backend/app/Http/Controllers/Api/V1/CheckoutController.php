@@ -43,21 +43,28 @@ class CheckoutController
         }
     }
 
-    private function getCurrentUserId()
+    private function getCurrentUserId(): ?int
     {
-        $headers = getallheaders();
-        $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+        $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
 
-        if (preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
-            $token = $matches[1];
-            try {
-                $decoded = base64_decode($token);
-                $parts = explode(':', $decoded);
-                return (int) $parts[0];
-            } catch (Exception $e) {
+        if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
+            return null;
+        }
+
+        $token = trim(substr($authHeader, 7));
+        try {
+            $decoded = base64_decode($token, true);
+            if ($decoded === false) {
                 return null;
             }
+            $parts = explode(':', $decoded);
+            if (count($parts) < 1 || !is_numeric($parts[0])) {
+                return null;
+            }
+            return (int) $parts[0];
+        } catch (Exception $e) {
+            return null;
         }
-        return null;
     }
 }
+

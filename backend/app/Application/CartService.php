@@ -18,7 +18,7 @@ class CartService
     public function getCart(int $userId)
     {
         $stmt = $this->db->prepare("
-            SELECT ci.*, pv.sku, pv.color, pv.size, p.name as product_name, p.base_price, 
+            SELECT ci.*, pv.sku, pv.color, pv.size, pv.image_2d_url, p.name as product_name, p.base_price, 
                    pv.additional_price, l.name as lens_name, l.price as lens_price
             FROM cart c
             JOIN cartitem ci ON c.id = ci.cart_id
