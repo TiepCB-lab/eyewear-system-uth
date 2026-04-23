@@ -94,7 +94,7 @@ import authService from '../services/authService.js';
             e.preventDefault();
             const emailInput = document.querySelector('.sign-in-container input[name="email"]');
             const prefilledEmail = emailInput ? emailInput.value.trim() : '';
-            const email = prompt('Nhap email de nhan link dat lai mat khau:', prefilledEmail);
+            const email = prompt('Enter email to receive password reset link:', prefilledEmail);
 
             if (!email) {
                 return;
@@ -102,13 +102,13 @@ import authService from '../services/authService.js';
 
             try {
                 const response = await authService.forgotPassword(email.trim());
-                let message = response.message || 'Neu email ton tai trong he thong, link dat lai mat khau da duoc gui.';
+                let message = response.message || 'If the email exists in our system, a reset link has been sent.';
                 if (response.email_sent === false && response.reset_url) {
-                    message += '\n\nKhong gui duoc email. Ban co the mo link nay de dat lai mat khau:\n' + response.reset_url;
+                    message += '\n\nCould not send email. You can open this link to reset your password:\n' + response.reset_url;
                 }
                 alert(message);
             } catch (error) {
-                alert('Yeu cau quen mat khau that bai: ' + (error.response?.data?.message || error.message));
+                alert('Forgot password request failed: ' + (error.response?.data?.message || error.message));
             }
         });
     }

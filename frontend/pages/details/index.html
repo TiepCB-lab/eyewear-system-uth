@@ -18,6 +18,7 @@
 
     <!--=============== CSS ===============-->
     <link rel="stylesheet" href="../../../assets/css/styles.css" />
+    <link rel="stylesheet" href="../../../assets/css/refactor-utils.css" />
 
     <!--=============== LAYOUT LOADER ===============-->
     <script src="../../../js/core/layout-loader.js" defer></script>
@@ -43,7 +44,7 @@
               id="details-main-image"
               class="details__img"
             />
-            <div class="details__small-images grid">
+            <div class="details__small-images grid" id="details-gallery">
               <img
                 src="../../../assets/images/products/AN550012_3849.png"
                 alt=""
@@ -69,9 +70,9 @@
               <span class="old__price" id="price-old">$160.00</span>
               <span class="save__price" id="price-discount">Save $44.00</span>
             </div>
-            <div class="order-type-selector" style="background: #f4f4f4; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+            <div class="order-type-selector details-order-type">
                 <p><strong>Purchase Type</strong></p>
-                <div class="flex" style="gap: 1.5rem; margin-top: 0.5rem; flex-wrap: wrap;">
+                <div class="flex details-order-options">
                     <label><input type="radio" name="order_type" value="instock" checked> In-stock</label>
                     <label><input type="radio" name="order_type" value="preorder"> Pre-order (10-14 days)</label>
                     <label><input type="radio" name="order_type" value="prescription"> Add Prescription Lens</label>
@@ -97,46 +98,41 @@
                 <li>
                   <a
                     href="#"
-                    class="color__link"
+                    class="color__link color-swatch--amber"
                     data-color="Tortoise"
                     data-additional="0"
-                    style="background-color: hsl(37, 100%, 65%)"
                   ></a>
                 </li>
                 <li>
                   <a
                     href="#"
-                    class="color__link"
+                    class="color__link color-swatch--crimson"
                     data-color="Crimson"
                     data-additional="8"
-                    style="background-color: hsl(353, 100%, 65%)"
                   ></a>
                 </li>
                 <li>
                   <a
                     href="#"
-                    class="color__link"
+                    class="color__link color-swatch--gold"
                     data-color="Gold"
                     data-additional="14"
-                    style="background-color: hsl(49, 100%, 60%)"
                   ></a>
                 </li>
                 <li>
                   <a
                     href="#"
-                    class="color__link"
+                    class="color__link color-swatch--rose"
                     data-color="Rose"
                     data-additional="6"
-                    style="background-color: hsl(304, 100%, 78%)"
                   ></a>
                 </li>
                 <li>
                   <a
                     href="#"
-                    class="color__link"
+                    class="color__link color-swatch--emerald"
                     data-color="Emerald"
                     data-additional="10"
-                    style="background-color: hsl(126, 61%, 52%)"
                   ></a>
                 </li>
               </ul>
@@ -159,9 +155,9 @@
               </ul>
             </div>
 
-            <div style="margin-bottom: 1.25rem;">
-              <span class="details__size-title" style="display:block; margin-bottom: 0.5rem;">Lens Package</span>
-              <select id="lens-package" class="form__input" style="width: 100%; max-width: 390px;">
+            <div class="details-lens-group">
+              <span class="details__size-title details-lens-title">Lens Package</span>
+              <select id="lens-package" class="form__input details-lens-select">
                 <option value="0">Frame only (no lens add-on)</option>
                 <option value="35">Basic Single Vision (+$35)</option>
                 <option value="65">Blue-light Single Vision (+$65)</option>
@@ -169,19 +165,23 @@
               </select>
             </div>
 
-            <div style="border:1px solid var(--border-color); border-radius:8px; padding:0.85rem 1rem; margin-bottom:1.4rem; background: var(--first-color-alt);">
-              <p style="font-weight: 700; margin-bottom: 0.35rem;">Price Breakdown</p>
-              <p style="font-size: var(--small-font-size);">Base frame: <strong id="line-base">$116.00</strong></p>
-              <p style="font-size: var(--small-font-size);">Variant add-on: <strong id="line-variant">$0.00</strong></p>
-              <p style="font-size: var(--small-font-size);">Lens package: <strong id="line-lens">$0.00</strong></p>
-              <p style="font-size: var(--small-font-size);">Quantity: <strong id="line-qty">1</strong></p>
-              <p style="margin-top:0.35rem; color: var(--first-color); font-weight:700;">Estimated total: <span id="line-total">$116.00</span></p>
+            <div class="details-price-box">
+              <p class="details-price-box__title">Price Breakdown</p>
+              <p class="details-price-box__line">Base frame: <strong id="line-base">$116.00</strong></p>
+              <p class="details-price-box__line">Variant add-on: <strong id="line-variant">$0.00</strong></p>
+              <p class="details-price-box__line">Lens package: <strong id="line-lens">$0.00</strong></p>
+              <p class="details-price-box__line">Quantity: <strong id="line-qty">1</strong></p>
+              <p class="details-price-box__total">Estimated total: <span id="line-total">$116.00</span></p>
             </div>
 
             <div class="details__action">
               <input type="number" class="quantity" id="quantity-input" value="1" min="1" max="10" />
-              <a href="#" class="btn btn--sm">Add To Cart</a>
-              <a href="#" class="btn btn--sm btn-tryon" style="background: var(--first-color-alt);">Virtual Try-On</a>
+              <a href="#" id="add-to-cart-btn" class="btn btn--sm btn-cart-animate">
+                <i class="fi fi-rs-shopping-bag"></i>
+                <span class="btn-text">Add to Cart</span>
+                <i class="fi fi-rs-glasses falling-item"></i>
+              </a>
+              <a href="#" class="btn btn--sm btn-tryon btn-tryon--secondary">Virtual Try-On</a>
               <a href="#" class="details__action-btn">
                 <i class="fi fi-rs-heart"></i>
               </a>
@@ -209,7 +209,7 @@
         </div>
         <div class="details__tabs-content">
           <div class="details__tab-content active-tab" content id="info">
-            <table class="info__table">
+            <table class="info__table" id="info-table">
               <tr>
                 <th>Stand Up</th>
                 <td>35" L x 24"W x 37-45"H(front to back wheel)</td>
@@ -371,7 +371,7 @@
       <!--=============== PRODUCTS ===============-->
       <section class="products container section--lg">
         <h3 class="section__title"><span>Related</span> Products</h3>
-        <div class="products__container grid">
+        <div class="products__container grid" id="related-products">
           <div class="product__item">
             <div class="product__banner">
               <a href="../details/" class="product__images">
@@ -634,27 +634,27 @@
     <script src="../../../js/main.js"></script>
     <script type="module">
       import apiClient from '../../../js/services/apiClient.js';
-      import { CartService } from '../../../js/services/cartService.js';
+      import CartService from '../../../js/services/cartService.js';
+      import WishlistService from '../../../js/services/wishlistService.js';
 
       document.addEventListener('DOMContentLoaded', async () => {
         const params = new URLSearchParams(window.location.search);
-        let productId = params.get("id");
-        if (!productId) {
-            // default fallback if none provided
-            productId = "1";
-        }
+        let productId = params.get("id") || "1";
 
         const titleEl = document.getElementById("details-title");
         const brandEl = document.getElementById("details-brand");
         const breadcrumbEl = document.getElementById("breadcrumb-product");
         const mainImageEl = document.getElementById("details-main-image");
+        const descEl = document.querySelector(".short__description");
+        const galleryEl = document.getElementById("details-gallery");
+        const infoTable = document.getElementById("info-table");
+        const relatedEl = document.getElementById("related-products");
 
         const colorContainer = document.getElementById("variant-colors");
         const sizeContainer = document.getElementById("variant-sizes");
         const lensSelect = document.getElementById("lens-package");
         const quantityInput = document.getElementById("quantity-input");
-        const orderTypeInputs = Array.from(document.querySelectorAll("input[name='order_type']"));
-        const addToCartBtn = document.querySelector(".details__action .btn:not(.btn-tryon)");
+        const addToCartBtn = document.getElementById("add-to-cart-btn");
 
         const ui = {
           priceCurrent: document.getElementById("price-current"),
@@ -675,42 +675,79 @@
         let selectedVariant = null;
 
         try {
-            // 1. Load product data (REQUIRED)
             const res = await apiClient.get('/v1/products/show?id=' + productId);
-            product = res.data.data;
+            product = res.data?.data;
+            if(!product) throw new Error("Product not found");
         } catch(e) {
             console.error("Failed to fetch product", e);
-            alert("Sản phẩm không tồn tại hoặc lỗi kết nối.");
+            alert("Product not found or connection error.");
             return;
         }
 
-        try {
-            // 2. Load lenses (OPTIONAL - don't crash the page if it fails)
-            const lensRes = await apiClient.get('/v1/products/lenses/available');
-            const lenses = lensRes.data?.data || [];
-
-            // Render Lenses
-            lensSelect.innerHTML = '<option value="">Frame only (no lens add-on)</option>';
-            lenses.forEach(l => {
-                const opt = document.createElement('option');
-                opt.value = l.id;
-                opt.dataset.price = l.price;
-                opt.innerText = `${l.name} - ${l.lens_type} (+${format(l.price)})`;
-                lensSelect.appendChild(opt);
-            });
-        } catch(e) {
-            console.warn("Failed to load optional lens packages", e);
-            // Just show basic options if API fails
-            lensSelect.innerHTML = '<option value="">Frame only (no lens add-on)</option><option value="0">API Lens Data Unavailable</option>';
-        }
-
-        // 3. Render Product Info
+        // Render Product Info
         titleEl.textContent = product.name;
         brandEl.textContent = product.brand;
-        breadcrumbEl.textContent = product.name;
+        if(breadcrumbEl) breadcrumbEl.textContent = product.name;
         document.title = `${product.name} — EYEWEAR.UTH`;
+        if(descEl) descEl.textContent = product.description || 'Experience the perfect blend of style and clarity with our premium handcrafted frames.';
 
-        // Extract unique colors and sizes
+        // Render Specs Table
+        if(infoTable) {
+            infoTable.innerHTML = `
+                <tr><th>Brand</th><td>${product.brand || 'Luxury Eyewear'}</td></tr>
+                <tr><th>Model</th><td>${product.model_name || 'N/A'}</td></tr>
+                <tr><th>Gender</th><td>${product.gender === 'unisex' ? 'Unisex' : product.gender === 'men' ? 'Men' : product.gender === 'women' ? 'Women' : 'Kids'}</td></tr>
+                <tr><th>Material</th><td>Premium Acetate / Metal</td></tr>
+                <tr><th>Warranty</th><td>12 Months International</td></tr>
+                <tr><th>Condition</th><td>New 100%</td></tr>
+            `;
+        }
+
+        // Render Gallery
+        if(galleryEl) {
+            const images = [...new Set(product.variants.map(v => v.image_2d_url).filter(Boolean))];
+            galleryEl.innerHTML = images.map(img => {
+                let fullImg = img.startsWith('/') ? '../../..' + img : img;
+                return `<img src="${fullImg}" alt="${product.name}" class="details__small-img" onclick="document.getElementById('details-main-image').src=this.src">`;
+            }).join('');
+        }
+
+        // Fetch Related Products
+        try {
+            const relatedRes = await apiClient.get('/v1/products', { params: { category_id: product.category_id, limit: 4 } });
+            const relatedItems = (relatedRes.data?.data || []).filter(p => p.id != productId);
+            if(relatedEl) {
+                relatedEl.innerHTML = relatedItems.map(p => {
+                    const pPrice = parseFloat(p.base_price);
+                    let pImg = p.thumbnail || '../../../assets/images/products/placeholder.png';
+                    if(pImg.startsWith('/')) pImg = '../../..' + pImg;
+                    return `
+                        <div class="product__item">
+                            <div class="product__banner">
+                                <a href="../details/?id=${p.id}" class="product__images">
+                                    <img src="${pImg}" alt="${p.name}" class="product__img default" />
+                                    <img src="${pImg}" alt="${p.name}" class="product__img hover" />
+                                </a>
+                                <div class="product__actions">
+                                    <a href="#" class="action__btn" aria-label="Quick View" onclick="if(window.QuickView) window.QuickView.show(${p.id}); return false;">
+                                        <i class="fi fi-rs-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="product__content">
+                                <span class="product__category">${p.brand}</span>
+                                <a href="../details/?id=${p.id}"><h3 class="product__title">${p.name}</h3></a>
+                                <div class="product__price flex">
+                                    <span class="new__price">${format(pPrice)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        } catch(e) {}
+
+        // Render Variants
         const colors = {};
         const sizes = {};
         product.variants.forEach(v => {
@@ -720,7 +757,6 @@
             sizes[v.size].push(v);
         });
 
-        // Render Colors
         colorContainer.innerHTML = '';
         Object.keys(colors).forEach((color, idx) => {
             const li = document.createElement('li');
@@ -728,19 +764,12 @@
             a.href = '#';
             a.className = 'color__link ' + (idx === 0 ? 'active' : '');
             a.dataset.color = color;
-            a.title = color;
-            // mock color background natively
-            const low = color.toLowerCase();
-            a.style.backgroundColor = low.includes('gold') ? 'gold' : low.includes('black') ? 'black' : low.includes('silver') ? 'silver' : 'grey';
-            if(idx === 0) {
-                a.dataset.active = "1";
-                a.style.boxShadow = "0 0 0 2px #ffffff, 0 0 0 4px var(--first-color)";
-            }
+            a.style.backgroundColor = color.toLowerCase().includes('gold') ? 'gold' : color.toLowerCase().includes('black') ? 'black' : color.toLowerCase().includes('silver') ? 'silver' : 'grey';
+            if(idx === 0) a.dataset.active = "1";
             li.appendChild(a);
             colorContainer.appendChild(li);
         });
 
-        // Render Sizes
         sizeContainer.innerHTML = '';
         Object.keys(sizes).forEach((size, idx) => {
             const li = document.createElement('li');
@@ -753,85 +782,58 @@
             sizeContainer.appendChild(li);
         });
 
-        function getActiveColor() {
-            const active = colorContainer.querySelector('.color__link[data-active="1"]');
-            return active ? active.dataset.color : null;
-        }
-
-        function getActiveSize() {
-            const active = sizeContainer.querySelector('.size-active');
-            return active ? active.dataset.size : null;
-        }
-
         function updatePricing() {
-          if (!product) return;
-          const color = getActiveColor();
-          const size = getActiveSize();
+          if (!product || !addToCartBtn) return;
+          const color = colorContainer.querySelector('.color__link[data-active="1"]')?.dataset.color;
+          const size = sizeContainer.querySelector('.size-active')?.dataset.size;
 
-          // Find specific variant
-          selectedVariant = product.variants.find(v => v.color === color && v.size === size);
-          
-          if (!selectedVariant) {
-              // fallback to first match for color
-              selectedVariant = product.variants.find(v => v.color === color) || product.variants[0];
-          }
+          selectedVariant = product.variants.find(v => v.color === color && v.size === size) || product.variants.find(v => v.color === color) || product.variants[0];
 
-          // Update main image
           let img = selectedVariant.image_2d_url || '../../../assets/images/products/placeholder.png';
-          if(img.startsWith('/')) img = '../../../' + img.substring(1);
+          if(img.startsWith('/')) img = '../../..' + img;
           mainImageEl.src = img;
 
           const basePrice = parseFloat(product.base_price);
           const variantFee = parseFloat(selectedVariant.additional_price || 0);
-          
-          // Lens
           const opt = lensSelect.options[lensSelect.selectedIndex];
           const lensFee = opt && opt.value ? parseFloat(opt.dataset.price) : 0;
           
-          const maxStock = Number(selectedVariant.stock_quantity || 0);
-          const qty = Math.max(1, Math.min(maxStock > 0 ? maxStock : 1, Math.min(10, Number(quantityInput.value || 1))));
-          quantityInput.value = String(qty);
+          const maxStock = parseInt(selectedVariant.stock_quantity || 0);
+          let qty = parseInt(quantityInput.value) || 1;
+          qty = Math.max(1, Math.min(qty, maxStock > 0 ? maxStock : 1, 10));
+          quantityInput.value = qty;
 
           const unitPrice = basePrice + variantFee + lensFee;
           const total = unitPrice * qty;
           const oldPrice = unitPrice * 1.2;
 
-          ui.priceCurrent.textContent = format(unitPrice);
-          ui.priceOld.textContent = format(oldPrice);
-          ui.priceDiscount.textContent = `Save ${format(oldPrice - unitPrice)}`;
-
-          ui.lineBase.textContent = format(basePrice);
-          ui.lineVariant.textContent = format(variantFee);
-          ui.lineLens.textContent = format(lensFee);
-          ui.lineQty.textContent = String(qty);
-          ui.lineTotal.textContent = format(total);
-
-          ui.variantSku.textContent = selectedVariant.sku;
+          if(ui.priceCurrent) ui.priceCurrent.textContent = format(unitPrice);
+          if(ui.priceOld) ui.priceOld.textContent = format(oldPrice);
+          if(ui.priceDiscount) ui.priceDiscount.textContent = `Save ${format(oldPrice - unitPrice)}`;
+          if(ui.lineBase) ui.lineBase.textContent = format(basePrice);
+          if(ui.lineVariant) ui.lineVariant.textContent = format(variantFee);
+          if(ui.lineLens) ui.lineLens.textContent = format(lensFee);
+          if(ui.lineQty) ui.lineQty.textContent = qty;
+          if(ui.lineTotal) ui.lineTotal.textContent = format(total);
+          if(ui.variantSku) ui.variantSku.textContent = selectedVariant.sku;
           
-          // Edge case: Out of stock disabling
           if (maxStock <= 0) {
-              ui.variantStock.textContent = `Out of Stock`;
-              ui.variantStock.style.color = '#d9534f';
+              if(ui.variantStock) ui.variantStock.textContent = `Out of Stock`;
               addToCartBtn.style.pointerEvents = 'none';
               addToCartBtn.style.opacity = '0.5';
-              addToCartBtn.innerHTML = '<i class="fi fi-rs-shopping-bag"></i> Out of Stock';
+              addToCartBtn.querySelector('.btn-text').textContent = 'Out of Stock';
           } else {
-              ui.variantStock.textContent = `${maxStock} Items in Stock`;
-              ui.variantStock.style.color = 'inherit';
+              if(ui.variantStock) ui.variantStock.textContent = `${maxStock} items in stock`;
               addToCartBtn.style.pointerEvents = 'auto';
               addToCartBtn.style.opacity = '1';
-              addToCartBtn.innerHTML = '<i class="fi fi-rs-shopping-bag"></i> Add to Cart';
+              addToCartBtn.querySelector('.btn-text').textContent = 'Add to Cart';
           }
         }
 
-        // Bind events for color and sizes
         colorContainer.addEventListener("click", (e) => {
-            if(e.target.tagName.toLowerCase() === 'a') {
+            if(e.target.tagName === 'A') {
                 e.preventDefault();
-                colorContainer.querySelectorAll('.color__link').forEach(el => {
-                    el.dataset.active = "0";
-                    el.style.boxShadow = "none";
-                });
+                colorContainer.querySelectorAll('.color__link').forEach(el => { el.dataset.active = "0"; el.style.boxShadow = "none"; });
                 e.target.dataset.active = "1";
                 e.target.style.boxShadow = "0 0 0 2px #ffffff, 0 0 0 4px var(--first-color)";
                 updatePricing();
@@ -839,7 +841,7 @@
         });
 
         sizeContainer.addEventListener("click", (e) => {
-            if(e.target.tagName.toLowerCase() === 'a') {
+            if(e.target.tagName === 'A') {
                 e.preventDefault();
                 sizeContainer.querySelectorAll('.size__link').forEach(el => el.classList.remove('size-active'));
                 e.target.classList.add('size-active');
@@ -850,32 +852,82 @@
         lensSelect.addEventListener("change", updatePricing);
         quantityInput.addEventListener("input", updatePricing);
 
-        addToCartBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            if (!selectedVariant) return;
-
-            const lensId = lensSelect.value ? parseInt(lensSelect.value) : null;
-            const orderType = document.querySelector("input[name='order_type']:checked").value;
-
-            try {
-                const res = await apiClient.post('/v1/cart', {
-                    variant_id: selectedVariant.id,
-                    lens_id: lensId,
-                    quantity: parseInt(quantityInput.value)
-                });
-                alert('Đã thêm thành công vào giỏ hàng!');
-                window.dispatchEvent(new CustomEvent('content-loaded', { detail: { path: 'layout/Header' } }));
-            } catch (err) {
-                if(err.response && err.response.status === 401) {
-                    alert('Vui lòng đăng nhập!');
-                    window.location.href = '../auth/';
-                } else {
-                    alert('Lỗi: ' + (err.response?.data?.message || err.message));
+        if(addToCartBtn) {
+            addToCartBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                if (!selectedVariant || addToCartBtn.classList.contains('animating')) return;
+                
+                addToCartBtn.classList.add('animating');
+                try {
+                    await apiClient.post('/v1/cart', { 
+                        variant_id: selectedVariant.id, 
+                        lens_id: lensSelect.value ? parseInt(lensSelect.value) : null, 
+                        quantity: parseInt(quantityInput.value) 
+                    });
+                    
+                    setTimeout(() => {
+                        addToCartBtn.classList.remove('animating');
+                        addToCartBtn.classList.add('success-state');
+                        const originalText = addToCartBtn.querySelector('.btn-text').textContent;
+                        addToCartBtn.querySelector('.btn-text').textContent = 'Added!';
+                        
+                        setTimeout(() => {
+                            addToCartBtn.classList.remove('success-state');
+                            addToCartBtn.querySelector('.btn-text').textContent = originalText;
+                        }, 2000);
+                        
+                        window.dispatchEvent(new CustomEvent('content-loaded', { detail: { path: 'layout/Header' } }));
+                    }, 700);
+                } catch (err) {
+                    addToCartBtn.classList.remove('animating');
+                    if(err.response?.status === 401) {
+                        alert('Please login to continue.');
+                        window.location.href = '../auth/';
+                    } else {
+                        alert('Error: ' + (err.response?.data?.message || err.message));
+                    }
                 }
-            }
-        });
+            });
+        }
 
-        if (product) updatePricing();
+        const wishlistBtn = document.querySelector(".details__action-btn");
+        if (wishlistBtn) {
+            wishlistBtn.onclick = async (e) => {
+                e.preventDefault();
+                try {
+                    const res = await WishlistService.toggleItem(productId);
+                    if (res.status === 'added') {
+                        wishlistBtn.querySelector('i').className = 'fi fi-ss-heart';
+                        wishlistBtn.classList.add('wishlist-active');
+                        alert('Added to wishlist!');
+                    } else {
+                        wishlistBtn.querySelector('i').className = 'fi fi-rs-heart';
+                        wishlistBtn.classList.remove('wishlist-active');
+                        alert('Removed from wishlist!');
+                    }
+                    window.dispatchEvent(new CustomEvent('content-loaded', { detail: { path: 'layout/Header' } }));
+                } catch (err) { alert('Please login to continue.'); }
+            };
+            const checkWishlist = async () => {
+                try {
+                    const res = await WishlistService.getWishlist();
+                    if (res.data?.some(item => item.product_id == productId)) {
+                        wishlistBtn.querySelector('i').className = 'fi fi-ss-heart';
+                        wishlistBtn.classList.add('wishlist-active');
+                    }
+                } catch (err) {}
+            };
+            checkWishlist();
+        }
+
+        // Initialize lens and pricing
+        try {
+            const lensRes = await apiClient.get('/v1/products/lenses/available');
+            const lenses = lensRes.data?.data || [];
+            lensSelect.innerHTML = '<option value="">Frame only (no lens)</option>' + 
+                lenses.map(l => `<option value="${l.id}" data-price="${l.price}">${l.name} - ${l.lens_type} (+${format(l.price)})</option>`).join('');
+        } catch(e) {}
+        updatePricing();
       });
     </script>
   </body>

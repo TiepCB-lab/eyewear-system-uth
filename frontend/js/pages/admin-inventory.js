@@ -1,4 +1,4 @@
-import apiClient from '../services/apiClient.js';
+import adminService from '../services/adminService.js';
 
 /**
  * Inventory Management Module
@@ -18,12 +18,12 @@ async function loadInventory() {
 
     try {
         // Show loading state
-        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 3rem;">Loading inventory data...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="table-state-cell table-state-cell--spacious">Loading inventory data...</td></tr>';
 
-        const response = await apiClient.get('/v1/admin/inventory');
+        const response = await adminService.getInventory();
         
-        if (response && response.data && Array.isArray(response.data.data)) {
-            inventoryData = response.data.data.map(item => ({
+        if (response && Array.isArray(response.data)) {
+            inventoryData = response.data.map(item => ({
                 ...item,
                 productName: item.product_name,
                 productImage: item.image || '/assets/images/placeholder.png',
@@ -40,10 +40,10 @@ async function loadInventory() {
     } catch (error) {
         console.error('Failed to load inventory:', error);
         const errorMsg = error.response?.data?.message || error.message || 'Unknown error';
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 3rem; color: #e11d48;">
-            <i class="fi fi-rs-warning" style="font-size: 2rem; display: block; margin-bottom: 1rem;"></i>
+        tbody.innerHTML = `<tr><td colspan="9" class="table-state-cell table-state-cell--error table-state-cell--spacious">
+            <i class="fi fi-rs-warning table-state-icon"></i>
             Error loading inventory data: ${errorMsg}<br>
-            <small style="color: #64748b;">Please check the browser console for details.</small>
+            <small class="table-state-help">Please check the browser console for details.</small>
         </td></tr>`;
     }
 }
@@ -70,13 +70,13 @@ function renderTable(data = null) {
     tbody.innerHTML = '';
     
     if (displayData.length === 0) {
-        if(table) table.style.display = 'none';
-        if(emptyState) emptyState.style.display = 'block';
+        if(table) table.hidden = true;
+        if(emptyState) emptyState.hidden = false;
         return;
     }
 
-    if(table) table.style.display = 'table';
-    if(emptyState) emptyState.style.display = 'none';
+    if(table) table.hidden = false;
+    if(emptyState) emptyState.hidden = true;
 
     displayData.forEach((item, index) => {
         let statusClass = 'status-in-stock';
@@ -94,10 +94,10 @@ function renderTable(data = null) {
         row.innerHTML = `
             <td>
                 <div class="product-cell">
-                    <img src="${item.productImage}" alt="" class="product-image" onerror="this.src='/assets/images/placeholder.png'">
+                    <img src="${item.productImage}" alt="" class="product-image" data-fallback-src="/assets/images/products/placeholder.png">
                     <div class="product-info">
                         <div class="product-name">${item.productName}</div>
-                        <div style="font-size: 0.75rem; color: #64748b;">${item.category || 'Uncategorized'}</div>
+                        <div class="product-meta__sub">${item.category || 'Uncategorized'}</div>
                     </div>
                 </div>
             </td>
@@ -115,13 +115,13 @@ function renderTable(data = null) {
             <td><span class="status-badge ${statusClass}">${statusText}</span></td>
             <td>
                 <div class="action-buttons">
-                    <button class="btn-small btn-edit" id="editBtn-${index}" onclick="startEdit(${index})">
+                    <button type="button" class="btn-small btn-edit inventory-edit-btn" id="editBtn-${index}" data-index="${index}">
                         <i class="fi fi-rs-edit"></i> Edit
                     </button>
-                    <button class="btn-small btn-save" id="saveBtn-${index}" onclick="saveEdit(${index})" style="display:none">
+                    <button type="button" class="btn-small btn-save inventory-save-btn" id="saveBtn-${index}" data-index="${index}" hidden>
                         <i class="fi fi-rs-check"></i> Save
                     </button>
-                    <button class="btn-small btn-cancel" id="cancelBtn-${index}" onclick="cancelEdit(${index})" style="display:none">
+                    <button type="button" class="btn-small btn-cancel inventory-cancel-btn" id="cancelBtn-${index}" data-index="${index}" hidden>
                         <i class="fi fi-rs-cross"></i> Cancel
                     </button>
                 </div>
@@ -161,9 +161,9 @@ function startEdit(index) {
     
     stockCell.innerHTML = `<input type="number" id="edit-input-${index}" class="stock-input" value="${item.stock}" min="0">`;
     
-    document.getElementById(`editBtn-${index}`).style.display = 'none';
-    document.getElementById(`saveBtn-${index}`).style.display = 'inline-flex';
-    document.getElementById(`cancelBtn-${index}`).style.display = 'inline-flex';
+    document.getElementById(`editBtn-${index}`).hidden = true;
+    document.getElementById(`saveBtn-${index}`).hidden = false;
+    document.getElementById(`cancelBtn-${index}`).hidden = false;
 }
 
 async function saveEdit(index) {
@@ -171,10 +171,7 @@ async function saveEdit(index) {
     const item = inventoryData[index];
 
     try {
-        const response = await apiClient.put('/v1/admin/inventory/stock', {
-            variant_id: item.variantId,
-            quantity: newValue
-        });
+        const response = await adminService.updateStock(item.variantId, newValue);
 
         if (response) {
             // Update local data
@@ -193,6 +190,7 @@ async function saveEdit(index) {
         cancelEdit(index);
     }
 }
+
 
 function cancelEdit(index) {
     editingRow = null;
@@ -220,11 +218,45 @@ function exportToCSV() {
     document.body.removeChild(a);
 }
 
-// Expose functions to window for HTML onclick handlers
-window.loadInventory = loadInventory;
-window.filterInventory = filterInventory;
-window.startEdit = startEdit;
-window.saveEdit = saveEdit;
-window.cancelEdit = cancelEdit;
-window.refreshData = refreshData;
-window.exportToCSV = exportToCSV;
+document.addEventListener('click', (event) => {
+    const exportButton = event.target.closest('#exportInventoryBtn');
+    if (exportButton) {
+        exportToCSV();
+        return;
+    }
+
+    const refreshButton = event.target.closest('#refreshInventoryBtn');
+    if (refreshButton) {
+        refreshData();
+        return;
+    }
+
+    const editButton = event.target.closest('.inventory-edit-btn');
+    if (editButton) {
+        startEdit(Number(editButton.dataset.index));
+        return;
+    }
+
+    const saveButton = event.target.closest('.inventory-save-btn');
+    if (saveButton) {
+        saveEdit(Number(saveButton.dataset.index));
+        return;
+    }
+
+    const cancelButton = event.target.closest('.inventory-cancel-btn');
+    if (cancelButton) {
+        cancelEdit(Number(cancelButton.dataset.index));
+    }
+});
+
+document.addEventListener('input', (event) => {
+    if (event.target.id === 'searchProduct') {
+        filterInventory();
+    }
+});
+
+document.addEventListener('change', (event) => {
+    if (event.target.id === 'filterCategory' || event.target.id === 'filterStatus') {
+        filterInventory();
+    }
+});

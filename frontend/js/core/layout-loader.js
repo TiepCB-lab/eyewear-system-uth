@@ -5,10 +5,11 @@
 
 (function() {
     // 1. Detect project root from script source
-    const scriptTag = document.currentScript;
-    const scriptSrc = scriptTag ? scriptTag.src : '';
+    const scriptTag = document.currentScript || document.querySelector('script[src*="layout-loader.js"]');
+    const scriptSrc = scriptTag ? scriptTag.src : window.location.origin + '/';
     // js/core/layout-loader.js -> everything before js/
-    const projectRoot = scriptSrc.substring(0, scriptSrc.indexOf('js/core/layout-loader.js'));
+    let projectRoot = scriptSrc.substring(0, scriptSrc.indexOf('js/core/layout-loader.js')) || '/';
+    if (!projectRoot.endsWith('/')) projectRoot += '/';
 
     async function loadComponent(el) {
         const componentPath = el.getAttribute('data-include');
@@ -72,7 +73,7 @@
             window.dispatchEvent(new CustomEvent('content-loaded', { detail: { element: el, path: componentPath } }));
         } catch (err) {
             console.error(`LayoutLoader Error [${componentPath}]:`, err);
-            el.innerHTML = `<div style="color:#d9534f; padding:10px; border:1px solid #d9534f;">Failed to load ${componentPath}</div>`;
+            el.innerHTML = `<div class="component-error">Failed to load ${componentPath}</div>`;
         }
     }
 
@@ -101,8 +102,12 @@
         const navMenu = document.getElementById("nav-menu"),
               navToggle = document.getElementById("nav-toggle"),
               navClose = document.getElementById("nav-close");
-        if (navToggle && navMenu) navToggle.onclick = () => navMenu.classList.add("show-menu");
-        if (navClose && navMenu) navClose.onclick = () => navMenu.classList.remove("show-menu");
+        if (navToggle && navMenu) {
+            navToggle.addEventListener('click', () => navMenu.classList.add("show-menu"));
+        }
+        if (navClose && navMenu) {
+            navClose.addEventListener('click', () => navMenu.classList.remove("show-menu"));
+        }
     }
 
     function highlightActiveElements(container) {
@@ -190,7 +195,7 @@
                                     <i class="fi fi-rs-settings-sliders"></i> My Profile
                                 </a>
                                 ${isStaff ? `
-                                <a href="${projectRoot}pages/dashboard/index.html" class="dropdown__item" style="color: var(--first-color); font-weight: bold;">
+                                <a href="${projectRoot}pages/dashboard/index.html" class="dropdown__item dropdown__item--accent">
                                     <i class="fi fi-rs-apps"></i> Admin Dashboard
                                 </a>
                                 ` : ''}
@@ -207,17 +212,17 @@
                 if (adminPortal) {
                     adminPortal.innerHTML = `
                         <div class="user-info dropdown">
-                            <div class="user-trigger flex" style="gap: 0.5rem;">
-                                <img src="/assets/images/avatar-1.jpg" style="width: 32px; border-radius: 50%;" onerror="this.style.display='none'">
+                            <div class="user-trigger flex user-trigger--admin">
+                                <img src="${projectRoot}assets/images/avatar-1.jpg" class="admin-user-avatar" alt="${displayName}">
                                 <span>${displayName}</span>
                                 <i class="fi fi-rs-angle-small-down"></i>
                             </div>
-                            <div class="user-dropdown" style="right: 0; left: auto;">
+                            <div class="user-dropdown user-dropdown--align-right">
                                 <a href="${projectRoot}pages/dashboard/index.html?view=profile" class="dropdown__item">
                                     <i class="fi fi-rs-user"></i> My Profile
                                 </a>
                                 ${isCustomer ? `
-                                <a href="${projectRoot}index.html" class="dropdown__item" style="color: var(--first-color); font-weight: bold;">
+                                <a href="${projectRoot}index.html" class="dropdown__item dropdown__item--accent">
                                     <i class="fi fi-rs-shopping-cart"></i> Switch to Shop
                                 </a>
                                 ` : ''}
@@ -231,10 +236,10 @@
                 }
 
                 document.querySelectorAll('.logout-btn').forEach(btn => {
-                    btn.onclick = (e) => {
+                    btn.addEventListener('click', (e) => {
                         e.preventDefault();
                         authService.logout().then(() => window.location.href = `${projectRoot}index.html`);
-                    };
+                    });
                 });
             }
         } catch (e) {
@@ -249,26 +254,48 @@
             const wishlistCountEl = document.getElementById('wishlist-count');
             
             if (wishlistCountEl) {
-                let wl = JSON.parse(localStorage.getItem('eyewear_wishlist') || '[]');
-                wishlistCountEl.innerText = wl.length;
+                // 1. Synchronous Update from Cache
+                const cachedWlCount = localStorage.getItem('eyewear_wishlist_count');
+                if (cachedWlCount !== null) {
+                    wishlistCountEl.innerText = cachedWlCount;
+                    wishlistCountEl.hidden = parseInt(cachedWlCount, 10) <= 0;
+                }
+
+                // 2. Asynchronous API fetch
+                import(projectRoot + 'js/services/wishlistService.js').then(module => {
+                    module.default.getWishlist().then(res => {
+                        const count = res.data ? res.data.length : 0;
+                        wishlistCountEl.innerText = count;
+                        localStorage.setItem('eyewear_wishlist_count', count);
+                        wishlistCountEl.hidden = count <= 0;
+                    }).catch(err => {
+                        wishlistCountEl.innerText = 0;
+                        wishlistCountEl.hidden = true;
+                    });
+                }).catch(err => console.error("LayoutLoader: Could not load wishlistService", err));
             }
 
             if (cartCountEl) {
                  // 1. Instant Synchronous Update to Prevent UI Flicker (FOUC)
                  const cachedCount = localStorage.getItem('eyewear_cart_count');
-                 if (cachedCount !== null) cartCountEl.innerText = cachedCount;
+                 if (cachedCount !== null) {
+                     cartCountEl.innerText = cachedCount;
+                     cartCountEl.hidden = parseInt(cachedCount, 10) <= 0;
+                 }
 
                  // 2. Asynchronous API fetch for ultimate accuracy
                  import(projectRoot + 'js/services/cartService.js').then(module => {
-                     module.CartService.getCart().then(res => {
+                     module.default.getCart().then(res => {
                          let totalItems = 0;
                          if (res.data && res.data.length > 0) {
                             totalItems = res.data.reduce((sum, item) => sum + parseInt(item.quantity), 0);
                          }
                          cartCountEl.innerText = totalItems;
+                         cartCountEl.hidden = totalItems <= 0;
                          localStorage.setItem('eyewear_cart_count', totalItems); // Save for next page load
                      }).catch(err => {
                          cartCountEl.innerText = 0;
+                         cartCountEl.hidden = true;
                          localStorage.setItem('eyewear_cart_count', 0);
                      });
                  }).catch(err => console.error("LayoutLoader: Could not load cartService for badge update", err));
@@ -285,99 +312,232 @@
         }).catch(err => console.error("Failed to load LayoutGuard:", err));
     });
 
-    // --- EYWEAR CUSTOM UI DIALOG ---
-    const customDialogCss = `
-        .eyewear-dialog-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
-            display: flex; align-items: center; justify-content: center;
-            z-index: 99999; opacity: 0; transition: opacity 0.3s ease;
-        }
-        .eyewear-dialog {
-            background: #fff; width: 90%; max-width: 400px;
-            border-radius: 20px; padding: 35px 30px; text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-            transform: scale(0.9) translateY(20px);
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            font-family: 'Inter', sans-serif;
-        }
-        .eyewear-dialog.show {
-            transform: scale(1) translateY(0);
-        }
-        .eyewear-dialog-icon {
-            font-size: 3.5rem; margin-bottom: 15px;
-        }
-        .eyewear-dialog-icon.success { color: #10b981; }
-        .eyewear-dialog-icon.error { color: #ef4444; }
-        .eyewear-dialog-icon.warning { color: #f59e0b; }
-        .eyewear-dialog-icon.info { color: #0d0d0d; }
-        
-        .eyewear-dialog-title {
-            font-size: 1.25rem; font-weight: 700; color: #1a1a1a; margin-bottom: 10px;
-        }
-        .eyewear-dialog-msg {
-            font-size: 0.95rem; color: #4b5563; margin-bottom: 25px; line-height: 1.5;
-        }
-        .eyewear-dialog-btn {
-            background: #0d0d0d; color: #fff; border: none; padding: 14px 30px;
-            border-radius: 12px; font-weight: 600; font-size: 0.9rem;
-            cursor: pointer; transition: 0.3s; text-transform: uppercase;
-            letter-spacing: 1px; width: 100%;
-        }
-        .eyewear-dialog-btn:hover { background: #262626; transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.2); }
-    `;
+    // 10. Load Custom UI Assets
+    const refactorStyle = document.createElement('link');
+    refactorStyle.rel = 'stylesheet';
+    refactorStyle.href = projectRoot + 'assets/css/refactor-utils.css';
+    document.head.appendChild(refactorStyle);
 
-    const style = document.createElement('style');
-    style.innerHTML = customDialogCss;
-    document.head.appendChild(style);
+    const uiStyle = document.createElement('link');
+    uiStyle.rel = 'stylesheet';
+    uiStyle.href = projectRoot + 'assets/css/custom-ui.css';
+    document.head.appendChild(uiStyle);
 
-    window.originalAlert = window.alert;
-    window.alert = function(message) {
-        return new Promise(resolve => {
-            const overlay = document.createElement('div');
-            overlay.className = 'eyewear-dialog-overlay';
-            
-            let iconClass = 'info', iconShape = 'fi-rs-info';
-            let title = 'Notification';
-            let msgStr = String(message).toLowerCase();
-            
-            if (msgStr.includes('thành công') || msgStr.includes('successfully') || msgStr.includes('created')) {
-                iconClass = 'success'; iconShape = 'fi-rs-check-circle'; title = 'Success';
-            } else if (msgStr.includes('lỗi') || msgStr.includes('fail') || msgStr.includes('error') || msgStr.includes('denied')) {
-                iconClass = 'error'; iconShape = 'fi-rs-cross-circle'; title = 'Error';
-            } else if (msgStr.includes('warning') || msgStr.includes('vui lòng') || msgStr.includes('please')) {
-                iconClass = 'warning'; iconShape = 'fi-rs-exclamation'; title = 'Warning';
+    // 11. Initialize Custom Dialogs
+    import(projectRoot + 'js/core/dialog-manager.js').then(m => {
+        window.originalAlert = window.alert;
+        window.alert = m.default.alert;
+    }).catch(err => console.error("Failed to load DialogManager:", err));
+
+    window.addToCart = async function(variantId) {
+        try {
+            const { default: cartService } = await import(projectRoot + 'js/services/cartService.js');
+            await cartService.addToCart(variantId, 1);
+            await alert('Product added to cart!');
+            window.dispatchEvent(new CustomEvent('content-loaded', { detail: { path: 'layout/Header' } }));
+        } catch (err) {
+            if (err.response && err.response.status === 401) {
+                await alert('Please login to add to cart.');
+                window.location.href = projectRoot + 'pages/auth/index.html';
+            } else {
+                await alert('An error occurred: ' + (err.response?.data?.message || err.message));
             }
+        }
+    };
 
-            // Keep HTML characters safe
-            const safeMsg = String(message).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    document.addEventListener('click', (event) => {
+        const quickViewTrigger = event.target.closest('[data-action="quick-view"]');
+        if (quickViewTrigger) {
+            event.preventDefault();
+            window.quickView(quickViewTrigger.dataset.productId);
+            return;
+        }
 
-            overlay.innerHTML = `
-                <div class="eyewear-dialog">
-                    <div class="eyewear-dialog-icon ${iconClass}"><i class="fi ${iconShape}"></i></div>
-                    <h3 class="eyewear-dialog-title">${title}</h3>
-                    <p class="eyewear-dialog-msg">${safeMsg}</p>
-                    <button class="eyewear-dialog-btn">Got It</button>
+        const wishlistTrigger = event.target.closest('[data-action="toggle-wishlist"]');
+        if (wishlistTrigger) {
+            event.preventDefault();
+            window.addToWishlist(wishlistTrigger, wishlistTrigger.dataset.productId);
+            return;
+        }
+
+        const cartTrigger = event.target.closest('[data-action="add-to-cart"]');
+        if (cartTrigger) {
+            event.preventDefault();
+            window.addToCart(cartTrigger.dataset.variantId);
+        }
+    });
+
+    // --- QUICK VIEW IMPLEMENTATION ---
+    window.quickView = async function(productId) {
+        // 1. Show dynamic loader overlay
+        const loaderOverlay = document.createElement('div');
+        loaderOverlay.className = 'qv-overlay';
+        loaderOverlay.innerHTML = `
+            <div class="quick-view-loader">
+                <i class="fi fi-rs-spinner quick-view-loader__icon"></i>
+                <span class="quick-view-loader__label">Preparing Product...</span>
+            </div>
+        `;
+        document.body.appendChild(loaderOverlay);
+        loaderOverlay.offsetHeight;
+        loaderOverlay.classList.add('show');
+
+        try {
+            const { default: productService } = await import(projectRoot + 'js/services/productService.js');
+            
+            const res = await productService.getProduct(productId);
+            const p = res.data;
+            if (!p) throw new Error("Product not found");
+
+            const price = parseFloat(p.base_price || 0);
+            const oldPrice = p.old_price ? parseFloat(p.old_price) : 0;
+            const displayPrice = window.formatVND ? window.formatVND(price) : price + ' VND';
+            const displayOldPrice = oldPrice > price ? (window.formatVND ? window.formatVND(oldPrice) : oldPrice + ' VND') : '';
+            
+            let img = p.thumbnail || '/assets/images/products/placeholder.png';
+            if (img.startsWith('/')) img = projectRoot + img.substring(1);
+            else if (!img.startsWith('http')) img = projectRoot + img;
+
+            const modal = document.createElement('div');
+            modal.innerHTML = `
+                <div class="qv-modal">
+                    <button class="qv-close"><i class="fi fi-rs-cross"></i></button>
+                    <div class="qv-image-side">
+                        <div class="qv-sale-badge">Hot</div>
+                        <img src="${img}" alt="${p.name}">
+                    </div>
+                    <div class="qv-content-side">
+                        <div class="qv-brand">${p.brand || 'Luxury Eyewear'}</div>
+                        <h2 class="qv-title">${p.name}</h2>
+                        <div class="qv-price">
+                            ${displayPrice}
+                            <span class="qv-old-price">${displayOldPrice}</span>
+                        </div>
+                        <p class="qv-desc">${p.description || 'Experience the perfect blend of style and clarity with our artisan-crafted eyewear. Designed for those who appreciate the finer things in life.'}</p>
+                        
+                        <div class="qv-stock-status">
+                            <div class="qv-pulse"></div>
+                            ${p.total_stock || 0} items available in stock
+                        </div>
+
+                        <div class="qv-actions">
+                            <button class="qv-add-btn btn-cart-animate" id="qv-add-to-cart">
+                                <i class="fi fi-rs-shopping-bag-add"></i>
+                                <span class="btn-text">Add to Cart</span>
+                                <i class="fi fi-rs-glasses falling-item"></i>
+                            </button>
+                            <a href="${projectRoot}pages/details/?id=${p.id}" class="qv-details-btn" title="View Full Details">
+                                <i class="fi fi-rs-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             `;
-
-            document.body.appendChild(overlay);
-
-            // Reflow to play transition
-            overlay.offsetHeight; 
-            overlay.style.opacity = '1';
-            overlay.querySelector('.eyewear-dialog').classList.add('show');
-
-            const btn = overlay.querySelector('.eyewear-dialog-btn');
-            btn.onclick = () => {
-                overlay.style.opacity = '0';
-                overlay.querySelector('.eyewear-dialog').classList.remove('show');
-                setTimeout(() => {
-                    overlay.remove();
-                    resolve();
-                }, 300);
+            const content = modal.firstElementChild;
+            loaderOverlay.innerHTML = '';
+            loaderOverlay.appendChild(content);
+            
+            const closeModal = () => {
+                loaderOverlay.classList.remove('show');
+                setTimeout(() => loaderOverlay.remove(), 500);
             };
-        });
+
+            modal.querySelector('.qv-close').addEventListener('click', closeModal);
+            loaderOverlay.onclick = (e) => { if (e.target === loaderOverlay) closeModal(); };
+
+            // Handle Add to Cart inside Quick View
+            const addBtn = modal.querySelector('#qv-add-to-cart');
+            addBtn.addEventListener('click', async () => {
+                if (addBtn.classList.contains('animating')) return;
+                
+                const variantId = p.first_variant_id || p.id;
+                
+                // Start animation
+                addBtn.classList.add('animating');
+                
+                try {
+                    const { default: cartService } = await import(projectRoot + 'js/services/cartService.js');
+                    await cartService.addToCart(variantId, 1);
+                    
+                    // Wait for animation to progress
+                    setTimeout(async () => {
+                        addBtn.classList.remove('animating');
+                        addBtn.classList.add('success-state');
+                        addBtn.querySelector('.btn-text').textContent = 'Added!';
+                        addBtn.querySelector('i:first-child').className = 'fi fi-rs-check';
+                        
+                        // Sync header
+                        window.dispatchEvent(new CustomEvent('content-loaded', { detail: { path: 'layout/Header' } }));
+                        
+                        // Reset after delay
+                        setTimeout(() => {
+                            addBtn.classList.remove('success-state');
+                            addBtn.querySelector('.btn-text').textContent = 'Add to Cart';
+                            addBtn.querySelector('i:first-child').className = 'fi fi-rs-shopping-bag-add';
+                        }, 2000);
+                    }, 700);
+                    
+                } catch (err) {
+                    addBtn.classList.remove('animating');
+                    if (err.response && err.response.status === 401) {
+                        await alert('Please login first!');
+                        window.location.href = projectRoot + 'pages/auth/index.html';
+                    } else {
+                        await alert('Error: ' + (err.response?.data?.message || err.message));
+                    }
+                }
+            });
+
+        } catch (err) {
+            console.error("QuickView Error:", err);
+            loaderOverlay.innerHTML = `<div class="eyewear-dialog">
+                <div class="eyewear-dialog-icon error"><i class="fi fi-rs-cross-circle"></i></div>
+                <p class="eyewear-dialog-msg">We couldn't retrieve the product information right now.</p>
+                <button type="button" class="eyewear-dialog-btn quick-view-error-close">Close</button>
+            </div>`;
+            const closeButton = loaderOverlay.querySelector('.quick-view-error-close');
+            if (closeButton) {
+                closeButton.addEventListener('click', () => loaderOverlay.remove());
+            }
+        }
+    };
+
+    // 12. Global Wishlist Logic
+    window.addToWishlist = async function(btn, productId) {
+        try {
+            const { default: wishlistService } = await import(projectRoot + 'js/services/wishlistService.js');
+            const res = await wishlistService.toggleItem(productId);
+            
+            // Find ALL buttons for this product across the page
+            const allButtons = document.querySelectorAll(`[data-action="toggle-wishlist"][data-product-id="${productId}"]`);
+            
+            allButtons.forEach(button => {
+                const icon = button.querySelector('i');
+                if (res.status === 'added') {
+                    if(icon) icon.className = 'fi fi-ss-heart';
+                    button.classList.add('wishlist-active');
+                    button.setAttribute('aria-label', 'Remove from Wishlist');
+                    if(button.title) button.title = 'Remove from Wishlist';
+                } else {
+                    if(icon) icon.className = 'fi fi-rs-heart';
+                    button.classList.remove('wishlist-active');
+                    button.setAttribute('aria-label', 'Add to Wishlist');
+                    if(button.title) button.title = 'Add to Wishlist';
+                }
+            });
+
+            if (res.status === 'added') await alert('Added to wishlist successfully!');
+            else await alert('Removed from wishlist!');
+            
+            window.dispatchEvent(new CustomEvent('content-loaded', { detail: { path: 'layout/Header' } }));
+        } catch (err) {
+            if (err.response && err.response.status === 401) {
+                await alert('Please login to use wishlist.');
+                window.location.href = projectRoot + 'pages/auth/index.html';
+            } else {
+                console.error("Wishlist Error:", err);
+                await alert('An error occurred while updating wishlist.');
+            }
+        }
     };
 })();
-

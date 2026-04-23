@@ -1,4 +1,7 @@
-import apiClient from '../services/apiClient.js';
+import productService from '../services/productService.js';
+import wishlistService from '../services/wishlistService.js';
+
+let wishlistedIds = [];
 
 let catalogProducts = [];
 
@@ -19,7 +22,6 @@ const sortSelect = document.getElementById("sortSelect");
 const gridViewBtn = document.getElementById("gridViewBtn");
 const listViewBtn = document.getElementById("listViewBtn");
 let searchDebounceTimer = null;
-const CART_STORAGE_KEY = "eyewear_cart_v1";
 let productCardTemplate = "";
 
 async function loadFilterComponent() {
@@ -34,7 +36,7 @@ async function loadFilterComponent() {
     return true;
   } catch (error) {
     console.error("Failed to load search-form component:", error);
-    mount.innerHTML = "<p style=\"color:#c0392b\">Unable to load filters.</p>";
+    mount.innerHTML = "<p class=\"catalog-filter-error\">Unable to load filters.</p>";
     return false;
   }
 }
@@ -86,21 +88,6 @@ async function loadProductCardTemplate() {
   }
 }
 
-function readCart() {
-  try {
-    const parsed = JSON.parse(localStorage.getItem(CART_STORAGE_KEY) || "[]");
-    return Array.isArray(parsed) ? parsed : [];
-  } catch { return []; }
-}
-
-function writeCart(items) {
-  localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
-}
-
-function syncCartBadge() {
-  window.dispatchEvent(new CustomEvent('content-loaded', { detail: { path: 'layout/Header' } }));
-}
-
 function showToast(message) {
   const oldToast = document.querySelector(".catalog-toast");
   if (oldToast) oldToast.remove();
@@ -116,24 +103,6 @@ function showToast(message) {
     window.setTimeout(() => toast.remove(), 250);
   }, 1400);
 }
-
-window.addToCart = async function(variantId) {
-  try {
-    const res = await apiClient.post('/v1/cart', {
-        variant_id: Number(variantId),
-        quantity: 1
-    });
-    showToast('Đã thêm sản phẩm vào giỏ!');
-    syncCartBadge();
-  } catch (err) {
-    if(err.response && err.response.status === 401) {
-        alert('Vui lòng đăng nhập để thêm vào giỏ hàng.');
-        window.location.href = '/pages/auth/index.html';
-    } else {
-        alert('Có lỗi xảy ra: ' + (err.response?.data?.message || err.message));
-    }
-  }
-};
 
 function getCheckedValues(containerId) {
   const container = document.getElementById(containerId);
@@ -196,6 +165,11 @@ function renderProductCard(item) {
       imagePath = '../../' + imagePath.substring(1);
   }
 
+  const isWishlisted = wishlistedIds.some(wid => wid == item.product_id);
+  const heartIcon = isWishlisted ? 'fi fi-ss-heart' : 'fi fi-rs-heart';
+  const heartClass = isWishlisted ? 'wishlist-active' : '';
+  const label = isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist';
+
   return productCardTemplate
     .replaceAll("{{DETAIL_URL}}", detailUrl)
     .replaceAll("{{IMAGE}}", imagePath)
@@ -205,7 +179,11 @@ function renderProductCard(item) {
     .replaceAll("{{BRAND}}", item.brand || 'No Brand')
     .replaceAll("{{PRICE}}", displayPrice)
     .replaceAll("{{OLD_PRICE}}", displayOldPrice)
-    .replaceAll("{{ID}}", item.id); // Add variant ID!
+    .replaceAll("{{ID}}", item.id)
+    .replaceAll("{{PRODUCT_ID}}", item.product_id)
+    .replaceAll("{{WISHLIST_ICON}}", heartIcon)
+    .replaceAll("{{WISHLIST_CLASS}}", heartClass)
+    .replaceAll("{{WISHLIST_LABEL}}", label);
 }
 
 function renderProducts() {
@@ -253,8 +231,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // LOAD FROM DB
     try {
-        const res = await apiClient.get('/v1/products');
-        const items = res.data.data;
+        const [prodRes, wlRes] = await Promise.all([
+            productService.getProducts(),
+            wishlistService.getWishlist().catch(() => ({ data: [] }))
+        ]);
+        
+        wishlistedIds = (wlRes.data || []).map(i => i.product_id);
+        const items = prodRes.data;
         catalogProducts = items.map(p => ({
             id: p.first_variant_id || p.id,
             product_id: p.id,
@@ -269,8 +252,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         }));
     } catch(e) {
         console.error("Failed fetching shop DB logic", e);
-        showToast("Lỗi tải API dữ liệu kính!");
+        showToast("Error loading eyewear data API!");
     }
 
     renderProducts();
 });
+

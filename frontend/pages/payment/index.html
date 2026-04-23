@@ -12,237 +12,17 @@
 
     <!--=============== CSS ===============-->
     <link rel="stylesheet" href="../../../assets/css/styles.css" />
-
-    <style>
-      .payment-page {
-        background:
-          radial-gradient(circle at top left, rgba(17, 138, 178, 0.10), transparent 26%),
-          radial-gradient(circle at bottom right, rgba(42, 157, 143, 0.08), transparent 30%),
-          linear-gradient(180deg, #f7fbfc 0%, #ffffff 55%);
-      }
-
-      .payment-shell {
-        max-width: 1160px;
-        margin: 0 auto;
-        padding: 3rem 1rem 4rem;
-      }
-
-      .payment-hero {
-        display: grid;
-        gap: 0.65rem;
-        margin-bottom: 1.5rem;
-      }
-
-      .payment-hero__eyebrow {
-        display: inline-flex;
-        width: fit-content;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.42rem 0.85rem;
-        border-radius: 999px;
-        background: rgba(17, 138, 178, 0.10);
-        color: #0f7b93;
-        font-weight: 700;
-        letter-spacing: 0.02em;
-      }
-
-      .payment-hero__title {
-        font-size: clamp(2rem, 4vw, 3rem);
-        line-height: 1.05;
-        color: #17212a;
-      }
-
-      .payment-hero__subtitle {
-        max-width: 62ch;
-        color: #60707f;
-        font-size: 1rem;
-      }
-
-      .payment-layout {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 1.5rem;
-        align-items: stretch;
-      }
-
-      .payment-bill,
-      .payment-method {
-        position: relative;
-        overflow: hidden;
-        height: 100%;
-        min-height: 430px;
-        display: flex;
-        border: 1px solid rgba(17, 138, 178, 0.10);
-        border-radius: 26px;
-        background: rgba(255, 255, 255, 0.94);
-        box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
-      }
-
-      .payment-bill::before,
-      .payment-method::before {
-        content: '';
-        position: absolute;
-        inset: 0 auto auto 0;
-        height: 5px;
-        width: 100%;
-        background: linear-gradient(90deg, #118ab2 0%, #2a9d8f 100%);
-      }
-
-      .payment-panel {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        min-height: 430px;
-        padding: 1.6rem;
-      }
-
-      .payment-section-label {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-        padding: 0.35rem 0.75rem;
-        border-radius: 999px;
-        background: rgba(42, 157, 143, 0.08);
-        color: #186e66;
-        font-size: 0.82rem;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-      }
-
-      .bill-title {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: 1rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px dashed rgba(17, 138, 178, 0.18);
-        margin-bottom: 1rem;
-      }
-
-      .bill-title h3,
-      .method-title h3 {
-        font-size: 1.5rem;
-        color: #17212a;
-      }
-
-      .bill-number {
-        font-weight: 800;
-        color: #118ab2;
-      }
-
-      .bill-table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-
-      .bill-table tr + tr {
-        border-top: 1px solid rgba(17, 138, 178, 0.08);
-      }
-
-      .bill-table td {
-        padding: 0.95rem 0;
-        vertical-align: top;
-      }
-
-      .bill-label {
-        color: #6b7a88;
-        font-size: 0.92rem;
-      }
-
-      .bill-value {
-        text-align: right;
-        color: #1d2731;
-        font-weight: 700;
-      }
-
-      .bill-total td {
-        padding-top: 1.1rem;
-        font-size: 1.1rem;
-      }
-
-      .bill-total .bill-value {
-        font-size: 1.65rem;
-        color: #118ab2;
-      }
-
-      .bill-tip {
-        margin-top: 0.5rem;
-        padding: 0.9rem 1rem;
-        border-radius: 16px;
-        background: linear-gradient(180deg, rgba(17, 138, 178, 0.08) 0%, rgba(42, 157, 143, 0.05) 100%);
-        color: #34515f;
-        line-height: 1.6;
-      }
-
-      .method-title {
-        padding-bottom: 1rem;
-        margin-bottom: 1rem;
-        border-bottom: 1px solid rgba(17, 138, 178, 0.08);
-      }
-
-      .payment__methods {
-        display: grid;
-        gap: 0.9rem;
-      }
-
-      .payment__option {
-        padding: 0.95rem 1rem;
-        border-radius: 16px;
-        border: 1px solid rgba(17, 138, 178, 0.12);
-        background: #ffffff;
-        transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-      }
-
-      .payment__option:hover {
-        transform: translateY(-1px);
-        border-color: rgba(17, 138, 178, 0.28);
-        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
-      }
-
-      .payment__option .payment__label {
-        width: 100%;
-        font-weight: 600;
-        color: #243240;
-      }
-
-      .payment-action {
-        margin-top: auto;
-      }
-
-      .payment-action .btn {
-        width: 100%;
-      }
-
-      #paymentResult {
-        min-height: 2rem;
-        margin-top: 1rem;
-        text-align: center;
-        font-weight: 700;
-      }
-
-      @media (max-width: 900px) {
-        .payment-layout {
-          grid-template-columns: 1fr;
-        }
-      }
-    </style>
+    <link rel="stylesheet" href="../../../assets/css/refactor-utils.css" />
 
     <!--=============== LAYOUT LOADER ===============-->
     <script src="../../../js/core/layout-loader.js" defer></script>
 
-    <title>Checkout Payment — EYEWEAR.UTH</title>
+    <title>Checkout Payment â€” EYEWEAR.UTH</title>
   </head>
   <body class="payment-page">
-    <!--=============== HEADER ===============-->
     <header class="header" data-include="layout/Header"></header>
 
-    <!--=============== MAIN ===============-->
     <main class="main">
-      
-
-      <!--=============== PAYMENT ===============-->
       <section class="checkout section--lg">
         <div class="payment-shell">
           <div class="payment-hero">
@@ -275,7 +55,7 @@
                     </tr>
                     <tr class="bill-total">
                       <td class="bill-label">Total payable</td>
-                      <td class="bill-value" id="displayAmount">0 đ</td>
+                      <td class="bill-value" id="displayAmount">0 Ä‘</td>
                     </tr>
                   </tbody>
                 </table>
@@ -315,107 +95,19 @@
                   </div>
                 </form>
 
-                <div id="paymentResult"></div>
+                <div id="paymentResult" class="payment-result"></div>
               </div>
             </div>
           </div>
         </div>
       </section>
       
-      <!--=============== NEWSLETTER ===============-->
       <section class="newsletter section" data-include="components/newsletter"></section>
     </main>
 
-    <!--=============== FOOTER ===============-->
     <footer class="footer container" data-include="layout/Footer"></footer>
 
-    <!--=============== MAIN JS ===============-->
     <script src="../../../js/main.js"></script>
-    <script type="module">
-        import { paymentService } from '../../../js/services/paymentService.js';
-
-        const queryParams = new URLSearchParams(window.location.search);
-        const currentOrder = {
-          id: queryParams.get('order_id') || '',
-          amount: Number(queryParams.get('amount')) || 0
-        };
-
-        const displayOrderId = document.getElementById('displayOrderId');
-        const billOrderNumber = document.getElementById('billOrderNumber');
-        const displayAmount = document.getElementById('displayAmount');
-        const resultDiv = document.getElementById('paymentResult');
-        const paymentForm = document.getElementById('paymentForm');
-        const btn = document.getElementById('btnSubmit');
-
-        const formatVND = (value) => {
-          const amount = Number(value) || 0;
-          return new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND'
-          }).format(amount);
-        };
-
-        const renderAmount = (amount) => {
-          displayAmount.innerText = amount > 0 ? formatVND(amount) : '0 đ';
-        };
-
-        const loadOrderAmount = async () => {
-          if (!currentOrder.id) {
-            resultDiv.innerHTML = '<span style="color: red;">Order ID is missing.</span>';
-            btn.disabled = true;
-            return;
-          }
-
-          displayOrderId.innerText = '#' + currentOrder.id;
-          billOrderNumber.innerText = '#' + currentOrder.id;
-          renderAmount(currentOrder.amount);
-
-          if (currentOrder.amount > 0) {
-            return;
-          }
-
-          try {
-            const orderResponse = await paymentService.getOrderDetail(currentOrder.id);
-            const orderData = orderResponse?.data || {};
-            currentOrder.amount = Number(orderData.total_amount) || Number(orderData.payment_amount) || 0;
-            renderAmount(currentOrder.amount);
-          } catch (error) {
-            console.error('Failed to load order detail', error);
-            resultDiv.innerHTML = '<span style="color: red;">Unable to load order total.</span>';
-          }
-        };
-
-        loadOrderAmount();
-
-        paymentForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            if (!currentOrder.id) {
-              resultDiv.innerHTML = '<span style="color: red;">Order ID is missing.</span>';
-              return;
-            }
-
-            const method = document.querySelector('input[name="payment_method"]:checked').value;
-
-            btn.disabled = true;
-            btn.innerText = 'Processing...';
-            resultDiv.innerHTML = '';
-
-            try {
-                const res = await paymentService.processPayment(currentOrder.id, method, currentOrder.amount);
-                resultDiv.innerHTML = '<span style="color: green;">Payment ' + (res.data.status === 'paid' ? 'Successful' : 'Pending (COD/Transfer)') + '!<br/>Transaction Ref: ' + (res.data.transaction_ref || 'N/A') + '</span>';
-                
-                setTimeout(() => {
-                    window.location.href = '../accounts/index.html'; // Redirect to tracking
-                }, 3000);
-            } catch (error) {
-                resultDiv.innerHTML = '<span style="color: red;">Failed to process: ' + (error.message || 'Server Error') + '</span>';
-                btn.disabled = false;
-                btn.innerText = 'Process Payment';
-            }
-        });
-    </script>
+    <script type="module" src="../../../js/pages/payment.js"></script>
   </body>
 </html>
-
-

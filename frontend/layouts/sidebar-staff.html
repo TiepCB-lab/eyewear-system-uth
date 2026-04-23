@@ -1,83 +1,44 @@
-<div class="sidebar-top flex" style="padding: 1.5rem; border-bottom: 1px solid var(--border-color-alt); margin-bottom: 1rem; justify-content: space-between; align-items: center;">
+<div class="sidebar-top flex sidebar-top--staff">
     <a href="/pages/dashboard/index.html" class="nav__logo">
-        <img src="/assets/images/logo.png" alt="Logo" class="nav__logo-img" style="width: 140px;">
+        <img src="/assets/images/logo.png" alt="Logo" class="nav__logo-img sidebar-logo--staff">
     </a>
-    <button id="sidebar-close" class="sidebar-close" style="display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-color-light);">
+    <button id="sidebar-close" class="sidebar-close sidebar-close-btn">
         <i class="fi fi-rs-cross-small"></i>
     </button>
 </div>
 
-<nav class="sidebar-nav" id="sidebar-nav" style="display: flex; flex-direction: column; gap: 0.25rem; padding-inline: 1rem;">
-    <!-- All Staff -->
-    <a href="/pages/dashboard/index.html?view=overview" class="sidebar-link" data-view="overview" style="padding: 0.85rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.75rem; color: var(--text-color); transition: 0.3s;">
+<nav class="sidebar-nav sidebar-nav--stack sidebar-nav--staff" id="sidebar-nav">
+    <a href="/pages/dashboard/index.html?view=overview" class="sidebar-link sidebar-link--base" data-view="overview">
         <i class="fi fi-rs-chart-pie"></i> <span>Overview</span>
     </a>
 
-    <!-- Sales Staff / Manager / Admin -->
-    <a href="/pages/dashboard/index.html?view=orders" class="sidebar-link" data-view="orders" data-permission="manage_orders" style="padding: 0.85rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.75rem; color: var(--text-color); transition: 0.3s;">
+    <a href="/pages/dashboard/index.html?view=orders" class="sidebar-link sidebar-link--base" data-view="orders" data-permission="manage_orders">
         <i class="fi fi-rs-shopping-cart-check"></i> <span>Orders Management</span>
     </a>
 
-    <!-- Operations Staff / Manager / Admin -->
-    <a href="/pages/dashboard/index.html?view=inventory" class="sidebar-link" data-view="inventory" data-permission="manage_inventory" style="padding: 0.85rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.75rem; color: var(--text-color); transition: 0.3s;">
+    <a href="/pages/dashboard/index.html?view=inventory" class="sidebar-link sidebar-link--base" data-view="inventory" data-permission="manage_inventory">
         <i class="fi fi-rs-box"></i> <span>Inventory & Stock</span>
     </a>
 
-    <!-- Operations Staff / Manager / Admin -->
-    <a href="/pages/dashboard/index.html?view=products" class="sidebar-link" data-view="products" data-permission="view_products" style="padding: 0.85rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.75rem; color: var(--text-color); transition: 0.3s;">
+    <a href="/pages/dashboard/index.html?view=products" class="sidebar-link sidebar-link--base" data-view="products" data-permission="view_products">
         <i class="fi fi-rs-eye"></i> <span>Products Management</span>
     </a>
 
-    <!-- Manager / Admin -->
-    <a href="/pages/dashboard/index.html?view=analytics" class="sidebar-link" data-view="analytics" data-permission="view_manager_dashboard" style="padding: 0.85rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.75rem; color: var(--text-color); transition: 0.3s;">
+    <a href="/pages/dashboard/index.html?view=analytics" class="sidebar-link sidebar-link--base" data-view="analytics" data-permission="view_manager_dashboard">
         <i class="fi fi-rs-stats"></i> <span>Business Analytics</span>
     </a>
-    <!-- Admin Only -->
-    <a href="/pages/dashboard/index.html?view=users" class="sidebar-link" data-view="users" data-permission="manage_users" style="padding: 0.85rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.75rem; color: var(--text-color); transition: 0.3s;">
+
+    <a href="/pages/dashboard/index.html?view=users" class="sidebar-link sidebar-link--base" data-view="users" data-permission="manage_users">
         <i class="fi fi-rs-users-gear"></i> <span>Staff & Roles</span>
     </a>
 
-    <!-- Settings (All Staff) -->
-    <a href="/pages/dashboard/index.html?view=profile" class="sidebar-link" data-view="profile" style="padding: 0.85rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.75rem; color: var(--text-color); transition: 0.3s; margin-top: 2rem; border-top: 1px solid var(--border-color-alt);">
+    <a href="/pages/dashboard/index.html?view=profile" class="sidebar-link sidebar-link--base sidebar-link--divider" data-view="profile">
         <i class="fi fi-rs-user"></i> <span>Personal Profile</span>
     </a>
     
-    <a href="#" id="sidebar-logout" class="sidebar-link" style="padding: 0.85rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.75rem; color: #d9534f; margin-top: 0.5rem;">
+    <a href="#" id="sidebar-logout" class="sidebar-link sidebar-link--base sidebar-link--danger sidebar-link--spaced">
         <i class="fi fi-rs-sign-out-alt"></i> <span>Sign Out</span>
     </a>
 </nav>
 
-<style>
-.sidebar-link:hover {
-    background: var(--first-color-alt);
-    color: var(--first-color) !important;
-}
-.sidebar-link.active {
-    background: var(--first-color);
-    color: #fff !important;
-}
-/* Utility class for RBAC */
-[data-permission] {
-    display: none !important;
-}
-[data-permission].permission-granted {
-    display: flex !important;
-}
-</style>
-
-<script type="module">
-    import { getCurrentUserPermissions } from '../js/core/rbac.js';
-    
-    async function applySidebarPermissions() {
-        const { hasPermission } = await getCurrentUserPermissions();
-        document.querySelectorAll('[data-permission]').forEach(el => {
-            const permission = el.getAttribute('data-permission');
-            if (hasPermission(permission)) {
-                el.classList.add('permission-granted');
-            }
-        });
-    }
-
-    applySidebarPermissions();
-</script>
-
+<script type="module" src="/js/core/sidebar-permissions.js"></script>

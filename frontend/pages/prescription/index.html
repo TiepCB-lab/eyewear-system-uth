@@ -4,35 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../../../assets/css/styles.css">
-    <title>Enter Prescription — EYEWEAR.UTH</title>
-    <style>
-        .prescription-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            background: #fff;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-        .eye-row { display: contents; }
-        .eye-label { font-weight: 700; align-self: center; }
-        .form__input { width: 100%; }
-        .upload-area {
-            border: 2px dashed #ddd;
-            padding: 2rem;
-            text-align: center;
-            border-radius: 12px;
-            cursor: pointer;
-            margin-bottom: 2rem;
-        }
-        .upload-area:hover { border-color: var(--first-color); }
-    </style>
+    <link rel="stylesheet" href="../../../assets/css/refactor-utils.css">
+    <title>Enter Prescription â€” EYEWEAR.UTH</title>
 </head>
 <body>
-    <!-- Header will be included here (simulated) -->
-    
     <main class="main container section--lg">
         <h2 class="section__title">Prescription Details</h2>
         <p class="mb-2">Enter your prescription manually or upload a photo from your doctor.</p>
@@ -59,7 +34,7 @@
                 </div>
             </div>
 
-            <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <div class="grid prescription-double-grid">
                 <div>
                     <h3 class="footer__title">Pupillary Distance (PD)</h3>
                     <input type="text" class="form__input" placeholder="63mm">
@@ -83,5 +58,3 @@
     <script src="../../../js/main.js"></script>
 </body>
 </html>
-
-
