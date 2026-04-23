@@ -54,7 +54,7 @@ function renderQueueTable(queue) {
   if (!queueTableBody) return;
 
   if (!queue || queue.length === 0) {
-    queueTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">No orders in production queue</td></tr>';
+    queueTableBody.innerHTML = '<tr><td colspan="5" class="table-state-cell">No orders in production queue</td></tr>';
     return;
   }
 
@@ -63,13 +63,13 @@ function renderQueueTable(queue) {
     const status = getStatusPill(order.production_step);
 
     return `
-      <tr style="border-bottom: 1px solid var(--border-color-alt);">
-        <td style="padding: 15px 10px; font-weight: 700;">#${order.id}</td>
-        <td style="padding: 15px 10px;">${order.customer_name || 'Unknown'}</td>
-        <td style="padding: 15px 10px;">${stepLabel}</td>
-        <td style="padding: 15px 10px;"><span class="status-pill ${status.class}">${status.label}</span></td>
-        <td style="padding: 15px 10px;">
-          <button class="btn btn--sm" style="padding: 8px 12px; font-size: 0.7rem;" onclick="advanceStep(${order.id})">
+      <tr class="ops-table__row">
+        <td class="ops-table__cell ops-table__cell--strong">#${order.id}</td>
+        <td class="ops-table__cell">${order.customer_name || 'Unknown'}</td>
+        <td class="ops-table__cell">${stepLabel}</td>
+        <td class="ops-table__cell"><span class="status-pill ${status.class}">${status.label}</span></td>
+        <td class="ops-table__cell">
+          <button type="button" class="btn btn--sm ops-table__action" data-order-id="${order.id}">
             Advance
           </button>
         </td>
@@ -108,6 +108,15 @@ function setupEventListeners() {
       loadOperationsData();
     });
   }
+
+  document.addEventListener('click', async (event) => {
+    const advanceButton = event.target.closest('.ops-table__action');
+    if (!advanceButton) {
+      return;
+    }
+
+    await advanceStep(Number(advanceButton.dataset.orderId));
+  });
 }
 
 async function advanceStep(orderId) {
@@ -123,16 +132,8 @@ async function advanceStep(orderId) {
 
 function showAlert(message, type) {
   const alertDiv = document.createElement('div');
-  alertDiv.className = `alert alert-${type}`;
+  alertDiv.className = `admin-alert ${type === 'success' ? 'admin-alert--success' : 'admin-alert--error'}`;
   alertDiv.textContent = message;
-  alertDiv.style.cssText = `
-    padding: 1rem;
-    margin-bottom: 1rem;
-    border-radius: 8px;
-    background: ${type === 'success' ? '#d1fae5' : '#fee2e2'};
-    color: ${type === 'success' ? '#065f46' : '#991b1b'};
-    border: 1px solid ${type === 'success' ? '#a7f3d0' : '#fecaca'};
-  `;
   
   const container = document.querySelector('.ops-topbar');
   if (container) {

@@ -22,7 +22,7 @@
     </div>
 </div>
 
-<div class="admin-table container" style="margin-top: 2rem; background: #fff; padding: 2rem; border-radius: 12px; box-shadow: var(--card-shadow);">
+<div class="admin-table container admin-panel">
     <h3 class="table__title">Recent Activity</h3>
     <div class="table__container">
         <table class="table">
@@ -52,17 +52,4 @@
     </div>
 </div>
 
-<script type="module">
-    import { salesService } from '../../js/services/supportService.js';
-    import { getCurrentUserPermissions } from '../../js/core/rbac.js';
-
-    async function loadStats() {
-        const { hasPermission } = await getCurrentUserPermissions();
-        if (hasPermission('view_sales_dashboard')) {
-            const res = await salesService.getPendingOrders();
-            const el = document.getElementById('overview-new-orders');
-            if (el) el.innerText = res?.data?.length || 0;
-        }
-    }
-    loadStats();
-</script>
+<script type="module" src="/js/dashboard/modules/overview-module.js"></script>

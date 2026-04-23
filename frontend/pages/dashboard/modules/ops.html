@@ -6,7 +6,7 @@
     </div>
     <div class="topbar-actions">
         <button class="btn btn--sm"><i class="fi fi-rs-refresh"></i> Sync Queue</button>
-        <button class="btn-ghost" style="padding: 10px 15px; border: 1px solid var(--border-color); border-radius: 8px; background: white; cursor: pointer; font-weight: 700; color: var(--first-color);"><i class="fi fi-rs-print"></i> Shift Report</button>
+        <button type="button" class="ops-ghost-btn"><i class="fi fi-rs-print"></i> Shift Report</button>
     </div>
 </section>
 
@@ -42,60 +42,48 @@
             </div>
         </header>
 
-        <table class="queue-table" style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
-            <thead>
-                <tr style="text-align: left; border-bottom: 2px solid var(--border-color-alt); font-size: 0.8rem; color: var(--text-color-light);">
-                    <th style="padding: 10px;">Order</th>
-                    <th style="padding: 10px;">Customer</th>
-                    <th style="padding: 10px;">Current Step</th>
-                    <th style="padding: 10px;">Status</th>
-                    <th style="padding: 10px;">Action</th>
+        <table class="queue-table ops-table">
+            <thead class="ops-table__head">
+                <tr>
+                    <th class="ops-table__heading">Order</th>
+                    <th class="ops-table__heading">Customer</th>
+                    <th class="ops-table__heading">Current Step</th>
+                    <th class="ops-table__heading">Status</th>
+                    <th class="ops-table__heading">Action</th>
                 </tr>
             </thead>
             <tbody>
-                <tr style="border-bottom: 1px solid var(--border-color-alt);">
-                    <td style="padding: 15px 10px; font-weight: 700;">#12540</td>
-                    <td style="padding: 15px 10px;">Duc Tiep</td>
-                    <td style="padding: 15px 10px;">Lens Cutting</td>
-                    <td style="padding: 15px 10px;"><span class="status-pill status-progress">In Progress</span></td>
-                    <td style="padding: 15px 10px;"><button class="btn btn--sm" style="padding: 8px 12px; font-size: 0.7rem;">Send to QC</button></td>
+                <tr class="ops-table__row">
+                    <td class="ops-table__cell ops-table__cell--strong">#12540</td>
+                    <td class="ops-table__cell">Duc Tiep</td>
+                    <td class="ops-table__cell">Lens Cutting</td>
+                    <td class="ops-table__cell"><span class="status-pill status-progress">In Progress</span></td>
+                    <td class="ops-table__cell"><button type="button" class="btn btn--sm ops-table__action">Send to QC</button></td>
                 </tr>
-                <tr style="border-bottom: 1px solid var(--border-color-alt);">
-                    <td style="padding: 15px 10px; font-weight: 700;">#12541</td>
-                    <td style="padding: 15px 10px;">Minh Thu</td>
-                    <td style="padding: 15px 10px;">Frame Mounting</td>
-                    <td style="padding: 15px 10px;"><span class="status-pill status-wait">Waiting</span></td>
-                    <td style="padding: 15px 10px;"><button class="btn btn--sm" style="padding: 8px 12px; font-size: 0.7rem;">Start</button></td>
+                <tr class="ops-table__row">
+                    <td class="ops-table__cell ops-table__cell--strong">#12541</td>
+                    <td class="ops-table__cell">Minh Thu</td>
+                    <td class="ops-table__cell">Frame Mounting</td>
+                    <td class="ops-table__cell"><span class="status-pill status-wait">Waiting</span></td>
+                    <td class="ops-table__cell"><button type="button" class="btn btn--sm ops-table__action">Start</button></td>
                 </tr>
             </tbody>
         </table>
     </article>
 
-    <div class="panel-stack" style="display: grid; gap: 1.5rem; margin-top: 1.5rem;">
+    <div class="panel-stack">
         <article class="panel">
-            <h3 class="panel-title" style="margin-bottom: 1rem;">Bottleneck Alerts</h3>
-            <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <div style="background: #fff9eb; padding: 10px; border-radius: 8px; border: 1px solid #fbd38d; font-size: 0.8rem;">
+            <h3 class="panel-title panel-title--spaced">Bottleneck Alerts</h3>
+            <div class="ops-alert-list">
+                <div class="ops-alert-card ops-alert-card--warning">
                     <strong>Coating Station</strong>: 7 jobs delayed
                 </div>
-                <div style="background: #f0fff4; padding: 10px; border-radius: 8px; border: 1px solid #9ae6b4; font-size: 0.8rem;">
+                <div class="ops-alert-card ops-alert-card--success">
                     <strong>QC Queue</strong>: 12 pending checks
                 </div>
             </div>
         </article>
     </div>
 </section>
-
-<style>
-/* Localized styles for ops view */
-.status-pill { padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; }
-.status-progress { background: #e0f2fe; color: #0369a1; }
-.status-wait { background: #fef3c7; color: #92400e; }
-.status-done { background: #d1fae5; color: #065f46; }
-.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
-.kpi-card { background: white; padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border-color-alt); }
-.kpi-value { font-size: 1.5rem; font-weight: 800; color: var(--first-color); margin: 0.5rem 0; }
-.kpi-note { font-size: 0.75rem; color: #666; }
-</style>
 
 <script type="module" src="/js/dashboard/modules/ops-controller.js"></script>

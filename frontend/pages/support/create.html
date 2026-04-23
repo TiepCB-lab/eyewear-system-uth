@@ -4,55 +4,36 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="../../assets/css/styles.css" />
+  <link rel="stylesheet" href="../../assets/css/refactor-utils.css" />
+  <script src="../../js/core/layout-loader.js" defer></script>
   <title>Create Support Ticket - EYEWEAR.UTH</title>
 </head>
 <body>
   <header class="header" data-include="layout/Header"></header>
   <main class="main">
     <section class="section section--lg">
-      <div class="container" style="max-width: 600px; margin: 0 auto;">
-        <h2 class="section__title">Gửi yêu cầu hỗ trợ</h2>
-        <form id="createTicketForm" class="form" style="background: #fff; padding: 2rem; border-radius: 12px; box-shadow: var(--card-shadow);">
+      <div class="container support-shell">
+        <h2 class="section__title">Gá»­i yÃªu cáº§u há»— trá»£</h2>
+        <form id="createTicketForm" class="form support-card">
           <div class="form__group">
-            <label for="subject" class="form__label">Chủ đề</label>
+            <label for="subject" class="form__label">Chá»§ Ä‘á»</label>
             <input type="text" id="subject" name="subject" class="form__input" required />
           </div>
           <div class="form__group">
-            <label for="message" class="form__label">Nội dung yêu cầu</label>
+            <label for="message" class="form__label">Ná»™i dung yÃªu cáº§u</label>
             <textarea id="message" name="message" class="form__input" rows="5" required></textarea>
           </div>
           <div class="form__group">
-            <label for="orderId" class="form__label">Mã đơn hàng (nếu có)</label>
+            <label for="orderId" class="form__label">MÃ£ Ä‘Æ¡n hÃ ng (náº¿u cÃ³)</label>
             <input type="text" id="orderId" name="orderId" class="form__input" />
           </div>
-          <button type="submit" class="btn btn--primary" style="width: 100%;">Gửi yêu cầu</button>
+          <button type="submit" class="btn btn--primary full-width">Gá»­i yÃªu cáº§u</button>
         </form>
-        <div id="ticketSuccess" style="display:none; margin-top:1.5rem; color:green; text-align:center;">Gửi yêu cầu thành công!</div>
-        <div id="ticketError" style="display:none; margin-top:1.5rem; color:red; text-align:center;"></div>
+        <div id="ticketSuccess" class="support-feedback support-feedback--success" hidden>Gá»­i yÃªu cáº§u thÃ nh cÃ´ng!</div>
+        <div id="ticketError" class="support-feedback support-feedback--error" hidden></div>
       </div>
     </section>
   </main>
-  <script type="module">
-    import { supportService } from '../../js/services/supportService.js';
-    const form = document.getElementById('createTicketForm');
-    const successMsg = document.getElementById('ticketSuccess');
-    const errorMsg = document.getElementById('ticketError');
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      successMsg.style.display = 'none';
-      errorMsg.style.display = 'none';
-      const subject = form.subject.value.trim();
-      const message = form.message.value.trim();
-      const orderId = form.orderId.value.trim();
-      try {
-        await supportService.createTicket(subject, message, orderId || null);
-        successMsg.style.display = 'block';
-        form.reset();
-      } catch (err) {
-        errorMsg.textContent = err?.response?.data?.error || 'Gửi yêu cầu thất bại!';
-        errorMsg.style.display = 'block';
-      }
-    });
-  </script>
+  <script type="module" src="../../js/pages/support-create.js"></script>
 </body>
 </html>

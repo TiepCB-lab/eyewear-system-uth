@@ -1,4 +1,5 @@
 import adminService from '../../services/adminService.js';
+import dashboard from '../../pages/dashboard.js';
 
 const countAdmin = document.getElementById('countAdmin');
 const countManager = document.getElementById('countManager');
@@ -9,6 +10,8 @@ const lensFeeInput = document.getElementById('lensFee');
 const comboDiscountInput = document.getElementById('comboDiscount');
 const warrantyMonthsInput = document.getElementById('warrantyMonths');
 const promotionRulesInput = document.getElementById('promotionRules');
+const settingsForm = document.getElementById('settingsForm');
+const manageStaffButton = document.getElementById('manageStaffBtn');
 
 async function initializeSettings() {
   try {
@@ -61,7 +64,7 @@ async function loadSystemConfig() {
   }
 }
 
-window.handleSettingsSubmit = async function (event) {
+async function handleSettingsSubmit(event) {
   event.preventDefault();
 
   try {
@@ -77,7 +80,15 @@ window.handleSettingsSubmit = async function (event) {
     console.error('Error saving settings:', error);
     alert(`Failed to save settings: ${error.message}`);
   }
-};
+}
+
+if (settingsForm) {
+  settingsForm.addEventListener('submit', handleSettingsSubmit);
+}
+
+manageStaffButton?.addEventListener('click', () => {
+  dashboard.switchView('users');
+});
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initializeSettings);

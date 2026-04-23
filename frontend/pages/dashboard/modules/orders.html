@@ -19,7 +19,7 @@
     </div>
 </div>
 
-<div class="admin-table container" style="margin-top: 2rem; background: #fff; padding: 2rem; border-radius: 12px; box-shadow: var(--card-shadow);">
+<div class="admin-table container admin-panel">
     <h3 class="table__title">Pending Order Verification</h3>
     <div class="table__container">
         <table class="table" id="ordersTable">
@@ -38,7 +38,7 @@
     </div>
 </div>
 
-<div class="admin-table container" style="margin-top: 2rem; background: #fff; padding: 2rem; border-radius: 12px; box-shadow: var(--card-shadow);">
+<div class="admin-table container admin-panel">
     <h3 class="table__title">Open Support Tickets (Customer Care)</h3>
     <div class="table__container">
         <table class="table" id="ticketsTable">
@@ -57,83 +57,4 @@
     </div>
 </div>
 
-<script type="module">
-    import { supportService, salesService } from '/js/services/supportService.js';
-    
-    async function initSalesView() {
-        loadOrders();
-        loadTickets();
-    }
-
-    async function loadOrders() {
-        const tbody = document.getElementById('ordersListBody');
-        const countEl = document.getElementById('sales-new-orders-count');
-        try {
-            const res = await salesService.getPendingOrders();
-            if (countEl) countEl.innerText = res?.data?.length || 0;
-            
-            if (!res || !res.data || res.data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4">No pending orders.</td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = res.data.map(o => `
-                <tr>
-                    <td><strong>#${o.order_number}</strong></td>
-                    <td><span class="badge badge-pending">${o.status}</span></td>
-                    <td>$${o.total_amount}</td>
-                    <td><button class="btn btn--sm" onclick="window.verifyOrder(${o.id})">Verify Order</button></td>
-                </tr>
-            `).join('');
-        } catch (err) {
-            tbody.innerHTML = '<tr><td colspan="4" style="color:red;">Error loading orders.</td></tr>';
-        }
-    }
-
-    async function loadTickets() {
-        const tbody = document.getElementById('ticketsListBody');
-        try {
-            const res = await supportService.getTickets(true);
-            if (!res || !res.data || res.data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4">No open tickets.</td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = res.data.map(t => `
-                <tr>
-                    <td><strong>${t.subject}</strong><br/><small style="color: #666;">${t.message}</small></td>
-                    <td><span class="badge badge-pending">${t.status}</span></td>
-                    <td>${t.priority}</td>
-                    <td><button class="btn btn--sm" onclick="window.replyTicket(${t.id})">Reply to Customer</button></td>
-                </tr>
-            `).join('');
-        } catch (err) {
-            tbody.innerHTML = '<tr><td colspan="4" style="color:red;">Error loading tickets.</td></tr>';
-        }
-    }
-
-    window.verifyOrder = async (orderId) => {
-        if(!confirm('Verify this order for production?')) return;
-        try {
-            await salesService.verifyOrder(orderId);
-            alert('Order verified successfully!');
-            loadOrders();
-        } catch (err) {
-            alert('Verification failed: ' + err.message);
-        }
-    };
-
-    window.replyTicket = async (ticketId) => {
-        const msg = prompt('Enter the support reply message to the customer:');
-        if(!msg) return;
-        try {
-            await supportService.replyTicket(ticketId, msg);
-            alert('Reply sent to customer!');
-            loadTickets();
-        } catch (err) {
-            alert('Failed to reply: ' + err.message);
-        }
-    };
-
-    initSalesView();
-</script>
+<script type="module" src="/js/dashboard/modules/orders-module.js"></script>

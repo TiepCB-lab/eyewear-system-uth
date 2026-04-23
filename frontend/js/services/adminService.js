@@ -85,6 +85,21 @@ class AdminService {
     const response = await apiClient.delete(`/v1/admin/vouchers/delete?id=${id}`);
     return response.data;
   }
+
+  // ========== INVENTORY MANAGEMENT ==========
+  async getInventory() {
+    const response = await apiClient.get('/v1/admin/inventory');
+    return response.data;
+  }
+
+  async updateStock(variantId, quantity) {
+    const response = await apiClient.put('/v1/admin/inventory/stock', {
+      variant_id: variantId,
+      quantity: quantity
+    });
+    return response.data;
+  }
 }
+
 
 export default new AdminService();

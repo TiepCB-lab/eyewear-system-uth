@@ -1,12 +1,15 @@
 <div class="catalog-item">
     <div class="thumb">
         <span class="badge">{{BADGE}}</span>
-        <img src="{{IMAGE}}" alt="{{NAME}}">
+        <img src="{{IMAGE}}" alt="{{NAME}}" data-fallback-src="../../assets/images/products/placeholder.png">
         <div class="thumb-actions">
-            <a href="{{DETAIL_URL}}" class="thumb-action-btn" title="Quick View">
+            <button type="button" class="thumb-action-btn" title="Quick View" data-action="quick-view" data-product-id="{{PRODUCT_ID}}">
                 <i class="fi fi-rs-eye"></i>
-            </a>
-            <button class="thumb-action-btn" onclick="addToCart('{{ID}}')" title="Add to Cart">
+            </button>
+            <button type="button" class="thumb-action-btn {{WISHLIST_CLASS}}" title="{{WISHLIST_LABEL}}" data-action="toggle-wishlist" data-product-id="{{PRODUCT_ID}}">
+                <i class="{{WISHLIST_ICON}}"></i>
+            </button>
+            <button type="button" class="thumb-action-btn" title="Add to Cart" data-action="add-to-cart" data-variant-id="{{ID}}">
                 <i class="fi fi-rs-shopping-cart"></i>
             </button>
         </div>
@@ -29,7 +32,7 @@
                 <span class="old-price">{{OLD_PRICE}}</span>
             </div>
             <div class="catalog-cart-wrap">
-                <button class="catalog-cart-btn" onclick="addToCart('{{ID}}')" aria-label="Add to cart">
+                <button type="button" class="catalog-cart-btn" aria-label="Add to cart" data-action="add-to-cart" data-variant-id="{{ID}}">
                     <i class="fi fi-rs-shopping-bag"></i>
                 </button>
                 <div class="catalog-cart-tooltip">Add to Cart</div>
