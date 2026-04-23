@@ -96,6 +96,12 @@ Router::group(['prefix' => 'api/v1/cart'], function () {
     Router::delete('delete', [CartController::class, 'destroy']);
 });
 
+Router::group(['prefix' => 'api/v1/wishlist'], function () {
+    Router::get('/', [\App\Http\Controllers\Api\V1\WishlistController::class, 'index']);
+    Router::post('toggle', [\App\Http\Controllers\Api\V1\WishlistController::class, 'toggle']);
+    Router::delete('delete', [\App\Http\Controllers\Api\V1\WishlistController::class, 'destroy']);
+});
+
 use App\Http\Controllers\Api\V1\PrescriptionController;
 
 // Member 3 - Checkout Routes
