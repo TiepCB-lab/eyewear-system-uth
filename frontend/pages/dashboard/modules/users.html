@@ -1,24 +1,24 @@
 <!--=============== USERS MODULE ===============-->
-<div class="flex" style="justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-    <h1 class="section__title" style="margin: 0;">Staff Management</h1>
-    <button class="btn btn--sm" onclick="openCreateModal()">
+<div class="flex admin-flex-between">
+    <h1 class="section__title admin-title-reset">Staff Management</h1>
+    <button id="openCreateStaffModal" type="button" class="btn btn--sm">
         Add New Staff
     </button>
 </div>
 
-<div id="alertMessage" style="display:none; margin-bottom: 1rem; padding: 0.75rem; border-radius: 6px;"></div>
+<div id="alertMessage" class="admin-alert" hidden></div>
 
-<div class="admin-table container" style="background: #fff; padding: 1rem; border-radius: 12px; box-shadow: var(--card-shadow);">
-    <div class="flex" style="gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
-        <input id="searchInput" class="form__input" style="max-width: 300px;" placeholder="Search by name/email" />
-        <select id="roleFilter" class="form__input" style="max-width: 220px;">
+<div class="admin-table container admin-panel admin-panel--compact">
+    <div class="flex admin-filter-row">
+        <input id="searchInput" class="form__input admin-input-limit-300" placeholder="Search by name/email" />
+        <select id="roleFilter" class="form__input admin-input-limit-220">
             <option value="">All Roles</option>
             <option value="system_admin">System Admin</option>
             <option value="manager">Manager</option>
             <option value="sales_staff">Sales Staff</option>
             <option value="operations_staff">Operations Staff</option>
         </select>
-        <select id="statusFilter" class="form__input" style="max-width: 180px;">
+        <select id="statusFilter" class="form__input admin-input-limit-180">
             <option value="">All Status</option>
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
@@ -42,22 +42,21 @@
             </thead>
             <tbody id="staffTableBody">
                 <tr>
-                    <td colspan="8" style="text-align:center;">Loading staff...</td>
+                    <td colspan="8" class="table-state-cell">Loading staff...</td>
                 </tr>
             </tbody>
         </table>
     </div>
 </div>
 
-<!-- Staff Modal -->
-<div id="staffModal" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); align-items:center; justify-content:center; z-index: 999;">
-    <div style="background:#fff; width:min(520px, 92vw); border-radius:12px; padding:1.25rem;">
-        <div class="flex" style="justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h3 id="modalTitle" class="table__title" style="margin: 0;">Add New Staff</h3>
-            <button class="btn btn--sm" type="button" onclick="closeModal()">Close</button>
+<div id="staffModal" class="admin-modal" hidden>
+    <div class="admin-modal__card">
+        <div class="flex admin-modal__header">
+            <h3 id="modalTitle" class="table__title admin-title-reset">Add New Staff</h3>
+            <button id="closeStaffModal" class="btn btn--sm" type="button">Close</button>
         </div>
-        <form id="staffForm" onsubmit="handleFormSubmit(event)">
-            <div class="grid" style="gap: 0.75rem;">
+        <form id="staffForm">
+            <div class="grid admin-modal__grid">
                 <input id="fullName" class="form__input" placeholder="Full name" required>
                 <input id="email" type="email" class="form__input" placeholder="Email" required>
                 <input id="phone" class="form__input" placeholder="Phone">
@@ -74,7 +73,7 @@
                     <option value="blocked">Blocked</option>
                 </select>
             </div>
-            <div class="flex" style="justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
+            <div class="flex admin-modal__actions">
                 <button type="submit" class="btn btn--sm"><span id="submitText">Create Staff</span></button>
             </div>
         </form>

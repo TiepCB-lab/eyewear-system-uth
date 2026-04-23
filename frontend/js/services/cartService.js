@@ -1,12 +1,25 @@
 import apiClient from './apiClient.js';
 
-export const CartService = {
+const CartService = {
   getCart: async () => {
     try {
       const response = await apiClient.get('/v1/cart');
       return response.data;
     } catch (error) {
       console.error('Error fetching cart:', error);
+      throw error;
+    }
+  },
+
+  addToCart: async (variantId, quantity = 1) => {
+    try {
+      const response = await apiClient.post('/v1/cart', {
+        variant_id: Number(variantId),
+        quantity: quantity
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error adding to cart:', error);
       throw error;
     }
   },
@@ -49,3 +62,6 @@ export const CartService = {
     }
   }
 };
+
+export default CartService;
+

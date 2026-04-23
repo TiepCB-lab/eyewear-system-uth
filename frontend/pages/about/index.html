@@ -1,352 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <!--=============== FLATICON ===============-->
-        <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.0.0/uicons-regular-straight/css/uicons-regular-straight.css" />
-    
-        <!--=============== CSS ===============-->
-        <link rel="stylesheet" href="../../assets/css/styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--=============== FLATICON ===============-->
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.0.0/uicons-regular-straight/css/uicons-regular-straight.css" />
 
-        <style>
-            @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&display=swap");
+    <!--=============== GOOGLE FONTS ===============-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 
-            .about-page {
-                background:
-                    radial-gradient(circle at top left, rgba(175, 142, 86, 0.12), transparent 24%),
-                    radial-gradient(circle at bottom right, rgba(17, 138, 178, 0.08), transparent 28%),
-                    linear-gradient(180deg, #fffdf9 0%, #ffffff 58%);
-            }
+    <!-- AOS CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
-            .about-shell {
-                max-width: 1240px;
-                margin: 0 auto;
-                padding: 3rem 1rem 4rem;
-            }
+    <!--=============== CSS ===============-->
+    <link rel="stylesheet" href="../../assets/css/styles.css" />
+    <link rel="stylesheet" href="../../assets/css/refactor-utils.css" />
 
-            .about-hero {
-                display: grid;
-                gap: 0.65rem;
-                margin-bottom: 1.6rem;
-            }
+    <!--=============== LAYOUT LOADER ===============-->
+    <script src="../../js/core/layout-loader.js" defer></script>
 
-            .about-hero__eyebrow {
-                display: inline-flex;
-                width: fit-content;
-                align-items: center;
-                gap: 0.5rem;
-                padding: 0.42rem 0.85rem;
-                border-radius: 999px;
-                background: rgba(175, 142, 86, 0.12);
-                color: #9d7a39;
-                font-weight: 700;
-                letter-spacing: 0.08em;
-                text-transform: uppercase;
-            }
-
-            .about-hero__title {
-                font-size: clamp(2rem, 4vw, 3.2rem);
-                line-height: 0.98;
-                color: #123337;
-                font-family: "Cormorant Garamond", Georgia, serif;
-                font-weight: 600;
-                letter-spacing: -0.04em;
-                text-wrap: balance;
-                text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65);
-            }
-
-            .about-hero__subtitle {
-                max-width: 100%;
-                width: 100%;
-                color: #5f6c70;
-                font-size: 1rem;
-            }
-
-            .about-layout {
-                display: grid;
-                grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
-                gap: 2rem;
-                align-items: start;
-            }
-
-            .about-collage {
-                position: relative;
-                min-height: 860px;
-                display: grid;
-                gap: 0.15rem;
-                align-content: start;
-                margin-top: -1.5rem;
-            }
-
-            .about-collage__card {
-                position: relative;
-                overflow: hidden;
-                border-radius: 22px;
-                background: #fff;
-                box-shadow: 0 18px 42px rgba(31, 42, 45, 0.12);
-                border: 1px solid rgba(175, 142, 86, 0.16);
-            }
-
-            .about-collage__card img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                display: block;
-            }
-
-            .about-collage__back,
-            .about-collage__main {
-                width: 100%;
-            }
-
-            .about-collage__back {
-                height: 42%;
-                min-height: 320px;
-                border-radius: 26px;
-                transform: translateY(2.6rem);
-            }
-
-            .about-collage__main {
-                height: 58%;
-                min-height: 460px;
-                border-radius: 26px;
-                border: 4px solid rgba(88, 153, 163, 0.55);
-            }
-
-            .about-collage__label {
-                position: absolute;
-                top: 4%;
-                left: 50%;
-                transform: translateX(-50%);
-                padding: 0.55rem 1.1rem;
-                border-radius: 999px;
-                background: linear-gradient(180deg, #c7a66a 0%, #b99355 100%);
-                color: #3f2f12;
-                font-weight: 700;
-                letter-spacing: 0.08em;
-                text-transform: uppercase;
-                box-shadow: 0 8px 20px rgba(115, 88, 36, 0.25);
-            }
-
-            .about-copy {
-                display: grid;
-                gap: 1.25rem;
-            }
-
-            .about-story-card {
-                margin-top: 1.5rem;
-                padding: 1.6rem 1.6rem 1.7rem;
-                border-radius: 26px;
-                background: linear-gradient(180deg, rgba(248, 241, 230, 0.98) 0%, rgba(255, 255, 255, 1) 100%);
-                border: 1px solid rgba(175, 142, 86, 0.12);
-                box-shadow: 0 22px 54px rgba(31, 42, 45, 0.08);
-                position: relative;
-                overflow: hidden;
-            }
-
-            .about-story-card::before {
-                content: "";
-                position: absolute;
-                inset: 0 0 auto 0;
-                height: 0;
-            }
-
-            .about-copy__title {
-                font-size: clamp(2rem, 3vw, 2.8rem);
-                line-height: 0.98;
-                color: #123337;
-                font-family: "Cormorant Garamond", Georgia, serif;
-                font-weight: 600;
-                letter-spacing: -0.04em;
-            }
-
-            .about-copy__lead,
-            .about-copy__text {
-                color: #57676d;
-                line-height: 1.8;
-                font-size: 1.02rem;
-            }
-
-            .about-stats {
-                display: grid;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 1rem;
-                margin-top: 0.5rem;
-            }
-
-            .about-stat,
-            .about-feature {
-                padding: 1rem 1rem 1.1rem;
-                border-radius: 18px;
-                background: #ffffff;
-                border: 1px solid rgba(33, 73, 77, 0.08);
-                box-shadow: 0 10px 26px rgba(31, 42, 45, 0.06);
-            }
-
-            .about-stat {
-                padding: 1rem 1rem 1.1rem;
-            }
-
-            .about-stat i {
-                display: inline-flex;
-                width: 2.2rem;
-                height: 2.2rem;
-                align-items: center;
-                justify-content: center;
-                border-radius: 999px;
-                background: rgba(17, 138, 178, 0.10);
-                color: #118ab2;
-                margin-bottom: 0.8rem;
-            }
-
-            .about-stat h4 {
-                color: #b58b3c;
-                margin-bottom: 0.4rem;
-                font-size: 1.05rem;
-            }
-
-            .about-stat p {
-                color: #35566b;
-                font-size: 0.95rem;
-                line-height: 1.6;
-            }
-
-            .about-features {
-                display: grid;
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-                gap: 1rem;
-                margin-top: 0.5rem;
-            }
-
-            .about-feature i {
-                display: inline-flex;
-                width: 2.2rem;
-                height: 2.2rem;
-                align-items: center;
-                justify-content: center;
-                border-radius: 999px;
-                background: rgba(17, 138, 178, 0.10);
-                color: #118ab2;
-                margin-bottom: 0.8rem;
-            }
-
-            .about-feature h4 {
-                color: #b58b3c;
-                margin-bottom: 0.35rem;
-                font-size: 1rem;
-            }
-
-            .about-feature p {
-                color: #35566b;
-                font-size: 0.92rem;
-                line-height: 1.55;
-            }
-
-            @media (max-width: 980px) {
-                .about-layout {
-                    grid-template-columns: 1fr;
-                }
-
-                .about-collage {
-                    min-height: 760px;
-                    margin-top: 0;
-                }
-            }
-
-            @media (max-width: 700px) {
-                .about-collage {
-                    min-height: 700px;
-                    margin-top: 0;
-                }
-
-                .about-stats,
-                .about-features {
-                    grid-template-columns: 1fr;
-                }
-            }
-        </style>
-
-        <!--=============== LAYOUT LOADER ===============-->
-        <script src="../../js/core/layout-loader.js" defer></script>
-
-        <title>About Us — EYEWEAR.UTH</title>
+    <title>About Us — EEVELENS</title>
 </head>
 <body class="about-page">
-        <!--=============== HEADER ===============-->
-        <header class="header" data-include="layout/Header"></header>
+    <!--=============== HEADER ===============-->
+    <header class="header" data-include="layout/Header"></header>
 
-        <main class="main">
-                <section class="section--lg">
-                        <div class="about-shell">
-                                <div class="about-hero">
-                                    <div class="about-hero__eyebrow">The Meaning Behind EVLS</div>
-                                    <h1 class="about-hero__title">EVLS is more than just a name — it’s a vision.</h1>
-                                        <p class="about-hero__subtitle">Short for EEVELENS, EVLS reflects clarity, elegance, and a modern identity built around minimal design, effortless style, and a refined approach to everyday eyewear. It is a name shaped to feel simple, memorable, and timeless.</p>
-                                </div>
+    <main class="main">
+        <!-- Hero Section -->
+        <section class="about-hero">
+            <div class="about-hero__content container" data-aos="zoom-out">
+                <img src="../../assets/images/logo.png" alt="EEVELENS" class="about-hero__logo">
+                <br>
+                <span class="about-hero__badge">Established 2026</span>
+                <h1 class="about-hero__title">Vision Meets <span>Artistry</span></h1>
+                <p class="about-hero__description">EEVELENS is a premium eyewear destination where traditional craftsmanship converges with avant-garde digital precision.</p>
+            </div>
+        </section>
 
-                                <div class="about-layout">
-                                        <div class="about-collage" aria-label="About collage images">
-                                                <div class="about-collage__label">Explore the Collection</div>
+        <!-- Our Story -->
+        <section class="narrative container">
+            <div class="narrative__grid">
+                <div class="narrative__image-wrap" data-aos="fade-right">
+                    <img src="../../assets/images/About story_1.png" alt="EEVELENS Vision" class="narrative__img--main">
+                </div>
+                <div class="narrative__content" data-aos="fade-left">
+                    <span class="about-hero__badge about-hero__badge--accent">Our Narrative</span>
+                    <h2 class="narrative__title">The EEVELENS Philosophy</h2>
+                    <p class="narrative__text">EEVELENS (EVLS) was born from a singular ambition: to redefine how the world sees through optical innovation. We believe that eyewear is the most intimate expression of one's identity—a bridge between your internal perspective and the external world.</p>
+                    <p class="narrative__text">Every frame in our collection is curated with an editorial eye, ensuring that we only offer pieces that embody timeless elegance and structural integrity.</p>
+                </div>
+            </div>
+        </section>
 
-                                            <div class="about-collage__card about-collage__back">
-                                                <img src="../../assets/images/about%20story_2.jpg" alt="About story collection" />
-                                            </div>
+        <!-- Our Craft -->
+        <section class="craft">
+            <div class="container">
+                <div class="craft__grid">
+                    <div class="craft__content" data-aos="fade-right">
+                        <span class="about-hero__badge about-hero__badge--accent">The Process</span>
+                        <h2 class="narrative__title">Masterful Craftsmanship</h2>
+                        <p class="narrative__text">Our process integrates high-index materials with precise digital surfacing, delivering a clarity of vision that remains unparalleled in the industry.</p>
+                        <p class="narrative__text">Each pair of glasses undergoes rigorous quality control, from the tension of the hinges to the purity of the lens coating, ensuring that your investment in style is matched by an investment in quality.</p>
+                    </div>
+                    <div class="craft__image-wrap" data-aos="fade-left">
+                        <img src="../../assets/images/about story_2.jpg" alt="Optical Craftsmanship" class="craft__img">
+                    </div>
+                </div>
+            </div>
+        </section>
 
-                                            <div class="about-collage__card about-collage__main">
-                                                <img src="../../assets/images/About%20story_1.png" alt="About story portrait" />
-                                                </div>
-                                        </div>
+        <!-- Signature Section -->
+        <section class="signature section container signature--about">
+            <div data-aos="zoom-in">
+                <img src="../../assets/images/logo.png" alt="EEVELENS Signature" class="signature__logo">
+                <h2 class="narrative__title signature__title">Defining Future Vision</h2>
+                <p class="narrative__text signature__text">"We don't just sell eyewear; we engineer the perspective through which you experience the world."</p>
+            </div>
+        </section>
 
-                                        <div class="about-copy">
-                                            <div class="about-story-card">
-                                                <h2 class="about-copy__title">Our Story</h2>
-                                                <p class="about-copy__lead">EEVELENS was born from a simple idea: eyewear should do more than improve vision — it should express who you are.</p>
-                                                <p class="about-copy__text">We combine modern design with reliable optical quality to create glasses that are both stylish and comfortable. Every frame is carefully selected, and every lens is crafted to deliver clarity you can trust in your daily life.</p>
-                                                <p class="about-copy__text">At EVLS, we believe confidence starts with how you see the world — and how the world sees you.</p>
-                                            </div>
+        <!-- Modern Standards -->
+        <section class="standards section" data-aos="fade-up">
+            <div class="standards__grid container">
+                <div class="standard__item">
+                    <i class="fi fi-rs-rocket"></i>
+                    <h3 class="standard__title">2026 Pioneer</h3>
+                    <p class="standard__text">Born in the modern era to challenge traditional eyewear norms with fresh, innovative perspectives.</p>
+                </div>
+                <div class="standard__item">
+                    <i class="fi fi-rs-settings"></i>
+                    <h3 class="standard__title">Digital Precision</h3>
+                    <p class="standard__text">Utilizing 2026 state-of-the-art digital surfacing for absolute visual clarity from day one.</p>
+                </div>
+                <div class="standard__item">
+                    <i class="fi fi-rs-users"></i>
+                    <h3 class="standard__title">Community First</h3>
+                    <p class="standard__text">Building a global community of style-conscious individuals who value quality over mass production.</p>
+                </div>
+            </div>
+        </section>
 
-                                                <div class="about-stats">
-                                                        <div class="about-stat">
-                                                        <i class="fi fi-rs-shield-check"></i>
-                                                    <h4>Professional Quality Control</h4>
-                                                    <p>Every frame and lens is carefully checked before it reaches you, ensuring a high level of finish and optical standards.</p>
-                                                        </div>
-                                                        <div class="about-stat">
-                                                        <i class="fi fi-rs-truck-side"></i>
-                                                    <h4>Fast Delivery</h4>
-                                                    <p>Orders are processed and shipped quickly so you can receive your glasses as soon as possible without waiting long.</p>
-                                                        </div>
-                                                </div>
+        <!-- Values -->
+        <section class="values section">
+            <div class="container">
+                <h2 class="values__title" data-aos="fade-down">Our Core Values</h2>
+                <div class="values__grid">
+                    <div class="value__card" data-aos="fade-up" data-aos-delay="100">
+                        <i class="fi fi-rs-palette value__icon"></i>
+                        <h3 class="value__name">Design Excellence</h3>
+                        <p class="value__desc">We curate frames that balance aesthetics with ergonomics, ensuring style never compromises comfort.</p>
+                    </div>
+                    <div class="value__card" data-aos="fade-up" data-aos-delay="200">
+                        <i class="fi fi-rs-shield-check value__icon"></i>
+                        <h3 class="value__name">Optical Precision</h3>
+                        <p class="value__desc">Using state-of-the-art lens surfacing technology to provide the sharpest visual experience possible.</p>
+                    </div>
+                    <div class="value__card" data-aos="fade-up" data-aos-delay="300">
+                        <i class="fi fi-rs-leaf value__icon"></i>
+                        <h3 class="value__name">Sustainability</h3>
+                        <p class="value__desc">Committed to ethical sourcing and reducing our environmental footprint through durable, long-lasting products.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-                                                <div class="about-features">
-                                                        <div class="about-feature">
-                                                        <i class="fi fi-rs-palette"></i>
-                                                    <h4>Modern Design</h4>
-                                                    <p>Our eyewear is curated from the latest trends and suits many styles, from minimal to bold.</p>
-                                                        </div>
-                                                        <div class="about-feature">
-                                                        <i class="fi fi-rs-star"></i>
-                                                    <h4>Trusted Quality</h4>
-                                                    <p>Premium materials and careful finishing deliver comfort in use and long-lasting durability.</p>
-                                                        </div>
-                                                        <div class="about-feature">
-                                                            <i class="fi fi-rs-phone-call"></i>
-                                                    <h4>Dedicated Customer Care</h4>
-                                                    <p>We are always ready to help you choose, adjust, and answer any questions before and after purchase.</p>
-                                                        </div>
-                                                </div>
-                                        </div>
-                                </div>
-                        </div>
-                </section>
+        <!--=============== NEWSLETTER ===============-->
+        <section class="newsletter section" data-include="components/newsletter"></section>
+    </main>
 
-                <!--=============== NEWSLETTER ===============-->
-                <section class="newsletter section" data-include="components/newsletter"></section>
-        </main>
+    <!--=============== FOOTER ===============-->
+    <footer class="footer container" data-include="layout/Footer"></footer>
 
-        <!--=============== FOOTER ===============-->
-        <footer class="footer container" data-include="layout/Footer"></footer>
+    <!-- AOS JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script type="module" src="../../js/pages/about.js"></script>
 </body>
 </html>
-

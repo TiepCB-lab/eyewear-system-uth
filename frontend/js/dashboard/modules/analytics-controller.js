@@ -48,7 +48,7 @@ function renderTopProducts(topProducts) {
   }
 
   if (!topProducts || topProducts.length === 0) {
-    tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 1.5rem;">No product data available</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="4" class="table-state-cell">No product data available</td></tr>';
     return;
   }
 
@@ -59,7 +59,7 @@ function renderTopProducts(topProducts) {
         <td>${product.product_name || 'Unknown Product'}</td>
         <td>${formatNumber(product.units_sold)}</td>
         <td>${formatCurrency(product.revenue)}</td>
-        <td><span style="color:${growth.color};">${growth.label}</span></td>
+        <td><span class="${growth.className}">${growth.label}</span></td>
       </tr>
     `;
   }).join('');
@@ -67,14 +67,14 @@ function renderTopProducts(topProducts) {
 
 function getGrowthLabel(index) {
   if (index === 0) {
-    return { label: '+15%', color: 'green' };
+    return { label: '+15%', className: 'growth-positive' };
   }
 
   if (index === 1) {
-    return { label: '+8%', color: 'green' };
+    return { label: '+8%', className: 'growth-positive' };
   }
 
-  return { label: '-2%', color: 'red' };
+  return { label: '-2%', className: 'growth-negative' };
 }
 
 function formatCurrency(value) {
@@ -92,16 +92,8 @@ function formatNumber(value) {
 
 function showAlert(message, type) {
   const alertDiv = document.createElement('div');
-  alertDiv.className = `alert alert-${type}`;
+  alertDiv.className = `admin-alert ${type === 'success' ? 'admin-alert--success' : 'admin-alert--error'}`;
   alertDiv.textContent = message;
-  alertDiv.style.cssText = `
-    padding: 1rem;
-    margin: 1rem 0;
-    border-radius: 8px;
-    background: ${type === 'success' ? '#d1fae5' : '#fee2e2'};
-    color: ${type === 'success' ? '#065f46' : '#991b1b'};
-    border: 1px solid ${type === 'success' ? '#a7f3d0' : '#fecaca'};
-  `;
 
   const container = document.querySelector('.section__title');
   if (container && container.parentElement) {

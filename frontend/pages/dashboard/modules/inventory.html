@@ -23,14 +23,14 @@
 <div id="alertContainer" class="alert-container"></div>
 
 
-<div class="admin-table container" style="margin-top: 2rem; background: #fff; border-radius: 12px; box-shadow: var(--card-shadow);">
+<div class="admin-table container admin-panel admin-panel--flush">
     <div class="inventory-header">
         <h3 class="table__title">Inventory List</h3>
-        <div class="btn-group flex" style="gap: 1rem;">
-            <button class="btn btn--sm" onclick="exportToCSV()" style="background: var(--first-color); color: #fff; border: none; display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem;">
+        <div class="btn-group flex admin-toolbar__actions">
+            <button id="exportInventoryBtn" type="button" class="btn btn--sm admin-action-btn admin-action-btn--primary">
                 <i class="fi fi-rs-download"></i> Export CSV
             </button>
-            <button class="btn btn--sm" onclick="refreshData()" style="background: var(--first-color-alt); color: var(--first-color); border: 1px solid var(--first-color); display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem;">
+            <button id="refreshInventoryBtn" type="button" class="btn btn--sm admin-action-btn admin-action-btn--secondary">
                 <i class="fi fi-rs-refresh"></i> Refresh
             </button>
         </div>
@@ -40,11 +40,11 @@
         <div class="filter-grid">
             <div class="filter-group search">
                 <label for="searchProduct">Search Product / SKU</label>
-                <input type="text" id="searchProduct" placeholder="Enter product name or SKU..." onkeyup="filterInventory()"/>
+                <input type="text" id="searchProduct" placeholder="Enter product name or SKU..."/>
             </div>
             <div class="filter-group select">
                 <label for="filterCategory">Category</label>
-                <select id="filterCategory" onchange="filterInventory()">
+                <select id="filterCategory">
                     <option value="">All Categories</option>
                     <option value="optical">Optical Frames</option>
                     <option value="sunglasses">Sunglasses</option>
@@ -53,7 +53,7 @@
             </div>
             <div class="filter-group select">
                 <label for="filterStatus">Stock Status</label>
-                <select id="filterStatus" onchange="filterInventory()">
+                <select id="filterStatus">
                     <option value="">All Items</option>
                     <option value="in-stock">In Stock</option>
                     <option value="low-stock">Low Stock</option>
@@ -80,7 +80,7 @@
             <tbody id="inventoryTableBody"></tbody>
         </table>
     </div>
-    <div id="emptyState" class="empty-state" style="display: none;">
+    <div id="emptyState" class="empty-state" hidden>
         <div class="empty-icon">📦</div>
         <h3>No Products Found</h3>
         <p>Try adjusting your search or filters</p>
