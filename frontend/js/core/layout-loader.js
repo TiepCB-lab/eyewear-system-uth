@@ -167,6 +167,13 @@
         });
     }
 
+    function resolveAvatarUrl(avatar) {
+        if (!avatar) return `${projectRoot}assets/images/avatar-1.jpg`;
+        if (avatar.startsWith('http://') || avatar.startsWith('https://')) return avatar;
+        if (avatar.startsWith('/')) return `http://localhost:8000${avatar}`;
+        return `http://localhost:8000/${avatar.replace(/^\/+/, '')}`;
+    }
+
     async function updateAuthUI() {
         const portalArea = document.getElementById('header-user-portal');
         const adminPortal = document.getElementById('admin-user-portal');
@@ -178,6 +185,7 @@
             
             if (user && user.status !== 'error') {
                 const displayName = user.full_name || user.name || user.username || 'User';
+                const avatarSrc = resolveAvatarUrl(user.avatar);
                 const isStaff = authService.isStaff();
                 const isCustomer = authService.isCustomer();
                 
@@ -213,7 +221,7 @@
                     adminPortal.innerHTML = `
                         <div class="user-info dropdown">
                             <div class="user-trigger flex user-trigger--admin">
-                                <img src="${projectRoot}assets/images/avatar-1.jpg" class="admin-user-avatar" alt="${displayName}">
+                                <img src="${avatarSrc}" class="admin-user-avatar" alt="${displayName}">
                                 <span>${displayName}</span>
                                 <i class="fi fi-rs-angle-small-down"></i>
                             </div>
