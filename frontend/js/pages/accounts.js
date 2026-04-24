@@ -4,7 +4,6 @@ import { supportService } from '../services/supportService.js';
 
 const profileForm = document.getElementById('profile-form');
 const createTicketForm = document.getElementById('createTicketForm');
-const addressEditorForm = document.getElementById('address-editor');
 const profileSaveButton = document.querySelector('.profile-editor__actions button[form="profile-form"]');
 
 function formatBirthdate(value) {
@@ -50,9 +49,7 @@ function getTicketStatusBadge(status) {
 
 function renderOrdersTable(orders) {
     const tbody = document.getElementById('ordersListBody');
-    if (!tbody) {
-        return;
-    }
+    if (!tbody) return;
 
     if (!orders || orders.length === 0) {
         tbody.innerHTML = '<tr><td colspan="6" class="table-state-cell">You have no orders yet.</td></tr>';
@@ -65,7 +62,7 @@ function renderOrdersTable(orders) {
             : '-';
         const payAction = (order.payment_status === 'pending' || !order.payment_status)
             ? `<a href="../payment/?order_id=${order.id}" class="view__order">Pay Now</a>`
-            : '<strong class="growth-positive">Paid âœ“</strong>';
+            : '<strong class="growth-positive">Paid ✓</strong>';
 
         return `
             <tr>
@@ -74,7 +71,7 @@ function renderOrdersTable(orders) {
                 <td>${getStatusBadge(order.status)}</td>
                 <td>${payAction}</td>
                 <td><strong>${order.payment_status || 'pending'}</strong></td>
-                <td><em>${order.production_step || 'â€”'}</em></td>
+                <td><em>${order.production_step || '—'}</em></td>
             </tr>
         `;
     }).join('');
@@ -82,9 +79,7 @@ function renderOrdersTable(orders) {
 
 async function loadOrderTracking() {
     const tbody = document.getElementById('ordersListBody');
-    if (!tbody) {
-        return;
-    }
+    if (!tbody) return;
 
     tbody.innerHTML = '<tr><td colspan="6" class="table-state-cell">Loading...</td></tr>';
     try {
@@ -129,41 +124,17 @@ async function loadProfileData() {
     if (phoneEl) phoneEl.textContent = profile.phone || 'Not set';
     if (emailEl) emailEl.textContent = user.email || 'Not set';
 
-    if (avatarEl) {
-        avatarEl.src = avatarSrc;
-        avatarEl.dataset.fallbackSrc = '../../assets/images/avatar-1.jpg';
-    }
-
-    if (editorAvatarEl) {
-        editorAvatarEl.src = avatarSrc;
-        editorAvatarEl.dataset.fallbackSrc = '../../assets/images/avatar-1.jpg';
-    }
+    if (avatarEl) avatarEl.src = avatarSrc;
+    if (editorAvatarEl) editorAvatarEl.src = avatarSrc;
 
     const headerGreeting = document.querySelector('.user-trigger span');
-    if (headerGreeting) {
-        headerGreeting.textContent = `Hi, ${displayName}`;
+    if (headerGreeting) headerGreeting.textContent = `Hi, ${displayName}`;
+
+    if (profile.addresses) {
+        renderAddressList(profile.addresses);
+    } else {
+        loadAddresses();
     }
-
-    const addressBox = document.getElementById('account-address');
-    const addressMeta = document.getElementById('account-address-meta');
-    const addressPhoneInput = document.getElementById('address-phone-input');
-    const addressTextInput = document.getElementById('address-text-input');
-
-    if (addressBox) {
-        const accountAddress = profile.billing_address || profile.address || 'No address set yet.';
-        addressBox.innerHTML = accountAddress
-            .split('\n')
-            .map((line) => line.trim())
-            .filter(Boolean)
-            .join('<br />');
-    }
-
-    if (addressMeta) {
-        addressMeta.textContent = profile.phone ? `Phone: ${profile.phone}` : 'No phone number set.';
-    }
-
-    if (addressPhoneInput) addressPhoneInput.value = profile.phone || '';
-    if (addressTextInput) addressTextInput.value = profile.address || '';
 
     if (profile.recent_orders) {
         renderOrdersTable(profile.recent_orders);
@@ -172,11 +143,160 @@ async function loadProfileData() {
     return profile;
 }
 
-async function loadUserTickets() {
-    const tbody = document.getElementById('userTicketsList');
-    if (!tbody) {
+function renderAddressList(addresses) {
+    const list = document.getElementById('address-list');
+    if (!list) return;
+
+    if (!addresses || addresses.length === 0) {
+        list.innerHTML = '<div class="empty-state">No addresses saved yet. Click the button below to add one.</div>';
         return;
     }
+
+    list.innerHTML = addresses.map(addr => `
+        <div class="address-card ${addr.is_default ? 'address-card--default' : ''}">
+            <div class="address-card__header">
+                <span class="address-card__label">${addr.label}</span>
+                ${addr.is_default ? '<span class="address-card__badge">Default</span>' : ''}
+            </div>
+            <div class="address-card__body">
+                <p class="address-card__text">${addr.address.replace(/\n/g, '<br>')}</p>
+                <p class="address-card__phone"><i class="fi fi-rs-phone"></i> ${addr.phone}</p>
+            </div>
+            <div class="address-card__actions">
+                <button class="address-action-btn edit-btn" data-id="${addr.id}">Edit</button>
+                <button class="address-action-btn delete-btn" data-id="${addr.id}">Delete</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function loadAddresses() {
+    try {
+        const response = await profileService.getAddresses();
+        renderAddressList(response.data || []);
+        return response.data;
+    } catch (err) {
+        console.error("Failed to load addresses", err);
+    }
+}
+
+function openAddressEditor(address = null) {
+    const overlay = document.getElementById('address-editor-overlay');
+    const form = document.getElementById('address-editor-form');
+    const title = document.getElementById('address-editor-title');
+    
+    if (!overlay || !form) return;
+
+    overlay.hidden = false;
+    form.reset();
+
+    if (address) {
+        title.textContent = 'Edit Address';
+        form.id.value = address.id;
+        form.label.value = address.label;
+        form.phone.value = address.phone;
+        form.is_default.checked = !!address.is_default;
+    } else {
+        title.textContent = 'Add New Address';
+        form.id.value = '';
+    }
+
+    overlay.classList.add('show');
+    initAddressSelectors(address);
+}
+
+const provinceSelect = document.getElementById('address-province-select');
+const wardSelect = document.getElementById('address-ward-select');
+const streetInput = document.getElementById('address-street-input');
+const fullAddressHidden = document.getElementById('address-full-hidden');
+
+async function initAddressSelectors(address = null) {
+    if (!provinceSelect) return;
+
+    provinceSelect.innerHTML = '<option value="">Loading Provinces...</option>';
+    wardSelect.innerHTML = '<option value="">Select Ward/Commune</option>';
+    wardSelect.disabled = true;
+    streetInput.value = '';
+
+    try {
+        const response = await fetch('https://provinces.open-api.vn/api/v2/p/');
+        const provinces = await response.json();
+        
+        provinceSelect.innerHTML = '<option value="">Select Province/City (2025 Standard)</option>';
+        provinces.sort((a, b) => a.name.localeCompare(b.name, 'vi')).forEach(p => {
+            const option = document.createElement('option');
+            option.value = p.code;
+            option.textContent = p.name;
+            provinceSelect.appendChild(option);
+        });
+
+        if (address) {
+            const parts = address.address.split(',').map(s => s.trim());
+            if (parts.length >= 3) {
+                streetInput.value = parts[0];
+                const wardName = parts[1];
+                const provinceName = parts[2];
+
+                const provinceOption = Array.from(provinceSelect.options).find(opt => opt.text === provinceName);
+                if (provinceOption) {
+                    provinceSelect.value = provinceOption.value;
+                    await loadWards(provinceOption.value, wardName);
+                }
+            }
+        }
+    } catch (err) {
+        console.error("OpenAPI v2 Load Error:", err);
+        provinceSelect.innerHTML = '<option value="">Error loading provinces</option>';
+    }
+}
+
+async function loadWards(provinceCode, autoSelectWardName = null) {
+    wardSelect.innerHTML = '<option value="">Loading Wards...</option>';
+    wardSelect.disabled = true;
+
+    try {
+        const response = await fetch(`https://provinces.open-api.vn/api/v2/w/?province=${provinceCode}`);
+        const wards = await response.json();
+
+        wardSelect.innerHTML = '<option value="">Select Ward/Commune</option>';
+        wards.sort((a, b) => a.name.localeCompare(b.name, 'vi')).forEach(w => {
+            const option = document.createElement('option');
+            option.value = w.code;
+            option.textContent = w.name;
+            wardSelect.appendChild(option);
+        });
+
+        if (autoSelectWardName) {
+            const wardOption = Array.from(wardSelect.options).find(opt => opt.text === autoSelectWardName);
+            if (wardOption) wardSelect.value = wardOption.value;
+        }
+        wardSelect.disabled = false;
+    } catch (err) {
+        console.error("Ward Load Error:", err);
+        wardSelect.innerHTML = '<option value="">Error loading wards</option>';
+    }
+}
+
+provinceSelect?.addEventListener('change', () => {
+    const pCode = provinceSelect.value;
+    if (pCode) loadWards(pCode);
+    else {
+        wardSelect.innerHTML = '<option value="">Select Ward/Commune</option>';
+        wardSelect.disabled = true;
+    }
+});
+
+function closeAddressEditor() {
+    const overlay = document.getElementById('address-editor-overlay');
+    if (overlay) {
+        overlay.classList.remove('show');
+        setTimeout(() => overlay.hidden = true, 300);
+    }
+}
+
+async function loadUserTickets() {
+    const tbody = document.getElementById('userTicketsList');
+    if (!tbody) return;
 
     tbody.innerHTML = '<tr><td colspan="4" class="table-state-cell">Loading...</td></tr>';
     try {
@@ -224,28 +344,6 @@ async function viewTicketDetail(ticketId) {
     }
 }
 
-function openAddressEditor() {
-    const addressView = document.getElementById('address-view');
-    const addressEditor = document.getElementById('address-editor');
-    if (addressView) addressView.hidden = true;
-    if (addressEditor) addressEditor.hidden = false;
-
-    window.setTimeout(() => {
-        const addressInput = document.getElementById('address-text-input');
-        if (addressInput) {
-            addressInput.focus();
-            addressInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-    }, 50);
-}
-
-function closeAddressEditor() {
-    const addressView = document.getElementById('address-view');
-    const addressEditor = document.getElementById('address-editor');
-    if (addressEditor) addressEditor.hidden = true;
-    if (addressView) addressView.hidden = false;
-}
-
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         await loadProfileData();
@@ -265,10 +363,7 @@ avatarTrigger?.addEventListener('click', () => avatarInput?.click());
 
 avatarInput?.addEventListener('change', () => {
     const file = avatarInput.files?.[0];
-    if (!file || !avatarPreview) {
-        return;
-    }
-
+    if (!file || !avatarPreview) return;
     const previewUrl = URL.createObjectURL(file);
     avatarPreview.src = previewUrl;
     avatarPreview.onload = () => URL.revokeObjectURL(previewUrl);
@@ -304,44 +399,40 @@ profileForm?.addEventListener('submit', async (event) => {
     }
 });
 
-const profileEditorNameInput = document.getElementById('profile-editor-name-input');
-const hiddenProfileNameInput = document.getElementById('profile-full-name');
-profileEditorNameInput?.addEventListener('input', () => {
-    if (hiddenProfileNameInput) {
-        hiddenProfileNameInput.value = profileEditorNameInput.value;
-    }
-});
+const addressEditorForm = document.getElementById('address-editor-form');
+addressEditorForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Concatenate address string
+    const street = streetInput.value.trim();
+    const ward = wardSelect.options[wardSelect.selectedIndex].text;
+    const province = provinceSelect.options[provinceSelect.selectedIndex].text;
+    
+    const fullAddress = `${street}, ${ward}, ${province}`;
+    fullAddressHidden.value = fullAddress;
 
-addressEditorForm?.addEventListener('submit', async (event) => {
-    event.preventDefault();
-
-    const submitButton = addressEditorForm.querySelector('button[type="submit"]');
     const formData = new FormData(addressEditorForm);
     const data = Object.fromEntries(formData);
-
-    if (submitButton) {
-        submitButton.disabled = true;
-        submitButton.textContent = 'Saving...';
-    }
+    const id = data.id;
+    delete data.id;
+    data.is_default = !!data.is_default;
 
     try {
-        await profileService.updateProfile(data);
-        await loadProfileData();
-        closeAddressEditor();
-        alert('Address updated successfully!');
-    } catch (error) {
-        alert('Failed to update address: ' + (error.response?.data?.message || error.message));
-    } finally {
-        if (submitButton) {
-            submitButton.disabled = false;
-            submitButton.textContent = 'Save Address';
+        if (id) {
+            await profileService.updateAddress(id, data);
+        } else {
+            await profileService.addAddress(data);
         }
+        await loadAddresses();
+        closeAddressEditor();
+        alert('Address saved successfully!');
+    } catch (err) {
+        alert('Failed to save address: ' + (err.response?.data?.message || err.message));
     }
 });
 
 createTicketForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
-
     const subject = document.getElementById('ticketSubject')?.value.trim();
     const message = document.getElementById('ticketMessage')?.value.trim();
     if (!subject || !message) {
@@ -357,7 +448,7 @@ createTicketForm?.addEventListener('submit', async (event) => {
 
     try {
         await supportService.createTicket(subject, message);
-        alert('Ticket created successfully! Our team will respond shortly.');
+        alert('Ticket created successfully!');
         createTicketForm.reset();
         loadUserTickets();
     } catch (err) {
@@ -373,11 +464,7 @@ createTicketForm?.addEventListener('submit', async (event) => {
 document.addEventListener('click', async (event) => {
     const logoutTab = event.target.closest('.account__tab:last-child');
     if (logoutTab) {
-        try {
-            await authService.logout();
-        } catch (error) {
-            console.error('Logout error:', error);
-        }
+        await authService.logout();
         window.location.href = '../auth/index.html';
         return;
     }
@@ -394,15 +481,35 @@ document.addEventListener('click', async (event) => {
         return;
     }
 
-    const editAddressLink = event.target.closest('#edit-address-link');
-    if (editAddressLink) {
-        event.preventDefault();
+    const addBtn = event.target.closest('#add-new-address-btn');
+    if (addBtn) {
         openAddressEditor();
         return;
     }
 
-    const cancelAddressButton = event.target.closest('#cancel-address-edit');
-    if (cancelAddressButton) {
+    const editBtn = event.target.closest('.address-action-btn.edit-btn');
+    if (editBtn) {
+        const id = editBtn.dataset.id;
+        const response = await profileService.getAddresses();
+        const address = response.data.find(a => a.id == id);
+        if (address) openAddressEditor(address);
+        return;
+    }
+
+    const deleteBtn = event.target.closest('.address-action-btn.delete-btn');
+    if (deleteBtn) {
+        if (!confirm('Are you sure?')) return;
+        try {
+            await profileService.deleteAddress(deleteBtn.dataset.id);
+            loadAddresses();
+        } catch (err) {
+            alert('Failed to delete');
+        }
+        return;
+    }
+
+    const cancelBtn = event.target.closest('#cancel-address-edit');
+    if (cancelBtn) {
         closeAddressEditor();
         return;
     }
@@ -412,9 +519,12 @@ document.addEventListener('click', async (event) => {
         event.preventDefault();
         await viewTicketDetail(Number(ticketLink.dataset.ticketId));
     }
-});
 
-const initialOrdersTab = document.querySelector('[data-target="#orders"]');
-if (initialOrdersTab?.classList.contains('active-tab')) {
-    loadOrderTracking();
-}
+    const tab = event.target.closest('.account__tab');
+    if (tab && tab.dataset.target) {
+        document.querySelectorAll('.account__tab').forEach(t => t.classList.remove('active-tab'));
+        tab.classList.add('active-tab');
+        document.querySelectorAll('.tab__content').forEach(c => c.classList.remove('active-tab'));
+        document.querySelector(tab.dataset.target).classList.add('active-tab');
+    }
+});

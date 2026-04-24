@@ -188,48 +188,76 @@
               </div>
             </div>
             <div class="tab__content" content id="address">
-              <h3 class="tab__header">Shipping Address</h3>
+              <h3 class="tab__header">Shipping Addresses</h3>
               <div class="tab__body">
-                <div class="address-panel" id="address-view">
-                  <address class="address" id="account-address">
-                    Loading address...
-                  </address>
-                  <p class="city" id="account-address-meta"></p>
-                  <button type="button" class="edit address-edit-btn" id="edit-address-link">Edit Address</button>
+                <div class="address-management">
+                  <div class="address-list" id="address-list">
+                    <!-- Addresses will be injected here -->
+                    <div class="loading-placeholder">Loading your addresses...</div>
+                  </div>
+                  
+                  <button type="button" class="btn btn--md btn--outline add-address-trigger" id="add-new-address-btn">
+                    <i class="fi fi-rs-plus"></i> Add New Address
+                  </button>
                 </div>
 
-                <form class="address-editor" id="address-editor" hidden>
-                  <div class="profile-editor__intro address-editor__intro">
-                    <h4>Update Shipping Details</h4>
-                    <p>Edit your delivery information here without opening another profile screen.</p>
-                  </div>
+                <!-- Address Editor Modal / Panel (Luxury Redesign) -->
+                <div class="address-editor-overlay" id="address-editor-overlay" hidden>
+                  <div class="address-editor">
+                    <h2 id="address-editor-title" class="address-editor__title">Add New Address</h2>
+                    <p class="address-editor__subtitle">Multiple addresses help you receive orders at home, office, or other locations.</p>
+                    
+                    <form id="address-editor-form">
+                      <input type="hidden" name="id" id="address-id-input">
+                      <input type="hidden" name="address" id="address-full-hidden">
+                      
+                      <div class="profile-details-form__group">
+                        <label class="profile-editor__label">Address Label (Home, Office...)</label>
+                        <input type="text" name="label" id="address-label-input" class="form__input" placeholder="e.g. Home, Work" list="label-suggestions" required>
+                        <datalist id="label-suggestions">
+                          <option value="Home">
+                          <option value="Office">
+                          <option value="Company">
+                          <option value="Apartment">
+                        </datalist>
+                      </div>
 
-                  <div class="profile-details-form__group profile-details-form__group--full">
-                    <label class="profile-editor__label" for="address-phone-input">Phone Number</label>
-                    <input
-                      id="address-phone-input"
-                      type="text"
-                      placeholder="Enter your phone"
-                      class="form__input"
-                      name="phone"
-                    />
-                  </div>
+                      <div class="profile-details-form__group">
+                        <label class="profile-editor__label">Phone Number</label>
+                        <input type="tel" name="phone" id="address-phone-input" class="form__input" placeholder="Enter your phone" required>
+                      </div>
 
-                  <div class="profile-details-form__group profile-details-form__group--full">
-                    <label class="profile-editor__label" for="address-text-input">Address</label>
-                    <textarea
-                      id="address-text-input"
-                      placeholder="Enter your shipping address"
-                      class="form__input account-textarea address-editor__textarea"
-                      name="address"
-                    ></textarea>
-                  </div>
+                      <div class="profile-details-form__group">
+                        <label class="profile-editor__label">Province / City (2025 Standard)</label>
+                        <select id="address-province-select" class="form__input" required>
+                          <option value="">Select Province/City</option>
+                        </select>
+                      </div>
 
-                  <div class="address-editor__actions">
-                    <button type="button" class="btn btn--md btn--outline" id="cancel-address-edit">Cancel</button>
-                    <button type="submit" class="btn btn--md">Save Address</button>
+                      <div class="profile-details-form__group">
+                        <label class="profile-editor__label">Ward / Commune</label>
+                        <select id="address-ward-select" class="form__input" required disabled>
+                          <option value="">Select Ward/Commune</option>
+                        </select>
+                      </div>
+
+                      <div class="profile-details-form__group">
+                        <label class="profile-editor__label">House Number / Street Name</label>
+                        <input type="text" id="address-street-input" class="form__input" placeholder="e.g. 114 Hung Vuong St." required>
+                      </div>
+
+                      <div class="profile-details-form__group--checkbox">
+                        <input type="checkbox" name="is_default" id="address-default-input">
+                        <label for="address-default-input">Set as default address</label>
+                      </div>
+
+                      <div class="address-editor-actions">
+                        <button type="button" class="btn--address-cancel" id="cancel-address-edit">Cancel</button>
+                        <button type="submit" class="btn--address-save" id="address-save-btn">Save Address</button>
+                      </div>
+                    </form>
                   </div>
-                </form>
+                </div>
               </div>
             </div>
             <div class="tab__content" content id="change-password">

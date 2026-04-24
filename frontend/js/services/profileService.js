@@ -22,6 +22,26 @@ class ProfileService {
     });
     return response.data;
   }
+
+  async getAddresses() {
+    const response = await apiClient.get('/profile/addresses');
+    return response.data;
+  }
+
+  async addAddress(addressData) {
+    const response = await apiClient.post('/profile/addresses', addressData);
+    return response.data;
+  }
+
+  async updateAddress(id, addressData) {
+    const response = await apiClient.put(`/profile/addresses/${id}`, addressData);
+    return response.data;
+  }
+
+  async deleteAddress(id) {
+    const response = await apiClient.delete(`/profile/addresses/${id}`);
+    return response.data;
+  }
 }
 
 export default new ProfileService();

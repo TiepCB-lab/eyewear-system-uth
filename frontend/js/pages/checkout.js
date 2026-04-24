@@ -1,6 +1,20 @@
 import CartService from '../services/cartService.js';
+import profileService from '../services/profileService.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // Check if user has address and phone
+    try {
+        const profileData = await profileService.getProfile();
+        const profile = profileData.profile;
+        if (!profile.addresses || profile.addresses.length === 0 || !profile.phone) {
+            alert('Vui lòng cập nhật đầy đủ địa chỉ và số điện thoại trong trang cá nhân trước khi mua hàng.');
+            window.location.href = '../accounts/index.html';
+            return;
+        }
+    } catch (err) {
+        console.error('Profile check failed:', err);
+    }
+
     const tbody = document.getElementById('checkout-items');
     const subtotalEl = document.getElementById('checkout-subtotal');
     const totalEl = document.getElementById('checkout-total');

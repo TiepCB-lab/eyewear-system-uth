@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\V1\SupportTicketController;
 use App\Http\Controllers\Api\V1\OperationsController;
 use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\AdminController;
+use App\Http\Controllers\Api\V1\AddressController;
 
 Router::get('/', [HealthController::class, 'index']);
 Router::get('api/health', [HealthController::class, 'index']);
@@ -87,6 +88,12 @@ Router::group(['prefix' => 'api/profile', 'middleware' => 'auth:sanctum'], funct
     Router::get('/', [ProfileController::class, 'show']);
     Router::put('/', [ProfileController::class, 'update']);
     Router::post('avatar', [ProfileController::class, 'uploadAvatar']);
+    
+    // Address management
+    Router::get('addresses', [AddressController::class, 'index']);
+    Router::post('addresses', [AddressController::class, 'store']);
+    Router::put('addresses/{id}', [AddressController::class, 'update']);
+    Router::delete('addresses/{id}', [AddressController::class, 'destroy']);
 });
 
 Router::group(['prefix' => 'api/v1/cart'], function () {

@@ -128,6 +128,42 @@ class AuthService
         return true;
     }
 
+    public function getCurrentUser(): ?array
+    {
+        $userId = $this->resolveUserIdFromAuthorization();
+        if (!$userId) {
+            return null;
+        }
+
+        $db = Database::getInstance();
+        $stmt = $db->prepare('SELECT id, full_name, email, status FROM `user` WHERE id = ?');
+        $stmt->execute([$userId]);
+        $user = $stmt->fetch();
+
+        return $user ?: null;
+    }
+
+    private function resolveUserIdFromAuthorization(): ?int
+    {
+        $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
+        if (!$authHeader || stripos($authHeader, 'Bearer ') !== 0) {
+            return null;
+        }
+
+        $token = trim(substr($authHeader, 7));
+        $decoded = base64_decode($token, true);
+        if ($decoded === false) {
+            return null;
+        }
+
+        $parts = explode(':', $decoded);
+        if (count($parts) < 1 || !is_numeric($parts[0])) {
+            return null;
+        }
+
+        return (int)$parts[0];
+    }
+
     public function verifyEmail(string $token): string
     {
         $db = Database::getInstance();

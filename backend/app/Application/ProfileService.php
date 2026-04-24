@@ -26,6 +26,9 @@ class ProfileService
         $profile = Profile::firstWhere('user_id', $userId);
         $profileData = $profile ? $profile->toArray() : ['user_id' => $userId, 'phone' => null, 'address' => null, 'avatar' => null, 'birthdate' => null];
 
+        $addressService = new AddressService();
+        $addresses = $addressService->getAddresses($userId);
+
         $ordersStmt = $db->prepare(
             'SELECT o.id, o.order_number, o.status, o.total_amount, o.placed_at, o.production_step,
                     COALESCE(p.status, o.status) AS payment_status
@@ -41,6 +44,7 @@ class ProfileService
         return array_merge($profileData, [
             'user' => $user,
             'recent_orders' => $recentOrders,
+            'addresses' => $addresses,
             'billing_address' => $profileData['address'] ?? null,
         ]);
     }
