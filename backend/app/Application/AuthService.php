@@ -103,6 +103,10 @@ class AuthService
         $roleStmt->execute([$user['id']]);
         $roles = $roleStmt->fetchAll(\PDO::FETCH_COLUMN);
 
+        $avatarStmt = $db->prepare('SELECT avatar FROM profiles WHERE user_id = ? LIMIT 1');
+        $avatarStmt->execute([$user['id']]);
+        $avatar = $avatarStmt->fetchColumn();
+
         $tokenBody = $user['id'] . ':' . implode(',', $roles) . ':' . time();
         $token = base64_encode($tokenBody);
 
@@ -111,7 +115,8 @@ class AuthService
                 'id' => $user['id'],
                 'name' => $user['full_name'],
                 'email' => $user['email'],
-                'roles' => $roles
+                'roles' => $roles,
+                'avatar' => $avatar ?: null,
             ],
             'token' => $token
         ];
@@ -263,6 +268,10 @@ class AuthService
         $user = $stmt->fetch();
 
         if (!$user) return null;
+
+        $avatarStmt = $db->prepare('SELECT avatar FROM profiles WHERE user_id = ? LIMIT 1');
+        $avatarStmt->execute([$userId]);
+        $user['avatar'] = $avatarStmt->fetchColumn() ?: null;
 
         $roleStmt = $db->prepare('SELECT r.name FROM role r JOIN user_roles ur ON r.id = ur.role_id WHERE ur.user_id = ?');
         $roleStmt->execute([$userId]);
