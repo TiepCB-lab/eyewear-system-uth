@@ -27,6 +27,28 @@ class CheckoutService
                 throw new Exception("Giỏ hàng trống.");
             }
 
+            // Validate User Details (Address & Phone)
+            $stmtUser = $this->db->prepare("SELECT phone FROM `user` WHERE id = ?");
+            $stmtUser->execute([$userId]);
+            $user = $stmtUser->fetch();
+            
+            $stmtAddr = $this->db->prepare("SELECT COUNT(*) FROM user_addresses WHERE user_id = ?");
+            $stmtAddr->execute([$userId]);
+            $hasAddress = (int)$stmtAddr->fetchColumn() > 0;
+
+            if (!$hasAddress) {
+                throw new Exception("Vui lòng cập nhật địa chỉ giao hàng trong trang cá nhân trước khi thanh toán.");
+            }
+            if (empty($user['phone'])) {
+                // Check if profile has phone if user table doesn't
+                $stmtProf = $this->db->prepare("SELECT phone FROM profiles WHERE user_id = ?");
+                $stmtProf->execute([$userId]);
+                $prof = $stmtProf->fetch();
+                if (empty($prof['phone'])) {
+                    throw new Exception("Vui lòng cập nhật số điện thoại trong trang cá nhân trước khi thanh toán.");
+                }
+            }
+
             $totals = $this->cartService->getTotals($userId);
             $orderNumber = 'ORD-' . strtoupper(uniqid());
 

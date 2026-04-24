@@ -32,9 +32,6 @@ class WishlistService
 
     public function toggleItem(int $userId, int $productId)
     {
-        // DEBUG: Log the toggle attempt
-        file_put_contents(__DIR__ . '/../../../wishlist_debug.log', "User: $userId, Product: $productId, Time: " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
-
         // Check if exists
         $stmt = $this->db->prepare("SELECT id FROM wishlist WHERE user_id = ? AND product_id = ?");
         $stmt->execute([$userId, $productId]);
