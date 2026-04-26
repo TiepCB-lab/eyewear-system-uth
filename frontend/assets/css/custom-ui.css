@@ -1,30 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
 
 .eyewear-dialog-overlay {
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(12px) saturate(180%);
-    -webkit-backdrop-filter: blur(12px) saturate(180%);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 200000; opacity: 0; pointer-events: none;
-    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    /* Base styles now in .modal-overlay */
+    z-index: 200000;
 }
-.eyewear-dialog-overlay.show { opacity: 1; pointer-events: auto; }
 
 .eyewear-dialog {
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(40px) saturate(200%);
-    -webkit-backdrop-filter: blur(40px) saturate(200%);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    box-shadow: 
-        0 40px 100px -20px rgba(15, 23, 42, 0.15), 
-        0 20px 40px -10px rgba(15, 23, 42, 0.1),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.5);
-    border-radius: 40px; padding: 60px 50px; width: 90%; max-width: 460px;
-    text-align: center; transform: translateY(60px) scale(0.85);
-    transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-    position: relative; overflow: hidden;
+    /* Base styles now in .modal-content */
+    padding: 60px 50px; width: 90%; max-width: 460px;
 }
-.eyewear-dialog-overlay.show .eyewear-dialog { transform: translateY(0) scale(1); }
 
 .eyewear-dialog-icon {
     width: 100px; height: 100px; border-radius: 35px;
@@ -176,17 +160,13 @@
 
 /* Address Editor Overlay (Dark Luxury Redesign) */
 .address-editor-overlay {
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(25px) saturate(200%);
-    -webkit-backdrop-filter: blur(25px) saturate(200%);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 200005; opacity: 0; pointer-events: none;
-    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    padding: 20px;
+    /* Base styles now in .modal-overlay */
+    z-index: 200005;
 }
 .address-editor-overlay.show { opacity: 1; pointer-events: auto; }
 
 .address-editor {
+    /* Base styles now in .modal-content */
     background: rgba(15, 23, 42, 0.85);
     backdrop-filter: blur(60px) saturate(250%);
     -webkit-backdrop-filter: blur(60px) saturate(250%);
@@ -195,21 +175,10 @@
         0 50px 100px -20px rgba(0, 0, 0, 0.6),
         inset 0 0 0 1px rgba(255, 255, 255, 0.05);
     border-radius: 35px; padding: 40px; width: 100%; max-width: 520px;
-    transform: scale(0.92) translateY(30px);
-    transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-    position: relative; overflow: hidden;
     max-height: 95vh; overflow-y: auto;
-    scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 
-.address-editor::-webkit-scrollbar { width: 6px; }
-.address-editor::-webkit-scrollbar-track { background: transparent; }
-.address-editor::-webkit-scrollbar-thumb { 
-    background: rgba(255, 255, 255, 0.1); border-radius: 10px; 
-    transition: background 0.3s ease;
-}
-.address-editor::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
-.address-editor-overlay.show .address-editor { transform: scale(1) translateY(0); }
+/* Transition logic handled by .modal-overlay.show .modal-content */
 
 .address-editor::before {
     content: ""; position: absolute; inset: 0; z-index: -1; opacity: 0.15;
@@ -292,8 +261,8 @@
     cursor: pointer;
 }
 
-/* Custom Select styling for Address Kit */
-select.form__input {
+/* Custom Select styling for Address Kit - Narrowed down to avoid affecting other selects */
+.address-editor select.form__input {
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
     background-repeat: no-repeat;
@@ -303,8 +272,8 @@ select.form__input {
     background-color: rgba(15, 23, 42, 0.95); /* Dark background for the select itself */
 }
 
-/* Ensure options are visible in dark mode */
-select.form__input option {
+/* Ensure options are visible in dark mode - Narrowed down */
+.address-editor select.form__input option {
     background-color: #1e293b; /* Slate 800 */
     color: #f1f5f9; /* Slate 100 */
     padding: 10px;
@@ -318,28 +287,18 @@ select.form__input:disabled {
 
 /* --- QUICK VIEW OVERLAY & MODAL --- */
 .qv-overlay {
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(18px) saturate(160%);
-    -webkit-backdrop-filter: blur(18px) saturate(160%);
-    z-index: 100001; display: flex; align-items: center; justify-content: center;
-    opacity: 0; transition: all 0.5s ease;
+    /* Base styles now in .modal-overlay */
+    z-index: 100001;
 }
-.qv-overlay.show { opacity: 1; }
 
 .qv-modal {
+    /* Base styles now in .modal-content */
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(50px) saturate(200%);
     -webkit-backdrop-filter: blur(50px) saturate(200%);
     border-radius: 60px; width: 95%; max-width: 1250px;
     display: grid; grid-template-columns: 1.1fr 0.9fr;
-    overflow: hidden; box-shadow: 
-        0 80px 150px -30px rgba(0, 0, 0, 0.2),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.4);
-    transform: scale(0.9) translateY(60px); opacity: 0;
-    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-    position: relative;
 }
-.qv-overlay.show .qv-modal { transform: scale(1) translateY(0); opacity: 1; }
 
 .qv-image-side {
     background: #fdfdfd; display: flex; align-items: center;
@@ -412,26 +371,75 @@ select.form__input:disabled {
 
 .qv-actions { display: flex; gap: 24px; align-items: center; }
 
-.qv-add-btn {
+.btn-eyewear-action {
     background: #0f172a; color: white; border: none;
-    flex: 1; padding: 25px; border-radius: 30px;
+    padding: 20px 40px; border-radius: 30px;
     font-family: 'Outfit', sans-serif; font-weight: 700;
-    font-size: 1.25rem; cursor: pointer; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    font-size: 1.1rem; cursor: pointer; 
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: 0 30px 60px -15px rgba(15, 23, 42, 0.4);
 }
-.qv-add-btn:hover { 
+.btn-eyewear-action:hover { 
     background: #1e293b; 
     transform: translateY(-8px); 
     box-shadow: 0 40px 80px -15px rgba(15, 23, 42, 0.5); 
 }
 
-.qv-details-btn {
-    width: 68px; height: 68px; border: 2px solid #e2e8f0;
-    border-radius: 22px; display: flex; align-items: center;
-    justify-content: center; font-size: 1.6rem; color: #64748b;
+.btn-eyewear-secondary {
+    background: transparent; color: #0f172a; border: 2px solid #0f172a;
+    padding: 18px 40px; border-radius: 30px;
+    font-family: 'Outfit', sans-serif; font-weight: 700;
+    font-size: 1.1rem; cursor: pointer; transition: all 0.4s ease;
+    display: flex; align-items: center; justify-content: center;
+}
+.btn-eyewear-secondary:hover { 
+    background: #0f172a; color: white; 
+    transform: translateY(-5px);
+}
+
+.btn-eyewear-icon-action {
+    width: 56px; height: 56px; border: 2px solid #e2e8f0;
+    border-radius: 20px; display: flex; align-items: center;
+    justify-content: center; font-size: 1.4rem; color: #64748b;
     transition: all 0.3s ease; background: white;
 }
-.qv-details-btn:hover { border-color: #0f172a; color: #0f172a; transform: translateY(-3px); }
+.btn-eyewear-icon-action:hover { 
+    border-color: #0f172a; color: #0f172a; 
+    transform: translateY(-3px); 
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+.eyewear-quantity-input {
+    max-width: 100px; height: 56px;
+    background: #f8fafc; border: 2px solid #e2e8f0;
+    border-radius: 20px; padding: 0 20px;
+    font-family: 'Outfit', sans-serif; font-weight: 700;
+    font-size: 1.1rem; color: #0f172a;
+    transition: all 0.3s ease; text-align: center;
+}
+.eyewear-quantity-input:focus {
+    border-color: #0f172a; outline: none; background: white;
+}
+
+.eyewear-select-premium {
+    width: 100%; max-width: 390px; height: 56px;
+    background: #f8fafc; border: 2px solid #e2e8f0;
+    border-radius: 20px; padding: 0 20px;
+    font-family: 'Outfit', sans-serif; font-weight: 700;
+    font-size: 1rem; color: #0f172a;
+    transition: all 0.3s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%230f172a'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1.2rem center;
+    background-size: 1.1rem;
+}
+.eyewear-select-premium:focus {
+    border-color: #0f172a; outline: none; background: white;
+}
+
+
 
 .qv-close {
     position: absolute; top: 40px; right: 40px;
@@ -593,4 +601,51 @@ select.form__input:disabled {
     pointer-events: none;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
     mix-blend-mode: overlay;
+}
+/* --- PREMIUM HEADER SEARCH OVERRIDES --- */
+.header__search {
+    display: flex;
+    align-items: center;
+    background: #f1f3f5;
+    border-radius: 50px;
+    padding-right: 5px;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.header__search:focus-within {
+    background: #fff;
+    border-color: var(--first-color);
+    box-shadow: 0 0 0 4px rgba(var(--first-color-rgb, 20, 184, 166), 0.1);
+}
+
+.header__search .form__input {
+    background: transparent !important;
+    border: none !important;
+    flex-grow: 1;
+    padding-right: 10px !important;
+}
+
+.search__btn {
+    position: static !important;
+    transform: none !important;
+    width: 32px;
+    height: 32px;
+    background: var(--first-color) !important;
+    color: #fff !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s ease !important;
+    margin-right: 2px;
+}
+
+.search__btn:hover {
+    background: var(--title-color) !important;
+    transform: scale(1.1) !important;
+}
+
+.search__btn i {
+    font-size: 0.9rem !important;
 }

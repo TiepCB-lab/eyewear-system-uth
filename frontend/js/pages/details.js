@@ -1,4 +1,4 @@
-import apiClient from '../services/apiClient.js';
+import api from '../services/api.js';
 import WishlistService from '../services/wishlistService.js';
 
 const COLOR_CLASS_MAP = [
@@ -100,16 +100,131 @@ document.addEventListener('DOMContentLoaded', async () => {
     let selectedVariant = null;
 
     try {
-        const response = await apiClient.get('/v1/products/show?id=' + productId);
+        const response = await api.client.get('/v1/products/show?id=' + productId);
         product = response.data.data;
     } catch (error) {
         console.error('Failed to fetch product', error);
-        alert('Sáº£n pháº©m khÃ´ng tá»“n táº¡i hoáº·c lá»—i káº¿t ná»‘i.');
+        alert('Product does not exist or connection error.');
         return;
     }
 
+    // Load Related Products
+    const loadRelatedProducts = async () => {
+        const container = document.getElementById('related-products');
+        if (!container) return;
+
+        try {
+            const categoryId = product?.category?.id || null;
+            const params = {
+                per_page: 8,
+                sort_by: 'created_at',
+                sort_direction: 'DESC'
+            };
+            if (categoryId) {
+                params.category_ids = categoryId;
+            }
+
+            const res = await api.client.get('/v1/products', { params });
+            const allProds = res.data?.data?.data || [];
+            
+            // Filter out current product and take top 4
+            const related = allProds.filter(p => p.id != product.id).slice(0, 4);
+
+            if (related.length === 0) {
+                container.closest('section').style.display = 'none';
+                return;
+            }
+
+            // Fetch wishlist state to show correct heart icons
+            let wishlistedIds = [];
+            try {
+                const wl = await WishlistService.getWishlist();
+                wishlistedIds = (wl.data || []).map(i => i.product_id);
+            } catch(e) {
+                console.warn("Wishlist fetch failed", e);
+            }
+
+            const badgeColors = ['light-pink', 'light-blue', 'light-orange', 'light-green'];
+
+            let html = '';
+            related.forEach((p, idx) => {
+                const img = api.fixImagePath(p.thumbnail);
+                const isWishlisted = wishlistedIds.includes(p.id);
+                const heartIcon = isWishlisted ? 'fi fi-ss-heart' : 'fi fi-rs-heart';
+                const heartClass = isWishlisted ? 'wishlist-active' : '';
+                const priceValue = parseFloat(p.base_price || 0);
+                const displayPrice = api.formatCurrency(priceValue);
+                const oldPrice = api.formatCurrency(priceValue * 1.2);
+                const badgeColor = badgeColors[idx % badgeColors.length];
+
+                html += `
+                    <div class="product__item">
+                        <a href="index.html?id=${p.id}" class="product__item__overlay-link" aria-label="View Details"></a>
+                        <div class="product__banner">
+                            <a href="index.html?id=${p.id}" class="product__images">
+                                <img src="${img}" alt="${p.name}" class="product__img default" onerror="this.src='../../assets/images/products/placeholder.png'" />
+                                <img src="${img}" alt="${p.name}" class="product__img hover" onerror="this.src='../../assets/images/products/placeholder.png'" />
+                            </a>
+                            <div class="product__actions">
+                                <button type="button" class="action__btn" aria-label="Quick View" data-action="quick-view" data-product-id="${p.id}">
+                                    <i class="fi fi-rs-eye"></i>
+                                </button>
+                                <button type="button" class="action__btn ${heartClass}" aria-label="Wishlist" data-action="toggle-wishlist" data-product-id="${p.id}">
+                                    <i class="${heartIcon}"></i>
+                                </button>
+                            </div>
+                            <div class="product__badge ${badgeColor}">Hot</div>
+                        </div>
+                        <div class="product__content">
+                            <span class="product__category">${p.brand || 'Luxury'}</span>
+                            <a href="index.html?id=${p.id}"><h3 class="product__title">${p.name}</h3></a>
+                            <div class="product__rating">
+                                <i class="fi fi-rs-star"></i><i class="fi fi-rs-star"></i><i class="fi fi-rs-star"></i><i class="fi fi-rs-star"></i><i class="fi fi-rs-star"></i>
+                            </div>
+                            <div class="product__price flex">
+                                <span class="new__price">${displayPrice}</span>
+                                <span class="old__price">${oldPrice}</span>
+                            </div>
+                            <button type="button" class="action__btn cart__btn" aria-label="Add To Cart" data-action="add-to-cart" data-product-id="${p.id}">
+                                <i class="fi fi-rs-shopping-bag-add"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+
+        } catch (err) {
+            console.error("Critical error loading related products:", err);
+            // If API fails, hide the section instead of showing broken mock data
+            if (container.closest('section')) container.closest('section').style.display = 'none';
+        }
+    };
+    loadRelatedProducts();
+
+    // Update Info Table with real data
+    const infoTable = document.getElementById('info-table');
+    if (infoTable) {
+        const uniqueColors = [...new Set(product.variants.map(v => v.color).filter(Boolean))];
+        const uniqueSizes = [...new Set(product.variants.map(v => v.size).filter(Boolean))];
+        
+        infoTable.innerHTML = `
+            <tr><th>Brand</th><td>${product.brand || 'EVELENS'}</td></tr>
+            <tr><th>Model Name</th><td>${product.model_name || 'N/A'}</td></tr>
+            <tr><th>Product Code</th><td>${product.slug.toUpperCase()}</td></tr>
+            <tr><th>Bridge Width</th><td>18mm - 22mm</td></tr>
+            <tr><th>Temple Length</th><td>140mm - 145mm</td></tr>
+            <tr><th>Lens Diameter</th><td>50mm - 54mm</td></tr>
+            <tr><th>Frame Material</th><td>Premium Hand-polished Acetate</td></tr>
+            <tr><th>Gender</th><td>${product.gender ? product.gender.charAt(0).toUpperCase() + product.gender.slice(1) : 'Unisex'}</td></tr>
+            <tr><th>Available Finishes</th><td>${uniqueColors.join(', ') || 'N/A'}</td></tr>
+            <tr><th>Available Sizes</th><td>${uniqueSizes.join(', ') || 'N/A'}</td></tr>
+        `;
+    }
+
     try {
-        const lensResponse = await apiClient.get('/v1/products/lenses/available');
+        const lensResponse = await api.client.get('/v1/products/lenses/available');
         const lenses = lensResponse.data?.data || [];
 
         lensSelect.innerHTML = '<option value="">Frame only (no lens add-on)</option>';
@@ -130,7 +245,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (breadcrumbEl) {
         breadcrumbEl.textContent = product.name;
     }
-    document.title = `${product.name} â€” EYEWEAR.UTH`;
+    document.title = `${product.name} — EVELENS`;
 
     const colors = {};
     const sizes = {};
@@ -260,7 +375,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         addToCartBtn.classList.add('animating');
 
         try {
-            await apiClient.post('/v1/cart', {
+            await api.client.post('/v1/cart', {
                 variant_id: selectedVariant.id,
                 lens_id: lensId,
                 quantity: parseInt(quantityInput.value, 10),

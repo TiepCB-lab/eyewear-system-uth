@@ -15,32 +15,73 @@ async function initHome() {
     const topSellingContainer = document.getElementById('top-selling');
 
     try {
-        const productRes = await productService.getProducts();
-        const products = productRes.data;
+        // Fetch Products and Categories in parallel
+        const [productRes, categoryRes] = await Promise.all([
+            productService.getProducts(),
+            productService.getCategories()
+        ]);
+
+        const products = productRes.data?.data || [];
+        const categories = categoryRes.data?.data || [];
+        
         let wishlistedIds = [];
         try {
             const wlRes = await wishlistService.getWishlist();
             wishlistedIds = (wlRes.data || []).map(item => item.product_id);
         } catch (e) {}
 
-        if (!products || products.length === 0) return;
+        // Populate Categories
+        const categoryWrapper = document.querySelector('.categories__container .swiper-wrapper');
+        if (categoryWrapper && categories.length > 0) {
+            const getCategoryImage = (name) => {
+                const n = name.toLowerCase();
+                if (n.includes('sun')) return 'assets/images/eyewear_category_sun.png';
+                if (n.includes('presc')) return 'assets/images/eyewear_category_presc.png';
+                if (n.includes('blue')) return 'assets/images/products/AN550016_3796.png';
+                if (n.includes('luxury')) return 'assets/images/products/AN550012_3849.png';
+                return 'assets/images/products/AN550016_3796.png'; // fallback
+            };
 
-        // Helper to render product card (similar to shop.js but matching index.html styles)
+            categoryWrapper.innerHTML = categories.map(cat => `
+                <a href="pages/shop/?category=${cat.id}" class="category__item swiper-slide">
+                    <img src="${getCategoryImage(cat.name)}" alt="${cat.name}" class="category__img" />
+                    <h3 class="category__title">${cat.name}</h3>
+                </a>
+            `).join('');
+
+            if (window.swiperCategories) {
+                window.swiperCategories.update();
+            }
+        }
+
+        if (!products || products.length === 0) {
+            console.warn('No products found for home page');
+            return;
+        }
+
+        const fixImagePath = (path) => {
+            if (!path) return 'assets/images/products/placeholder.png';
+            if (path.startsWith('http')) return path;
+            if (path.startsWith('/storage')) return `http://localhost:8000${path}`;
+            return path.startsWith('/') ? path.substring(1) : path;
+        };
+
+        // Helper to render product card
         const renderProductItem = (p, idx) => {
+            if (!p) return '';
             const variantId = p.first_variant_id || p.id;
             const isWishlisted = wishlistedIds.some(wid => wid == p.id);
             const heartIcon = isWishlisted ? 'fi fi-ss-heart' : 'fi fi-rs-heart';
             const heartClass = isWishlisted ? 'wishlist-active' : '';
             const label = isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist';
             
-            let img = p.thumbnail || 'assets/images/products/placeholder.png';
-            if (img.startsWith('/')) img = img.substring(1);
-            
+            const img = fixImagePath(p.thumbnail);
             const price = parseFloat(p.base_price || 0);
             const displayPrice = window.formatVND ? window.formatVND(price) : price + ' VND';
 
             return `
                 <div class="product__item" data-aos="fade-up" data-aos-delay="${idx * 50}">
+                    <a href="pages/details/?id=${p.id}" class="product__item__overlay-link" aria-label="View Details"></a>
                     <div class="product__banner">
                         <a href="pages/details/?id=${p.id}" class="product__images">
                             <img src="${img}" alt="${p.name}" class="product__img default" data-fallback-src="assets/images/logo.png" />
@@ -72,13 +113,14 @@ async function initHome() {
         };
 
         const renderShowcaseItem = (p) => {
-            let img = p.thumbnail || 'assets/images/products/placeholder.png';
-            if (img.startsWith('/')) img = img.substring(1);
+            if (!p) return '';
+            const img = fixImagePath(p.thumbnail);
             const price = parseFloat(p.base_price || 0);
             const displayPrice = window.formatVND ? window.formatVND(price) : price + ' VND';
 
             return `
-                <div class="showcase__item">
+                <div class="showcase__item" data-aos="fade-up">
+                    <a href="pages/details/?id=${p.id}" class="showcase__item__overlay-link" aria-label="View Details"></a>
                     <a href="pages/details/?id=${p.id}" class="showcase__img-box">
                         <img src="${img}" alt="${p.name}" class="showcase__img" data-fallback-src="assets/images/logo.png" />
                     </a>
@@ -96,7 +138,7 @@ async function initHome() {
 
         // Populate Sections
         if (featuredContainer) featuredContainer.innerHTML = products.slice(0, 8).map((p, i) => renderProductItem(p, i)).join('');
-        if (popularContainer) popularContainer.innerHTML = products.slice(4, 12).map((p, i) => renderProductItem(p, i)).join('');
+        if (popularContainer) popularContainer.innerHTML = products.slice(Math.min(4, products.length), Math.min(12, products.length)).map((p, i) => renderProductItem(p, i)).join('');
         if (newAddedContainer) newAddedContainer.innerHTML = products.slice(0, 8).map((p, i) => renderProductItem(p, i)).join('');
         
         if (newArrivalsContainer) {
@@ -106,15 +148,21 @@ async function initHome() {
                 </div>
             `).join('');
             
-            // Re-init Swiper for New Arrivals if needed
             if (window.swiperProducts) {
                 window.swiperProducts.update();
             }
         }
 
         if (hotReleasesContainer) hotReleasesContainer.innerHTML = products.slice(0, 3).map(renderShowcaseItem).join('');
-        if (dealsOutletContainer) dealsOutletContainer.innerHTML = products.slice(3, 6).map(renderShowcaseItem).join('');
-        if (topSellingContainer) topSellingContainer.innerHTML = products.slice(6, 9).map(renderShowcaseItem).join('');
+        if (dealsOutletContainer) dealsOutletContainer.innerHTML = products.slice(Math.min(3, products.length), Math.min(6, products.length)).map(renderShowcaseItem).join('');
+        if (topSellingContainer) topSellingContainer.innerHTML = products.slice(Math.min(6, products.length), Math.min(9, products.length)).map(renderShowcaseItem).join('');
+
+        // Refresh AOS to recognize new elements with a slight delay
+        if (window.AOS) {
+            setTimeout(() => {
+                window.AOS.refresh();
+            }, 500);
+        }
 
     } catch (error) {
         console.error('Error initializing home page:', error);

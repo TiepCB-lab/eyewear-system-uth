@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\BaseController;
 use App\Application\WishlistService;
+use Core\ApiResponse;
 use Exception;
 
-class WishlistController
+class WishlistController extends BaseController
 {
     private WishlistService $wishlistService;
 
@@ -16,87 +18,62 @@ class WishlistController
 
     public function index()
     {
-        $userId = $this->getCurrentUserId();
+        $userId = $this->getUserId();
         if (!$userId) {
-            http_response_code(401);
-            return ['message' => 'Unauthorized'];
+            return ApiResponse::unauthorized();
         }
 
         try {
             $items = $this->wishlistService->getWishlist($userId);
-            return [
-                'data' => $items
-            ];
+            return ApiResponse::success($items);
         } catch (Exception $e) {
-            http_response_code(500);
-            return ['message' => $e->getMessage()];
+            return ApiResponse::serverError($e->getMessage());
         }
     }
 
     public function toggle()
     {
-        $userId = $this->getCurrentUserId();
+        $userId = $this->getUserId();
         if (!$userId) {
-            http_response_code(401);
-            return ['message' => 'Unauthorized'];
+            return ApiResponse::unauthorized();
         }
 
-        $data = json_decode(file_get_contents('php://input'), true);
+        $data = $this->getJsonInput();
         $productId = $data['product_id'] ?? null;
 
         if (!$productId) {
-            http_response_code(400);
-            return ['message' => 'product_id is required.'];
+            return ApiResponse::validationError('product_id is required.');
         }
 
         try {
             $result = $this->wishlistService->toggleItem($userId, (int)$productId);
-            return $result;
+            return ApiResponse::success($result, $result['message'] ?? '');
         } catch (Exception $e) {
-            http_response_code(400);
-            return ['message' => $e->getMessage()];
+            return ApiResponse::error($e->getMessage());
         }
     }
 
     public function destroy()
     {
-        $userId = $this->getCurrentUserId();
+        $userId = $this->getUserId();
         if (!$userId) {
-            http_response_code(401);
-            return ['message' => 'Unauthorized'];
+            return ApiResponse::unauthorized();
         }
 
-        $data = json_decode(file_get_contents('php://input'), true);
+        $data = $this->getJsonInput();
         $productId = $data['product_id'] ?? null;
 
         if (!$productId) {
-            http_response_code(400);
-            return ['message' => 'product_id is required.'];
+            return ApiResponse::validationError('product_id is required.');
         }
 
-        if ($this->wishlistService->removeItem($userId, (int)$productId)) {
-            return ['message' => 'Item removed from wishlist'];
-        }
-
-        http_response_code(404);
-        return ['message' => 'Item not found'];
-    }
-
-    private function getCurrentUserId()
-    {
-        $headers = getallheaders();
-        $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
-
-        if (preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
-            $token = $matches[1];
-            try {
-                $decoded = base64_decode($token);
-                $parts = explode(':', $decoded);
-                return (int) $parts[0];
-            } catch (Exception $e) {
-                return null;
+        try {
+            if ($this->wishlistService->removeItem($userId, (int)$productId)) {
+                return ApiResponse::success(null, 'Item removed from wishlist');
             }
+            return ApiResponse::notFound('Item not found');
+        } catch (Exception $e) {
+            return ApiResponse::error($e->getMessage());
         }
-        return null;
     }
 }

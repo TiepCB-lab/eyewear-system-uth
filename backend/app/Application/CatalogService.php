@@ -275,6 +275,15 @@ class CatalogService
 		}));
 	}
 
+	public function getBrandsList(): array
+	{
+		$db = Database::getInstance();
+		$sql = 'SELECT DISTINCT brand FROM product WHERE brand IS NOT NULL AND brand != "" ORDER BY brand ASC';
+		$stmt = $db->prepare($sql);
+		$stmt->execute();
+		return $stmt->fetchAll(\PDO::FETCH_COLUMN) ?: [];
+	}
+
 	private function normalizeFilters(array $params): array
 	{
 		$page = max(1, (int) ($params['page'] ?? 1));

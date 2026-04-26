@@ -50,8 +50,9 @@ class AuthService
                     'email_sent' => true,
                     'resend_verification' => true,
                 ];
+            } else {
+                throw new \Exception('This email is already registered and active. Please sign in.');
             }
-            throw new \Exception('Email already exists.');
         }
 
         $hash = password_hash($data['password'], PASSWORD_DEFAULT);
@@ -286,6 +287,26 @@ class AuthService
         $update->execute([$newHash, $user['id']]);
 
         $this->deleteResetToken($email);
+    }
+
+    public function changePassword(int $userId, string $currentPassword, string $newPassword): void
+    {
+        $db = Database::getInstance();
+        $stmt = $db->prepare('SELECT password_hash FROM `user` WHERE id = ?');
+        $stmt->execute([$userId]);
+        $user = $stmt->fetch();
+
+        if (!$user || !password_verify($currentPassword, $user['password_hash'])) {
+            throw new \Exception('Current password is incorrect.');
+        }
+
+        if (strlen($newPassword) < 6) {
+            throw new \Exception('New password must be at least 6 characters.');
+        }
+
+        $newHash = password_hash($newPassword, PASSWORD_DEFAULT);
+        $update = $db->prepare('UPDATE `user` SET password_hash = ? WHERE id = ?');
+        $update->execute([$newHash, $userId]);
     }
 
     public function getUserIdFromToken(string $token): ?int

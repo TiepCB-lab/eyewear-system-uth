@@ -22,9 +22,12 @@ class CheckoutService
         try {
             $this->db->beginTransaction();
 
-            $cartItems = $this->cartService->getCart($userId);
+            $cartItems = array_filter($this->cartService->getCart($userId), function($item) {
+                return (int)$item['is_selected'] === 1;
+            });
+            
             if (empty($cartItems)) {
-                throw new Exception("Giỏ hàng trống.");
+                throw new Exception("Không có sản phẩm nào được chọn để thanh toán.");
             }
 
             // Validate User Details (Address & Phone)

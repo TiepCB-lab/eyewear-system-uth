@@ -1,39 +1,23 @@
-import CartService from '../services/cartService.js';
-import profileService from '../services/profileService.js';
+import api from '../services/api.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // Check if user has address and phone
-    try {
-        const profileData = await profileService.getProfile();
-        const profile = profileData.profile;
-        if (!profile.addresses || profile.addresses.length === 0 || !profile.phone) {
-            alert('Vui lòng cập nhật đầy đủ địa chỉ và số điện thoại trong trang cá nhân trước khi mua hàng.');
-            window.location.href = '../accounts/index.html';
-            return;
-        }
-    } catch (err) {
-        console.error('Profile check failed:', err);
-    }
-
     const tbody = document.getElementById('checkout-items');
     const subtotalEl = document.getElementById('checkout-subtotal');
     const totalEl = document.getElementById('checkout-total');
     const placeOrderBtn = document.getElementById('place-order-btn');
 
-    const fixImagePath = (path) => {
-        if (!path) return '../../assets/images/products/placeholder.png';
-        if (path.startsWith('http')) return path;
-        const cleanPath = path.startsWith('/') ? path.substring(1) : path;
-        return encodeURI('../../' + cleanPath);
-    };
 
     const loadSummary = async () => {
         try {
-            const result = await CartService.getCart();
-            const items = result.data;
-            const totals = result.totals;
+            const result = await api.cart.getCart();
+            const allItems = result.data || [];
+            const totals = result.totals || { total: 0 };
+            
+            // Filter items based on backend selection state
+            const items = allItems.filter(item => !!item.is_selected);
 
-            if (!items || items.length === 0) {
+            if (items.length === 0) {
+                if (window.Notification) window.Notification.show('No items selected for checkout.', 'warning');
                 window.location.href = '../cart/index.html';
                 return;
             }
@@ -41,56 +25,63 @@ document.addEventListener('DOMContentLoaded', async () => {
             tbody.innerHTML = '';
             items.forEach(item => {
                 const tr = document.createElement('tr');
-                const pt = item.unit_price * item.quantity;
+                const pt = (parseFloat(item.unit_price) || 0) * (parseInt(item.quantity) || 0);
+                
                 tr.innerHTML = `
                     <td>
-                        <img src="${fixImagePath(item.image_2d_url)}" alt="${item.product_name}" class="order__img" onerror="this.src='../../assets/images/products/placeholder.png'" />
+                        <img src="${api.fixImagePath(item.image_2d_url)}" alt="${item.product_name}" class="order__img" />
                     </td>
                     <td>
-                        <h3 class="table__title">${item.product_name}</h3>
+                        <h3 class="table__title">${item.product_name || 'Product'}</h3>
                         <p class="table__quantity">x ${item.quantity}</p>
                     </td>
-                    <td><span class="table__price">${window.formatVND ? window.formatVND(pt) : pt}</span></td>
+                    <td><span class="table__price">${api.formatCurrency(pt)}</span></td>
                 `;
                 tbody.appendChild(tr);
             });
 
-            subtotalEl.innerText = window.formatVND ? window.formatVND(totals.subtotal) : totals.subtotal;
-            totalEl.innerText = window.formatVND ? window.formatVND(totals.total) : totals.total;
+            const formattedTotal = api.formatCurrency(totals.total);
+            subtotalEl.innerText = formattedTotal;
+            totalEl.innerText = formattedTotal;
+
         } catch (error) {
             console.error('Error loading checkout summary:', error);
         }
     };
 
-    if (placeOrderBtn) {
-        placeOrderBtn.onclick = async (e) => {
-            e.preventDefault();
+    placeOrderBtn?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        
+        const shippingAddress = document.querySelector('input[placeholder="Address"]')?.value;
+        const city = document.querySelector('input[placeholder="City"]')?.value;
+        const country = document.querySelector('input[placeholder="State / Country"]')?.value;
+        const postcode = document.querySelector('input[placeholder="PostCode"]')?.value;
+
+        if (!shippingAddress || !city || !country) {
+            alert('Please fill in your shipping details.');
+            return;
+        }
+
+        const fullAddress = `${shippingAddress}, ${city}, ${country} ${postcode}`;
+
+        try {
+            placeOrderBtn.disabled = true;
+            placeOrderBtn.innerText = 'Processing...';
             
-            const shippingAddress = document.querySelector('input[placeholder="Address"]').value;
-            const city = document.querySelector('input[placeholder="City"]').value;
-            const country = document.querySelector('input[placeholder="State / Country"]').value;
-            const postcode = document.querySelector('input[placeholder="PostCode"]').value;
-
-            if (!shippingAddress || !city || !country) {
-                alert('Please fill in your shipping details.');
-                return;
-            }
-
-            const fullAddress = `${shippingAddress}, ${city}, ${country} ${postcode}`;
-
-            try {
-                placeOrderBtn.disabled = true;
-                placeOrderBtn.innerText = 'Processing...';
-                await CartService.checkout(fullAddress);
-                alert('Order placed successfully!');
-                window.location.href = '../../index.html';
-            } catch (err) {
-                alert('Checkout failed: ' + (err.response?.data?.message || err.message));
-                placeOrderBtn.disabled = false;
-                placeOrderBtn.innerText = 'Place Order';
-            }
-        };
-    }
+            await api.cart.checkout(fullAddress);
+            
+            if (window.Notification) window.Notification.show('Order placed successfully!', 'success');
+            else alert('Order placed successfully!');
+            
+            window.location.href = '../../index.html';
+        } catch (err) {
+            const message = err.response?.data?.message || err.message;
+            if (window.Notification) window.Notification.show('Checkout failed: ' + message, 'error');
+            else alert('Checkout failed: ' + message);
+            placeOrderBtn.disabled = false;
+            placeOrderBtn.innerText = 'Place Order';
+        }
+    });
 
     loadSummary();
 });

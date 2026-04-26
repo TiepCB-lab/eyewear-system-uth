@@ -1,0 +1,97 @@
+/* --- VIRTUAL TRY-ON COMPONENT STYLES --- */
+
+#virtual-tryon-modal.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+
+#virtual-tryon-modal .modal__content {
+    background: #fff;
+    width: min(800px, 95%);
+    height: min(600px, 80%);
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+#virtual-tryon-modal .modal__header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#virtual-tryon-modal .modal__header h3 {
+    margin: 0;
+}
+
+#virtual-tryon-modal .modal__close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+#virtual-tryon-modal .modal__body {
+    flex: 1;
+    background: #000;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+}
+
+#virtual-tryon-modal .tryon-placeholder {
+    text-align: center;
+}
+
+#virtual-tryon-modal .tryon-placeholder i {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+#virtual-tryon-modal .tryon-placeholder small {
+    opacity: 0.7;
+}
+
+#virtual-tryon-modal #tryon-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+}
+
+#virtual-tryon-modal #tryon-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#virtual-tryon-modal .modal__footer {
+    padding: 1rem;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+#virtual-tryon-modal .btn-close {
+    background: #eee;
+    color: #333;
+}
+
+#virtual-tryon-modal .ar-active-msg {
+    color: #10b981;
+}

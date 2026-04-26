@@ -1,9 +1,13 @@
 <?php
+
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\BaseController;
 use App\Application\SalesVerificationService;
+use Core\ApiResponse;
+use Exception;
 
-class SalesController
+class SalesController extends BaseController
 {
     private SalesVerificationService $salesService;
 
@@ -13,110 +17,93 @@ class SalesController
     }
 
     /**
-     * GET /api/v1/sales/pending-orders
-     * Lấy danh sách đơn hàng đang chờ xác minh (Staff only)
+     * Get pending orders for verification (Staff only).
      */
-    public function pendingOrders(): array
+    public function pendingOrders()
     {
+        if (!$this->isStaff()) {
+            return ApiResponse::forbidden();
+        }
+
         try {
             $orders = $this->salesService->getPendingOrders();
-            return [
-                'data' => $orders,
-                'meta' => ['total' => count($orders)],
-            ];
-        } catch (\Exception $e) {
-            http_response_code(500);
-            return ['error' => $e->getMessage()];
+            return ApiResponse::success($orders);
+        } catch (Exception $e) {
+            return ApiResponse::serverError($e->getMessage());
         }
     }
 
     /**
-     * POST /api/v1/sales/verify
-     * Body: { order_id: int }
-     * Staff xác minh đơn hàng để chuyển qua sản xuất
+     * Verify order (Staff only).
      */
-    public function verify(): array
+    public function verify()
     {
-        $input   = json_decode(file_get_contents('php://input'), true) ?? [];
+        $userId = $this->getUserId();
+        if (!$userId || !$this->isStaff()) {
+            return ApiResponse::forbidden();
+        }
+
+        $input   = $this->getJsonInput();
         $orderId = $input['order_id'] ?? null;
 
-        // Lấy staff ID từ session/auth. Mock = 2 cho môi trường test.
-        $staffId = 2;
-
         if (!$orderId) {
-            http_response_code(400);
-            return ['error' => 'order_id is required'];
+            return ApiResponse::validationError('order_id is required');
         }
 
         try {
-            $order = $this->salesService->verifyOrder((int) $orderId, $staffId);
-            return [
-                'data'    => $order,
-                'message' => 'Order verified and moved to production successfully',
-            ];
-        } catch (\Exception $e) {
-            http_response_code(400);
-            return ['error' => $e->getMessage()];
+            $order = $this->salesService->verifyOrder((int) $orderId, $userId);
+            return ApiResponse::success($order, 'Order verified and moved to production successfully');
+        } catch (Exception $e) {
+            return ApiResponse::error($e->getMessage());
         }
     }
 
     /**
-     * POST /api/v1/sales/complaint
-     * Body: { order_id: int, type: string, reason: string }
-     * Staff xử lý khiếu nại: exchange | return | refund | warranty
+     * Process complaint (Staff only).
      */
-    public function complaint(): array
+    public function complaint()
     {
-        $input   = json_decode(file_get_contents('php://input'), true) ?? [];
+        $userId = $this->getUserId();
+        if (!$userId || !$this->isStaff()) {
+            return ApiResponse::forbidden();
+        }
+
+        $input   = $this->getJsonInput();
         $orderId = $input['order_id'] ?? null;
         $type    = $input['type']     ?? null;
         $reason  = $input['reason']   ?? '';
 
-        // Lấy staff ID từ session/auth. Mock = 2.
-        $staffId = 2;
-
         $allowed = ['exchange', 'return', 'refund', 'warranty'];
         if (!$orderId || !$type) {
-            http_response_code(400);
-            return ['error' => 'order_id and type are required'];
+            return ApiResponse::validationError('order_id and type are required');
         }
         if (!in_array($type, $allowed, true)) {
-            http_response_code(400);
-            return ['error' => 'Invalid type. Allowed: ' . implode(', ', $allowed)];
+            return ApiResponse::validationError('Invalid type. Allowed: ' . implode(', ', $allowed));
         }
 
         try {
-            $result = $this->salesService->processComplaint((int) $orderId, $type, $reason, $staffId);
-            return [
-                'data'    => $result,
-                'message' => "Complaint ({$type}) processed successfully",
-            ];
-        } catch (\Exception $e) {
-            http_response_code(400);
-            return ['error' => $e->getMessage()];
+            $result = $this->salesService->processComplaint((int) $orderId, $type, $reason, $userId);
+            return ApiResponse::success($result, "Complaint ({$type}) processed successfully");
+        } catch (Exception $e) {
+            return ApiResponse::error($e->getMessage());
         }
     }
 
     /**
-     * GET /api/v1/sales/order-complaints?order_id=xxx
-     * Lấy lịch sử khiếu nại/đổi trả của một đơn hàng
+     * Get order complaints history.
      */
-    public function orderComplaints(): array
+    public function orderComplaints()
     {
-        $orderId = $_GET['order_id'] ?? null;
+        $orderId = $this->query('order_id');
         if (!$orderId) {
-            http_response_code(400);
-            return ['error' => 'order_id query parameter is required'];
+            return ApiResponse::validationError('order_id query parameter is required');
         }
+
         try {
             $complaints = $this->salesService->getOrderComplaints((int)$orderId);
-            return [
-                'data' => $complaints,
-                'meta' => ['total' => count($complaints)],
-            ];
-        } catch (\Exception $e) {
-            http_response_code(500);
-            return ['error' => $e->getMessage()];
+            return ApiResponse::success($complaints);
+        } catch (Exception $e) {
+            return ApiResponse::serverError($e->getMessage());
         }
     }
 }

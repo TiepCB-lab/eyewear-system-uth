@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\BaseController;
 use App\Application\AuthService;
+use Core\ApiResponse;
+use Exception;
 
-class AuthController
+class AuthController extends BaseController
 {
     private AuthService $authService;
 
@@ -15,238 +18,176 @@ class AuthController
 
     public function register()
     {
-        $payload = file_get_contents('php://input');
-        $data = json_decode($payload, true);
-
-        if (!is_array($data) || empty($data)) {
+        $data = $this->getJsonInput();
+        if (empty($data)) {
             $data = $_POST ?: [];
         }
 
         if (empty($data['name']) || empty($data['email']) || empty($data['password'])) {
-            http_response_code(422);
-            return ['message' => 'Validation failed. Name, email, and password are required.'];
+            return ApiResponse::validationError('Name, email, and password are required.');
         }
 
         try {
             $user = $this->authService->register($data);
-            http_response_code(201);
-            $successMessage = $user['resend_verification'] ?? false
-                ? 'This account already exists but is not verified. A verification email has been resent. Please check your inbox.'
-                : 'Registration successful. A verification email has been sent. Please check your inbox.';
-            return [
-                'message' => $successMessage,
+            $successMessage = ($user['resend_verification'] ?? false)
+                ? 'This account already exists but is not verified. A verification email has been resent.'
+                : 'Registration successful. A verification email has been sent.';
+            
+            return ApiResponse::created([
                 'user' => $user,
                 'verification_url' => $user['verification_url'] ?? null,
-                'email_sent' => $user['email_sent'] ?? false,
-                'email_error' => $user['email_error'] ?? null,
-                'resend_verification' => $user['resend_verification'] ?? false,
-            ];
-        } catch (\Exception $e) {
+                'email_sent' => $user['email_sent'] ?? false
+            ], $successMessage);
+        } catch (Exception $e) {
             $message = $e->getMessage();
             $lowerMessage = strtolower($message);
-            if (str_contains($lowerMessage, 'email already exists')) {
-                http_response_code(409);
-            } elseif (str_contains($lowerMessage, 'database connection') || str_contains($lowerMessage, 'not initialized')) {
-                http_response_code(500);
-            } else {
-                http_response_code(400);
+            if (str_contains($lowerMessage, 'already exists') || str_contains($lowerMessage, 'duplicate entry')) {
+                return ApiResponse::error('This email is already registered.', 409);
             }
-            return [
-                'message' => $message,
-                'error' => $message
-            ];
+            return ApiResponse::error($message);
         }
     }
 
     public function login()
     {
-        $data = json_decode(file_get_contents('php://input'), true);
-        if (!$data || empty($data['email']) || empty($data['password'])) {
-            http_response_code(400);
-            return ['message' => 'Email and password are required.'];
+        $data = $this->getJsonInput();
+        if (empty($data['email']) || empty($data['password'])) {
+            return ApiResponse::validationError('Email and password are required.');
         }
 
         try {
             $result = $this->authService->login($data);
-            return [
-                'message' => 'Login successful',
+            return ApiResponse::success([
                 'user' => $result['user'],
                 'token' => $result['token'],
-            ];
-        } catch (\Exception $e) {
+            ], 'Login successful');
+        } catch (Exception $e) {
             $message = $e->getMessage();
             if (str_contains(strtolower($message), 'verify')) {
-                http_response_code(403);
-            } else {
-                http_response_code(401);
+                return ApiResponse::forbidden($message);
             }
-            return [
-                'message' => $message,
-                'error' => $message,
-            ];
+            return ApiResponse::unauthorized($message);
         }
     }
 
     public function verify()
     {
-        $token = $_GET['token'] ?? null;
-        $config = $this->loadConfig();
-        $frontendUrl = $this->normalizeFrontendUrl($config['FRONTEND_URL'] ?? 'http://localhost:5500');
+        $token = $this->query('token');
+        
+        // This is a special case where we might need to redirect
         $expectsJson = str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json');
 
-        $respondJson = function (int $statusCode, array $payload) use ($expectsJson) {
-            if (!$expectsJson) {
-                return false;
-            }
-
-            http_response_code($statusCode);
-            header('Content-Type: application/json; charset=UTF-8');
-            echo json_encode($payload);
-            return true;
-        };
-
         if (!$token) {
-            if ($respondJson(400, ['verified' => false, 'message' => 'Verification token is required.'])) {
-                return;
-            }
-            header("Location: {$frontendUrl}/pages/auth/?verified=0&error=" . urlencode('Verification token is required.'));
-            exit;
+            if ($expectsJson) return ApiResponse::validationError('Verification token is required.');
+            $this->redirectToFrontend('/pages/auth/?verified=0&error=' . urlencode('Verification token is required.'));
+            return;
         }
 
         try {
             $email = $this->authService->verifyEmail($token);
-            if ($respondJson(200, ['verified' => true, 'email' => $email, 'message' => 'Email verified successfully.'])) {
-                return;
+            if ($expectsJson) {
+                return ApiResponse::success(['email' => $email], 'Email verified successfully.');
             }
-            header("Location: {$frontendUrl}/pages/auth/?verified=1&email=" . urlencode($email));
-            exit;
-        } catch (\Exception $e) {
-            if ($respondJson(422, ['verified' => false, 'message' => $e->getMessage()])) {
-                return;
+            $this->redirectToFrontend('/pages/auth/?verified=1&email=' . urlencode($email));
+        } catch (Exception $e) {
+            if ($expectsJson) {
+                return ApiResponse::validationError($e->getMessage());
             }
-            header("Location: {$frontendUrl}/pages/auth/?verified=0&error=" . urlencode($e->getMessage()));
-            exit;
+            $this->redirectToFrontend('/pages/auth/?verified=0&error=' . urlencode($e->getMessage()));
         }
     }
 
     public function forgotPassword()
     {
-        $data = json_decode(file_get_contents('php://input'), true);
+        $data = $this->getJsonInput();
         $email = trim((string)($data['email'] ?? ''));
 
         if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            http_response_code(422);
-            return ['message' => 'Invalid email address.'];
+            return ApiResponse::validationError('Invalid email address.');
         }
 
         try {
             $result = $this->authService->requestPasswordReset($email);
-            return [
-                'message' => $result['message'] ?? 'Email already exists. Password reset link has been sent.',
-                'email_exists' => $result['email_exists'] ?? null,
-                'email_sent' => $result['email_sent'] ?? true,
-                'reset_url' => $result['reset_url'] ?? null,
-                'email_error' => $result['email_error'] ?? null,
-            ];
-        } catch (\Exception $e) {
-            http_response_code(400);
-            return [
-                'message' => $e->getMessage(),
-                'error' => $e->getMessage(),
-            ];
+            return ApiResponse::success($result, 'Password reset instructions sent.');
+        } catch (Exception $e) {
+            return ApiResponse::error($e->getMessage());
         }
     }
 
     public function resetPassword()
     {
-        $data = json_decode(file_get_contents('php://input'), true);
-
-        if (!is_array($data)) {
-            http_response_code(400);
-            return ['message' => 'Invalid request payload.'];
+        $data = $this->getJsonInput();
+        if (empty($data)) {
+            return ApiResponse::validationError('Invalid request payload.');
         }
 
         try {
             $this->authService->resetPassword($data);
-            return ['message' => 'Password reset successful. You can sign in now.'];
-        } catch (\Exception $e) {
-            $message = strtolower($e->getMessage());
-            if (str_contains($message, 'expired') || str_contains($message, 'invalid')) {
-                http_response_code(422);
-            } else {
-                http_response_code(400);
-            }
-            return [
-                'message' => $e->getMessage(),
-                'error' => $e->getMessage(),
-            ];
+            return ApiResponse::success(null, 'Password reset successful. You can sign in now.');
+        } catch (Exception $e) {
+            return ApiResponse::error($e->getMessage());
         }
-    }
-
-    private function loadConfig(): array
-    {
-        $envPath = dirname(__DIR__, 5) . '/.env';
-        if (!is_file($envPath)) return [];
-        
-        $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        $config = [];
-        foreach ($lines as $line) {
-            if (str_contains($line, '=')) {
-                [$name, $value] = explode('=', $line, 2);
-                $config[trim($name)] = trim($value, " \t\n\r\0\x0B\"'");
-            }
-        }
-        return $config;
-    }
-
-    private function normalizeFrontendUrl(string $frontendUrl): string
-    {
-        $frontendUrl = rtrim($frontendUrl, '/');
-        return preg_replace('#/frontend$#', '', $frontendUrl) ?? $frontendUrl;
-    }
-
-    private function getBearerToken(): ?string
-    {
-        $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
-        if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
-            return null;
-        }
-
-        return trim(substr($authHeader, 7));
     }
 
     public function me()
     {
-        $token = $this->getBearerToken();
-        if (!$token) {
-            http_response_code(401);
-            return ['message' => 'Unauthorized', 'error' => 'Missing auth token'];
-        }
-
-        $userId = $this->authService->getUserIdFromToken($token);
+        $userId = $this->getUserId();
         if (!$userId) {
-            http_response_code(401);
-            return ['message' => 'Unauthorized', 'error' => 'Invalid auth token'];
+            return ApiResponse::unauthorized();
         }
 
-        $user = $this->authService->getUserById($userId);
-        if (!$user) {
-            http_response_code(401);
-            return ['message' => 'Unauthorized', 'error' => 'User not found'];
+        try {
+            $user = $this->authService->getUserById($userId);
+            if (!$user) {
+                return ApiResponse::unauthorized('User not found');
+            }
+            return ApiResponse::success(['user' => $user]);
+        } catch (Exception $e) {
+            return ApiResponse::serverError($e->getMessage());
         }
-
-        return [
-            'message' => 'Token check successful',
-            'user' => $user,
-        ];
     }
 
     public function logout()
     {
         $token = $this->getBearerToken();
-        $this->authService->logout($token);
-        return [
-            'message' => 'Logged out successfully',
-        ];
+        if ($token) {
+            $this->authService->logout($token);
+        }
+        return ApiResponse::success(null, 'Logged out successfully');
     }
-}
+
+    public function changePassword()
+    {
+        $userId = $this->getUserId();
+        if (!$userId) {
+            return ApiResponse::unauthorized();
+        }
+
+        $data = $this->getJsonInput();
+        $currentPassword = $data['current_password'] ?? '';
+        $newPassword = $data['new_password'] ?? '';
+        $confirmPassword = $data['confirm_password'] ?? '';
+
+        if (empty($currentPassword) || empty($newPassword)) {
+            return ApiResponse::validationError('Current and new password are required.');
+        }
+
+        if ($newPassword !== $confirmPassword) {
+            return ApiResponse::validationError('Passwords do not match.');
+        }
+
+        try {
+            $this->authService->changePassword($userId, $currentPassword, $newPassword);
+            return ApiResponse::success(null, 'Password changed successfully.');
+        } catch (Exception $e) {
+            return ApiResponse::error($e->getMessage());
+        }
+    }
+
+    private function redirectToFrontend(string $path)
+    {
+        $frontendUrl = rtrim($_ENV['FRONTEND_URL'] ?? 'http://localhost:5500', '/');
+        header("Location: {$frontendUrl}{$path}");
+        exit;
+    }
+}

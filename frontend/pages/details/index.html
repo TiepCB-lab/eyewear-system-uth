@@ -23,7 +23,7 @@
     <!--=============== LAYOUT LOADER ===============-->
     <script src="../../../js/core/layout-loader.js" defer></script>
 
-    <title>EYEWEAR.UTH — Details</title>
+    <title>EVELENS — Details</title>
   </head>
   <body>
     <!--=============== HEADER ===============-->
@@ -157,12 +157,9 @@
 
             <div class="details-lens-group">
               <span class="details__size-title details-lens-title">Lens Package</span>
-              <select id="lens-package" class="form__input details-lens-select">
-                <option value="0">Frame only (no lens add-on)</option>
-                <option value="35">Basic Single Vision (+$35)</option>
-                <option value="65">Blue-light Single Vision (+$65)</option>
-                <option value="110">Progressive Premium (+$110)</option>
-              </select>
+                <select id="lens-package" class="eyewear-select-premium details-lens-select">
+                  <option value="">Loading lenses...</option>
+                </select>
             </div>
 
             <div class="details-price-box">
@@ -175,14 +172,14 @@
             </div>
 
             <div class="details__action">
-              <input type="number" class="quantity" id="quantity-input" value="1" min="1" max="10" />
-              <a href="#" id="add-to-cart-btn" class="btn btn--sm btn-cart-animate">
+              <input type="number" class="eyewear-quantity-input" id="quantity-input" value="1" min="1" max="10" />
+              <a href="#" id="add-to-cart-btn" class="btn-eyewear-action btn-cart-animate">
                 <i class="fi fi-rs-shopping-bag"></i>
                 <span class="btn-text">Add to Cart</span>
                 <i class="fi fi-rs-glasses falling-item"></i>
               </a>
-              <a href="#" class="btn btn--sm btn-tryon btn-tryon--secondary">Virtual Try-On</a>
-              <a href="#" class="details__action-btn">
+              <a href="#" class="btn-eyewear-secondary btn-tryon">Virtual Try-On</a>
+              <a href="#" class="btn-eyewear-wishlist" title="Add to Wishlist">
                 <i class="fi fi-rs-heart"></i>
               </a>
             </div>
@@ -205,7 +202,6 @@
           <span class="detail__tab active-tab" data-target="#info">
             Additional Info
           </span>
-          <span class="detail__tab" data-target="#reviews">Reviews(3)</span>
         </div>
         <div class="details__tabs-content">
           <div class="details__tab-content active-tab" content id="info">
@@ -267,103 +263,6 @@
                 <td>M, S</td>
               </tr>
             </table>
-          </div>
-          <div class="details__tab-content" content id="reviews">
-            <div class="reviews__container grid">
-              <div class="review__single">
-                <div>
-                  <img
-                    src="../../../assets/images/avatar-1.jpg"
-                    alt=""
-                    class="review__img"
-                  />
-                  <h4 class="review__title">Jacky Chan</h4>
-                </div>
-                <div class="review__data">
-                  <div class="review__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <p class="review__description">
-                    Thank you, very fast shipping from Poland only 3days.
-                  </p>
-                  <span class="review__date">December 4, 2022 at 3:12 pm</span>
-                </div>
-              </div>
-              <div class="review__single">
-                <div>
-                  <img
-                    src="../../../assets/images/avatar-2.jpg"
-                    alt=""
-                    class="review__img"
-                  />
-                  <h4 class="review__title">Meriem Js</h4>
-                </div>
-                <div class="review__data">
-                  <div class="review__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <p class="review__description">
-                    Great low price and works well
-                  </p>
-                  <span class="review__date">August 23, 2022 at 19:45 pm</span>
-                </div>
-              </div>
-              <div class="review__single">
-                <div>
-                  <img
-                    src="../../../assets/images/avatar-3.jpg"
-                    alt=""
-                    class="review__img"
-                  />
-                  <h4 class="review__title">Moh Benz</h4>
-                </div>
-                <div class="review__data">
-                  <div class="review__rating">
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                    <i class="fi fi-rs-star"></i>
-                  </div>
-                  <p class="review__description">
-                    Authentic and beautiful, Love these ways more than ever
-                    expected, They are great earphones.
-                  </p>
-                  <span class="review__date">March 2, 2021 at 10:01 am</span>
-                </div>
-              </div>
-            </div>
-            <div class="review__form">
-              <h4 class="review__form-title">Add a review</h4>
-              <div class="rate__product">
-                <i class="fi fi-rs-star"></i>
-                <i class="fi fi-rs-star"></i>
-                <i class="fi fi-rs-star"></i>
-                <i class="fi fi-rs-star"></i>
-                <i class="fi fi-rs-star"></i>
-              </div>
-              <form action="" class="form grid">
-                <textarea
-                  class="form__input textarea"
-                  placeholder="Write Comment"
-                ></textarea>
-                <div class="form__group grid">
-                  <input type="text" placeholder="Name" class="form__input">
-                  <input type="email" placeholder="Email" class="form__input">
-                </div>
-                <div class="form__btn">
-                  <button class="btn">Submit Review</button>
-                </div>
-              </form>
-            </div>
           </div>
         </div>
       </section>
@@ -688,19 +587,97 @@
         titleEl.textContent = product.name;
         brandEl.textContent = product.brand;
         if(breadcrumbEl) breadcrumbEl.textContent = product.name;
-        document.title = `${product.name} — EYEWEAR.UTH`;
-        if(descEl) descEl.textContent = product.description || 'Experience the perfect blend of style and clarity with our premium handcrafted frames.';
-
-        // Render Specs Table
+        document.title = `${product.name} — EVELENS`;
+        if(descEl) descEl.textContent = product.description || 'Experience the perfect blend of style and clarity with our premium handcrafted frames.';        // Render Specs Table
         if(infoTable) {
+            const uniqueColors = [...new Set(product.variants.map(v => v.color).filter(Boolean))];
+            const uniqueSizes = [...new Set(product.variants.map(v => v.size).filter(Boolean))];
             infoTable.innerHTML = `
-                <tr><th>Brand</th><td>${product.brand || 'Luxury Eyewear'}</td></tr>
-                <tr><th>Model</th><td>${product.model_name || 'N/A'}</td></tr>
-                <tr><th>Gender</th><td>${product.gender === 'unisex' ? 'Unisex' : product.gender === 'men' ? 'Men' : product.gender === 'women' ? 'Women' : 'Kids'}</td></tr>
-                <tr><th>Material</th><td>Premium Acetate / Metal</td></tr>
-                <tr><th>Warranty</th><td>12 Months International</td></tr>
-                <tr><th>Condition</th><td>New 100%</td></tr>
+                <tr><th>Brand</th><td>${product.brand || 'EVELENS'}</td></tr>
+                <tr><th>Model Name</th><td>${product.model_name || 'N/A'}</td></tr>
+                <tr><th>Product Code</th><td>${product.slug.toUpperCase()}</td></tr>
+                <tr><th>Bridge Width</th><td>18mm - 22mm</td></tr>
+                <tr><th>Temple Length</th><td>140mm - 145mm</td></tr>
+                <tr><th>Lens Diameter</th><td>50mm - 54mm</td></tr>
+                <tr><th>Frame Material</th><td>Premium Hand-polished Acetate</td></tr>
+                <tr><th>Gender</th><td>${product.gender ? product.gender.charAt(0).toUpperCase() + product.gender.slice(1) : 'Unisex'}</td></tr>
+                <tr><th>Available Finishes</th><td>${uniqueColors.join(', ') || 'N/A'}</td></tr>
+                <tr><th>Available Sizes</th><td>${uniqueSizes.join(', ') || 'N/A'}</td></tr>
             `;
+        }
+
+        // --- RELATED PRODUCTS ---
+        const fixImagePath = (path) => {
+            if (!path) return '../../../assets/images/products/placeholder.png';
+            if (path.startsWith('http')) return path;
+            const clean = path.startsWith('/') ? path.substring(1) : path;
+            return '../../../' + clean;
+        };
+
+        if(relatedEl) {
+            try {
+                const rRes = await apiClient.get('/v1/products', { 
+                    params: { 
+                        category_ids: product.category_id,
+                        per_page: 8
+                    } 
+                });
+                const allR = rRes.data?.data?.data || [];
+                const related = allR.filter(p => p.id != productId).slice(0, 4);
+
+                if(related.length > 0) {
+                    let wlIds = [];
+                    try {
+                        const wl = await WishlistService.getWishlist();
+                        wlIds = (wl.data || []).map(i => i.product_id);
+                    } catch(e) {}
+
+                    const badgeColors = ['light-pink', 'light-blue', 'light-orange', 'light-green'];
+                    relatedEl.innerHTML = related.map((p, idx) => {
+                        const img = fixImagePath(p.thumbnail);
+                        const isW = wlIds.includes(p.id);
+                        const price = parseFloat(p.base_price || 0);
+                        return `
+                            <div class="product__item">
+                                <a href="index.html?id=${p.id}" class="product__item__overlay-link"></a>
+                                <div class="product__banner">
+                                    <a href="index.html?id=${p.id}" class="product__images">
+                                        <img src="${img}" alt="${p.name}" class="product__img default" onerror="this.src='../../../assets/images/products/placeholder.png'">
+                                        <img src="${img}" alt="${p.name}" class="product__img hover" onerror="this.src='../../../assets/images/products/placeholder.png'">
+                                    </a>
+                                    <div class="product__actions">
+                                        <button class="action__btn" aria-label="Quick View" data-action="quick-view" data-product-id="${p.id}">
+                                            <i class="fi fi-rs-eye"></i>
+                                        </button>
+                                        <button class="action__btn ${isW ? 'wishlist-active' : ''}" aria-label="Wishlist" data-action="toggle-wishlist" data-product-id="${p.id}">
+                                            <i class="${isW ? 'fi fi-ss-heart' : 'fi fi-rs-heart'}"></i>
+                                        </button>
+                                    </div>
+                                    <div class="product__badge ${badgeColors[idx % 4]}">Hot</div>
+                                </div>
+                                <div class="product__content">
+                                    <span class="product__category">${p.brand || 'Luxury'}</span>
+                                    <a href="index.html?id=${p.id}"><h3 class="product__title">${p.name}</h3></a>
+                                    <div class="product__rating">
+                                        <i class="fi fi-rs-star"></i><i class="fi fi-rs-star"></i><i class="fi fi-rs-star"></i><i class="fi fi-rs-star"></i><i class="fi fi-rs-star"></i>
+                                    </div>
+                                    <div class="product__price flex">
+                                        <span class="new__price">${format(price)}</span>
+                                        <span class="old__price">${format(price * 1.2)}</span>
+                                    </div>
+                                    <button class="action__btn cart__btn" aria-label="Add To Cart" data-action="add-to-cart" data-variant-id="${p.first_variant_id || p.id}">
+                                        <i class="fi fi-rs-shopping-bag-add"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    relatedEl.closest('section').style.display = 'none';
+                }
+            } catch(e) {
+                console.error("Related Products Error:", e);
+            }
         }
 
         // Render Gallery

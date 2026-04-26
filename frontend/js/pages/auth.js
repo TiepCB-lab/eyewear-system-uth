@@ -1,187 +1,192 @@
-import authService from '../services/authService.js';
+import api from '../services/api.js';
 
 (async function() {
-    // If already logged in, redirect away
-    if (authService.isAuthenticated()) {
-        const context = authService.getPrimaryContext();
-        if (context === 'staff') {
-            window.location.href = '/pages/dashboard/index.html';
-        } else {
-            window.location.href = '/index.html';
-        }
+    if (api.auth.isAuthenticated()) {
+        window.location.href = api.auth.isStaff() ? '/pages/dashboard/index.html' : '/index.html';
         return;
     }
-    const signUpButton = document.getElementById('signUp');
-    const signInButton = document.getElementById('signIn');
-    const toSignUpMobile = document.getElementById('toSignUpMobile');
-    const toSignInMobile = document.getElementById('toSignInMobile');
-    const forgotPasswordLink = document.getElementById('forgot-password-link');
-    const container = document.getElementById('auth-container');
 
+    const container = document.getElementById('auth-container');
     const params = new URLSearchParams(window.location.search);
-    let verified = params.get('verified');
-    let verifiedEmail = params.get('email');
-    let verifyError = params.get('error');
     const token = params.get('token');
 
     if (token) {
         try {
-            const result = await authService.verifyEmail(token);
-            verified = '1';
-            verifiedEmail = result.email || verifiedEmail;
-            verifyError = null;
-
-            const nextUrl = new URL(window.location.href);
-            nextUrl.searchParams.delete('token');
-            nextUrl.searchParams.delete('error');
-            nextUrl.searchParams.set('verified', '1');
-            if (verifiedEmail) {
-                nextUrl.searchParams.set('email', verifiedEmail);
+            const result = await api.auth.verifyEmail(token);
+            alert('Email verified successfully! You can now log in.');
+            if (result.email) {
+                const emailInput = document.getElementById('email-signin');
+                if (emailInput) emailInput.value = decodeURIComponent(result.email);
             }
-            window.history.replaceState({}, '', nextUrl);
         } catch (error) {
-            verified = '0';
-            verifyError = error.message || 'Invalid token.';
-
-            const nextUrl = new URL(window.location.href);
-            nextUrl.searchParams.delete('token');
-            nextUrl.searchParams.set('verified', '0');
-            nextUrl.searchParams.set('error', verifyError);
-            window.history.replaceState({}, '', nextUrl);
+            alert('Verification failed: ' + error.message);
         }
     }
 
-    if (verified === '1') {
-        container.classList.remove('active');
-        if (verifiedEmail) {
-            const emailInput = document.getElementById('email-signin');
-            if (emailInput) {
-                emailInput.value = decodeURIComponent(verifiedEmail);
-            }
+    // Toggle forms
+    document.getElementById('signUp')?.addEventListener('click', () => container.classList.add("active"));
+    document.getElementById('signIn')?.addEventListener('click', () => container.classList.remove("active"));
+    document.getElementById('toSignUpMobile')?.addEventListener('click', () => container.classList.add("active"));
+    document.getElementById('toSignInMobile')?.addEventListener('click', () => container.classList.remove("active"));
+
+    // Forgot Password
+    document.getElementById('forgot-password-link')?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const emailInput = document.querySelector('.sign-in-container input[name="email"]');
+        const email = prompt('Enter email for password reset:', emailInput?.value || '');
+        if (!email) return;
+
+        try {
+            const response = await api.auth.forgotPassword(email.trim());
+            alert(response.message || 'Reset link sent if email exists.');
+        } catch (error) {
+            alert('Request failed: ' + (error.response?.data?.message || error.message));
         }
-        alert('Email verified successfully! You can now log in.');
-    } else if (verified === '0') {
-        container.classList.remove('active');
-        alert('Verification failed: ' + (verifyError ? decodeURIComponent(verifyError) : 'Invalid token.'));
-    }
+    });
 
-    if(signUpButton) {
-        signUpButton.addEventListener('click', () => {
-            container.classList.add("active");
-        });
-    }
+    // Premium Dialog Utility
+    const showEyewearDialog = (options = {}) => {
+        const { title, type = 'info', message, buttonText = 'Close', showLoading = false } = options;
+        
+        // Remove existing dialog if any
+        const existing = document.querySelector('.eyewear-dialog-overlay');
+        if (existing) existing.remove();
 
-    if(signInButton) {
-        signInButton.addEventListener('click', () => {
-            container.classList.remove("active");
-        });
-    }
+        const overlay = document.createElement('div');
+        overlay.className = 'eyewear-dialog-overlay modal-overlay';
+        
+        let iconHtml = '';
+        if (showLoading) {
+            iconHtml = '<div class="eyewear-dialog-icon info"><i class="fi fi-rs-spinner rotate"></i></div>';
+        } else {
+            const iconClass = type === 'success' ? 'fi-rs-check-circle' : (type === 'error' ? 'fi-rs-cross-circle' : 'fi-rs-info');
+            iconHtml = `<div class="eyewear-dialog-icon ${type}"><i class="fi ${iconClass}"></i></div>`;
+        }
 
-    if(toSignUpMobile) {
-        toSignUpMobile.addEventListener('click', () => {
-            container.classList.add("active");
-        });
-    }
+        overlay.innerHTML = `
+            <div class="eyewear-dialog modal-content">
+                ${iconHtml}
+                <p class="eyewear-dialog-msg">${message || 'Please wait...'}</p>
+                ${!showLoading ? `<button type="button" class="eyewear-dialog-btn">${buttonText}</button>` : ''}
+            </div>
+        `;
 
-    if(toSignInMobile) {
-        toSignInMobile.addEventListener('click', () => {
-            container.classList.remove("active");
-        });
-    }
+        document.body.appendChild(overlay);
+        
+        // Trigger animation
+        setTimeout(() => overlay.classList.add('show'), 10);
 
-    if (forgotPasswordLink) {
-        forgotPasswordLink.addEventListener('click', async (e) => {
-            e.preventDefault();
-            const emailInput = document.querySelector('.sign-in-container input[name="email"]');
-            const prefilledEmail = emailInput ? emailInput.value.trim() : '';
-            const email = prompt('Enter email to receive password reset link:', prefilledEmail);
+        if (!showLoading) {
+            overlay.querySelector('.eyewear-dialog-btn').addEventListener('click', () => {
+                overlay.classList.remove('show');
+                setTimeout(() => overlay.remove(), 500);
+            });
+        }
 
-            if (!email) {
-                return;
-            }
-
-            try {
-                const response = await authService.forgotPassword(email.trim());
-                let message = response.message || 'If the email exists in our system, a reset link has been sent.';
-                if (response.email_sent === false && response.reset_url) {
-                    message += '\n\nCould not send email. You can open this link to reset your password:\n' + response.reset_url;
+        return {
+            update: (newOptions) => {
+                const msgEl = overlay.querySelector('.eyewear-dialog-msg');
+                const iconSide = overlay.querySelector('.eyewear-dialog-icon');
+                
+                if (newOptions.message) msgEl.textContent = newOptions.message;
+                
+                if (newOptions.type) {
+                    iconSide.className = `eyewear-dialog-icon ${newOptions.type}`;
+                    const iconClass = newOptions.type === 'success' ? 'fi-rs-check-circle' : (newOptions.type === 'error' ? 'fi-rs-cross-circle' : 'fi-rs-info');
+                    iconSide.innerHTML = `<i class="fi ${iconClass}"></i>`;
                 }
-                alert(message);
-            } catch (error) {
-                alert('Forgot password request failed: ' + (error.response?.data?.message || error.message));
+
+                if (!newOptions.showLoading && !overlay.querySelector('.eyewear-dialog-btn')) {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'eyewear-dialog-btn';
+                    btn.textContent = newOptions.buttonText || 'Close';
+                    btn.addEventListener('click', () => {
+                        overlay.classList.remove('show');
+                        setTimeout(() => overlay.remove(), 500);
+                    });
+                    overlay.querySelector('.eyewear-dialog').appendChild(btn);
+                }
+            },
+            close: () => {
+                overlay.classList.remove('show');
+                setTimeout(() => overlay.remove(), 500);
             }
-        });
-    }
+        };
+    };
 
     // Handle Registration
-    const signUpBtn = document.querySelector('.sign-up-container .btn');
-    if (signUpBtn) {
-        signUpBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
+    const signUpForm = document.querySelector('.sign-up-container form');
+    signUpForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(signUpForm);
+        const name = formData.get('name');
+        const email = formData.get('email');
+        const password = formData.get('password');
 
-            const messageEl = document.getElementById('signup-message');
-            const name = document.querySelector('.sign-up-container input[name="name"]').value;
-            const email = document.querySelector('.sign-up-container input[name="email"]').value;
-            const password = document.querySelector('.sign-up-container input[name="password"]').value;
-
-            messageEl.textContent = '';
-            messageEl.classList.remove('error', 'success');
-
-            if (!name || !email || !password) {
-                messageEl.textContent = 'Please enter your name, email and password.';
-                messageEl.classList.add('error');
-                return;
-            }
-
-            signUpBtn.disabled = true;
-            messageEl.textContent = 'Processing...';
-
-            // Fire async without awaiting immediately to prevent UI blocking
-            authService.register({ name, email, password }).catch(error => {
-                const errorMessage = error.response?.data?.message || 'Email sending failed.';
-                alert('Registration Error: ' + errorMessage);
-            });
-
-            // Instant feedback
-            await alert('Registration successful! Please check your Email Inbox (including Spam folder) to verify your account.');
-            container.classList.remove("active");
-            signUpBtn.disabled = false;
-            messageEl.textContent = '';
+        // Show immediate loading dialog
+        const dialog = showEyewearDialog({
+            message: 'Processing your registration...',
+            showLoading: true
         });
-    }
+
+        const btn = signUpForm.querySelector('.btn');
+        if (btn) btn.disabled = true;
+
+        try {
+            const response = await api.auth.register({ name, email, password });
+            dialog.update({
+                type: 'success',
+                message: response.message || 'Registration successful! Please check your email to verify your account.',
+                showLoading: false,
+                buttonText: 'Got it!'
+            });
+            container.classList.remove("active");
+            signUpForm.reset();
+        } catch (error) {
+            const errorMsg = error.response?.data?.message || error.message || 'Registration failed';
+            dialog.update({
+                type: 'error',
+                message: 'Error: ' + errorMsg,
+                showLoading: false,
+                buttonText: 'Try Again'
+            });
+        } finally {
+            if (btn) btn.disabled = false;
+        }
+    });
 
     // Handle Login
-    const signInBtn = document.querySelector('.sign-in-container .btn');
-    if (signInBtn) {
-        signInBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
+    const signInForm = document.querySelector('.sign-in-container form');
+    signInForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(signInForm);
+        const email = formData.get('email');
+        const password = formData.get('password');
 
-            const emailInput = document.querySelector('.sign-in-container input[name="email"]');
-            const passInput = document.querySelector('.sign-in-container input[name="password"]');
-            
-            const email = emailInput ? emailInput.value : '';
-            const password = passInput ? passInput.value : '';
-
-            if (!email || !password) {
-                alert('Please fill in all fields');
-                return;
-            }
-
-            try {
-                const response = await authService.login({ email, password });
-
-                // Redirect based on role context
-                const context = authService.getPrimaryContext();
-                
-                if (context === 'staff') {
-                    window.location.href = '/pages/dashboard/index.html';
-                } else {
-                    window.location.href = '/index.html';
-                }
-            } catch (error) {
-                alert('Login failed: ' + (error.response?.data?.message || error.message));
-            }
+        const dialog = showEyewearDialog({
+            message: 'Signing you in...',
+            showLoading: true
         });
-    }
+
+        const btn = signInForm.querySelector('.btn');
+        if (btn) btn.disabled = true;
+
+        try {
+            await api.auth.login({ email, password });
+            dialog.close(); // Close immediately on successful login to redirect
+            window.location.href = api.auth.isStaff() ? '/pages/dashboard/index.html' : '/index.html';
+        } catch (error) {
+            const errorMsg = error.response?.data?.message || error.message || 'Login failed';
+            dialog.update({
+                type: 'error',
+                message: 'Login failed: ' + errorMsg,
+                showLoading: false,
+                buttonText: 'Try Again'
+            });
+        } finally {
+            if (btn) btn.disabled = false;
+        }
+    });
 })();
 

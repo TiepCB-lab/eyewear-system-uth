@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\BaseController;
 use App\Application\SupportTicketService;
+use Core\ApiResponse;
+use Exception;
 
-class SupportTicketController
+class SupportTicketController extends BaseController
 {
     private SupportTicketService $supportService;
 
@@ -14,157 +17,155 @@ class SupportTicketController
     }
 
     /**
-     * Lấy danh sách ticket: Staff lấy tất cả open, User lấy của mình
+     * Get ticket list.
      */
-    public function index(): array
+    public function index()
     {
-        $isStaff = $_GET['role'] ?? 'user';
-        $userId  = (int) ($_GET['user_id'] ?? 1); // Mock: thực tế lấy từ Auth session
+        $userId = $this->getUserId();
+        if (!$userId) {
+            return ApiResponse::unauthorized();
+        }
 
         try {
-            if ($isStaff === 'staff') {
+            if ($this->isStaff()) {
                 $tickets = $this->supportService->getAllOpenTickets();
             } else {
                 $tickets = $this->supportService->getUserTickets($userId);
             }
-            return [
-                'data' => $tickets,
-                'meta' => ['total' => count($tickets)],
-            ];
-        } catch (\Exception $e) {
-            http_response_code(500);
-            return ['error' => $e->getMessage()];
+            return ApiResponse::success($tickets);
+        } catch (Exception $e) {
+            return ApiResponse::serverError($e->getMessage());
         }
     }
 
     /**
-     * Lấy chi tiết 1 ticket kèm toàn bộ thread reply
+     * Get ticket details.
      */
-    public function show(): array
+    public function show()
     {
-        $id = $_GET['id'] ?? null;
+        $userId = $this->getUserId();
+        if (!$userId) {
+            return ApiResponse::unauthorized();
+        }
+
+        $id = $this->query('id');
         if (!$id) {
-            http_response_code(400);
-            return ['error' => 'Ticket ID required'];
+            return ApiResponse::validationError('Ticket ID required');
         }
 
         try {
             $ticket = $this->supportService->getTicketDetails((int) $id);
-            return ['data' => $ticket];
-        } catch (\Exception $e) {
-            http_response_code(404);
-            return ['error' => $e->getMessage()];
+            // Security check: Only staff or ticket owner can see details
+            if (!$this->isStaff() && $ticket['user_id'] != $userId) {
+                return ApiResponse::forbidden();
+            }
+            return ApiResponse::success($ticket);
+        } catch (Exception $e) {
+            return ApiResponse::notFound($e->getMessage());
         }
     }
 
     /**
-     * Customer tạo ticket mới
+     * Create new ticket.
      */
-    public function store(): array
+    public function store()
     {
-        $input   = json_decode(file_get_contents('php://input'), true) ?? [];
+        $userId = $this->getUserId();
+        if (!$userId) {
+            return ApiResponse::unauthorized();
+        }
+
+        $input   = $this->getJsonInput();
         $subject = $input['subject'] ?? '';
         $message = $input['message'] ?? '';
         $orderId = $input['order_id'] ?? null;
-        $userId  = (int) ($input['user_id'] ?? 1); // Mock
 
         if (!$subject || !$message) {
-            http_response_code(400);
-            return ['error' => 'Subject and message are required'];
+            return ApiResponse::validationError('Subject and message are required');
         }
 
         try {
             $ticket = $this->supportService->createTicket($userId, $subject, $message, $orderId);
-            return [
-                'data'    => $ticket,
-                'message' => 'Ticket created successfully',
-            ];
-        } catch (\Exception $e) {
-            http_response_code(500);
-            return ['error' => $e->getMessage()];
+            return ApiResponse::created($ticket, 'Ticket created successfully');
+        } catch (Exception $e) {
+            return ApiResponse::serverError($e->getMessage());
         }
     }
 
     /**
-     * User hoặc Staff gửi reply vào ticket
+     * Add reply to ticket.
      */
-    public function reply(): array
+    public function reply()
     {
-        $input    = json_decode(file_get_contents('php://input'), true) ?? [];
+        $userId = $this->getUserId();
+        if (!$userId) {
+            return ApiResponse::unauthorized();
+        }
+
+        $input    = $this->getJsonInput();
         $ticketId = $input['ticket_id'] ?? null;
         $message  = $input['message'] ?? '';
-        $userId   = (int) ($input['user_id'] ?? 1); // Mock
-        $isStaff  = (bool)($input['is_staff'] ?? false); // Thực tế lấy từ Auth session
+        $isStaff  = $this->isStaff();
 
         if (!$ticketId || !$message) {
-            http_response_code(400);
-            return ['error' => 'Ticket ID and message are required'];
+            return ApiResponse::validationError('Ticket ID and message are required');
         }
 
         try {
             $reply = $this->supportService->addReply((int) $ticketId, $userId, $message, $isStaff);
-            return [
-                'data'    => $reply,
-                'message' => 'Reply added successfully',
-            ];
-        } catch (\Exception $e) {
-            http_response_code(400);
-            return ['error' => $e->getMessage()];
+            return ApiResponse::success($reply, 'Reply added successfully');
+        } catch (Exception $e) {
+            return ApiResponse::error($e->getMessage());
         }
     }
 
     /**
-     * Staff cập nhật trạng thái ticket (in_progress / resolved / closed)
+     * Update ticket status (Staff only).
      */
-    public function updateStatus(): array
+    public function updateStatus()
     {
-        $input    = json_decode(file_get_contents('php://input'), true) ?? [];
+        if (!$this->isStaff()) {
+            return ApiResponse::forbidden();
+        }
+
+        $input    = $this->getJsonInput();
         $ticketId = $input['ticket_id'] ?? null;
         $status   = $input['status'] ?? null;
 
         $allowed = ['open', 'in_progress', 'resolved', 'closed'];
         if (!$ticketId || !$status || !in_array($status, $allowed)) {
-            http_response_code(400);
-            return ['error' => 'ticket_id and a valid status (open|in_progress|resolved|closed) are required'];
+            return ApiResponse::validationError('ticket_id and a valid status are required');
         }
 
         try {
             $ticket = $this->supportService->updateTicketStatus((int) $ticketId, $status);
-            return [
-                'data'    => $ticket,
-                'message' => "Ticket status updated to '{$status}'",
-            ];
-        } catch (\Exception $e) {
-            http_response_code(400);
-            return ['error' => $e->getMessage()];
+            return ApiResponse::success($ticket, "Ticket status updated to '{$status}'");
+        } catch (Exception $e) {
+            return ApiResponse::error($e->getMessage());
         }
     }
 
     /**
-     * DELETE /api/v1/support/delete
-     * Chỉ staff được xóa ticket
-     * Body: { ticket_id: int, is_staff: bool }
+     * Delete ticket (Staff only).
      */
-    public function delete(): array
+    public function delete()
     {
-        $input    = json_decode(file_get_contents('php://input'), true) ?? [];
+        if (!$this->isStaff()) {
+            return ApiResponse::forbidden();
+        }
+
+        $input    = $this->getJsonInput();
         $ticketId = $input['ticket_id'] ?? null;
-        $isStaff  = (bool)($input['is_staff'] ?? false); // Thực tế lấy từ Auth session
 
         if (!$ticketId) {
-            http_response_code(400);
-            return ['error' => 'ticket_id is required'];
+            return ApiResponse::validationError('ticket_id is required');
         }
 
         try {
-            $this->supportService->deleteTicket((int)$ticketId, $isStaff);
-            return [
-                'message' => 'Ticket deleted successfully',
-            ];
-        } catch (\Exception $e) {
-            http_response_code(403);
-            return ['error' => $e->getMessage()];
+            $this->supportService->deleteTicket((int)$ticketId, true);
+            return ApiResponse::success(null, 'Ticket deleted successfully');
+        } catch (Exception $e) {
+            return ApiResponse::error($e->getMessage());
         }
     }
 }
-

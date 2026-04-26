@@ -10,16 +10,23 @@ class RoleMiddleware
             return true;
         }
 
-        $currentRole = $_SERVER['AUTH_USER_ROLE'] ?? null;
-        if ($currentRole === null) {
-            http_response_code(401);
-            echo json_encode(['message' => 'Unauthorized', 'error' => 'Authentication is required before role checks']);
+        $currentRolesStr = $_SERVER['AUTH_USER_ROLE'] ?? null;
+        if ($currentRolesStr === null) {
+            echo json_encode(\Core\ApiResponse::unauthorized('Authentication is required before role checks'));
             return false;
         }
 
-        if (!in_array($currentRole, $allowedRoles, true)) {
-            http_response_code(403);
-            echo json_encode(['message' => 'Forbidden', 'error' => 'You do not have permission to access this resource']);
+        $currentRoles = explode(',', $currentRolesStr);
+        $hasPermission = false;
+        foreach ($currentRoles as $role) {
+            if (in_array(trim($role), $allowedRoles, true)) {
+                $hasPermission = true;
+                break;
+            }
+        }
+
+        if (!$hasPermission) {
+            echo json_encode(\Core\ApiResponse::forbidden('You do not have permission to access this resource'));
             return false;
         }
 

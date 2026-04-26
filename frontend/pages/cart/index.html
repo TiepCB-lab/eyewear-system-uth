@@ -17,12 +17,10 @@
     />
 
     <!--=============== CSS ===============-->
-    <link rel="stylesheet" href="../../../assets/css/styles.css" />
+    <link rel="stylesheet" href="../../assets/css/styles.css" />
+    <script src="../../js/core/layout-loader.js" defer></script>
 
-    <!--=============== LAYOUT LOADER ===============-->
-    <script src="../../../js/core/layout-loader.js" defer></script>
-
-    <title>Cart — EYEWEAR.UTH</title>
+    <title>Cart — EVELENS</title>
   </head>
   <body>
     <!--=============== HEADER ===============-->
@@ -39,6 +37,7 @@
           <table class="table">
             <thead>
               <tr>
+                <th><input type="checkbox" id="select-all-cart" checked></th>
                 <th>Image</th>
                 <th>Name</th>
                 <th>Price</th>
@@ -54,11 +53,8 @@
         </div>
 
         <div class="cart__actions">
-          <a href="#" class="btn flex btn__md">
-            <i class="fi-rs-shuffle"></i> Update Cart
-          </a>
-          <a href="#" class="btn flex btn__md">
-            <i class="fi-rs-shopping-bag"></i> Continue Shopping
+          <a href="../shop/" class="btn flex btn__md">
+            <i class="fi fi-rs-shopping-bag"></i> Continue Shopping
           </a>
         </div>
 
@@ -144,9 +140,8 @@
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
     <!--=============== MAIN JS ===============-->
-    <script src="../../../js/main.js"></script>
-
-    <script src="../../../js/pages/cart.js" type="module"></script>
+    <script src="../../js/main.js"></script>
+    <script src="../../js/pages/cart.js" type="module"></script>
   </body>
 </html>
 

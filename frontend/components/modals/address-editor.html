@@ -1,0 +1,57 @@
+<!-- Address Editor Modal / Panel (Luxury Redesign) -->
+<div class="address-editor-overlay modal-overlay" id="address-editor-overlay">
+  <div class="address-editor modal-content">
+    <h2 id="address-editor-title" class="address-editor__title">Add New Address</h2>
+    <p class="address-editor__subtitle">Multiple addresses help you receive orders at home, office, or other locations.</p>
+    
+    <form id="address-editor-form">
+      <input type="hidden" name="id" id="address-id-input">
+      <input type="hidden" name="address" id="address-full-hidden">
+      
+      <div class="profile-details-form__group">
+        <label class="profile-editor__label">Address Label (Home, Office...)</label>
+        <input type="text" name="label" id="address-label-input" class="form__input" placeholder="e.g. Home, Work" list="label-suggestions" required>
+        <datalist id="label-suggestions">
+          <option value="Home">
+          <option value="Office">
+          <option value="Company">
+          <option value="Apartment">
+        </datalist>
+      </div>
+
+      <div class="profile-details-form__group">
+        <label class="profile-editor__label">Phone Number</label>
+        <input type="tel" name="phone" id="address-phone-input" class="form__input" placeholder="Enter your phone" required>
+      </div>
+
+      <div class="profile-details-form__group">
+        <label class="profile-editor__label">Province / City (2025 Standard)</label>
+        <select id="address-province-select" class="form__input" required>
+          <option value="">Select Province/City</option>
+        </select>
+      </div>
+
+      <div class="profile-details-form__group">
+        <label class="profile-editor__label">Ward / Commune</label>
+        <select id="address-ward-select" class="form__input" required disabled>
+          <option value="">Select Ward/Commune</option>
+        </select>
+      </div>
+
+      <div class="profile-details-form__group">
+        <label class="profile-editor__label">House Number / Street Name</label>
+        <input type="text" id="address-street-input" class="form__input" placeholder="e.g. 114 Hung Vuong St." required>
+      </div>
+
+      <div class="profile-details-form__group--checkbox">
+        <input type="checkbox" name="is_default" id="address-default-input">
+        <label for="address-default-input">Set as default address</label>
+      </div>
+
+      <div class="address-editor-actions">
+        <button type="button" class="btn--address-cancel" id="cancel-address-edit">Cancel</button>
+        <button type="submit" class="btn--address-save" id="address-save-btn">Save Address</button>
+      </div>
+    </form>
+  </div>
+</div>

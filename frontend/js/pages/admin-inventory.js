@@ -182,11 +182,11 @@ async function saveEdit(index) {
             renderTable();
             updateSummaryStats();
             
-            if (window.showToast) window.showToast('Stock updated successfully', 'success');
+            if (window.Notification) window.Notification.show('Stock updated successfully', 'success');
         }
     } catch (error) {
         console.error('Update failed:', error);
-        if (window.showToast) window.showToast('Failed to update stock', 'error');
+        if (window.Notification) window.Notification.show('Failed to update stock', 'error');
         cancelEdit(index);
     }
 }
