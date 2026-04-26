@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\BaseController;
 use App\Application\InventoryService;
+use Core\ApiResponse;
+use Exception;
 
-class InventoryController
+class InventoryController extends BaseController
 {
     private InventoryService $inventoryService;
 
@@ -16,66 +19,41 @@ class InventoryController
     /**
      * Get all inventory items.
      */
-    public function index(): array
+    public function index()
     {
         try {
-            return [
-                'data' => $this->inventoryService->getAllInventory()
-            ];
-        } catch (\Throwable $e) {
-            http_response_code(500);
-            return ['message' => 'Failed to fetch inventory.', 'error' => $e->getMessage()];
+            $data = $this->inventoryService->getAllInventory();
+            return ApiResponse::success($data);
+        } catch (Exception $e) {
+            return ApiResponse::serverError($e->getMessage());
         }
     }
 
     /**
      * Update inventory stock for one or many variants.
-     *
-     * Accepted payload formats:
-     * - {"updates": [{"variant_id": 1, "quantity": 10}]}
-     * - [{"variant_id": 1, "delta": -2}]
-     * - {"variant_id": 1, "quantity": 10}
      */
-    public function updateStock(): array
+    public function updateStock()
     {
-        $userId = $this->getCurrentUserId();
-        if (!$userId) {
-            http_response_code(401);
-            return ['message' => 'Unauthorized'];
+        $userId = $this->getUserId();
+        if (!$userId || !$this->isStaff()) {
+            return ApiResponse::unauthorized('Unauthorized or insufficient permissions');
         }
 
-        $payload = json_decode(file_get_contents('php://input'), true);
-        if ($payload === null) {
-            http_response_code(400);
-            return ['message' => 'Invalid JSON payload.'];
+        $payload = $this->getJsonInput();
+        if (empty($payload)) {
+            return ApiResponse::validationError('Invalid JSON payload.');
         }
 
         $updates = $this->normalizeUpdatesPayload($payload);
         if ($updates === []) {
-            http_response_code(400);
-            return ['message' => 'Stock update payload is empty.'];
+            return ApiResponse::validationError('Stock update payload is empty.');
         }
 
         try {
-            return $this->inventoryService->updateStockQuantities($userId, $updates);
-        } catch (\InvalidArgumentException $e) {
-            http_response_code(400);
-            return ['message' => $e->getMessage()];
-        } catch (\RuntimeException $e) {
-            $message = $e->getMessage();
-
-            if (stripos($message, 'forbidden') !== false) {
-                http_response_code(403);
-            } elseif (stripos($message, 'not found') !== false) {
-                http_response_code(404);
-            } else {
-                http_response_code(400);
-            }
-
-            return ['message' => $message];
-        } catch (\Throwable $e) {
-            http_response_code(500);
-            return ['message' => 'Failed to update stock.', 'error' => $e->getMessage()];
+            $result = $this->inventoryService->updateStockQuantities($userId, $updates);
+            return ApiResponse::success($result, 'Stock updated successfully');
+        } catch (Exception $e) {
+            return ApiResponse::error($e->getMessage());
         }
     }
 
@@ -96,30 +74,4 @@ class InventoryController
 
         return [];
     }
-
-    private function getCurrentUserId(): ?int
-    {
-        $headers = getallheaders();
-        $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
-
-        if (!preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
-            return null;
-        }
-
-        try {
-            $decoded = base64_decode($matches[1], true);
-            if ($decoded === false) {
-                return null;
-            }
-
-            $parts = explode(':', $decoded);
-            if (!isset($parts[0]) || !ctype_digit((string) $parts[0])) {
-                return null;
-            }
-
-            return (int) $parts[0];
-        } catch (\Throwable $e) {
-            return null;
-        }
-    }
-}
+}

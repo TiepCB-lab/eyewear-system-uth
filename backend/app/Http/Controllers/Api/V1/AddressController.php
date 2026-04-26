@@ -1,89 +1,80 @@
 <?php
+
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\BaseController;
 use App\Application\AddressService;
-use App\Application\AuthService;
+use Core\ApiResponse;
 use Exception;
 
-class AddressController {
+class AddressController extends BaseController
+{
     private AddressService $addressService;
-    private AuthService $authService;
 
-    public function __construct(AddressService $addressService, AuthService $authService) {
+    public function __construct(AddressService $addressService)
+    {
         $this->addressService = $addressService;
-        $this->authService = $authService;
     }
 
-    public function index() {
-        try {
-            $user = $this->authService->getCurrentUser();
-            if (!$user) {
-                http_response_code(401);
-                echo json_encode(['message' => 'Unauthorized']);
-                return;
-            }
+    public function index()
+    {
+        $userId = $this->getUserId();
+        if (!$userId) {
+            return ApiResponse::unauthorized();
+        }
 
-            $addresses = $this->addressService->getAddresses($user['id']);
-            echo json_encode(['status' => 'success', 'data' => $addresses]);
+        try {
+            $addresses = $this->addressService->getAddresses($userId);
+            return ApiResponse::success($addresses);
         } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            return ApiResponse::serverError($e->getMessage());
         }
     }
 
-    public function store() {
-        try {
-            $user = $this->authService->getCurrentUser();
-            if (!$user) {
-                http_response_code(401);
-                echo json_encode(['message' => 'Unauthorized']);
-                return;
-            }
+    public function store()
+    {
+        $userId = $this->getUserId();
+        if (!$userId) {
+            return ApiResponse::unauthorized();
+        }
 
-            $data = json_decode(file_get_contents('php://input'), true);
-            $addressId = $this->addressService->addAddress($user['id'], $data);
-            
-            http_response_code(201);
-            echo json_encode(['status' => 'success', 'data' => ['id' => $addressId]]);
+        $data = $this->getJsonInput();
+        try {
+            $addressId = $this->addressService->addAddress($userId, $data);
+            return ApiResponse::created(['id' => $addressId], 'Address added successfully');
         } catch (Exception $e) {
-            http_response_code(400);
-            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            return ApiResponse::error($e->getMessage());
         }
     }
 
-    public function update($id) {
-        try {
-            $user = $this->authService->getCurrentUser();
-            if (!$user) {
-                http_response_code(401);
-                echo json_encode(['message' => 'Unauthorized']);
-                return;
-            }
+    public function update($id)
+    {
+        $userId = $this->getUserId();
+        if (!$userId) {
+            return ApiResponse::unauthorized();
+        }
 
-            $data = json_decode(file_get_contents('php://input'), true);
-            $this->addressService->updateAddress($user['id'], (int)$id, $data);
-            
-            echo json_encode(['status' => 'success', 'message' => 'Address updated']);
+        $data = $this->getJsonInput();
+        try {
+            $this->addressService->updateAddress($userId, (int)$id, $data);
+            return ApiResponse::success(null, 'Address updated successfully');
         } catch (Exception $e) {
-            http_response_code(400);
-            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            return ApiResponse::error($e->getMessage());
         }
     }
 
-    public function destroy($id) {
-        try {
-            $user = $this->authService->getCurrentUser();
-            if (!$user) {
-                http_response_code(401);
-                echo json_encode(['message' => 'Unauthorized']);
-                return;
-            }
+    public function destroy($id)
+    {
+        $userId = $this->getUserId();
+        if (!$userId) {
+            return ApiResponse::unauthorized();
+        }
 
-            $this->addressService->deleteAddress($user['id'], (int)$id);
-            echo json_encode(['status' => 'success', 'message' => 'Address deleted']);
+        try {
+            $this->addressService->deleteAddress($userId, (int)$id);
+            return ApiResponse::success(null, 'Address deleted successfully');
         } catch (Exception $e) {
-            http_response_code(400);
-            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            return ApiResponse::error($e->getMessage());
         }
     }
 }

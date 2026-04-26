@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\BaseController;
 use App\Application\CheckoutService;
+use Core\ApiResponse;
 use Exception;
 
-class CheckoutController
+class CheckoutController extends BaseController
 {
     private CheckoutService $checkoutService;
 
@@ -15,55 +17,25 @@ class CheckoutController
     }
 
     /**
-     * Xử lý đặt hàng.
+     * Process checkout.
      */
     public function store()
     {
-        $userId = $this->getCurrentUserId();
+        $userId = $this->getUserId();
         if (!$userId) {
-            http_response_code(401);
-            return ['message' => 'Unauthorized'];
+            return ApiResponse::unauthorized();
         }
 
-        $data = json_decode(file_get_contents('php://input'), true);
-        if (!$data || empty($data['shipping_address'])) {
-            http_response_code(400);
-            return ['message' => 'Shipping address is required.'];
+        $data = $this->getJsonInput();
+        if (empty($data['shipping_address'])) {
+            return ApiResponse::validationError('Shipping address is required.');
         }
 
         try {
             $order = $this->checkoutService->processCheckout($userId, $data);
-            return [
-                'message' => 'Order placed successfully',
-                'data' => $order
-            ];
+            return ApiResponse::created($order, 'Order placed successfully');
         } catch (Exception $e) {
-            http_response_code(400);
-            return ['message' => $e->getMessage()];
-        }
-    }
-
-    private function getCurrentUserId(): ?int
-    {
-        $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
-
-        if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
-            return null;
-        }
-
-        $token = trim(substr($authHeader, 7));
-        try {
-            $decoded = base64_decode($token, true);
-            if ($decoded === false) {
-                return null;
-            }
-            $parts = explode(':', $decoded);
-            if (count($parts) < 1 || !is_numeric($parts[0])) {
-                return null;
-            }
-            return (int) $parts[0];
-        } catch (Exception $e) {
-            return null;
+            return ApiResponse::error($e->getMessage());
         }
     }
 }

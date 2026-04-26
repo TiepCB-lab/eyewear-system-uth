@@ -1,7 +1,10 @@
 <div class="catalog-item">
+    <a href="{{DETAIL_URL}}" class="catalog-item__overlay-link" aria-label="View Details"></a>
     <div class="thumb">
         <span class="badge">{{BADGE}}</span>
-        <img src="{{IMAGE}}" alt="{{NAME}}" data-fallback-src="../../assets/images/products/placeholder.png">
+        <a href="{{DETAIL_URL}}">
+            <img src="{{IMAGE}}" alt="{{NAME}}" data-fallback-src="../../assets/images/products/placeholder.png">
+        </a>
         <div class="thumb-actions">
             <button type="button" class="thumb-action-btn" title="Quick View" data-action="quick-view" data-product-id="{{PRODUCT_ID}}">
                 <i class="fi fi-rs-eye"></i>
@@ -16,7 +19,9 @@
     </div>
     <div class="body">
         <div class="meta">{{CATEGORY}} — {{BRAND}}</div>
-        <h3 class="name">{{NAME}}</h3>
+        <a href="{{DETAIL_URL}}">
+            <h3 class="name">{{NAME}}</h3>
+        </a>
         <div class="catalog-rating">
             <div class="catalog-rating__stars">
                 <i class="fi fi-rs-star"></i>

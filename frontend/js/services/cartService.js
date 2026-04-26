@@ -49,19 +49,44 @@ const CartService = {
     }
   },
 
-  checkout: async (shippingAddress, billingAddress = null) => {
+  setSelected: async (cartItemId, isSelected) => {
     try {
-      const response = await apiClient.post('/v1/checkout', {
-        shipping_address: shippingAddress,
-        billing_address: billingAddress
+      const response = await apiClient.post('/v1/cart/toggle-selection', {
+        cart_item_id: cartItemId,
+        is_selected: isSelected ? 1 : 0
       });
       return response.data;
     } catch (error) {
-      console.error('Error during checkout:', error);
+      console.error('Error toggling cart item selection:', error);
       throw error;
     }
-  }
+  },
+
+  selectAll: async (isSelected) => {
+    try {
+      const response = await apiClient.post('/v1/cart/select-all', {
+        is_selected: isSelected ? 1 : 0
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error selecting all cart items:', error);
+      throw error;
+    }
+  },
+
+  checkout: async (shippingAddress, billingAddress = null) => {
+    try {
+      // Backend now relies on is_selected state in the database
+      const response = await apiClient.post('/v1/checkout', {
+        shipping_address: shippingAddress,
+        billing_address: billingAddress || shippingAddress
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Checkout error:', error);
+      throw error;
+    }
+  },
 };
 
 export default CartService;
-

@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\BaseController;
 use App\Application\DashboardService;
+use Core\ApiResponse;
+use Throwable;
 
-class DashboardController
+class DashboardController extends BaseController
 {
 	private DashboardService $dashboardService;
 
@@ -13,27 +16,31 @@ class DashboardController
 		$this->dashboardService = $dashboardService;
 	}
 
-	public function index(): array
+	public function index()
 	{
+        if (!$this->isStaff()) {
+            return ApiResponse::forbidden();
+        }
+
 		try {
-			return [
-				'data' => $this->dashboardService->getSummary(),
-			];
-		} catch (\Throwable $e) {
-			http_response_code(500);
-			return ['message' => $e->getMessage()];
+            $data = $this->dashboardService->getSummary();
+			return ApiResponse::success($data);
+		} catch (Throwable $e) {
+			return ApiResponse::serverError($e->getMessage());
 		}
 	}
 
-	public function operations(): array
+	public function operations()
 	{
+        if (!$this->isStaff()) {
+            return ApiResponse::forbidden();
+        }
+
 		try {
-			return [
-				'data' => $this->dashboardService->getOperationsOverview(),
-			];
-		} catch (\Throwable $e) {
-			http_response_code(500);
-			return ['message' => $e->getMessage()];
+            $data = $this->dashboardService->getOperationsOverview();
+			return ApiResponse::success($data);
+		} catch (Throwable $e) {
+			return ApiResponse::serverError($e->getMessage());
 		}
 	}
 }

@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\BaseController;
 use App\Application\OperationsService;
+use Core\ApiResponse;
+use Throwable;
 
-class OperationsController
+class OperationsController extends BaseController
 {
 	private OperationsService $operationsService;
 
@@ -13,84 +16,80 @@ class OperationsController
 		$this->operationsService = $operationsService;
 	}
 
-	public function index(): array
+	public function index()
 	{
+        if (!$this->isStaff()) {
+            return ApiResponse::forbidden();
+        }
+
 		try {
-			return [
-				'data' => $this->operationsService->listProductionQueue(),
-			];
-		} catch (\Throwable $e) {
-			http_response_code(500);
-			return ['message' => $e->getMessage()];
+            $data = $this->operationsService->listProductionQueue();
+			return ApiResponse::success($data);
+		} catch (Throwable $e) {
+			return ApiResponse::serverError($e->getMessage());
 		}
 	}
 
-	public function advanceProduction(): array
+	public function advanceProduction()
 	{
+        if (!$this->isStaff()) {
+            return ApiResponse::forbidden();
+        }
+
 		$input = $this->getJsonInput();
 		$orderId = (int) ($input['order_id'] ?? 0);
 
 		if ($orderId <= 0) {
-			http_response_code(400);
-			return ['message' => 'order_id is required.'];
+			return ApiResponse::validationError('order_id is required.');
 		}
 
 		try {
-			return [
-				'message' => 'Production step advanced successfully',
-				'data' => $this->operationsService->advanceProductionStep($orderId),
-			];
-		} catch (\Throwable $e) {
-			http_response_code(400);
-			return ['message' => $e->getMessage()];
+            $data = $this->operationsService->advanceProductionStep($orderId);
+			return ApiResponse::success($data, 'Production step advanced successfully');
+		} catch (Throwable $e) {
+			return ApiResponse::error($e->getMessage());
 		}
 	}
 
-	public function createShipment(): array
+	public function createShipment()
 	{
+        if (!$this->isStaff()) {
+            return ApiResponse::forbidden();
+        }
+
 		$input = $this->getJsonInput();
 		$orderId = (int) ($input['order_id'] ?? 0);
 
 		if ($orderId <= 0) {
-			http_response_code(400);
-			return ['message' => 'order_id is required.'];
+			return ApiResponse::validationError('order_id is required.');
 		}
 
 		try {
-			return [
-				'message' => 'Shipment created successfully',
-				'data' => $this->operationsService->createShipment($orderId, $input),
-			];
-		} catch (\Throwable $e) {
-			http_response_code(400);
-			return ['message' => $e->getMessage()];
+            $data = $this->operationsService->createShipment($orderId, $input);
+			return ApiResponse::success($data, 'Shipment created successfully');
+		} catch (Throwable $e) {
+			return ApiResponse::error($e->getMessage());
 		}
 	}
 
-	public function updateShipment(): array
+	public function updateShipment()
 	{
+        if (!$this->isStaff()) {
+            return ApiResponse::forbidden();
+        }
+
 		$input = $this->getJsonInput();
 		$shipmentId = (int) ($input['shipment_id'] ?? 0);
 
 		if ($shipmentId <= 0) {
-			http_response_code(400);
-			return ['message' => 'shipment_id is required.'];
+			return ApiResponse::validationError('shipment_id is required.');
 		}
 
 		try {
-			return [
-				'message' => 'Shipment updated successfully',
-				'data' => $this->operationsService->updateShipment($shipmentId, $input),
-			];
-		} catch (\Throwable $e) {
-			http_response_code(400);
-			return ['message' => $e->getMessage()];
+            $data = $this->operationsService->updateShipment($shipmentId, $input);
+			return ApiResponse::success($data, 'Shipment updated successfully');
+		} catch (Throwable $e) {
+			return ApiResponse::error($e->getMessage());
 		}
-	}
-
-	private function getJsonInput(): array
-	{
-		$input = json_decode(file_get_contents('php://input'), true);
-		return is_array($input) ? $input : [];
 	}
 }

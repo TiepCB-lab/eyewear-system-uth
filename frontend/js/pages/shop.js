@@ -1,260 +1,233 @@
-import productService from '../services/productService.js';
-import wishlistService from '../services/wishlistService.js';
-
-let wishlistedIds = [];
-
-let catalogProducts = [];
+import api from '../services/api.js';
 
 const state = {
   view: "grid",
-  sort: "price-asc",
-  searchQuery: ""
+  sort_by: "created_at",
+  sort_direction: "DESC",
+  search: "",
+  category_ids: [],
+  brands: [],
+  genders: [],
+  max_price: 5000000,
+  page: 1
 };
 
 const productContainer = document.getElementById("productContainer");
 const resultCount = document.getElementById("resultCount");
-let searchInput;
-let searchClearBtn;
-let priceRange;
-let priceValue;
-let inStockOnly;
 const sortSelect = document.getElementById("sortSelect");
 const gridViewBtn = document.getElementById("gridViewBtn");
 const listViewBtn = document.getElementById("listViewBtn");
+
 let searchDebounceTimer = null;
 let productCardTemplate = "";
+let wishlistedIds = [];
 
 async function loadFilterComponent() {
   const mount = document.getElementById("catalogFilterMount");
-  if (!mount) return false;
-
+  if (!mount) return;
   try {
     const response = await fetch("/components/forms/search-form.html");
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
     mount.innerHTML = await response.text();
-    initFilterUI();
-    return true;
+    await fetchFilters(); // Load dynamic data into the template
+    initFilters();
   } catch (error) {
-    console.error("Failed to load search-form component:", error);
-    mount.innerHTML = "<p class=\"catalog-filter-error\">Unable to load filters.</p>";
-    return false;
+    console.error("Failed to load filters:", error);
   }
 }
 
-function initFilterUI() {
-    searchInput = document.getElementById("searchInput");
-    searchClearBtn = document.getElementById("searchClearBtn");
-    priceRange = document.getElementById("priceRange");
-    priceValue = document.getElementById("priceValue");
-    inStockOnly = document.getElementById("inStockOnly");
-
-    if (searchInput) {
-        searchInput.addEventListener("input", (e) => {
-            state.searchQuery = e.target.value;
-            clearTimeout(searchDebounceTimer);
-            searchDebounceTimer = setTimeout(renderProducts, 300);
-        });
+async function fetchFilters() {
+    // Load categories
+    try {
+        const catRes = await api.client.get('/v1/products/categories');
+        const categories = catRes.data?.data || [];
+        const catContainer = document.querySelector('#categoryFilters .filter-options');
+        if (catContainer && categories.length > 0) {
+            catContainer.innerHTML = categories.map(c => `
+                <label class="filter-option">
+                    <input type="checkbox" name="category" value="${c.id}"> ${c.name}
+                </label>
+            `).join('');
+        }
+    } catch (err) {
+        console.warn("Failed to fetch categories:", err);
     }
 
-    if (searchClearBtn) {
-        searchClearBtn.addEventListener("click", () => {
-            searchInput.value = "";
-            state.searchQuery = "";
-            renderProducts();
-        });
+    // Load brands
+    try {
+        const brandRes = await api.client.get('/v1/products/brands');
+        const brands = brandRes.data?.data || [];
+        const brandContainer = document.querySelector('#brandFilters .filter-options');
+        if (brandContainer && brands.length > 0) {
+            brandContainer.innerHTML = brands.map(b => `
+                <label class="filter-option">
+                    <input type="checkbox" name="brand" value="${b}"> ${b}
+                </label>
+            `).join('');
+        }
+    } catch (err) {
+        console.warn("Failed to fetch brands:", err);
     }
-
-    if (priceRange) {
-        priceRange.addEventListener("input", (e) => {
-            priceValue.textContent = window.formatVND ? window.formatVND(e.target.value) : `${e.target.value} VND`;
-            renderProducts();
-        });
-    }
-
-    document.querySelectorAll(".filter-block input").forEach(input => {
-        input.addEventListener("change", renderProducts);
-    });
 }
 
 async function loadProductCardTemplate() {
   try {
     const response = await fetch("/components/product/product-card.html");
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
     productCardTemplate = await response.text();
-    return true;
   } catch (error) {
-    console.error("Failed to load product-card component:", error);
-    return false;
+    console.error("Failed to load template:", error);
   }
 }
 
-function showToast(message) {
-  const oldToast = document.querySelector(".catalog-toast");
-  if (oldToast) oldToast.remove();
+async function fetchProducts() {
+  try {
+    const params = {
+      q: state.search,
+      sort_by: state.sort_by,
+      sort_direction: state.sort_direction,
+      category_ids: state.category_ids.join(','),
+      brands: state.brands.join(','),
+      gender: state.genders.join(','),
+      max_price: state.max_price,
+      page: state.page
+    };
 
-  const toast = document.createElement("div");
-  toast.className = "catalog-toast";
-  toast.textContent = message;
-  document.body.appendChild(toast);
-
-  requestAnimationFrame(() => toast.classList.add("is-visible"));
-  window.setTimeout(() => {
-    toast.classList.remove("is-visible");
-    window.setTimeout(() => toast.remove(), 250);
-  }, 1400);
-}
-
-function getCheckedValues(containerId) {
-  const container = document.getElementById(containerId);
-  if(!container) return [];
-  return Array.from(container.querySelectorAll("input[type=\"checkbox\"]:checked")).map(input => input.value);
-}
-
-function getSelectedGender() {
-  const container = document.getElementById("genderFilters");
-  if(!container) return "all";
-  const selected = container.querySelector("input[type='radio']:checked");
-  return selected ? selected.value : "all";
-}
-
-function applySort(products) {
-  const sorted = [...products];
-  if (state.sort === "price-asc") {
-    sorted.sort((a, b) => a.price - b.price);
-  } else if (state.sort === "price-desc") {
-    sorted.sort((a, b) => b.price - a.price);
-  } else if (state.sort === "name-asc") {
-    sorted.sort((a, b) => a.name.localeCompare(b.name));
-  }
-  return sorted;
-}
-
-function getFilteredProducts() {
-  const keyword = state.searchQuery.trim().toLowerCase();
-  const categoryValues = getCheckedValues("categoryFilters");
-  const brandValues = getCheckedValues("brandFilters");
-  const gender = getSelectedGender();
-  const maxPrice = priceRange ? Number(priceRange.value) : 5000000;
-
-  const filtered = catalogProducts.filter((item) => {
-    const keywordMatch = item.name.toLowerCase().includes(keyword) ||
-                        item.brand.toLowerCase().includes(keyword) ||
-                        item.category.toLowerCase().includes(keyword);
-
-    const categoryMatch = categoryValues.length === 0 || categoryValues.includes(item.category);
-    const brandMatch = brandValues.length === 0 || brandValues.includes(item.brand);
-    const genderMatch = gender === "all" || item.gender === gender;
-    const priceMatch = item.price <= maxPrice;
-    const stockMatch = (!inStockOnly || !inStockOnly.checked) || item.stock > 0;
-
-    return keywordMatch && categoryMatch && brandMatch && genderMatch && priceMatch && stockMatch;
-  });
-
-  return applySort(filtered);
-}
-
-function renderProductCard(item) {
-  const detailUrl = `../details/index.html?id=${encodeURIComponent(item.product_id)}&name=${encodeURIComponent(item.name)}`;
-  const displayPrice = window.formatVND ? window.formatVND(item.price) : item.price + ' VND';
-  // Old price markup demo
-  const displayOldPrice = window.formatVND ? window.formatVND(item.price * 1.2) : (item.price * 1.2) + ' VND';
-
-  // Fix absolute path to proper relative path for the shop page depth
-  let imagePath = item.image;
-  if(imagePath.startsWith('/')) {
-      imagePath = '../../' + imagePath.substring(1);
-  }
-
-  const isWishlisted = wishlistedIds.some(wid => wid == item.product_id);
-  const heartIcon = isWishlisted ? 'fi fi-ss-heart' : 'fi fi-rs-heart';
-  const heartClass = isWishlisted ? 'wishlist-active' : '';
-  const label = isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist';
-
-  return productCardTemplate
-    .replaceAll("{{DETAIL_URL}}", detailUrl)
-    .replaceAll("{{IMAGE}}", imagePath)
-    .replaceAll("{{NAME}}", item.name)
-    .replaceAll("{{BADGE}}", item.badge || '')
-    .replaceAll("{{CATEGORY}}", item.category || 'Eyewear')
-    .replaceAll("{{BRAND}}", item.brand || 'No Brand')
-    .replaceAll("{{PRICE}}", displayPrice)
-    .replaceAll("{{OLD_PRICE}}", displayOldPrice)
-    .replaceAll("{{ID}}", item.id)
-    .replaceAll("{{PRODUCT_ID}}", item.product_id)
-    .replaceAll("{{WISHLIST_ICON}}", heartIcon)
-    .replaceAll("{{WISHLIST_CLASS}}", heartClass)
-    .replaceAll("{{WISHLIST_LABEL}}", label);
-}
-
-function renderProducts() {
-  const products = getFilteredProducts();
-  if(resultCount) resultCount.textContent = `${products.length} product${products.length === 1 ? "" : "s"}`;
-
-  if (!products.length) {
-    productContainer.innerHTML = '<div class="catalog-empty"><h3>No products found</h3><p>Try changing filters or search keyword.</p></div>';
-    return;
-  }
-
-  if(searchClearBtn && searchInput) searchClearBtn.classList.toggle("is-visible", searchInput.value.trim().length > 0);
-  productContainer.innerHTML = products.map(renderProductCard).join("");
-}
-
-// Bootstrap
-document.addEventListener("DOMContentLoaded", async () => {
-    const isFilterLoaded = await loadFilterComponent();
-    await loadProductCardTemplate();
+    const response = await api.client.get('/v1/products', { params });
+    // Structure: response.data = { success: true, data: { data: [...], pagination: {...} } }
+    const payload = response.data?.data || {};
+    const products = payload.data || [];
+    const pagination = payload.pagination || {};
     
-    if (sortSelect) {
-        sortSelect.addEventListener("change", (e) => {
-            state.sort = e.target.value;
-            renderProducts();
-        });
+    if (resultCount) resultCount.textContent = `${pagination.total || products.length} product(s)`;
+    
+    if (products.length === 0) {
+      productContainer.innerHTML = '<div class="catalog-empty"><h3>No products found</h3></div>';
+      if (document.getElementById("productPagination")) document.getElementById("productPagination").innerHTML = "";
+      return;
     }
 
-    if (gridViewBtn) {
-        gridViewBtn.addEventListener("click", () => {
-            state.view = "grid";
-            productContainer.className = "catalog-products grid-view";
-            gridViewBtn.classList.add("active");
-            listViewBtn.classList.remove("active");
-        });
-    }
-
-    if (listViewBtn) {
-        listViewBtn.addEventListener("click", () => {
-            state.view = "list";
-            productContainer.className = "catalog-products list-view";
-            listViewBtn.classList.add("active");
-            gridViewBtn.classList.remove("active");
-        });
-    }
-
-    // LOAD FROM DB
-    try {
-        const [prodRes, wlRes] = await Promise.all([
-            productService.getProducts(),
-            wishlistService.getWishlist().catch(() => ({ data: [] }))
-        ]);
+    productContainer.innerHTML = products.map(item => {
+        const detailUrl = `../details/index.html?id=${item.id}`;
+        const isWishlisted = wishlistedIds.includes(item.id);
         
-        wishlistedIds = (wlRes.data || []).map(i => i.product_id);
-        const items = prodRes.data;
-        catalogProducts = items.map(p => ({
-            id: p.first_variant_id || p.id,
-            product_id: p.id,
-            name: p.name,
-            category: p.category ? p.category.name : 'Eyewear',
-            brand: p.brand,
-            gender: p.gender,
-            price: parseFloat(p.base_price),
-            stock: parseInt(p.total_stock),
-            image: p.thumbnail || '../../assets/images/products/placeholder.png',
-            badge: p.is_active ? 'Sale' : 'Out'
-        }));
-    } catch(e) {
-        console.error("Failed fetching shop DB logic", e);
-        showToast("Error loading eyewear data API!");
+        return productCardTemplate
+            .replaceAll("{{DETAIL_URL}}", detailUrl)
+            .replaceAll("{{IMAGE}}", api.fixImagePath(item.thumbnail))
+            .replaceAll("{{NAME}}", item.name)
+            .replaceAll("{{BADGE}}", item.is_active ? 'Sale' : '')
+            .replaceAll("{{CATEGORY}}", item.category?.name || 'Eyewear')
+            .replaceAll("{{BRAND}}", item.brand || '')
+            .replaceAll("{{PRICE}}", api.formatCurrency(item.base_price))
+            .replaceAll("{{OLD_PRICE}}", api.formatCurrency(item.base_price * 1.2))
+            .replaceAll("{{ID}}", item.first_variant_id)
+            .replaceAll("{{PRODUCT_ID}}", item.id)
+            .replaceAll("{{WISHLIST_ICON}}", isWishlisted ? 'fi fi-ss-heart' : 'fi fi-rs-heart')
+            .replaceAll("{{WISHLIST_CLASS}}", isWishlisted ? 'wishlist-active' : '')
+            .replaceAll("{{WISHLIST_LABEL}}", isWishlisted ? 'Remove' : 'Add');
+    }).join("");
+
+    renderPagination(pagination);
+
+  } catch (error) {
+    console.error("Error fetching products:", error);
+  }
+}
+
+function renderPagination(pagination) {
+    const container = document.getElementById("productPagination");
+    if (!container) return;
+
+    const { page, total_pages } = pagination;
+    if (!total_pages || total_pages <= 1) {
+        container.innerHTML = "";
+        return;
     }
 
-    renderProducts();
+    let html = "";
+    
+    // Prev Button
+    html += `<button class="pagination-btn ${page === 1 ? 'disabled' : ''}" data-page="${page - 1}"><i class="fi fi-rs-angle-small-left"></i></button>`;
+
+    // Page Numbers
+    for (let i = 1; i <= total_pages; i++) {
+        html += `<button class="pagination-btn ${page === i ? 'active' : ''}" data-page="${i}">${i}</button>`;
+    }
+
+    // Next Button
+    html += `<button class="pagination-btn ${page === total_pages ? 'disabled' : ''}" data-page="${page + 1}"><i class="fi fi-rs-angle-small-right"></i></button>`;
+
+    container.innerHTML = html;
+
+    // Add events
+    container.querySelectorAll('.pagination-btn:not(.disabled):not(.active)').forEach(btn => {
+        btn.onclick = () => {
+            state.page = parseInt(btn.dataset.page);
+            fetchProducts();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+    });
+}
+
+function initFilters() {
+    const searchInput = document.getElementById("searchInput");
+    searchInput?.addEventListener("input", (e) => {
+        state.search = e.target.value;
+        clearTimeout(searchDebounceTimer);
+        searchDebounceTimer = setTimeout(fetchProducts, 400);
+    });
+
+    const priceRange = document.getElementById("priceRange");
+    const priceValue = document.getElementById("priceValue");
+    priceRange?.addEventListener("input", (e) => {
+        state.max_price = e.target.value;
+        if (priceValue) priceValue.textContent = api.formatCurrency(state.max_price);
+        clearTimeout(searchDebounceTimer);
+        searchDebounceTimer = setTimeout(fetchProducts, 400);
+    });
+
+    // Handle checkboxes for categories and brands
+    document.getElementById('catalogFilterMount')?.addEventListener('change', (e) => {
+        const input = e.target;
+        if (input.type === 'checkbox') {
+            const val = input.value;
+            // Determine if it's category or brand based on parent ID
+            const isCategory = input.closest('#categoryFilters');
+            const isBrand = input.closest('#brandFilters');
+            
+            if (isCategory) {
+                if (input.checked) state.category_ids.push(val);
+                else state.category_ids = state.category_ids.filter(id => id !== val);
+            } else if (isBrand) {
+                if (input.checked) state.brands.push(val);
+                else state.brands = state.brands.filter(b => b !== val);
+            }
+            state.page = 1; // Reset to page 1 on filter change
+            fetchProducts();
+        } else if (input.name === 'gender') {
+            state.genders = input.value === 'all' ? [] : [input.value];
+            state.page = 1; // Reset to page 1 on filter change
+            fetchProducts();
+        }
+    });
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+    await loadProductCardTemplate();
+    await loadFilterComponent();
+    
+    // Load Wishlist state
+    try {
+        const wl = await api.client.get('/v1/wishlist').catch(() => ({ data: { data: [] } }));
+        wishlistedIds = (wl.data.data || []).map(i => i.product_id);
+    } catch (e) {}
+
+    sortSelect?.addEventListener("change", (e) => {
+        const [by, dir] = e.target.value.split('-');
+        state.sort_by = by === 'price' ? 'base_price' : by;
+        state.sort_direction = dir.toUpperCase();
+        state.page = 1; // Reset to page 1 on sort change
+        fetchProducts();
+    });
+
+    fetchProducts();
 });
 

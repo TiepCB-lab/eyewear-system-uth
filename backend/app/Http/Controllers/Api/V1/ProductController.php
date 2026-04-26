@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\BaseController;
 use App\Application\CatalogService;
+use Core\ApiResponse;
 
-class ProductController
+class ProductController extends BaseController
 {
     private CatalogService $catalogService;
 
@@ -16,30 +18,38 @@ class ProductController
     /**
      * Return paginated products with filters.
      */
-    public function index(): array
+    public function index()
     {
-        return $this->catalogService->searchProducts($_GET);
+        $products = $this->catalogService->searchProducts($_GET);
+        return ApiResponse::success($products);
     }
 
     /**
      * Return a single product by numeric id or slug.
      */
-    public function show(): array
+    public function show()
     {
-        $identifier = $_GET['id'] ?? $_GET['slug'] ?? null;
+        $identifier = $this->query('id') ?? $this->query('slug');
 
         if ($identifier === null || $identifier === '') {
-            http_response_code(400);
-            return ['message' => 'id or slug is required.'];
+            return ApiResponse::validationError('id or slug is required.');
         }
 
         $product = $this->catalogService->getProductDetails($identifier);
 
         if ($product === null) {
-            http_response_code(404);
-            return ['message' => 'Product not found.'];
+            return ApiResponse::notFound('Product not found.');
         }
 
-        return ['data' => $product];
+        return ApiResponse::success($product);
+    }
+
+    /**
+     * Return list of brands.
+     */
+    public function brands()
+    {
+        $brands = $this->catalogService->getBrandsList();
+        return ApiResponse::success($brands);
     }
 }

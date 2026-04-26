@@ -71,18 +71,30 @@ class PaymentService
     }
 
     /**
-     * Lấy danh sách thanh toán đang chờ xác nhận (Staff)
+     * Lấy thông tin thanh toán của một đơn hàng.
      */
-    public function pendingPayments(): array
+    public function getPaymentByOrderId(int $orderId): ?array
     {
         $db = Database::getInstance();
-        $stmt = $db->query("SELECT * FROM payment WHERE status = 'pending' ORDER BY created_at ASC");
-        
-        $payments = [];
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $payments[] = $row;
-        }
-        
-        return $payments;
+        $stmt = $db->prepare("SELECT * FROM payment WHERE order_id = ? ORDER BY created_at DESC LIMIT 1");
+        $stmt->execute([$orderId]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
+    /**
+     * Lấy danh sách thanh toán đang chờ xác nhận (Staff)
+     */
+    public function getPendingPayments(): array
+    {
+        $db = Database::getInstance();
+        $stmt = $db->query("
+            SELECT p.*, o.order_number 
+            FROM payment p 
+            LEFT JOIN `order` o ON o.id = p.order_id 
+            WHERE p.status = 'pending' 
+            ORDER BY p.created_at ASC
+        ");
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 }

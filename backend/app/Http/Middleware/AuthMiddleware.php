@@ -8,22 +8,19 @@ class AuthMiddleware
     {
         $token = self::getBearerToken();
         if ($token === null) {
-            http_response_code(401);
-            echo json_encode(['message' => 'Unauthorized', 'error' => 'Missing auth token']);
+            echo json_encode(\Core\ApiResponse::unauthorized('Missing auth token'));
             return false;
         }
 
         $decoded = base64_decode($token, true);
         if ($decoded === false) {
-            http_response_code(401);
-            echo json_encode(['message' => 'Unauthorized', 'error' => 'Invalid auth token']);
+            echo json_encode(\Core\ApiResponse::unauthorized('Invalid auth token'));
             return false;
         }
 
         $parts = explode(':', $decoded, 3);
         if (count($parts) < 2 || !is_numeric($parts[0])) {
-            http_response_code(401);
-            echo json_encode(['message' => 'Unauthorized', 'error' => 'Invalid auth token']);
+            echo json_encode(\Core\ApiResponse::unauthorized('Invalid auth token'));
             return false;
         }
 

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\BaseController;
 use App\Application\PrescriptionService;
+use Core\ApiResponse;
 use Exception;
 
-class PrescriptionController
+class PrescriptionController extends BaseController
 {
     private PrescriptionService $prescriptionService;
 
@@ -16,71 +18,36 @@ class PrescriptionController
 
     public function index()
     {
-        $userId = $this->getCurrentUserId();
+        $userId = $this->getUserId();
         if (!$userId) {
-            http_response_code(401);
-            return ['message' => 'Unauthorized'];
+            return ApiResponse::unauthorized();
         }
 
         try {
             $prescriptions = $this->prescriptionService->getUserPrescriptions($userId);
-            return [
-                'message' => 'success',
-                'data' => $prescriptions
-            ];
+            return ApiResponse::success($prescriptions);
         } catch (Exception $e) {
-            http_response_code(500);
-            return ['message' => $e->getMessage()];
+            return ApiResponse::serverError($e->getMessage());
         }
     }
 
     public function store()
     {
-        $userId = $this->getCurrentUserId();
+        $userId = $this->getUserId();
         if (!$userId) {
-            http_response_code(401);
-            return ['message' => 'Unauthorized'];
+            return ApiResponse::unauthorized();
         }
 
-        $data = json_decode(file_get_contents('php://input'), true);
+        $data = $this->getJsonInput();
         if (!$data) {
-            http_response_code(400);
-            return ['message' => 'Invalid data.'];
+            return ApiResponse::validationError('Invalid request payload.');
         }
 
         try {
             $prescriptionId = $this->prescriptionService->savePrescription($userId, $data);
-            return [
-                'message' => 'Prescription created successfully',
-                'data' => ['prescription_id' => $prescriptionId]
-            ];
+            return ApiResponse::created(['prescription_id' => $prescriptionId], 'Prescription created successfully');
         } catch (Exception $e) {
-            http_response_code(400);
-            return ['message' => $e->getMessage()];
+            return ApiResponse::error($e->getMessage());
         }
-    }
-
-    /**
-     * Mock function to get current user ID from token.
-     * In a real app, this would use a proper Auth middleware.
-     */
-    private function getCurrentUserId()
-    {
-        $headers = getallheaders();
-        $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
-
-        if (preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
-            $token = $matches[1];
-            try {
-                $decoded = base64_decode($token);
-                $parts = explode(':', $decoded);
-                // Token format was userId:roleName:timestamp
-                return (int) $parts[0];
-            } catch (Exception $e) {
-                return null;
-            }
-        }
-
-        return null;
     }
 }

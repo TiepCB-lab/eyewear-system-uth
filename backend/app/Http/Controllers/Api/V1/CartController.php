@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\BaseController;
 use App\Application\CartService;
+use Core\ApiResponse;
 use Exception;
 
-class CartController
+class CartController extends BaseController
 {
     private CartService $cartService;
 
@@ -19,23 +21,21 @@ class CartController
      */
     public function index()
     {
-        $userId = $this->getCurrentUserId();
+        $userId = $this->getUserId();
         if (!$userId) {
-            http_response_code(401);
-            return ['message' => 'Unauthorized'];
+            return ApiResponse::unauthorized();
         }
 
         try {
             $items = $this->cartService->getCart($userId);
-            $totals = $this->cartService->getTotals($userId);
+            $totals = $this->cartService->getCartTotals($userId);
 
-            return [
-                'data' => $items,
+            return ApiResponse::success([
+                'items' => $items,
                 'totals' => $totals
-            ];
+            ]);
         } catch (Exception $e) {
-            http_response_code(500);
-            return ['message' => $e->getMessage()];
+            return ApiResponse::serverError($e->getMessage());
         }
     }
 
@@ -44,33 +44,21 @@ class CartController
      */
     public function store()
     {
-        $userId = $this->getCurrentUserId();
+        $userId = $this->getUserId();
         if (!$userId) {
-            http_response_code(401);
-            return ['message' => 'Unauthorized'];
+            return ApiResponse::unauthorized();
         }
 
-        $data = json_decode(file_get_contents('php://input'), true);
-        if (!$data || empty($data['variant_id'])) {
-            http_response_code(400);
-            return ['message' => 'Invalid data. variant_id is required.'];
+        $data = $this->getJsonInput();
+        if (empty($data['variant_id'])) {
+            return ApiResponse::validationError('Variant ID is required.');
         }
 
         try {
-            // Optional prescription logic integration
-            if (!empty($data['prescription'])) {
-                $prescriptionService = new \App\Application\PrescriptionService();
-                $data['prescription_id'] = $prescriptionService->savePrescription($userId, $data['prescription']);
-            }
-
             $item = $this->cartService->addItem($userId, $data);
-            return [
-                'message' => 'Item added to cart',
-                'data' => $item
-            ];
+            return ApiResponse::created($item, 'Item added to cart');
         } catch (Exception $e) {
-            http_response_code(400);
-            return ['message' => $e->getMessage()];
+            return ApiResponse::error($e->getMessage());
         }
     }
 
@@ -79,27 +67,71 @@ class CartController
      */
     public function update()
     {
-        $userId = $this->getCurrentUserId();
+        $userId = $this->getUserId();
         if (!$userId) {
-            http_response_code(401);
-            return ['message' => 'Unauthorized'];
+            return ApiResponse::unauthorized();
         }
 
-        $data = json_decode(file_get_contents('php://input'), true);
-        if (!isset($data['cart_item_id']) || !isset($data['quantity'])) {
-            http_response_code(400);
-            return ['message' => 'cart_item_id and quantity are required.'];
+        $data = $this->getJsonInput();
+        $cartItemId = $data['cart_item_id'] ?? null;
+        $quantity = $data['quantity'] ?? null;
+
+        if (!$cartItemId || $quantity === null) {
+            return ApiResponse::validationError('Cart item ID and quantity are required.');
         }
 
         try {
-            $item = $this->cartService->updateQuantity($userId, $data['cart_item_id'], $data['quantity']);
-            return [
-                'message' => 'Cart updated',
-                'data' => $item
-            ];
+            $this->cartService->updateQuantity($userId, (int)$cartItemId, (int)$quantity);
+            return ApiResponse::success(null, 'Quantity updated');
         } catch (Exception $e) {
-            http_response_code(400);
-            return ['message' => $e->getMessage()];
+            return ApiResponse::error($e->getMessage());
+        }
+    }
+
+    /**
+     * Thay đổi trạng thái chọn của sản phẩm.
+     */
+    public function toggleSelection()
+    {
+        $userId = $this->getUserId();
+        if (!$userId) {
+            return ApiResponse::unauthorized();
+        }
+
+        $data = $this->getJsonInput();
+        $cartItemId = $data['cart_item_id'] ?? null;
+        $isSelected = isset($data['is_selected']) ? (bool)$data['is_selected'] : null;
+
+        if (!$cartItemId || $isSelected === null) {
+            return ApiResponse::validationError('Cart item ID and selection state are required.');
+        }
+
+        try {
+            $this->cartService->toggleSelection($userId, (int)$cartItemId, $isSelected);
+            return ApiResponse::success(null, 'Selection updated');
+        } catch (Exception $e) {
+            return ApiResponse::error($e->getMessage());
+        }
+    }
+
+    /**
+     * Chọn hoặc bỏ chọn tất cả.
+     */
+    public function selectAll()
+    {
+        $userId = $this->getUserId();
+        if (!$userId) {
+            return ApiResponse::unauthorized();
+        }
+
+        $data = $this->getJsonInput();
+        $isSelected = isset($data['is_selected']) ? (bool)$data['is_selected'] : true;
+
+        try {
+            $this->cartService->selectAll($userId, $isSelected);
+            return ApiResponse::success(null, $isSelected ? 'All items selected' : 'All items deselected');
+        } catch (Exception $e) {
+            return ApiResponse::error($e->getMessage());
         }
     }
 

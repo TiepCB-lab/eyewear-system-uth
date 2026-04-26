@@ -1,0 +1,125 @@
+/* --- DASHBOARD PROFILE MODULE STYLES --- */
+
+.profile-module .module-header {
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.profile-module .section__title {
+    margin-bottom: 0.5rem;
+}
+
+.profile-module .profile-grid {
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.profile-module .profile-card {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color-alt);
+    text-align: center;
+}
+
+.profile-module .avatar-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 1.5rem;
+}
+
+.profile-module .avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--first-color-alt);
+}
+
+.profile-module .avatar-edit-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding: 0.5rem;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-module .profile-name {
+    margin-bottom: 0.25rem;
+}
+
+.profile-module .role-badge {
+    display: inline-block;
+    padding: 0.25rem 1rem;
+    background: var(--first-color-alt);
+    color: var(--first-color);
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.profile-module .profile-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color-alt);
+}
+
+.profile-module .stat-value {
+    font-size: 1.2rem;
+}
+
+.profile-module .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-color-light);
+}
+
+.profile-module .profile-form-area {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color-alt);
+}
+
+.profile-module .form-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--first-color-alt);
+}
+
+.profile-module .form-row {
+    grid-template-columns: 1fr 1fr;
+}
+
+.profile-module .field-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.profile-module .field-input-full {
+    width: 100%;
+}
+
+.profile-module .field-textarea {
+    width: 100%;
+    height: 80px;
+    padding-top: 0.75rem;
+}
+
+.profile-module .form-actions {
+    margin-top: 1rem;
+    display: flex;
+    gap: 1rem;
+}

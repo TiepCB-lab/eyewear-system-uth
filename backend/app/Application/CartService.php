@@ -19,7 +19,7 @@ class CartService
     {
         $stmt = $this->db->prepare("
             SELECT ci.*, pv.sku, pv.color, pv.size, pv.image_2d_url, p.name as product_name, p.base_price, 
-                   pv.additional_price, l.name as lens_name, l.price as lens_price
+                   pv.additional_price, l.name as lens_name, l.price as lens_price, ci.is_selected
             FROM cart c
             JOIN cartitem ci ON c.id = ci.cart_id
             JOIN productvariant pv ON ci.productvariant_id = pv.id
@@ -31,12 +31,14 @@ class CartService
         return $stmt->fetchAll();
     }
 
-    public function getTotals(int $userId)
+    public function getCartTotals(int $userId)
     {
         $items = $this->getCart($userId);
         $subtotal = 0;
         foreach ($items as $item) {
-            $subtotal += ($item['unit_price'] * $item['quantity']);
+            if ($item['is_selected']) {
+                $subtotal += ($item['unit_price'] * $item['quantity']);
+            }
         }
         return [
             'subtotal' => $subtotal,
@@ -47,6 +49,12 @@ class CartService
 
     public function addItem(int $userId, array $data)
     {
+        // Business logic: Prescription integration
+        if (!empty($data['prescription'])) {
+            $prescriptionService = new \App\Application\PrescriptionService();
+            $data['prescription_id'] = $prescriptionService->savePrescription($userId, $data['prescription']);
+        }
+
         $variantId = $data['variant_id'];
         $quantity = $data['quantity'] ?? 1;
 
@@ -71,10 +79,10 @@ class CartService
         if ($existing) {
             $newQty = $existing['quantity'] + $quantity;
             if ($stock['quantity'] < $newQty) throw new Exception("Không thể thêm tiếp, vượt quá tồn kho.");
-            return $this->updateQuantity($userId, $existing['id'], $newQty);
+            return $this->updateQuantity($userId, (int)$existing['id'], $newQty);
         }
 
-        // Get unit price calculation (as before)
+        // Get unit price calculation
         $stmt = $this->db->prepare("SELECT price_override, additional_price, product_id FROM productvariant WHERE id = ?");
         $stmt->execute([$variantId]);
         $variant = $stmt->fetch();
@@ -137,6 +145,28 @@ class CartService
         ");
         $stmt->execute([$cartItemId, $userId]);
         return $stmt->rowCount() > 0;
+    }
+
+    public function toggleSelection(int $userId, int $cartItemId, bool $selected)
+    {
+        $stmt = $this->db->prepare("
+            UPDATE cartitem ci
+            JOIN cart c ON ci.cart_id = c.id
+            SET ci.is_selected = ?
+            WHERE ci.id = ? AND c.user_id = ? AND c.status = 'active'
+        ");
+        return $stmt->execute([$selected ? 1 : 0, $cartItemId, $userId]);
+    }
+
+    public function selectAll(int $userId, bool $selected)
+    {
+        $stmt = $this->db->prepare("
+            UPDATE cartitem ci
+            JOIN cart c ON ci.cart_id = c.id
+            SET ci.is_selected = ?
+            WHERE c.user_id = ? AND c.status = 'active'
+        ");
+        return $stmt->execute([$selected ? 1 : 0, $userId]);
     }
 
     private function getOrCreateCart(int $userId)

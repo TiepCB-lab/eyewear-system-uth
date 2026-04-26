@@ -8,12 +8,15 @@ class AuthService {
 
   async login(credentials) {
     const response = await apiClient.post('/auth/login', credentials);
-    if (response.data.token) {
-      localStorage.setItem('auth_token', response.data.token);
-      this.saveUserInfo(response.data.user);
-      apiClient.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+    const body = response.data;
+    const data = body.data; // The inner data containing user and token
+    
+    if (data && data.token) {
+      localStorage.setItem('auth_token', data.token);
+      this.saveUserInfo(data.user);
+      apiClient.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
     }
-    return response.data;
+    return body; // Return full body for page-level success check
   }
 
   async forgotPassword(email) {
@@ -49,13 +52,18 @@ class AuthService {
 
   async getCurrentUser() {
     const response = await apiClient.get('/auth/me');
-    return response.data;
+    return response.data; // Note: layout-loader already handles unwrapping this
   }
 
   async logout() {
     const response = await apiClient.post('/auth/logout');
     localStorage.removeItem('auth_token');
     delete apiClient.defaults.headers.common['Authorization'];
+    return response.data;
+  }
+
+  async changePassword(passwords) {
+    const response = await apiClient.post('/auth/change-password', passwords);
     return response.data;
   }
 
