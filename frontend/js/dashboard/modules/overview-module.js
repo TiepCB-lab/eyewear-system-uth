@@ -1,4 +1,4 @@
-import { salesService } from '../../services/supportService.js';
+import { salesService, supportService } from '../../services/supportService.js';
 import { getCurrentUserPermissions } from '../../core/rbac.js';
 
 async function loadStats() {
@@ -7,10 +7,19 @@ async function loadStats() {
         return;
     }
 
-    const response = await salesService.getPendingOrders();
-    const element = document.getElementById('overview-new-orders');
-    if (element) {
-        element.innerText = response?.data?.length || 0;
+    const [ordersResponse, ticketsResponse] = await Promise.all([
+        salesService.getPendingOrders(),
+        supportService.getTickets(true)
+    ]);
+
+    const newOrdersElement = document.getElementById('overview-new-orders');
+    if (newOrdersElement) {
+        newOrdersElement.innerText = ordersResponse?.data?.length || 0;
+    }
+
+    const supportCountElement = document.getElementById('overview-open-tickets');
+    if (supportCountElement) {
+        supportCountElement.innerText = ticketsResponse?.data?.length || 0;
     }
 }
 

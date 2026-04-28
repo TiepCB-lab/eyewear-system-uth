@@ -100,8 +100,8 @@ class DashboardController {
             // Map view names to permissions
             const viewPermissions = {
                 'overview':  null, // Public staff overview
-                'orders':    'manage_orders',
-                'support':   'manage_orders', // Support tickets — Sales staff can access
+                'orders':    'process_orders',
+                'support':   'process_orders', // Support tickets — Sales staff can access
                 'inventory': 'manage_inventory',
                 'products':  'view_products',
                 'analytics': 'view_manager_dashboard',
