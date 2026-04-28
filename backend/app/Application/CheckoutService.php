@@ -30,18 +30,11 @@ class CheckoutService
                 throw new Exception("Không có sản phẩm nào được chọn để thanh toán.");
             }
 
-            // Validate User Details (Address & Phone)
+            // Validate User Details (Phone)
             $stmtUser = $this->db->prepare("SELECT phone FROM `user` WHERE id = ?");
             $stmtUser->execute([$userId]);
             $user = $stmtUser->fetch();
-            
-            $stmtAddr = $this->db->prepare("SELECT COUNT(*) FROM user_addresses WHERE user_id = ?");
-            $stmtAddr->execute([$userId]);
-            $hasAddress = (int)$stmtAddr->fetchColumn() > 0;
 
-            if (!$hasAddress) {
-                throw new Exception("Vui lòng cập nhật địa chỉ giao hàng trong trang cá nhân trước khi thanh toán.");
-            }
             if (empty($user['phone'])) {
                 // Check if profile has phone if user table doesn't
                 $stmtProf = $this->db->prepare("SELECT phone FROM profiles WHERE user_id = ?");
@@ -52,7 +45,7 @@ class CheckoutService
                 }
             }
 
-            $totals = $this->cartService->getTotals($userId);
+            $totals = $this->cartService->getCartTotals($userId);
             $orderNumber = 'ORD-' . strtoupper(uniqid());
 
             // Determine Order Type
