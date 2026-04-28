@@ -101,7 +101,7 @@ Router::group(['prefix' => 'api/v1/payments', 'middleware' => 'auth:sanctum'], f
     Router::get('status',  [PaymentController::class, 'status']);
     
     // Staff only payment routes
-    Router::group(['middleware' => 'role:system_admin|manager|sales_staff'], function() {
+    Router::group(['middleware' => 'permission:confirm_order'], function() {
         Router::post('confirm', [PaymentController::class, 'confirm']);
         Router::get('pending', [PaymentController::class, 'pendingPayments']);
     });
@@ -115,39 +115,39 @@ Router::group(['prefix' => 'api/v1/support', 'middleware' => 'auth:sanctum'], fu
     Router::post('reply', [SupportTicketController::class, 'reply']);
     
     // Staff only support routes
-    Router::group(['middleware' => 'role:system_admin|manager|sales_staff'], function() {
+    Router::group(['middleware' => 'permission:contact_customer'], function() {
         Router::post('status', [SupportTicketController::class, 'updateStatus']);
         Router::delete('delete', [SupportTicketController::class, 'delete']);
     });
 });
 
 // Sales & Operations (Staff Only)
-Router::group(['prefix' => 'api/v1/sales', 'middleware' => ['auth:sanctum', 'role:system_admin|manager|sales_staff']], function () {
+Router::group(['prefix' => 'api/v1/sales', 'middleware' => ['auth:sanctum', 'permission:view_orders|confirm_order']], function () {
     Router::get('pending-orders', [SalesController::class, 'pendingOrders']);
     Router::post('verify', [SalesController::class, 'verify']);
     Router::post('complaint', [SalesController::class, 'complaint']);
     Router::get('order-complaints', [SalesController::class, 'orderComplaints']);
 });
 
-Router::group(['prefix' => 'api/v1/ops', 'middleware' => ['auth:sanctum', 'role:system_admin|manager|operations_staff']], function () {
+Router::group(['prefix' => 'api/v1/ops', 'middleware' => ['auth:sanctum', 'permission:update_order_status|pack_order']], function () {
     Router::get('/', [OperationsController::class, 'index']);
     Router::post('advance', [OperationsController::class, 'advanceProduction']);
     Router::post('shipments', [OperationsController::class, 'createShipment']);
     Router::put('shipments', [OperationsController::class, 'updateShipment']);
 });
 
-Router::group(['prefix' => 'api/v1/admin/inventory', 'middleware' => ['auth:sanctum', 'role:system_admin|manager|operations_staff']], function () {
+Router::group(['prefix' => 'api/v1/admin/inventory', 'middleware' => ['auth:sanctum', 'permission:manage_products|process_preorder_inventory']], function () {
     Router::get('/', [InventoryController::class, 'index']);
     Router::put('stock', [InventoryController::class, 'updateStock']);
 });
 
-Router::group(['prefix' => 'api/v1/dashboard', 'middleware' => ['auth:sanctum', 'role:system_admin|manager|sales_staff|operations_staff']], function () {
+Router::group(['prefix' => 'api/v1/dashboard', 'middleware' => ['auth:sanctum', 'permission:view_reports']], function () {
     Router::get('/', [DashboardController::class, 'index']);
     Router::get('operations', [DashboardController::class, 'operations']);
 });
 
 // System Administration (Admin Only)
-Router::group(['prefix' => 'api/v1/admin', 'middleware' => ['auth:sanctum', 'role:system_admin|manager']], function () {
+Router::group(['prefix' => 'api/v1/admin', 'middleware' => ['auth:sanctum', 'permission:manage_users|manage_roles']], function () {
     // Staff management
     Router::get('staff', [AdminController::class, 'listStaff']);
     Router::post('staff', [AdminController::class, 'createStaff']);

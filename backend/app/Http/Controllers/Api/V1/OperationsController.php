@@ -18,9 +18,7 @@ class OperationsController extends BaseController
 
 	public function index()
 	{
-        if (!$this->isStaff()) {
-            return ApiResponse::forbidden();
-        }
+
 
 		try {
             $data = $this->operationsService->listProductionQueue();
@@ -32,9 +30,7 @@ class OperationsController extends BaseController
 
 	public function advanceProduction()
 	{
-        if (!$this->isStaff()) {
-            return ApiResponse::forbidden();
-        }
+
 
 		$input = $this->getJsonInput();
 		$orderId = (int) ($input['order_id'] ?? 0);
@@ -53,9 +49,7 @@ class OperationsController extends BaseController
 
 	public function createShipment()
 	{
-        if (!$this->isStaff()) {
-            return ApiResponse::forbidden();
-        }
+
 
 		$input = $this->getJsonInput();
 		$orderId = (int) ($input['order_id'] ?? 0);
@@ -74,9 +68,7 @@ class OperationsController extends BaseController
 
 	public function updateShipment()
 	{
-        if (!$this->isStaff()) {
-            return ApiResponse::forbidden();
-        }
+
 
 		$input = $this->getJsonInput();
 		$shipmentId = (int) ($input['shipment_id'] ?? 0);

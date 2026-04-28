@@ -1,23 +1,23 @@
 <!--=============== OVERVIEW MODULE ===============-->
 <div class="metrics-grid">
-    <div data-permission="view_admin_dashboard" class="metric-card">
+    <div data-permission="view_system_logs" class="metric-card">
         <div class="metric-label">Server Status</div>
         <div class="metric-value">99.9%</div>
         <div class="badge badge-shipped">Online</div>
     </div>
-    <div data-permission="view_manager_dashboard" class="metric-card">
+    <div data-permission="view_reports" class="metric-card">
         <div class="metric-label">Daily Revenue</div>
-        <div class="metric-value">$1,240.50</div>
-        <div class="badge badge-shipped">+12%</div>
+        <div class="metric-value" id="overview-revenue">...</div>
+        <div class="badge badge-shipped">Today</div>
     </div>
-    <div data-permission="view_sales_dashboard" class="metric-card">
+    <div data-permission="view_orders" class="metric-card">
         <div class="metric-label">New Orders</div>
         <div class="metric-value" id="overview-new-orders">...</div>
         <div class="badge badge-pending">To Review</div>
     </div>
-    <div data-permission="view_ops_dashboard" class="metric-card">
+    <div data-permission="pack_order" class="metric-card">
         <div class="metric-label">To Pack</div>
-        <div class="metric-value">42</div>
+        <div class="metric-value" id="overview-to-pack">...</div>
         <div class="badge badge-pending">Priority</div>
     </div>
 </div>
@@ -69,16 +69,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>Database Backup</td>
-                    <td>System</td>
-                    <td>02:00 AM</td>
-                    <td><span class="badge badge-shipped">Success</span></td>
-                </tr>
-                <tr>
-                    <td>Stock Update: Aviator</td>
-                    <td>Ops Staff</td>
-                    <td>10:45 AM</td>
-                    <td><span class="badge badge-pending">Pending</span></td>
+                    <td colspan="4" class="table-state-cell">No recent activity logs available.</td>
                 </tr>
             </tbody>
         </table>

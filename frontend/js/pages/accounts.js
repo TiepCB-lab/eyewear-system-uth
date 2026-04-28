@@ -99,7 +99,7 @@ async function loadOrderTracking() {
     tbody.innerHTML = '<tr><td colspan="6" class="table-state-cell">Loading...</td></tr>';
     try {
         const response = await api.profile.getProfile();
-        renderOrdersTable(response.profile?.recent_orders || []);
+        renderOrdersTable(response.data?.profile?.recent_orders || []);
     } catch (err) {
         tbody.innerHTML = '<tr><td colspan="6" class="table-state-cell">Unable to load your orders right now.</td></tr>';
     }
@@ -108,7 +108,7 @@ async function loadOrderTracking() {
 async function loadProfileData() {
     try {
         const response = await api.profile.getProfile();
-        const profile = response.profile || {};
+        const profile = response.data?.profile || {};
         const user = profile.user || {};
 
         const displayName = user.full_name || user.name || 'User';

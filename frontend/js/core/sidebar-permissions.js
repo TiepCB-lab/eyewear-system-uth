@@ -4,8 +4,9 @@ async function applySidebarPermissions() {
     const { hasPermission } = await getCurrentUserPermissions();
 
     document.querySelectorAll('[data-permission]').forEach((element) => {
-        const permission = element.getAttribute('data-permission');
-        if (hasPermission(permission)) {
+        const permissionStr = element.getAttribute('data-permission');
+        const perms = permissionStr ? permissionStr.split(',').map(p => p.trim()) : [];
+        if (hasPermission(perms)) {
             element.classList.add('permission-granted');
         }
     });

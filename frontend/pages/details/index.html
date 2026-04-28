@@ -873,7 +873,8 @@
                 e.preventDefault();
                 try {
                     const res = await WishlistService.toggleItem(productId);
-                    if (res.status === 'added') {
+                    const status = res.data && res.data.status ? res.data.status : res.status;
+                    if (status === 'added') {
                         wishlistBtn.querySelector('i').className = 'fi fi-ss-heart';
                         wishlistBtn.classList.add('wishlist-active');
                         alert('Added to wishlist!');

@@ -27,7 +27,7 @@ class SupportTicketController extends BaseController
         }
 
         try {
-            if ($this->isStaff()) {
+            if ($this->hasPermission('contact_customer')) {
                 $tickets = $this->supportService->getAllOpenTickets();
             } else {
                 $tickets = $this->supportService->getUserTickets($userId);
@@ -56,7 +56,7 @@ class SupportTicketController extends BaseController
         try {
             $ticket = $this->supportService->getTicketDetails((int) $id);
             // Security check: Only staff or ticket owner can see details
-            if (!$this->isStaff() && $ticket['user_id'] != $userId) {
+            if (!$this->hasPermission('contact_customer') && $ticket['user_id'] != $userId) {
                 return ApiResponse::forbidden();
             }
             return ApiResponse::success($ticket);
@@ -105,7 +105,7 @@ class SupportTicketController extends BaseController
         $input    = $this->getJsonInput();
         $ticketId = $input['ticket_id'] ?? null;
         $message  = $input['message'] ?? '';
-        $isStaff  = $this->isStaff();
+        $isStaff  = $this->hasPermission('contact_customer');
 
         if (!$ticketId || !$message) {
             return ApiResponse::validationError('Ticket ID and message are required');
@@ -124,9 +124,6 @@ class SupportTicketController extends BaseController
      */
     public function updateStatus()
     {
-        if (!$this->isStaff()) {
-            return ApiResponse::forbidden();
-        }
 
         $input    = $this->getJsonInput();
         $ticketId = $input['ticket_id'] ?? null;
@@ -150,9 +147,6 @@ class SupportTicketController extends BaseController
      */
     public function delete()
     {
-        if (!$this->isStaff()) {
-            return ApiResponse::forbidden();
-        }
 
         $input    = $this->getJsonInput();
         $ticketId = $input['ticket_id'] ?? null;

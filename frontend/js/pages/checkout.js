@@ -1,44 +1,91 @@
 import api from '../services/api.js';
+import AddressEditor from '../components/address-editor.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const tbody = document.getElementById('checkout-items');
     const subtotalEl = document.getElementById('checkout-subtotal');
     const totalEl = document.getElementById('checkout-total');
     const placeOrderBtn = document.getElementById('place-order-btn');
-    const nameInput = document.querySelector('input[placeholder="Name"]');
-    const addressInput = document.querySelector('input[placeholder="Address"]');
-    const cityInput = document.querySelector('input[placeholder="City"]');
-    const phoneInput = document.querySelector('input[placeholder="Phone"]');
-    const emailInput = document.querySelector('input[placeholder="Email"]');
+    
+    const nameInput = document.getElementById('checkout-name');
+    const emailInput = document.getElementById('checkout-email');
+    const addressSelect = document.getElementById('checkout-address-select');
+    const addAddressBtn = document.getElementById('checkout-add-address-btn');
+    const noteInput = document.getElementById('checkout-note');
+
+    // Initialize AddressEditor modal
+    const initAddressEditorIfLoaded = () => {
+        const el = document.querySelector('[data-include="components/modals/address-editor"]');
+        if (el && el.classList.contains('component-loaded')) {
+            AddressEditor.init(() => loadAddresses());
+            return true;
+        }
+        return false;
+    };
+
+    if (!initAddressEditorIfLoaded()) {
+        window.addEventListener('content-loaded', (e) => {
+            if (e.detail.path === 'components/modals/address-editor') {
+                AddressEditor.init(() => loadAddresses());
+            }
+        });
+    }
+
+    addAddressBtn?.addEventListener('click', () => {
+        AddressEditor.open();
+    });
+
+    const loadAddresses = async () => {
+        try {
+            const response = await api.profile.getAddresses();
+            const addresses = response.data || [];
+            
+            if (addressSelect) {
+                addressSelect.innerHTML = '';
+                if (addresses.length === 0) {
+                    addressSelect.innerHTML = '<option value="">No addresses saved. Please add one.</option>';
+                } else {
+                    addressSelect.innerHTML = addresses.map(addr => 
+                        `<option value="${addr.id}" ${addr.is_default ? 'selected' : ''}>${addr.label}: ${addr.address}</option>`
+                    ).join('');
+                }
+            }
+            return addresses;
+        } catch (error) {
+            console.error('Failed to load addresses:', error);
+            if (addressSelect) {
+                addressSelect.innerHTML = '<option value="">Error loading addresses</option>';
+            }
+        }
+    };
 
     const fillCheckoutFields = (profile) => {
         const user = profile?.user || {};
 
         if (nameInput) nameInput.value = user.full_name || user.name || '';
         if (emailInput) emailInput.value = user.email || '';
-        if (phoneInput) phoneInput.value = profile?.phone || user.phone || '';
     };
 
     const loadProfileData = async () => {
         try {
             const response = await api.profile.getProfile();
-            const profile = response.profile || {};
+            const profile = response.data?.profile || {};
 
             fillCheckoutFields(profile);
+            
+            // Addresses might be cached in profile, but let's fetch fresh
+            await loadAddresses();
 
-            if (addressInput) addressInput.readOnly = false;
-            if (cityInput) cityInput.readOnly = false;
         } catch (error) {
             console.error('Error loading profile data:', error);
         }
     };
 
-
     const loadSummary = async () => {
         try {
             const result = await api.cart.getCart();
             const data = result.data || {};
-            const items = data.items || [];
+            const items = (data.items || []).filter(item => parseInt(item.is_selected) === 1);
             const totals = data.totals || { subtotal: 0, shipping: 0, total: 0 };
             
             if (items.length === 0) {
@@ -77,15 +124,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     placeOrderBtn?.addEventListener('click', async (e) => {
         e.preventDefault();
         
-        const shippingAddress = addressInput?.value;
-        const city = cityInput?.value;
+        const selectedAddressId = addressSelect?.value;
+        const name = nameInput?.value;
 
-        if (!shippingAddress || !city) {
-            alert('Please fill in your shipping details.');
+        if (!selectedAddressId) {
+            alert('Please select or add a shipping address.');
             return;
         }
-
-        const fullAddress = `${shippingAddress}, ${city}`;
+        
+        if (!name) {
+            alert('Please provide your name.');
+            return;
+        }
+        
+        // We need to pass the actual full address text to checkout API since it expects a string
+        const selectedOption = addressSelect.options[addressSelect.selectedIndex];
+        const fullAddress = selectedOption ? selectedOption.text.split(':').slice(1).join(':').trim() : '';
 
         try {
             placeOrderBtn.disabled = true;

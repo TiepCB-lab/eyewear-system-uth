@@ -72,7 +72,64 @@ try {
 
     echo "Connected to database.\n";
 
-    $pdo->exec("\n        INSERT INTO role (name, description) VALUES\n            ('system_admin', 'Cấu hình và quản trị chức năng hệ thống'),\n            ('manager', 'Quản lý quy định, sản phẩm, giá, nhân sự, doanh thu'),\n            ('sales_staff', 'Tiếp nhận đơn, ưu đãi, khiếu nại, xác nhận thông số kính'),\n            ('operations_staff', 'Đóng gói, giao vận, gia công tròng kính'),\n            ('customer', 'Xem sản phẩm, đặt hàng, quản lý tài khoản')\n        ON DUPLICATE KEY UPDATE description = VALUES(description);\n    ");
+    $pdo->exec("\n        INSERT INTO role (name, description) VALUES\n            ('ADMIN', 'System-level control ONLY'),\n            ('MANAGER', 'Business management'),\n            ('SALES_STAFF', 'Customer/order handling'),\n            ('OPERATIONS_STAFF', 'Fulfillment/logistics'),\n            ('CUSTOMER', 'Customer')\n        ON DUPLICATE KEY UPDATE description = VALUES(description);\n    ");
+
+    $permissions = [
+        'view_products' => 'View products',
+        'search_products' => 'Search products',
+        'view_product_detail' => 'View product details',
+        'manage_cart' => 'Manage shopping cart',
+        'create_order' => 'Create new orders',
+        'view_own_orders' => 'View own orders',
+        'request_return' => 'Request a return',
+        'view_orders' => 'View all orders',
+        'validate_prescription' => 'Validate prescription details',
+        'contact_customer' => 'Contact customers',
+        'confirm_order' => 'Confirm orders',
+        'handle_preorder' => 'Handle preorders',
+        'handle_returns' => 'Handle returns',
+        'pack_order' => 'Pack orders',
+        'create_shipment' => 'Create shipment',
+        'update_tracking' => 'Update tracking info',
+        'process_preorder_inventory' => 'Process preorder inventory',
+        'process_prescription_orders' => 'Process prescription orders',
+        'update_order_status' => 'Update order status',
+        'manage_products' => 'Manage products',
+        'manage_pricing' => 'Manage pricing',
+        'manage_promotions' => 'Manage promotions',
+        'manage_users' => 'Manage users',
+        'view_reports' => 'View reports',
+        'manage_policies' => 'Manage policies',
+        'manage_roles' => 'Manage roles',
+        'manage_permissions' => 'Manage permissions',
+        'manage_system_config' => 'Manage system config',
+        'manage_all_users' => 'Manage all users',
+        'view_system_logs' => 'View system logs'
+    ];
+
+    foreach ($permissions as $name => $desc) {
+        $pdo->exec("INSERT INTO permissions (name, description) VALUES ('$name', '$desc') ON DUPLICATE KEY UPDATE description = VALUES(description)");
+    }
+
+    $rolePermissions = [
+        'CUSTOMER' => ['view_products', 'search_products', 'view_product_detail', 'manage_cart', 'create_order', 'view_own_orders', 'request_return'],
+        'SALES_STAFF' => ['view_orders', 'validate_prescription', 'contact_customer', 'confirm_order', 'handle_preorder', 'handle_returns'],
+        'OPERATIONS_STAFF' => ['pack_order', 'create_shipment', 'update_tracking', 'process_preorder_inventory', 'process_prescription_orders', 'update_order_status'],
+        'MANAGER' => ['manage_products', 'manage_pricing', 'manage_promotions', 'manage_users', 'view_reports', 'manage_policies'],
+        'ADMIN' => ['manage_roles', 'manage_permissions', 'manage_system_config', 'manage_all_users', 'view_system_logs']
+    ];
+
+    foreach ($rolePermissions as $roleName => $perms) {
+        $roleId = $pdo->query("SELECT id FROM role WHERE name = '$roleName'")->fetchColumn();
+        if ($roleId) {
+            foreach ($perms as $perm) {
+                $permId = $pdo->query("SELECT id FROM permissions WHERE name = '$perm'")->fetchColumn();
+                if ($permId) {
+                    $pdo->exec("INSERT IGNORE INTO role_permissions (role_id, permission_id) VALUES ($roleId, $permId)");
+                }
+            }
+        }
+    }
 
     $pdo->exec("\n        INSERT INTO category (name, slug, description) VALUES\n            ('Gọng kính', 'gong-kinh', 'Các loại gọng kính thời trang'),\n            ('Kính râm', 'kinh-ram', 'Kính chống nắng và bảo vệ mắt'),\n            ('Tròng kính', 'trong-kinh', 'Các loại tròng kính thuốc')\n        ON DUPLICATE KEY UPDATE name = VALUES(name);\n    ");
 
@@ -219,20 +276,21 @@ try {
     echo "Successfully seeded product data.\n";
 
     $passHash = password_hash('password123', PASSWORD_DEFAULT);
-    $pdo->exec("\n        INSERT INTO `user` (full_name, email, password_hash, status) VALUES\n            ('System Admin', 'admin@eyewear.com', '$passHash', 'active'),\n            ('Project Manager', 'manager@eyewear.com', '$passHash', 'active'),\n            ('Sales Staff', 'sales@eyewear.com', '$passHash', 'active'),\n            ('Multi Role User', 'multi@eyewear.com', '$passHash', 'active'),\n            ('Test Customer', 'customer@eyewear.com', '$passHash', 'active')\n        ON DUPLICATE KEY UPDATE full_name = VALUES(full_name);\n    ");
+    $pdo->exec("\n        INSERT INTO `user` (full_name, email, password_hash, status) VALUES\n            ('System Admin', 'admin@eyewear.com', '$passHash', 'active'),\n            ('Project Manager', 'manager@eyewear.com', '$passHash', 'active'),\n            ('Sales Staff', 'sales@eyewear.com', '$passHash', 'active'),\n            ('Operations Staff', 'operations@eyewear.com', '$passHash', 'active'),\n            ('Test Customer', 'customer@eyewear.com', '$passHash', 'active')\n        ON DUPLICATE KEY UPDATE full_name = VALUES(full_name);\n    ");
 
     $adminId = $pdo->query("SELECT id FROM `user` WHERE email = 'admin@eyewear.com'")->fetchColumn();
     $managerId = $pdo->query("SELECT id FROM `user` WHERE email = 'manager@eyewear.com'")->fetchColumn();
     $salesId = $pdo->query("SELECT id FROM `user` WHERE email = 'sales@eyewear.com'")->fetchColumn();
-    $multiId = $pdo->query("SELECT id FROM `user` WHERE email = 'multi@eyewear.com'")->fetchColumn();
+    $operationsId = $pdo->query("SELECT id FROM `user` WHERE email = 'operations@eyewear.com'")->fetchColumn();
     $customerId = $pdo->query("SELECT id FROM `user` WHERE email = 'customer@eyewear.com'")->fetchColumn();
 
-    $roleAdmin = $pdo->query("SELECT id FROM role WHERE name = 'system_admin'")->fetchColumn();
-    $roleManager = $pdo->query("SELECT id FROM role WHERE name = 'manager'")->fetchColumn();
-    $roleSales = $pdo->query("SELECT id FROM role WHERE name = 'sales_staff'")->fetchColumn();
-    $roleCustomer = $pdo->query("SELECT id FROM role WHERE name = 'customer'")->fetchColumn();
+    $roleAdmin = $pdo->query("SELECT id FROM role WHERE name = 'ADMIN'")->fetchColumn();
+    $roleManager = $pdo->query("SELECT id FROM role WHERE name = 'MANAGER'")->fetchColumn();
+    $roleSales = $pdo->query("SELECT id FROM role WHERE name = 'SALES_STAFF'")->fetchColumn();
+    $roleOperations = $pdo->query("SELECT id FROM role WHERE name = 'OPERATIONS_STAFF'")->fetchColumn();
+    $roleCustomer = $pdo->query("SELECT id FROM role WHERE name = 'CUSTOMER'")->fetchColumn();
 
-    $pdo->exec("\n        INSERT IGNORE INTO user_roles (user_id, role_id) VALUES\n            ($adminId, $roleAdmin),\n            ($managerId, $roleManager),\n            ($salesId, $roleSales),\n            ($customerId, $roleCustomer),\n            ($multiId, $roleManager),\n            ($multiId, $roleSales)\n    ");
+    $pdo->exec("\n        INSERT IGNORE INTO user_roles (user_id, role_id) VALUES\n            ($adminId, $roleAdmin),\n            ($managerId, $roleManager),\n            ($salesId, $roleSales),\n            ($operationsId, $roleOperations),\n            ($customerId, $roleCustomer)\n    ");
 
     echo "Successfully seeded all data including users and multiple roles.\n";
 } catch (PDOException $e) {

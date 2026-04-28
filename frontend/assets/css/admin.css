@@ -76,6 +76,19 @@
     opacity: 1;
 }
 
+.sidebar-toggle, .sidebar-close {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--first-color);
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+}
+
 /* Responsive Dashboard */
 @media screen and (max-width: 1200px) {
     .sidebar {
@@ -95,8 +108,8 @@
         width: 100%;
     }
 
-    .sidebar-toggle, .sidebar-close {
-        display: block !important;
+    #sidebar-toggle, #sidebar-close, .sidebar-toggle, .sidebar-close {
+        display: flex !important;
     }
 
     .admin-header {
@@ -143,11 +156,35 @@
 
 @media screen and (max-width: 768px) {
     .admin-main {
-        padding: 0.75rem;
+        padding: 1rem 0.5rem;
     }
 
     .admin-header-content {
         padding: 0.75rem 1rem !important;
+    }
+
+    .admin-header-title {
+        font-size: 0.9rem !important;
+    }
+
+    .dashboard-modules-container {
+        padding: 1rem !important;
+    }
+
+    .metric-card {
+        padding: 1.25rem;
+    }
+
+    .metric-value {
+        font-size: 1.5rem !important;
+    }
+
+    .admin-table {
+        padding: 1.25rem !important;
+    }
+
+    .table__title {
+        font-size: 1.1rem;
     }
 }
 

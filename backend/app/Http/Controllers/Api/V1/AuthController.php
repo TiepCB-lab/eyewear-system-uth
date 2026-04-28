@@ -137,7 +137,7 @@ class AuthController extends BaseController
         }
 
         try {
-            $user = $this->authService->getUserById($userId);
+            $user = $this->authService->getCurrentUser();
             if (!$user) {
                 return ApiResponse::unauthorized('User not found');
             }

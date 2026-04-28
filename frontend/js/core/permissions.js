@@ -1,33 +1,41 @@
 export const PERMISSIONS = {
-    // DASHBOARD
-    VIEW_ADMIN_DASHBOARD: 'view_admin_dashboard',
-    VIEW_MANAGER_DASHBOARD: 'view_manager_dashboard',
-    VIEW_SALES_DASHBOARD: 'view_sales_dashboard',
-    VIEW_OPS_DASHBOARD: 'view_ops_dashboard',
-    VIEW_CUSTOMER_DASHBOARD: 'view_customer_dashboard',
-
-    // PRODUCTS
-    MANAGE_PRODUCTS: 'manage_products',
+    // CUSTOMER
     VIEW_PRODUCTS: 'view_products',
-    MANAGE_INVENTORY: 'manage_inventory',
-
-    // ORDERS & SALES
-    MANAGE_ORDERS: 'manage_orders',
+    SEARCH_PRODUCTS: 'search_products',
+    VIEW_PRODUCT_DETAIL: 'view_product_detail',
+    MANAGE_CART: 'manage_cart',
+    CREATE_ORDER: 'create_order',
+    VIEW_OWN_ORDERS: 'view_own_orders',
+    REQUEST_RETURN: 'request_return',
+    
+    // SALES_STAFF
     VIEW_ORDERS: 'view_orders',
-    PROCESS_ORDERS: 'process_orders',
-    MANAGE_REFUNDS: 'manage_refunds',
-    MANAGE_SHIPMENTS: 'manage_shipments',
-
-    // OPERATIONS
-    PROCESS_PRESCRIPTIONS: 'process_prescriptions',
-
-    // USERS
-    MANAGE_USERS: 'manage_users',
-    VIEW_USERS: 'view_users',
-
-    // SYSTEM & MARKETING
-    MANAGE_SYSTEM: 'manage_system',
+    VALIDATE_PRESCRIPTION: 'validate_prescription',
+    CONTACT_CUSTOMER: 'contact_customer',
+    CONFIRM_ORDER: 'confirm_order',
+    HANDLE_PREORDER: 'handle_preorder',
+    HANDLE_RETURNS: 'handle_returns',
+    
+    // OPERATIONS_STAFF
+    PACK_ORDER: 'pack_order',
+    CREATE_SHIPMENT: 'create_shipment',
+    UPDATE_TRACKING: 'update_tracking',
+    PROCESS_PREORDER_INVENTORY: 'process_preorder_inventory',
+    PROCESS_PRESCRIPTION_ORDERS: 'process_prescription_orders',
+    UPDATE_ORDER_STATUS: 'update_order_status',
+    
+    // MANAGER
+    MANAGE_PRODUCTS: 'manage_products',
+    MANAGE_PRICING: 'manage_pricing',
     MANAGE_PROMOTIONS: 'manage_promotions',
-    VIEW_ANALYTICS: 'view_analytics',
-    VIEW_LOGS: 'view_logs',
+    MANAGE_USERS: 'manage_users',
+    VIEW_REPORTS: 'view_reports',
+    MANAGE_POLICIES: 'manage_policies',
+    
+    // ADMIN
+    MANAGE_ROLES: 'manage_roles',
+    MANAGE_PERMISSIONS: 'manage_permissions',
+    MANAGE_SYSTEM_CONFIG: 'manage_system_config',
+    MANAGE_ALL_USERS: 'manage_all_users',
+    VIEW_SYSTEM_LOGS: 'view_system_logs'
 };

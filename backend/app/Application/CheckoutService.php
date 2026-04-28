@@ -135,7 +135,12 @@ class CheckoutService
 
     private function clearCart(int $userId)
     {
-        $stmt = $this->db->prepare("UPDATE cart SET status = 'checked_out' WHERE user_id = ? AND status = 'active'");
+        // Only delete items that were selected (and thus purchased)
+        $stmt = $this->db->prepare("
+            DELETE ci FROM cartitem ci
+            JOIN cart c ON ci.cart_id = c.id
+            WHERE c.user_id = ? AND c.status = 'active' AND ci.is_selected = 1
+        ");
         $stmt->execute([$userId]);
     }
 }

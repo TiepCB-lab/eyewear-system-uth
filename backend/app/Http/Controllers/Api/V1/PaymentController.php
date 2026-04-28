@@ -43,9 +43,7 @@ class PaymentController extends BaseController
      */
     public function confirm()
     {
-        if (!$this->isStaff()) {
-            return ApiResponse::forbidden();
-        }
+
 
         $input     = $this->getJsonInput();
         $paymentId = $input['payment_id'] ?? null;
@@ -91,9 +89,7 @@ class PaymentController extends BaseController
      */
     public function pendingPayments()
     {
-        if (!$this->isStaff()) {
-            return ApiResponse::forbidden();
-        }
+
 
         try {
             $rows = $this->paymentService->getPendingPayments();

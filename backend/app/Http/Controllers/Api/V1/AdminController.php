@@ -18,9 +18,6 @@ class AdminController extends BaseController
 
     private function requireAdmin()
     {
-        if (!$this->isStaff()) {
-            return ApiResponse::forbidden();
-        }
         return true;
     }
 
@@ -29,7 +26,7 @@ class AdminController extends BaseController
      */
     public function listStaff()
     {
-        if ($this->requireAdmin() !== true) return $this->requireAdmin();
+
 
         try {
             $filters = $_GET;
@@ -45,7 +42,7 @@ class AdminController extends BaseController
      */
     public function getStaff()
     {
-        if ($this->requireAdmin() !== true) return $this->requireAdmin();
+
 
         $userId = (int) ($this->query('id') ?? 0);
         if ($userId <= 0) {
@@ -68,7 +65,7 @@ class AdminController extends BaseController
      */
     public function createStaff()
     {
-        if ($this->requireAdmin() !== true) return $this->requireAdmin();
+
 
         $input = $this->getJsonInput();
 
@@ -89,7 +86,7 @@ class AdminController extends BaseController
      */
     public function updateStaff()
     {
-        if ($this->requireAdmin() !== true) return $this->requireAdmin();
+
 
         $userId = (int) ($this->query('id') ?? 0);
         if ($userId <= 0) {
@@ -120,7 +117,7 @@ class AdminController extends BaseController
      */
     public function deleteStaff()
     {
-        if ($this->requireAdmin() !== true) return $this->requireAdmin();
+
 
         $userId = (int) ($this->query('id') ?? 0);
         if ($userId <= 0) {
@@ -140,7 +137,7 @@ class AdminController extends BaseController
      */
     public function listRoles()
     {
-        if ($this->requireAdmin() !== true) return $this->requireAdmin();
+
 
         try {
             $roles = $this->adminService->getAllRoles();
@@ -155,7 +152,7 @@ class AdminController extends BaseController
      */
     public function setConfig()
     {
-        if ($this->requireAdmin() !== true) return $this->requireAdmin();
+
 
         $input = $this->getJsonInput();
 
@@ -176,7 +173,7 @@ class AdminController extends BaseController
      */
     public function getConfig()
     {
-        if ($this->requireAdmin() !== true) return $this->requireAdmin();
+
 
         try {
             $key = $this->query('key');
@@ -192,7 +189,7 @@ class AdminController extends BaseController
      */
     public function createVoucher()
     {
-        if ($this->requireAdmin() !== true) return $this->requireAdmin();
+
 
         $input = $this->getJsonInput();
 
@@ -216,7 +213,7 @@ class AdminController extends BaseController
      */
     public function listVouchers()
     {
-        if ($this->requireAdmin() !== true) return $this->requireAdmin();
+
 
         try {
             $filters = $_GET;
@@ -232,7 +229,7 @@ class AdminController extends BaseController
      */
     public function updateVoucher()
     {
-        if ($this->requireAdmin() !== true) return $this->requireAdmin();
+
 
         $voucherId = (int) ($this->query('id') ?? 0);
         if ($voucherId <= 0) {
@@ -254,7 +251,7 @@ class AdminController extends BaseController
      */
     public function deleteVoucher()
     {
-        if ($this->requireAdmin() !== true) return $this->requireAdmin();
+
 
         $voucherId = (int) ($this->query('id') ?? 0);
         if ($voucherId <= 0) {
