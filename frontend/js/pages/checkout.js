@@ -5,17 +5,42 @@ document.addEventListener('DOMContentLoaded', async () => {
     const subtotalEl = document.getElementById('checkout-subtotal');
     const totalEl = document.getElementById('checkout-total');
     const placeOrderBtn = document.getElementById('place-order-btn');
+    const nameInput = document.querySelector('input[placeholder="Name"]');
+    const addressInput = document.querySelector('input[placeholder="Address"]');
+    const cityInput = document.querySelector('input[placeholder="City"]');
+    const phoneInput = document.querySelector('input[placeholder="Phone"]');
+    const emailInput = document.querySelector('input[placeholder="Email"]');
+
+    const fillCheckoutFields = (profile) => {
+        const user = profile?.user || {};
+
+        if (nameInput) nameInput.value = user.full_name || user.name || '';
+        if (emailInput) emailInput.value = user.email || '';
+        if (phoneInput) phoneInput.value = profile?.phone || user.phone || '';
+    };
+
+    const loadProfileData = async () => {
+        try {
+            const response = await api.profile.getProfile();
+            const profile = response.profile || {};
+
+            fillCheckoutFields(profile);
+
+            if (addressInput) addressInput.readOnly = false;
+            if (cityInput) cityInput.readOnly = false;
+        } catch (error) {
+            console.error('Error loading profile data:', error);
+        }
+    };
 
 
     const loadSummary = async () => {
         try {
             const result = await api.cart.getCart();
-            const allItems = result.data || [];
-            const totals = result.totals || { total: 0 };
+            const data = result.data || {};
+            const items = data.items || [];
+            const totals = data.totals || { subtotal: 0, shipping: 0, total: 0 };
             
-            // Filter items based on backend selection state
-            const items = allItems.filter(item => !!item.is_selected);
-
             if (items.length === 0) {
                 if (window.Notification) window.Notification.show('No items selected for checkout.', 'warning');
                 window.location.href = '../cart/index.html';
@@ -52,17 +77,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     placeOrderBtn?.addEventListener('click', async (e) => {
         e.preventDefault();
         
-        const shippingAddress = document.querySelector('input[placeholder="Address"]')?.value;
-        const city = document.querySelector('input[placeholder="City"]')?.value;
-        const country = document.querySelector('input[placeholder="State / Country"]')?.value;
-        const postcode = document.querySelector('input[placeholder="PostCode"]')?.value;
+        const shippingAddress = addressInput?.value;
+        const city = cityInput?.value;
 
-        if (!shippingAddress || !city || !country) {
+        if (!shippingAddress || !city) {
             alert('Please fill in your shipping details.');
             return;
         }
 
-        const fullAddress = `${shippingAddress}, ${city}, ${country} ${postcode}`;
+        const fullAddress = `${shippingAddress}, ${city}`;
 
         try {
             placeOrderBtn.disabled = true;
@@ -72,7 +95,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             if (window.Notification) window.Notification.show('Order placed successfully!', 'success');
             else alert('Order placed successfully!');
-            
+
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+
             window.location.href = '../../index.html';
         } catch (err) {
             const message = err.response?.data?.message || err.message;
@@ -83,5 +108,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
+    loadProfileData();
     loadSummary();
 });

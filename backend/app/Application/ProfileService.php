@@ -26,8 +26,13 @@ class ProfileService
         $profile = Profile::firstWhere('user_id', $userId);
         $profileData = $profile ? $profile->toArray() : ['user_id' => $userId, 'phone' => null, 'address' => null, 'avatar' => null, 'birthdate' => null];
 
-        $addressService = new AddressService();
-        $addresses = $addressService->getAddresses($userId);
+        $addresses = [];
+        try {
+            $addressService = new AddressService();
+            $addresses = $addressService->getAddresses($userId);
+        } catch (\Throwable $e) {
+            $addresses = [];
+        }
 
         $ordersStmt = $db->prepare(
             'SELECT o.id, o.order_number, o.status, o.total_amount, o.placed_at, o.production_step,
