@@ -18,7 +18,7 @@ export async function protectDashboard() {
         const view = params.get('view');
 
         const viewPermissions = {
-            'orders': 'manage_orders',
+            'orders': 'process_orders',
             'inventory': 'manage_inventory',
             'products': 'view_products',
             'analytics': 'view_manager_dashboard',
