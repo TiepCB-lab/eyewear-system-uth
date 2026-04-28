@@ -3,7 +3,7 @@
 Dự án được tách thành **2 ứng dụng độc lập** để dễ dàng phát triển và gỡ lỗi:
 
 - `backend/`: API (PHP), xử lý logic nghiệp vụ, cơ sở dữ liệu MySQL.
-- `frontend/`: Giao diện người dùng (HTML/CSS/JS), sẵn sàng cho React.
+- `frontend/`: Giao diện người dùng (HTML/CSS/JS).
 
 ---
 
