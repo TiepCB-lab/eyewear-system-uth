@@ -414,7 +414,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             try {
                 const response = await WishlistService.toggleItem(productId);
-                const isActive = response.status === 'added';
+                const status = response.data && response.data.status ? response.data.status : response.status;
+                const isActive = status === 'added';
                 updateWishlistButton(wishlistBtn, isActive);
                 await alert(isActive ? 'Added to wishlist!' : 'Removed from wishlist!');
                 window.dispatchEvent(new CustomEvent('content-loaded', { detail: { path: 'layout/Header' } }));

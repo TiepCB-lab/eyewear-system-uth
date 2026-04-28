@@ -139,9 +139,21 @@ class AuthService
         $db = Database::getInstance();
         $stmt = $db->prepare('SELECT id, full_name, email, status FROM `user` WHERE id = ?');
         $stmt->execute([$userId]);
-        $user = $stmt->fetch();
+        $user = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-        return $user ?: null;
+        if (!$user) {
+            return null;
+        }
+
+        $roleStmt = $db->prepare('SELECT r.name FROM role r JOIN user_roles ur ON r.id = ur.role_id WHERE ur.user_id = ?');
+        $roleStmt->execute([$userId]);
+        $user['roles'] = $roleStmt->fetchAll(\PDO::FETCH_COLUMN);
+
+        $avatarStmt = $db->prepare('SELECT avatar FROM profiles WHERE user_id = ? LIMIT 1');
+        $avatarStmt->execute([$userId]);
+        $user['avatar'] = $avatarStmt->fetchColumn() ?: null;
+
+        return $user;
     }
 
     private function resolveUserIdFromAuthorization(): ?int

@@ -52,7 +52,11 @@ class AuthService {
 
   async getCurrentUser() {
     const response = await apiClient.get('/auth/me');
-    return response.data; // Note: layout-loader already handles unwrapping this
+    // Unwrap the user object depending on the API structure
+    if (response.data && response.data.data && response.data.data.user) {
+        return response.data.data.user;
+    }
+    return response.data;
   }
 
   async logout() {
@@ -75,15 +79,14 @@ class AuthService {
     return localStorage.getItem('auth_token');
   }
 
-  // Lấy danh sách Roles từ dữ liệu đã lưu (nếu có)
   getUserRoles() {
     const userJson = localStorage.getItem('user_info');
     if (!userJson) return [];
     try {
       const user = JSON.parse(userJson);
-      // Support both array and single string
-      if (Array.isArray(user.roles)) return user.roles;
-      if (user.role) return [user.role];
+      // Support both array and single string, and normalize to uppercase
+      if (Array.isArray(user.roles)) return user.roles.map(r => String(r).toUpperCase());
+      if (user.role) return [String(user.role).toUpperCase()];
     } catch (e) {
       console.error("Error parsing user roles", e);
     }
@@ -91,7 +94,7 @@ class AuthService {
   }
 
   getStaffRoles() {
-    return ['system_admin', 'manager', 'sales_staff', 'operations_staff'];
+    return ['ADMIN', 'MANAGER', 'SALES_STAFF', 'OPERATIONS_STAFF'];
   }
 
   // Kiểm tra xem User có quyền Staff không
@@ -103,7 +106,7 @@ class AuthService {
 
   // Kiểm tra xem User có quyền Customer không
   isCustomer() {
-    return this.getUserRoles().includes('customer');
+    return this.getUserRoles().includes('CUSTOMER');
   }
 
   // Determine which side of the app the user belongs to primarily

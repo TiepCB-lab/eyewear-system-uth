@@ -45,7 +45,8 @@
         el.classList.add('component-loading');
 
         try {
-            const response = await fetch(url);
+            const fetchUrl = url + '?v=' + new Date().getTime();
+            const response = await fetch(fetchUrl);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const html = await response.text();
             
@@ -205,10 +206,15 @@
                 const avatarSrc = resolveAvatarUrl(user.avatar);
                 
                 // Determine roles directly from user object if available, fallback to service
-                const roles = user.roles || authService.getUserRoles();
+                let roles = user.roles || authService.getUserRoles();
+                if (Array.isArray(roles)) {
+                    roles = roles.map(r => String(r).toUpperCase());
+                } else {
+                    roles = [];
+                }
                 const staffRoles = authService.getStaffRoles();
                 const isStaff = roles.some(r => staffRoles.includes(r));
-                const isCustomer = roles.includes('customer');
+                const isCustomer = roles.includes('CUSTOMER');
                 
                 if (portalArea) renderUserPortal(portalArea, displayName, isStaff);
                 if (adminPortal) renderAdminPortal(adminPortal, displayName, avatarSrc, isCustomer);
@@ -417,10 +423,11 @@
             
             // Find ALL buttons for this product across the page
             const allButtons = document.querySelectorAll(`[data-action="toggle-wishlist"][data-product-id="${productId}"]`);
+            const status = res.data && res.data.status ? res.data.status : res.status;
             
             allButtons.forEach(button => {
                 const icon = button.querySelector('i');
-                if (res.status === 'added') {
+                if (status === 'added') {
                     if(icon) icon.className = 'fi fi-ss-heart';
                     button.classList.add('wishlist-active');
                     button.setAttribute('aria-label', 'Remove from Wishlist');
@@ -433,7 +440,7 @@
                 }
             });
 
-            if (res.status === 'added') {
+            if (status === 'added') {
                 if (window.Notification) window.Notification.show('Added to wishlist successfully!', 'success');
                 else alert('Added to wishlist successfully!');
             } else {

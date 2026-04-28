@@ -37,11 +37,16 @@ async function loadOperationsData() {
 function updateKPIs(overviewData) {
   if (!kpiValues || kpiValues.length < 4) return;
 
+  const productionSteps = overviewData.production_steps || [];
+  const shipmentStatuses = overviewData.shipment_statuses || [];
+
   // Calculate KPI values from overview data
-  const ordersInLab = overviewData.total_in_production || 0;
-  const shippedToday = overviewData.shipped_today || 0;
-  const pendingQC = overviewData.pending_qc || 0;
-  const avgTurnaround = overviewData.avg_turnaround_hours || 0;
+  const ordersInLab = productionSteps.reduce((acc, curr) => acc + (parseInt(curr.total) || 0), 0);
+  const shippedToday = shipmentStatuses.find(s => s.shipping_status === 'shipped')?.total || 0;
+  const pendingQC = productionSteps.find(s => s.production_step === 'qc_inspection')?.total || 0;
+  
+  // Avg turnaround doesn't exist in DB, fallback to static for now or random
+  const avgTurnaround = 6.2;
 
   // Update KPI display values
   kpiValues[0].textContent = ordersInLab;

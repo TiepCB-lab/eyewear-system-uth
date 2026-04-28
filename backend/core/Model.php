@@ -81,7 +81,7 @@ abstract class Model
     /**
      * Find a single record by its primary key.
      */
-    public static function find(int $id): ?self
+    public static function find(int $id): ?static
     {
         $table = static::getTable();
         $stmt = static::db()->prepare("SELECT * FROM `{$table}` WHERE id = ?");
@@ -121,7 +121,7 @@ abstract class Model
      * Find the first record matching a simple WHERE condition.
      * Example: User::firstWhere('email', $email)
      */
-    public static function firstWhere(string $column, $value): ?self
+    public static function firstWhere(string $column, $value): ?static
     {
         $table = static::getTable();
         $stmt = static::db()->prepare("SELECT * FROM `{$table}` WHERE `{$column}` = ? LIMIT 1");
@@ -135,7 +135,7 @@ abstract class Model
      * Insert a new record and return the model instance.
      * Example: User::create(['name' => 'John', 'email' => 'john@example.com'])
      */
-    public static function create(array $data): self
+    public static function create(array $data): static
     {
         $table = static::getTable();
         $columns = implode(', ', array_map(fn($col) => "`{$col}`", array_keys($data)));

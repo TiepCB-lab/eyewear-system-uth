@@ -97,18 +97,18 @@ class DashboardController {
         try {
             const { hasPermission } = await getCurrentUserPermissions();
             
-            // Map view names to permissions
+            // Map view names to permissions. We use arrays so multiple roles can access common modules.
             const viewPermissions = {
                 'overview':  null, // Public staff overview
-                'orders':    'process_orders',
-                'support':   'process_orders', // Support tickets — Sales staff can access
-                'inventory': 'manage_inventory',
-                'products':  'view_products',
-                'analytics': 'view_manager_dashboard',
-                'users':     'manage_users',
-                'settings':  'manage_system',
+                'orders':    ['view_orders', 'update_order_status'], // Sales or Operations
+                'support':   ['contact_customer'], // Sales
+                'inventory': ['process_preorder_inventory', 'manage_products'], // Operations or Manager
+                'products':  ['manage_products'], // Manager
+                'analytics': ['view_reports'], // Manager
+                'users':     ['manage_users', 'manage_all_users', 'manage_roles'], // Manager or Admin
+                'settings':  ['manage_system_config'], // Admin
                 'profile':   null, // Self-profile is allowed for all staff
-                'ops':       null, // Operations module
+                'ops':       ['pack_order', 'create_shipment'], // Operations module
             };
 
             const requiredPermission = viewPermissions[viewName];

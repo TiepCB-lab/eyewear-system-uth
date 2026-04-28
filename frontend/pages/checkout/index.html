@@ -18,6 +18,7 @@
 
     <!--=============== CSS ===============-->
     <link rel="stylesheet" href="../../assets/css/styles.css" />
+    <link rel="stylesheet" href="../../assets/css/refactor-utils.css" />
     <script src="../../js/core/layout-loader.js" defer></script>
 
     <title>Checkout — EVELENS</title>
@@ -35,18 +36,30 @@
           <div class="checkout__group">
             <h3 class="section__title">Billing Details</h3>
             <form class="form grid">
-              <input type="text" placeholder="Name" class="form__input" />
-              <input type="text" placeholder="Address" class="form__input" />
-              <input type="text" placeholder="City" class="form__input" />
-              <input type="text" placeholder="Phone" class="form__input" />
-              <input type="email" placeholder="Email" class="form__input" />
-              <h3 class="checkout__title">Additional Information</h3>
+              <input type="text" placeholder="Name" class="form__input" id="checkout-name" />
+              <input type="email" placeholder="Email" class="form__input" id="checkout-email" />
+              
+              <div class="checkout__address-selector" style="grid-column: 1 / -1; margin-top: 1rem;">
+                <label style="display:block; margin-bottom: 0.5rem; font-weight: 500;">Shipping Address</label>
+                <div class="flex" style="gap: 1rem;">
+                    <select id="checkout-address-select" class="form__input" style="flex: 1;">
+                        <option value="">Loading addresses...</option>
+                    </select>
+                    <button type="button" class="btn btn--sm" id="checkout-add-address-btn" style="white-space: nowrap;">
+                        <i class="fi fi-rs-plus"></i> Add Address
+                    </button>
+                </div>
+              </div>
+
+              <h3 class="checkout__title" style="grid-column: 1 / -1; margin-top: 1rem;">Additional Information</h3>
               <textarea
-                name=""
+                id="checkout-note"
                 placeholder="order note"
                 class="form__input textarea"
+                style="grid-column: 1 / -1;"
               ></textarea>
             </form>
+            <div class="address-editor-placeholder" data-include="components/modals/address-editor"></div>
           </div>
           <div class="checkout__group">
             <h3 class="section__title">Cart Totals</h3>

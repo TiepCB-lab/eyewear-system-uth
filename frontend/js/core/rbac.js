@@ -28,9 +28,13 @@ export function usePermission(user) {
     });
 
     /**
-     * Check if user has a specific permission
+     * Check if user has a specific permission (or any of the permissions if array)
      */
     const hasPermission = (permissionName) => {
+        if (!permissionName) return true;
+        if (Array.isArray(permissionName)) {
+            return permissionName.some(p => userPermissions.has(p));
+        }
         return userPermissions.has(permissionName);
     };
 
@@ -56,9 +60,18 @@ export async function getCurrentUserPermissions() {
     try {
         const { default: authService } = await import('../services/authService.js');
         const user = await authService.getCurrentUser();
-        // Backend returns user object, we need to ensure it has roles/role
-        // authService.getUserRoles() already handles localStorage fallback
-        const roles = authService.getUserRoles();
+        let roles = [];
+        if (user?.roles && Array.isArray(user.roles)) {
+            roles = user.roles.map(r => String(r).toUpperCase());
+        } else {
+            roles = authService.getUserRoles();
+        }
+        
+        // Also update local storage if we got fresh roles to keep them in sync
+        if (user && user.roles) {
+            authService.saveUserInfo(user);
+        }
+
         return usePermission({ roles });
     } catch (error) {
         console.error('Error getting current user permissions:', error);

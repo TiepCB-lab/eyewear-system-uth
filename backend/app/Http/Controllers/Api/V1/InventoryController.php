@@ -35,7 +35,7 @@ class InventoryController extends BaseController
     public function updateStock()
     {
         $userId = $this->getUserId();
-        if (!$userId || !$this->isStaff()) {
+        if (!$userId) {
             return ApiResponse::unauthorized('Unauthorized or insufficient permissions');
         }
 

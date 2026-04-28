@@ -38,6 +38,10 @@ class OperationsService
 			throw new \Exception('Order not found');
 		}
 
+		if ($order->status !== 'processing') {
+			throw new \Exception('Order must be in processing state to advance production');
+		}
+
 		$currentStep = $order->production_step ?: self::PRODUCTION_FLOW[0];
 		$nextStep = $this->getNextProductionStep($currentStep);
 
@@ -63,6 +67,10 @@ class OperationsService
 
 		if ($order->shipment()) {
 			throw new \Exception('Shipment already exists for this order');
+		}
+
+		if ($order->production_step !== 'ready_to_ship' && $order->status !== 'shipped' && $order->status !== 'delivered') {
+			throw new \Exception('Order must complete all production steps before shipping');
 		}
 
 		$shippingStatus = $payload['shipping_status'] ?? 'pending';

@@ -100,28 +100,32 @@ abstract class BaseController
     }
 
     /**
-     * Check if the authenticated user has one of the specified roles.
+     * Check if the authenticated user has one of the specified permissions.
      */
-    protected function hasRole(string ...$roles): bool
+    protected function hasPermission(string ...$permissions): bool
     {
-        $currentRolesStr = $this->getUserRole();
-        if (!$currentRolesStr) {
+        $userId = $this->getUserId();
+        if (!$userId) {
             return false;
         }
-        $currentRoles = array_map('trim', explode(',', $currentRolesStr));
-        foreach ($currentRoles as $role) {
-            if (in_array($role, $roles, true)) {
+
+        $pdo = \Core\Database::getInstance();
+        $stmt = $pdo->prepare("
+            SELECT DISTINCT p.name
+            FROM permissions p
+            JOIN role_permissions rp ON p.id = rp.permission_id
+            JOIN user_roles ur ON rp.role_id = ur.role_id
+            WHERE ur.user_id = ?
+        ");
+        $stmt->execute([$userId]);
+        $userPermissions = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+
+        foreach ($permissions as $permission) {
+            if (in_array(trim($permission), $userPermissions, true)) {
                 return true;
             }
         }
+        
         return false;
-    }
-
-    /**
-     * Check if the authenticated user is staff.
-     */
-    protected function isStaff(): bool
-    {
-        return $this->hasRole('system_admin', 'manager', 'sales_staff', 'operations_staff');
     }
 }

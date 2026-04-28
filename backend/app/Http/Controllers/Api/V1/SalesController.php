@@ -21,10 +21,6 @@ class SalesController extends BaseController
      */
     public function pendingOrders()
     {
-        if (!$this->isStaff()) {
-            return ApiResponse::forbidden();
-        }
-
         try {
             $orders = $this->salesService->getPendingOrders();
             return ApiResponse::success($orders);
@@ -39,7 +35,7 @@ class SalesController extends BaseController
     public function verify()
     {
         $userId = $this->getUserId();
-        if (!$userId || !$this->isStaff()) {
+        if (!$userId) {
             return ApiResponse::forbidden();
         }
 
@@ -64,7 +60,7 @@ class SalesController extends BaseController
     public function complaint()
     {
         $userId = $this->getUserId();
-        if (!$userId || !$this->isStaff()) {
+        if (!$userId) {
             return ApiResponse::forbidden();
         }
 

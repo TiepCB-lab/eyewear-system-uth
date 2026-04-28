@@ -18,9 +18,7 @@ class DashboardController extends BaseController
 
 	public function index()
 	{
-        if (!$this->isStaff()) {
-            return ApiResponse::forbidden();
-        }
+
 
 		try {
             $data = $this->dashboardService->getSummary();
@@ -32,9 +30,7 @@ class DashboardController extends BaseController
 
 	public function operations()
 	{
-        if (!$this->isStaff()) {
-            return ApiResponse::forbidden();
-        }
+
 
 		try {
             $data = $this->dashboardService->getOperationsOverview();

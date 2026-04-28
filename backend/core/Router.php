@@ -102,6 +102,14 @@ class Router
                 continue;
             }
 
+            if ($name === 'permission') {
+                $permissions = $parameter ? array_values(array_filter(array_map('trim', explode('|', $parameter)))) : [];
+                if (!\App\Http\Middleware\PermissionMiddleware::handle($permissions)) {
+                    return false;
+                }
+                continue;
+            }
+
             if ($name === 'cors') {
                 if (!\App\Http\Middleware\CorsMiddleware::handle()) {
                     return false;
@@ -132,7 +140,7 @@ class Router
                     $refMethod = new \ReflectionMethod($controllerClass, '__construct');
                     foreach ($refMethod->getParameters() as $param) {
                         $type = $param->getType();
-                        if ($type && !$type->isBuiltin()) {
+                        if ($type instanceof \ReflectionNamedType && !$type->isBuiltin()) {
                             $depClass = $type->getName();
                             $constructorParams[] = new $depClass();
                         } else {
