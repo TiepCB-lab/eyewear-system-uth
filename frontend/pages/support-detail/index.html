@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!--=============== FLATICON ===============-->
+    <link
+      rel="stylesheet"
+      href="https://cdn-uicons.flaticon.com/2.0.0/uicons-regular-straight/css/uicons-regular-straight.css"
+    />
+
+    <!--=============== CSS ===============-->
+    <link rel="stylesheet" href="../../assets/css/styles.css" />
+    <script src="../../js/core/layout-loader.js" defer></script>
+
+    <title>Support Ticket — EVELENS</title>
+  </head>
+  <body>
+    <header class="header" data-include="layout/Header"></header>
+
+    <main class="main">
+      <section class="support-detail section--lg">
+        <div class="container support-detail__header">
+          <a href="../accounts/?tab=support-tickets" class="support-detail__back">
+            <i class="fi fi-rs-arrow-left"></i>
+            Back to Support Tickets
+          </a>
+          <h1 class="section__title support-detail__title">Support Ticket Details</h1>
+          <p class="support-detail__subtitle">Review the ticket, check every reply, and send a new message if you need more help.</p>
+        </div>
+
+        <div class="support-detail__container container grid">
+          <aside class="checkout__group support-detail__group support-detail__summary-card">
+            <div class="support-detail__summary-head">
+              <p class="support-detail__eyebrow">Ticket Summary</p>
+              <h3 class="support-detail__section-title">At a glance</h3>
+            </div>
+            <div id="ticketDetail" class="support-ticket-detail">Loading ticket details...</div>
+          </aside>
+
+          <section class="checkout__group support-detail__group support-detail__thread-card">
+            <div class="support-detail__thread-head">
+              <div>
+                <p class="support-detail__eyebrow">Conversation</p>
+                <h3 class="support-detail__section-title">Messages</h3>
+              </div>
+            </div>
+            <p id="threadNotice" class="support-thread-notice" hidden></p>
+            <div id="replies" class="support-replies support-thread">Loading replies...</div>
+
+            <form id="replyForm" class="support-reply-form form grid">
+              <textarea
+                name="replyMessage"
+                class="form__input textarea"
+                rows="5"
+                placeholder="Write a reply..."
+                required
+              ></textarea>
+              <div class="support-reply-actions">
+                <button type="submit" class="btn btn--md">Send Reply</button>
+              </div>
+              <p id="replySuccess" class="growth-positive" hidden>Your reply has been sent.</p>
+              <p id="replyError" class="support-ticket-error" hidden></p>
+            </form>
+          </section>
+        </div>
+      </section>
+
+      <section class="newsletter section" data-include="components/newsletter"></section>
+    </main>
+
+    <footer class="footer container" data-include="layout/Footer"></footer>
+
+    <script src="../../js/main.js"></script>
+    <script type="module" src="../../js/pages/support-detail.js"></script>
+  </body>
+</html>

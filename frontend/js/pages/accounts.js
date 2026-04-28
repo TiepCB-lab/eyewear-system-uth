@@ -5,6 +5,23 @@ const profileForm = document.getElementById('profile-form');
 const createTicketForm = document.getElementById('createTicketForm');
 const changePasswordForm = document.getElementById('change-password-form');
 const profileSaveButton = document.querySelector('.profile-editor__actions button[form="profile-form"]');
+const activeTabStorageKey = 'eyewear_account_active_tab';
+
+function setActiveAccountTab(tabSelector) {
+    const tab = document.querySelector(`.account__tab[data-target="${tabSelector}"]`);
+    const content = document.querySelector(tabSelector);
+
+    if (!tab || !content) {
+        return;
+    }
+
+    document.querySelectorAll('.account__tab').forEach((item) => item.classList.remove('active-tab'));
+    document.querySelectorAll('.tab__content').forEach((item) => item.classList.remove('active-tab'));
+
+    tab.classList.add('active-tab');
+    content.classList.add('active-tab');
+    localStorage.setItem(activeTabStorageKey, tabSelector);
+}
 
 function formatBirthdate(value) {
     if (!value) return 'Not set';
@@ -31,6 +48,19 @@ function getStatusBadge(status) {
     };
     const current = map[status] || { cls: 'badge-pending', label: status };
     return `<span class="badge ${current.cls}">${current.label}</span>`;
+}
+
+function escapeHtml(value) {
+    if (value === null || value === undefined) {
+        return '';
+    }
+
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
 function renderOrdersTable(orders) {
@@ -76,49 +106,54 @@ async function loadOrderTracking() {
 }
 
 async function loadProfileData() {
-    const response = await api.profile.getProfile();
-    const profile = response.profile || {};
-    const user = profile.user || {};
+    try {
+        const response = await api.profile.getProfile();
+        const profile = response.profile || {};
+        const user = profile.user || {};
 
-    const displayName = user.full_name || user.name || 'User';
-    const avatarSrc = normalizeAvatarUrl(profile.avatar);
+        const displayName = user.full_name || user.name || 'User';
+        const avatarSrc = normalizeAvatarUrl(profile.avatar);
 
-    const fullNameInput = document.querySelector('input[name="full_name"]');
-    const birthdateInput = document.querySelector('input[name="birthdate"]');
-    const profileEmailInput = document.getElementById('profile-email-input');
-    const profileEditorNameInput = document.getElementById('profile-editor-name-input');
+        const fullNameInput = document.querySelector('input[name="full_name"]');
+        const birthdateInput = document.querySelector('input[name="birthdate"]');
+        const profileEmailInput = document.getElementById('profile-email-input');
+        const profileEditorNameInput = document.getElementById('profile-editor-name-input');
 
-    if (fullNameInput) fullNameInput.value = displayName;
-    if (profileEditorNameInput) profileEditorNameInput.value = displayName;
-    if (birthdateInput) birthdateInput.value = profile.birthdate || '';
-    if (profileEmailInput) profileEmailInput.value = user.email || '';
+        if (fullNameInput) fullNameInput.value = displayName;
+        if (profileEditorNameInput) profileEditorNameInput.value = displayName;
+        if (birthdateInput) birthdateInput.value = profile.birthdate || '';
+        if (profileEmailInput) profileEmailInput.value = user.email || '';
 
-    const fullNameEl = document.getElementById('profile-fullname');
-    const birthdateEl = document.getElementById('profile-birthdate');
-    const phoneEl = document.getElementById('profile-phone');
-    const emailEl = document.getElementById('profile-email');
-    const avatarEl = document.getElementById('profile-avatar');
-    const editorAvatarEl = document.getElementById('profile-editor-avatar');
+        const fullNameEl = document.getElementById('profile-fullname');
+        const birthdateEl = document.getElementById('profile-birthdate');
+        const phoneEl = document.getElementById('profile-phone');
+        const emailEl = document.getElementById('profile-email');
+        const avatarEl = document.getElementById('profile-avatar');
+        const editorAvatarEl = document.getElementById('profile-editor-avatar');
 
-    if (fullNameEl) fullNameEl.textContent = displayName;
-    if (birthdateEl) birthdateEl.textContent = formatBirthdate(profile.birthdate);
-    if (phoneEl) phoneEl.textContent = profile.phone || 'Not set';
-    if (emailEl) emailEl.textContent = user.email || 'Not set';
+        if (fullNameEl) fullNameEl.textContent = displayName;
+        if (birthdateEl) birthdateEl.textContent = formatBirthdate(profile.birthdate);
+        if (phoneEl) phoneEl.textContent = profile.phone || 'Not set';
+        if (emailEl) emailEl.textContent = user.email || 'Not set';
 
-    if (avatarEl) avatarEl.src = avatarSrc;
-    if (editorAvatarEl) editorAvatarEl.src = avatarSrc;
+        if (avatarEl) avatarEl.src = avatarSrc;
+        if (editorAvatarEl) editorAvatarEl.src = avatarSrc;
 
-    if (profile.addresses) {
-        renderAddressList(profile.addresses);
-    } else {
-        loadAddresses();
+        if (profile.addresses) {
+            renderAddressList(profile.addresses);
+        } else {
+            loadAddresses();
+        }
+
+        if (profile.recent_orders) {
+            renderOrdersTable(profile.recent_orders);
+        }
+
+        return profile;
+    } catch (error) {
+        console.error('Failed to load profile:', error);
+        throw error;
     }
-
-    if (profile.recent_orders) {
-        renderOrdersTable(profile.recent_orders);
-    }
-
-    return profile;
 }
 
 function renderAddressList(addresses) {
@@ -169,14 +204,20 @@ async function loadUserTickets() {
             tbody.innerHTML = '<tr><td colspan="4" class="table-state-cell">You have no support tickets yet.</td></tr>';
             return;
         }
-        tbody.innerHTML = tickets.map((ticket) => `
+        tbody.innerHTML = tickets.map((ticket) => {
+            const updatedAt = ticket.updated_at
+                ? new Date(ticket.updated_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+                : '-';
+
+            return `
             <tr>
-                <td><strong>${ticket.subject}</strong></td>
-                <td><span class="badge">${ticket.status}</span></td>
-                <td>${new Date(ticket.updated_at).toLocaleDateString()}</td>
-                <td><a href="#" class="view__order ticket-detail-link" data-ticket-id="${ticket.id}">View</a></td>
+                <td><strong>${escapeHtml(ticket.subject || '—')}</strong></td>
+                <td><span class="badge">${escapeHtml(ticket.status || 'open')}</span></td>
+                <td>${updatedAt}</td>
+                <td><a href="../support-detail/?id=${ticket.id}" class="view__order ticket-detail-link">View</a></td>
             </tr>
-        `).join('');
+        `;
+        }).join('');
     } catch (err) {
         tbody.innerHTML = '<tr><td colspan="4" class="table-state-cell table-state-cell--error">Failed to retrieve tickets.</td></tr>';
     }
@@ -211,7 +252,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             const tabTrigger = document.querySelector(`.account__tab[data-target="#${tabId}"]`);
             if (tabTrigger) {
                 tabTrigger.click();
+                if (tabId === 'support-tickets') {
+                    await loadUserTickets();
+                }
             }
+        } else if (localStorage.getItem(activeTabStorageKey) === '#support-tickets') {
+            await loadUserTickets();
         }
     } catch (error) {
         console.error('Failed to load profile:', error);
@@ -243,13 +289,16 @@ profileForm?.addEventListener('submit', async (event) => {
 
 createTicketForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
+    event.stopPropagation();
     const subject = document.getElementById('ticketSubject')?.value;
     const message = document.getElementById('ticketMessage')?.value;
     try {
+        localStorage.setItem(activeTabStorageKey, '#support-tickets');
+        setActiveAccountTab('#support-tickets');
         await api.support.createTicket(subject, message);
         alert('Ticket created!');
         createTicketForm.reset();
-        loadUserTickets();
+        await loadUserTickets();
     } catch (err) {
         alert('Error: ' + err.message);
     }
@@ -282,6 +331,7 @@ document.addEventListener('click', async (event) => {
     } else if (target.closest('[data-target="#orders"]')) {
         loadOrderTracking();
     } else if (target.closest('[data-target="#support-tickets"]')) {
+        setActiveAccountTab('#support-tickets');
         loadUserTickets();
     } else if (target.closest('#add-new-address-btn')) {
         AddressEditor.open();
@@ -296,9 +346,13 @@ document.addEventListener('click', async (event) => {
         }
     } else if (target.closest('.account__tab[data-target]')) {
         const tab = target.closest('.account__tab');
-        document.querySelectorAll('.account__tab').forEach(t => t.classList.remove('active-tab'));
-        tab.classList.add('active-tab');
-        document.querySelectorAll('.tab__content').forEach(c => c.classList.remove('active-tab'));
-        document.querySelector(tab.dataset.target).classList.add('active-tab');
+        setActiveAccountTab(tab.dataset.target);
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const savedTab = localStorage.getItem(activeTabStorageKey);
+    if (savedTab && document.querySelector(savedTab)) {
+        setActiveAccountTab(savedTab);
     }
 });
