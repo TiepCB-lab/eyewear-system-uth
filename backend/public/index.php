@@ -128,6 +128,7 @@ function init_database() {
             'role', 'user', 'user_roles', 'profiles', 'password_reset_tokens', 'product', 'productvariant', 'inventory', 'lens',
             'system_config', 'promotion', 'prescription', 'cart', 'cartitem', 'order', 'orderitem',
             'payment', 'shipment', 'supportticket', 'ticket_replies', 'returnrequest',
+            'wishlist', 'category', 'permissions', 'role_permissions', 'user_addresses'
         ];
 
         $placeholders = implode(',', array_fill(0, count($requiredTables), '?'));
