@@ -54,33 +54,4 @@
     </table>
 </div>
 
-<div id="ticketDetailPanel" class="support-panel" hidden>
-    <div class="flex support-panel__header">
-        <h3 class="table__title admin-title-reset" id="panelTicketTitle">Ticket Details</h3>
-        <button type="button" class="support-panel__close" data-action="close-support-panel">&times;</button>
-    </div>
-
-    <div id="panelTicketMeta" class="support-panel__meta"></div>
-
-    <div class="support-panel__status">
-        <label class="support-panel__label">Update Status:</label>
-        <div class="flex support-panel__actions">
-            <button type="button" class="btn btn--sm support-status-btn--progress" data-support-status="in_progress">In Progress</button>
-            <button type="button" class="btn btn--sm support-status-btn--resolved" data-support-status="resolved">Resolved</button>
-            <button type="button" class="btn btn--sm support-status-btn--closed" data-support-status="closed">Close</button>
-        </div>
-    </div>
-
-    <h4 class="support-panel__thread-title">Conversation Thread</h4>
-    <div id="panelRepliesContainer" class="support-panel__thread"></div>
-
-    <div class="support-panel__reply">
-        <label class="support-panel__label">Staff Reply:</label>
-        <textarea id="staffReplyMessage" placeholder="Type your response to the customer..." class="form__input support-panel__textarea"></textarea>
-        <button id="sendSupportReplyBtn" type="button" class="btn btn--md support-panel__reply-btn">Send Reply</button>
-    </div>
-</div>
-
-<div id="ticketPanelOverlay" class="support-panel__overlay" data-action="close-support-panel" hidden></div>
-
 <script type="module" src="/js/dashboard/modules/support-module.js"></script>
