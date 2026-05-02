@@ -153,8 +153,11 @@ class DashboardController {
             Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
             
             if (oldScript.src) {
-                // If it's an external file, we need a new tag to load it correctly
-                newScript.src = oldScript.src;
+                // Add cache-busting query parameter for module scripts to force re-execution
+                // ES6 modules are cached by browser, so we need to bypass the cache
+                const url = new URL(oldScript.src, window.location.href);
+                url.searchParams.set('t', Date.now());
+                newScript.src = url.toString();
             } else {
                 newScript.appendChild(document.createTextNode(oldScript.innerHTML));
             }

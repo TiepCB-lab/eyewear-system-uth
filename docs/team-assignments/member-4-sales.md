@@ -7,7 +7,9 @@
 
 ## 📋 Scope Overview
 
-This member owns the **financial and customer service** side: Payment status tracking (simulated), Order verification (Staff side), and the Support Ticket system.
+This member owns the **financial and customer service** side: Payment status tracking (simulated), Staff verification for prescription orders, and the Support Ticket system.
+
+> Business rule note: the staff review screen is for new prescription orders waiting for approval. Normal orders go directly to payment. Payment options stay aligned with the customer page and use the same 3 choices.
 
 ---
 
@@ -18,10 +20,11 @@ This member owns the **financial and customer service** side: Payment status tra
  
  ### Backend — Application Layer (Services)
  - [x] Complete `PaymentService.php`:
-   - Process payment confirmation (simulated COD, Bank Transfer).
+   - Process payment confirmation with the same 3 payment choices as the customer flow.
    - Update order status (`order.status`) based on payment detection.
  - [x] Complete `SalesVerificationService.php` (Staff only):
-   - Verify Prescription order parameters before production.
+   - Verify prescription orders before production.
+   - Keep normal orders out of the staff review queue unless they require manual handling.
    - Process complaints: exchange/returns, warranty, refunds.
  - [x] Complete `SupportTicketService.php`:
    - Ticket lifecycle management (Open, In-progress, Resolved, Closed).
@@ -30,11 +33,12 @@ This member owns the **financial and customer service** side: Payment status tra
  ### Backend — Controllers & Routes
  - [x] Implement `PaymentController`, `SalesController`, `SupportTicketController`.
  - [x] Define API Endpoints for payments, support system, and order tracking (`GET /orders`).
+ - [x] Separate staff approval flow for prescription orders from the standard payment flow.
  
  ### Frontend (Vanilla JS)
  - [x] Implement `pages/payment/index.html`: Selection and confirmation UI.
  - [x] Integrated Order History into `pages/accounts/index.html` for customers.
- - [x] Finalized `orders.html` module in Dashboard: Order management and approval.
+ - [x] Finalized `orders.html` module in Dashboard: Prescription order management and approval.
  - [x] Create `support.html` module in Dashboard: Ticket management and support responses.
  - [x] Create `js/services/paymentService.js` and `js/services/supportService.js`.
  

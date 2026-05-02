@@ -53,7 +53,7 @@ spl_autoload_register(function ($class) {
 
 require_once APP_ROOT . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'Infrastructure' . DIRECTORY_SEPARATOR . 'env.php';
 
-function execute_schema(PDO $pdo, $schemaPath) {
+function execute_schema(PDO $pdo, string $schemaPath) {
     $sql = file_get_contents($schemaPath);
     if ($sql === false) {
         throw new RuntimeException('Cannot read schema file.');
