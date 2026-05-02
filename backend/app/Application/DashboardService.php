@@ -53,10 +53,33 @@ class DashboardService
 			 GROUP BY shipping_status"
 		);
 
+		// Calculate average turnaround time in hours (from placed_at to delivered_at)
+		$avgTurnaround = (float) $db->query(
+			"SELECT AVG(TIMESTAMPDIFF(HOUR, placed_at, updated_at)) 
+			 FROM `order` 
+			 WHERE status = 'delivered'"
+		)->fetchColumn();
+
 		return [
 			'production_steps' => $productionStepsStmt->fetchAll(\PDO::FETCH_ASSOC),
 			'shipment_statuses' => $shipmentStatsStmt->fetchAll(\PDO::FETCH_ASSOC),
 			'pending_shipments' => (int) $db->query("SELECT COUNT(*) FROM shipment WHERE shipping_status IN ('pending', 'packed')")->fetchColumn(),
+			'avg_turnaround_hours' => $avgTurnaround ?: 0
 		];
 	}
+
+    public function getSalesByDay(int $days = 30): array
+    {
+        $db = Database::getInstance();
+        $stmt = $db->prepare("
+            SELECT DATE(placed_at) as date, SUM(total_amount) as revenue, COUNT(*) as orders
+            FROM `order`
+            WHERE placed_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+              AND status NOT IN ('cancelled')
+            GROUP BY DATE(placed_at)
+            ORDER BY date ASC
+        ");
+        $stmt->execute([$days]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 }

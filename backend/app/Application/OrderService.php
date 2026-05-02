@@ -6,6 +6,62 @@ use Core\Database;
 
 class OrderService
 {
+    private const ORDER_WORKFLOW = [
+        'pending'    => ['confirmed', 'cancelled'],
+        'confirmed'  => ['processing', 'cancelled'],
+        'processing' => ['shipped', 'cancelled'],
+        'shipped'    => ['completed'],
+        'completed'  => [],
+        'cancelled'  => []
+    ];
+
+    public function transitionStatus(int $orderId, string $newStatus, int $staffId): bool
+    {
+        $db = Database::getInstance();
+        
+        // 1. Get current status
+        $stmt = $db->prepare("SELECT status FROM `order` WHERE id = ?");
+        $stmt->execute([$orderId]);
+        $order = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+        if (!$order) {
+            throw new \Exception("Order not found.");
+        }
+
+        $currentStatus = $order['status'];
+
+        // 2. Validate transition
+        if (!isset(self::ORDER_WORKFLOW[$currentStatus]) || !in_array($newStatus, self::ORDER_WORKFLOW[$currentStatus])) {
+            throw new \Exception("Invalid status transition from $currentStatus to $newStatus.");
+        }
+
+        // 3. Update status
+        $stmtUpdate = $db->prepare("
+            UPDATE `order` 
+            SET status = ?, 
+                updated_at = NOW() 
+            WHERE id = ?
+        ");
+        
+        return $stmtUpdate->execute([$newStatus, $orderId]);
+    }
+
+    public function confirmOrder(int $orderId, int $staffId): bool
+    {
+        $db = Database::getInstance();
+        
+        // Specific logic for confirmation (can include verification by staff)
+        $this->transitionStatus($orderId, 'confirmed', $staffId);
+
+        $stmt = $db->prepare("
+            UPDATE `order` 
+            SET verified_by = ?, 
+                verified_at = NOW() 
+            WHERE id = ?
+        ");
+        return $stmt->execute([$staffId, $orderId]);
+    }
+
     public function getOrdersForUser(int $userId): array
     {
         $db = Database::getInstance();

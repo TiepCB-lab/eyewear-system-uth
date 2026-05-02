@@ -6,7 +6,7 @@ use Core\Database;
 
 class AdminService
 {
-    private const ALLOWED_STAFF_ROLES = ['system_admin', 'manager', 'sales_staff', 'operations_staff'];
+    private const ALLOWED_STAFF_ROLES = ['ADMIN', 'MANAGER', 'SALES_STAFF', 'OPERATIONS_STAFF'];
 
     private function allowedRolesSql(): string
     {
@@ -20,7 +20,8 @@ class AdminService
         $sql = "SELECT u.id, u.full_name, u.email, u.phone, u.status, u.created_at, u.updated_at,
                        r.id AS role_id, r.name AS role_name, r.description AS role_description
                 FROM `user` u
-                LEFT JOIN role r ON r.id = u.role_id
+                INNER JOIN user_roles ur ON u.id = ur.user_id
+                INNER JOIN role r ON r.id = ur.role_id
                 WHERE r.name IN (" . $this->allowedRolesSql() . ")";
 
         $params = [];
@@ -51,7 +52,8 @@ class AdminService
             "SELECT u.id, u.full_name, u.email, u.phone, u.status, u.created_at, u.updated_at,
                     r.id AS role_id, r.name AS role_name, r.description AS role_description
              FROM `user` u
-             LEFT JOIN role r ON r.id = u.role_id
+             INNER JOIN user_roles ur ON u.id = ur.user_id
+             INNER JOIN role r ON r.id = ur.role_id
              WHERE u.id = ? AND r.name IN (" . $this->allowedRolesSql() . ")"
         );
         $stmt->execute([$userId]);
@@ -86,12 +88,17 @@ class AdminService
         $phone = $data['phone'] ?? null;
 
         $stmt = $db->prepare(
-            "INSERT INTO `user` (role_id, full_name, email, password_hash, phone, status)
-             VALUES (?, ?, ?, ?, ?, ?)"
+            "INSERT INTO `user` (full_name, email, password_hash, phone, status)
+             VALUES (?, ?, ?, ?, ?)"
         );
-        $stmt->execute([$data['role_id'], $data['full_name'], $data['email'], $passwordHash, $phone, $status]);
+        $stmt->execute([$data['full_name'], $data['email'], $passwordHash, $phone, $status]);
+        $userId = (int) $db->lastInsertId();
 
-        return $this->getStaffById((int) $db->lastInsertId());
+        // Assign role in user_roles table
+        $roleStmt = $db->prepare("INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)");
+        $roleStmt->execute([$userId, $data['role_id']]);
+
+        return $this->getStaffById($userId);
     }
 
     public function updateStaffStatus(int $userId, string $status): array
@@ -126,7 +133,7 @@ class AdminService
             throw new \Exception('Invalid role. Only system_admin, manager, sales_staff, and operations_staff roles are allowed.');
         }
 
-        $stmt = $db->prepare("UPDATE `user` SET role_id = ? WHERE id = ?");
+        $stmt = $db->prepare("UPDATE user_roles SET role_id = ? WHERE user_id = ?");
         $stmt->execute([$roleId, $userId]);
 
         return $this->getStaffById($userId);

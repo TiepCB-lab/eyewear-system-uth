@@ -33,9 +33,15 @@ class OperationsService
 	public function advanceProductionStep(int $orderId): array
 	{
 		$order = Order::find($orderId);
-
 		if (!$order) {
 			throw new \Exception('Order not found');
+		}
+
+        $orderService = new \App\Application\OrderService();
+
+        // If order is still 'confirmed', move it to 'processing' to start production
+		if ($order->status === 'confirmed') {
+			$orderService->transitionStatus($orderId, 'processing', 0); // System/Ops transition
 		}
 
 		if ($order->status !== 'processing') {
@@ -50,7 +56,6 @@ class OperationsService
 		}
 
 		$order->update([
-			'status' => 'processing',
 			'production_step' => $nextStep,
 		]);
 
@@ -60,7 +65,6 @@ class OperationsService
 	public function createShipment(int $orderId, array $payload = []): array
 	{
 		$order = Order::find($orderId);
-
 		if (!$order) {
 			throw new \Exception('Order not found');
 		}
@@ -73,7 +77,8 @@ class OperationsService
 			throw new \Exception('Order must complete all production steps before shipping');
 		}
 
-		$shippingStatus = $payload['shipping_status'] ?? 'pending';
+        $orderService = new \App\Application\OrderService();
+		$shippingStatus = $payload['shipping_status'] ?? 'shipping'; // Default to shipping
 		$now = date('Y-m-d H:i:s');
 
 		$shipment = Shipment::create([
@@ -81,14 +86,11 @@ class OperationsService
 			'courier' => $this->normalizeString($payload['courier'] ?? null),
 			'tracking_number' => $this->normalizeString($payload['tracking_number'] ?? null) ?: $this->generateTrackingNumber($orderId),
 			'shipping_status' => $shippingStatus,
-			'shipped_at' => in_array($shippingStatus, ['shipping', 'delivered'], true) ? $now : null,
-			'delivered_at' => $shippingStatus === 'delivered' ? $now : null,
+			'shipped_at' => $now,
 		]);
 
-		$order->update([
-			'status' => $shippingStatus === 'delivered' ? 'delivered' : 'shipped',
-			'production_step' => 'ready_to_ship',
-		]);
+        // Move order to SHIPPED
+        $orderService->transitionStatus($orderId, 'shipped', 0);
 
 		return $this->getShipmentDetails((int) $shipment->id);
 	}

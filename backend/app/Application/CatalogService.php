@@ -435,6 +435,77 @@ class CatalogService
 		return array_values(array_unique($result));
 	}
 
+	public function createProduct(array $data): array
+	{
+		$db = Database::getInstance();
+		$slug = $data['slug'] ?? $this->generateSlug($data['name']);
+		
+		$sql = 'INSERT INTO product (category_id, name, model_name, slug, description, base_price, brand, gender, is_active, created_at, updated_at) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())';
+		
+		$stmt = $db->prepare($sql);
+		$stmt->execute([
+			$data['category_id'] ?? null,
+			$data['name'],
+			$data['model_name'] ?? null,
+			$slug,
+			$data['description'] ?? null,
+			$data['base_price'],
+			$data['brand'] ?? null,
+			$data['gender'] ?? 'unisex',
+			$data['is_active'] ?? 1
+		]);
+		
+		$productId = (int) $db->lastInsertId();
+		return $this->getProductDetails($productId);
+	}
+
+	public function updateProduct(int $id, array $data): array
+	{
+		$db = Database::getInstance();
+		$product = $this->getProductDetails($id);
+		if (!$product) throw new \Exception("Product not found");
+
+		$fields = ['category_id', 'name', 'model_name', 'slug', 'description', 'base_price', 'brand', 'gender', 'is_active'];
+		$updates = [];
+		$bindings = [];
+
+		foreach ($fields as $field) {
+			if (array_key_exists($field, $data)) {
+				$updates[] = "$field = ?";
+				$bindings[] = $data[$field];
+			}
+		}
+
+		if (!empty($updates)) {
+			$sql = 'UPDATE product SET ' . implode(', ', $updates) . ', updated_at = NOW() WHERE id = ?';
+			$bindings[] = $id;
+			$stmt = $db->prepare($sql);
+			$stmt->execute($bindings);
+		}
+
+		return $this->getProductDetails($id);
+	}
+
+	public function deleteProduct(int $id): bool
+	{
+		$db = Database::getInstance();
+		// We usually soft delete by deactivating
+		$stmt = $db->prepare('UPDATE product SET is_active = 0, updated_at = NOW() WHERE id = ?');
+		return $stmt->execute([$id]);
+	}
+
+	public function updateProductPrice(int $id, float $newBasePrice): array
+	{
+		return $this->updateProduct($id, ['base_price' => $newBasePrice]);
+	}
+
+    private function generateSlug(string $name): string
+    {
+        $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $name)));
+        return $slug . '-' . uniqid();
+    }
+
 	private function toFloatOrNull($value): ?float
 	{
 		if ($value === null || $value === '') {

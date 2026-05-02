@@ -25,27 +25,17 @@ class SalesVerificationService
     }
 
     /**
-     * Xác minh đơn hàng hợp lệ để chuyển qua sản xuất (Operations)
+     * Xác minh đơn hàng hợp lệ để chuyển qua xác nhận (Confirmed)
      */
     public function verifyOrder(int $orderId, int $staffId): array
     {
+        $db = Database::getInstance();
+        $orderService = new \App\Application\OrderService();
+        
+        // Use the workflow enforcement from OrderService
+        $orderService->confirmOrder($orderId, $staffId);
+
         $order = Order::find($orderId);
-        if (!$order) {
-            throw new \Exception('Order not found');
-        }
-
-        if ($order->verified_by !== null) {
-            throw new \Exception('Order already verified');
-        }
-
-        // Đánh dấu là staff đã verify và chuyển status sang processing
-        $order->update([
-            'status'          => 'processing',
-            'production_step' => 'lens_cutting', // Bắt đầu dây chuyền sản xuất
-            'verified_by'     => $staffId,
-            'verified_at'     => date('Y-m-d H:i:s'),
-        ]);
-
         return $order->toArray();
     }
 
