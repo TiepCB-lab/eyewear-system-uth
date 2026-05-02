@@ -19,12 +19,14 @@ class CartService
     {
         $stmt = $this->db->prepare("
             SELECT ci.*, pv.sku, pv.color, pv.size, pv.image_2d_url, p.name as product_name, p.base_price, 
-                   pv.additional_price, l.name as lens_name, l.price as lens_price, ci.is_selected
+                   pv.additional_price, l.name as lens_name, l.price as lens_price,
+                   pre.sph_od, pre.sph_os, pre.cyl_od, pre.cyl_os, pre.axis_od, pre.axis_os, pre.pd
             FROM cart c
             JOIN cartitem ci ON c.id = ci.cart_id
             JOIN productvariant pv ON ci.productvariant_id = pv.id
             JOIN product p ON pv.product_id = p.id
             LEFT JOIN lens l ON ci.lens_id = l.id
+            LEFT JOIN prescription pre ON ci.prescription_id = pre.id
             WHERE c.user_id = ? AND c.status = 'active'
         ");
         $stmt->execute([$userId]);
@@ -70,10 +72,12 @@ class CartService
         $cartId = $this->getOrCreateCart($userId);
         
         $lensId = $data['lens_id'] ?? null;
+        $prescriptionId = $data['prescription_id'] ?? null;
 
         // Check if item already exists in cart, then increment quantity
-        $stmt = $this->db->prepare("SELECT id, quantity FROM cartitem WHERE cart_id = ? AND productvariant_id = ? AND lens_id <=> ?");
-        $stmt->execute([$cartId, $variantId, $lensId]);
+        // We include prescription_id in the check so that custom prescriptions are treated as unique items
+        $stmt = $this->db->prepare("SELECT id, quantity FROM cartitem WHERE cart_id = ? AND productvariant_id = ? AND lens_id <=> ? AND prescription_id <=> ?");
+        $stmt->execute([$cartId, $variantId, $lensId, $prescriptionId]);
         $existing = $stmt->fetch();
 
         if ($existing) {
@@ -100,7 +104,7 @@ class CartService
             if ($lens) $unitPrice += $lens['price'];
         }
 
-        $prescriptionId = $data['prescription_id'] ?? null;
+
 
         $stmt = $this->db->prepare("INSERT INTO cartitem (cart_id, productvariant_id, lens_id, prescription_id, quantity, unit_price) VALUES (?, ?, ?, ?, ?, ?)");
         $stmt->execute([$cartId, $variantId, $lensId, $prescriptionId, $quantity, $unitPrice]);

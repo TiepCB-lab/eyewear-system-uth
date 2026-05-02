@@ -13,16 +13,16 @@ class AuthService
     {
         $db = Database::getInstance();
 
-        // 1. Kiểm tra Role 'customer'
+        // 1. Kiểm tra Role 'CUSTOMER'
         $roleStmt = $db->prepare('SELECT id FROM role WHERE name = ?');
-        $roleStmt->execute(['customer']);
+        $roleStmt->execute(['CUSTOMER']);
         $role = $roleStmt->fetch();
         if (!$role) {
-            $db->exec("INSERT IGNORE INTO role (id, name, description) VALUES (1, 'system_admin', 'Administrator'), (2, 'manager', 'Manager'), (3, 'sales_staff', 'Sales'), (4, 'operations_staff', 'Operations'), (5, 'customer', 'Customer')");
-            $roleId = 5;
-        } else {
-            $roleId = $role['id'];
+            $db->exec("INSERT IGNORE INTO role (name, description) VALUES ('ADMIN', 'Administrator'), ('MANAGER', 'Manager'), ('SALES_STAFF', 'Sales'), ('OPERATIONS_STAFF', 'Operations'), ('CUSTOMER', 'Customer')");
+            $roleStmt->execute(['CUSTOMER']);
+            $role = $roleStmt->fetch();
         }
+        $roleId = $role['id'];
 
         // 2. Kiểm tra email trong bảng user
         $stmt = $db->prepare('SELECT id, status, verify_token, full_name FROM `user` WHERE email = ?');
@@ -104,6 +104,17 @@ class AuthService
         $roleStmt->execute([$user['id']]);
         $roles = $roleStmt->fetchAll(\PDO::FETCH_COLUMN);
 
+        // Lấy toàn bộ Permissions qua Role
+        $permStmt = $db->prepare("
+            SELECT DISTINCT p.name
+            FROM permissions p
+            JOIN role_permissions rp ON p.id = rp.permission_id
+            JOIN user_roles ur ON rp.role_id = ur.role_id
+            WHERE ur.user_id = ?
+        ");
+        $permStmt->execute([$user['id']]);
+        $permissions = $permStmt->fetchAll(\PDO::FETCH_COLUMN);
+
         $avatarStmt = $db->prepare('SELECT avatar FROM profiles WHERE user_id = ? LIMIT 1');
         $avatarStmt->execute([$user['id']]);
         $avatar = $avatarStmt->fetchColumn();
@@ -117,6 +128,7 @@ class AuthService
                 'name' => $user['full_name'],
                 'email' => $user['email'],
                 'roles' => $roles,
+                'permissions' => $permissions,
                 'avatar' => $avatar ?: null,
             ],
             'token' => $token
@@ -148,6 +160,17 @@ class AuthService
         $roleStmt = $db->prepare('SELECT r.name FROM role r JOIN user_roles ur ON r.id = ur.role_id WHERE ur.user_id = ?');
         $roleStmt->execute([$userId]);
         $user['roles'] = $roleStmt->fetchAll(\PDO::FETCH_COLUMN);
+
+        // Lấy toàn bộ Permissions
+        $permStmt = $db->prepare("
+            SELECT DISTINCT p.name
+            FROM permissions p
+            JOIN role_permissions rp ON p.id = rp.permission_id
+            JOIN user_roles ur ON rp.role_id = ur.role_id
+            WHERE ur.user_id = ?
+        ");
+        $permStmt->execute([$userId]);
+        $user['permissions'] = $permStmt->fetchAll(\PDO::FETCH_COLUMN);
 
         $avatarStmt = $db->prepare('SELECT avatar FROM profiles WHERE user_id = ? LIMIT 1');
         $avatarStmt->execute([$userId]);

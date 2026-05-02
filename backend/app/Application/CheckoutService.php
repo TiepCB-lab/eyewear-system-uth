@@ -30,13 +30,13 @@ class CheckoutService
                 throw new Exception("Không có sản phẩm nào được chọn để thanh toán.");
             }
 
-            // Validate User Details (Phone)
+            // Validate User Details (Optional: We rely on shipping address having its own phone)
+            /*
             $stmtUser = $this->db->prepare("SELECT phone FROM `user` WHERE id = ?");
             $stmtUser->execute([$userId]);
             $user = $stmtUser->fetch();
 
             if (empty($user['phone'])) {
-                // Check if profile has phone if user table doesn't
                 $stmtProf = $this->db->prepare("SELECT phone FROM profiles WHERE user_id = ?");
                 $stmtProf->execute([$userId]);
                 $prof = $stmtProf->fetch();
@@ -44,26 +44,29 @@ class CheckoutService
                     throw new Exception("Vui lòng cập nhật số điện thoại trong trang cá nhân trước khi thanh toán.");
                 }
             }
+            */
 
             $totals = $this->cartService->getCartTotals($userId);
             $orderNumber = 'ORD-' . strtoupper(uniqid());
 
-            // Determine Order Type
+            // Determine Order Type and Status
             $orderType = 'stock';
+            $status = 'pending_payment';
+
             foreach ($cartItems as $item) {
                 if (!empty($item['prescription_id']) || !empty($item['lens_id'])) {
                     $orderType = 'prescription';
+                    $status = 'pending_confirmation';
                     break;
                 }
             }
-            // Logic for pre-order could be added here if stock check allows it
 
             // 1. Create Order
             $stmt = $this->db->prepare("
                 INSERT INTO `order` (
                     user_id, order_number, total_amount, shipping_address, billing_address, 
                     status, order_type, placed_at
-                ) VALUES (?, ?, ?, ?, ?, 'pending', ?, NOW())
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
             ");
             
             $stmt->execute([
@@ -72,6 +75,7 @@ class CheckoutService
                 $totals['total'],
                 $checkoutData['shipping_address'],
                 $checkoutData['billing_address'] ?? $checkoutData['shipping_address'],
+                $status,
                 $orderType
             ]);
 
@@ -109,7 +113,8 @@ class CheckoutService
             return [
                 'order_id' => $orderId,
                 'order_number' => $orderNumber,
-                'total' => $totals['total']
+                'total' => $totals['total'],
+                'status' => $status
             ];
 
         } catch (Exception $e) {
