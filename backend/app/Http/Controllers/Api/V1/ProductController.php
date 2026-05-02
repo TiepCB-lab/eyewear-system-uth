@@ -45,6 +45,54 @@ class ProductController extends BaseController
     }
 
     /**
+     * Create a new product (Manager only).
+     */
+    public function store()
+    {
+        $input = $this->getJsonInput();
+        try {
+            $product = $this->catalogService->createProduct($input);
+            return ApiResponse::success($product, 'Product created successfully');
+        } catch (\Exception $e) {
+            return ApiResponse::error($e->getMessage());
+        }
+    }
+
+    /**
+     * Update an existing product (Manager only).
+     */
+    public function update()
+    {
+        $id = $this->query('id');
+        $input = $this->getJsonInput();
+        
+        if (!$id) return ApiResponse::validationError('Product ID is required');
+
+        try {
+            $product = $this->catalogService->updateProduct((int)$id, $input);
+            return ApiResponse::success($product, 'Product updated successfully');
+        } catch (\Exception $e) {
+            return ApiResponse::error($e->getMessage());
+        }
+    }
+
+    /**
+     * Deactivate a product (Manager only).
+     */
+    public function destroy()
+    {
+        $id = $this->query('id');
+        if (!$id) return ApiResponse::validationError('Product ID is required');
+
+        try {
+            $this->catalogService->deleteProduct((int)$id);
+            return ApiResponse::success(null, 'Product deactivated successfully');
+        } catch (\Exception $e) {
+            return ApiResponse::error($e->getMessage());
+        }
+    }
+
+    /**
      * Return list of brands.
      */
     public function brands()

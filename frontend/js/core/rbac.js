@@ -15,17 +15,24 @@ export function usePermission(user) {
         };
     }
 
-    // Support both single role (string) and multiple roles (array)
     const userRoles = Array.isArray(user.roles) 
         ? user.roles 
         : (user.role ? [user.role] : []);
 
-    // Extract all permissions from user roles
+    // SUPPORT BOTH BACKEND PERMISSIONS AND ROLE FALLBACK
     const userPermissions = new Set();
-    userRoles.forEach(role => {
-        const permissions = ROLE_PERMISSIONS[role] || [];
-        permissions.forEach(p => userPermissions.add(p));
-    });
+    
+    // 1. If backend explicitly provided permissions, use them (STRICT)
+    if (user.permissions && Array.isArray(user.permissions)) {
+        user.permissions.forEach(p => userPermissions.add(p));
+    } 
+    // 2. Fallback to deriving from roles if no explicit permissions (Backward compatibility)
+    else {
+        userRoles.forEach(role => {
+            const permissions = ROLE_PERMISSIONS[role] || [];
+            permissions.forEach(p => userPermissions.add(p));
+        });
+    }
 
     /**
      * Check if user has a specific permission (or any of the permissions if array)
@@ -61,18 +68,24 @@ export async function getCurrentUserPermissions() {
         const { default: authService } = await import('../services/authService.js');
         const user = await authService.getCurrentUser();
         let roles = [];
-        if (user?.roles && Array.isArray(user.roles)) {
-            roles = user.roles.map(r => String(r).toUpperCase());
+        let permissions = [];
+
+        if (user) {
+            if (user.roles && Array.isArray(user.roles)) {
+                roles = user.roles.map(r => String(r).toUpperCase());
+            }
+            if (user.permissions && Array.isArray(user.permissions)) {
+                permissions = user.permissions;
+            }
+            
+            // Also update local storage if we got fresh info to keep them in sync
+            authService.saveUserInfo(user);
         } else {
             roles = authService.getUserRoles();
-        }
-        
-        // Also update local storage if we got fresh roles to keep them in sync
-        if (user && user.roles) {
-            authService.saveUserInfo(user);
+            permissions = authService.getUserPermissions();
         }
 
-        return usePermission({ roles });
+        return usePermission({ roles, permissions });
     } catch (error) {
         console.error('Error getting current user permissions:', error);
         return usePermission(null);

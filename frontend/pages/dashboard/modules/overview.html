@@ -29,7 +29,7 @@
     </div>
 
     <div class="dashboard-quick-actions">
-        <a href="/pages/dashboard/index.html?view=orders" class="dashboard-quick-action sidebar-link" data-view="orders" data-permission="process_orders">
+        <a href="/pages/dashboard/index.html?view=orders" class="dashboard-quick-action sidebar-link" data-view="orders" data-permission="view_orders">
             <span class="dashboard-quick-action__icon"><i class="fi fi-rs-shopping-cart-check"></i></span>
             <span class="dashboard-quick-action__content">
                 <strong>Review Orders</strong>
@@ -37,7 +37,7 @@
             </span>
         </a>
 
-        <a href="/pages/dashboard/index.html?view=support" class="dashboard-quick-action sidebar-link" data-view="support" data-permission="process_orders">
+        <a href="/pages/dashboard/index.html?view=support" class="dashboard-quick-action sidebar-link" data-view="support" data-permission="contact_customer">
             <span class="dashboard-quick-action__icon"><i class="fi fi-rs-envelope"></i></span>
             <span class="dashboard-quick-action__content">
                 <strong>Reply to Customers</strong>
@@ -45,11 +45,19 @@
             </span>
         </a>
 
-        <a href="/pages/dashboard/index.html?view=inventory" class="dashboard-quick-action sidebar-link" data-view="inventory">
+        <a href="/pages/dashboard/index.html?view=inventory" class="dashboard-quick-action sidebar-link" data-view="inventory" data-permission="manage_products, process_preorder_inventory">
             <span class="dashboard-quick-action__icon"><i class="fi fi-rs-box"></i></span>
             <span class="dashboard-quick-action__content">
                 <strong>Check Inventory</strong>
                 <small>Monitor stock and keep products available.</small>
+            </span>
+        </a>
+
+        <a href="/pages/dashboard/index.html?view=users" class="dashboard-quick-action sidebar-link" data-view="users" data-permission="manage_roles, manage_all_users">
+            <span class="dashboard-quick-action__icon"><i class="fi fi-rs-users-gear"></i></span>
+            <span class="dashboard-quick-action__content">
+                <strong>Manage Staff</strong>
+                <small>Manage roles and staff permissions.</small>
             </span>
         </a>
     </div>

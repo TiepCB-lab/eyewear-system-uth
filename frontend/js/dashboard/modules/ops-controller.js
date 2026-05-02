@@ -45,8 +45,8 @@ function updateKPIs(overviewData) {
   const shippedToday = shipmentStatuses.find(s => s.shipping_status === 'shipped')?.total || 0;
   const pendingQC = productionSteps.find(s => s.production_step === 'qc_inspection')?.total || 0;
   
-  // Avg turnaround doesn't exist in DB, fallback to static for now or random
-  const avgTurnaround = 6.2;
+  // Use real turnaround data from API
+  const avgTurnaround = overviewData.avg_turnaround_hours || 0;
 
   // Update KPI display values
   kpiValues[0].textContent = ordersInLab;

@@ -6,8 +6,13 @@ async function applySidebarPermissions() {
     document.querySelectorAll('[data-permission]').forEach((element) => {
         const permissionStr = element.getAttribute('data-permission');
         const perms = permissionStr ? permissionStr.split(',').map(p => p.trim()) : [];
+        
         if (hasPermission(perms)) {
             element.classList.add('permission-granted');
+            element.style.display = ''; // Show if granted
+        } else {
+            element.classList.remove('permission-granted');
+            element.style.display = 'none'; // Hide if not granted
         }
     });
 }

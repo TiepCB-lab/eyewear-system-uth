@@ -44,7 +44,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <h3 class="table__title">${item.product_name || 'Product'}</h3>
                         <p class="table__description">
                             Color: ${item.color || 'N/A'}, Size: ${item.size || 'N/A'} <br>
-                            ${item.lens_name ? `Lens: ${item.lens_name} (${api.formatCurrency(item.lens_price)})` : ''}
+                            ${item.lens_name ? `Lens: ${item.lens_name} (+${api.formatCurrency(item.lens_price)})` : ''}
+                            ${item.prescription_id ? `
+                                <div class="cart-prescription-info" style="font-size: 0.75rem; color: var(--first-color); margin-top: 5px; background: #f0f9f9; padding: 5px; border-radius: 4px;">
+                                    <strong>Prescription:</strong><br>
+                                    R: ${item.sph_od}/${item.cyl_od}/${item.axis_od} | 
+                                    L: ${item.sph_os}/${item.cyl_os}/${item.axis_os} | PD: ${item.pd}
+                                </div>
+                            ` : ''}
                         </p>
                     </td>
                     <td><span class="table__price">${api.formatCurrency(item.unit_price)}</span></td>

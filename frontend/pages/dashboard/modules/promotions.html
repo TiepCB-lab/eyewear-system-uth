@@ -1,0 +1,35 @@
+<!--=============== PROMOTIONS MODULE ===============-->
+<h2 class="section__title">Promotions & Vouchers</h2>
+
+<div class="metrics-grid">
+    <div class="metric-card">
+        <div class="metric-label">Active Vouchers</div>
+        <div class="metric-value" id="active-vouchers-count">...</div>
+        <button class="btn btn--sm mt-1 admin-button-block" id="add-voucher-btn">Create New Voucher</button>
+    </div>
+</div>
+
+<div class="admin-table container admin-panel">
+    <h3 class="table__title">Voucher List</h3>
+    <div class="table__container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Title</th>
+                    <th>Discount</th>
+                    <th>Period</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="vouchers-table-body">
+                <tr>
+                    <td colspan="6" class="table-state-cell">Loading vouchers...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script type="module" src="/js/dashboard/modules/promotions-controller.js"></script>
