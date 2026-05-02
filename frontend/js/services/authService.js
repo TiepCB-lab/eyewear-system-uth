@@ -109,6 +109,18 @@ class AuthService {
     return this.getUserRoles().includes('CUSTOMER');
   }
 
+  getUserPermissions() {
+    const userJson = localStorage.getItem('user_info');
+    if (!userJson) return [];
+    try {
+      const user = JSON.parse(userJson);
+      return Array.isArray(user.permissions) ? user.permissions : [];
+    } catch (e) {
+      console.error("Error parsing user permissions", e);
+    }
+    return [];
+  }
+
   // Determine which side of the app the user belongs to primarily
   getPrimaryContext() {
     if (this.isStaff()) return 'staff';

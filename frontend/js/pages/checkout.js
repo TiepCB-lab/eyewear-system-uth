@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     addressSelect.innerHTML = '<option value="">No addresses saved. Please add one.</option>';
                 } else {
                     addressSelect.innerHTML = addresses.map(addr => 
-                        `<option value="${addr.id}" ${addr.is_default ? 'selected' : ''}>${addr.label}: ${addr.address}</option>`
+                        `<option value="${addr.id}" ${addr.is_default ? 'selected' : ''}>${addr.label}: ${addr.address} (Tel: ${addr.phone})</option>`
                     ).join('');
                 }
             }
@@ -69,9 +69,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const loadProfileData = async () => {
         try {
             const response = await api.profile.getProfile();
-            const profile = response.data?.profile || {};
+            const data = response.data || {};
+            console.log('Checkout Profile Data:', data);
 
-            fillCheckoutFields(profile);
+            fillCheckoutFields(data.profile);
             
             // Addresses might be cached in profile, but let's fetch fresh
             await loadAddresses();
@@ -145,14 +146,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             placeOrderBtn.disabled = true;
             placeOrderBtn.innerText = 'Processing...';
             
-            await api.cart.checkout(fullAddress);
+            const response = await api.cart.checkout(fullAddress);
+            const orderData = response.data || {};
             
-            if (window.Notification) window.Notification.show('Order placed successfully!', 'success');
-            else alert('Order placed successfully!');
+            if (orderData.status === 'pending_confirmation') {
+                if (window.Notification) window.Notification.show('Order placed! Waiting for sales staff to verify your prescription.', 'success');
+                else alert('Order placed! Waiting for sales staff to verify your prescription.');
+            } else {
+                if (window.Notification) window.Notification.show('Order placed successfully! Redirecting to payment...', 'success');
+                else alert('Order placed successfully! Redirecting to payment...');
+            }
 
-            await new Promise((resolve) => setTimeout(resolve, 1500));
+            await new Promise((resolve) => setTimeout(resolve, 2000));
 
-            window.location.href = '../../index.html';
+            if (orderData.status === 'pending_confirmation') {
+                window.location.href = '../accounts/index.html?tab=orders';
+            } else {
+                window.location.href = '../payment/index.html?order_id=' + orderData.order_id;
+            }
         } catch (err) {
             const message = err.response?.data?.message || err.message;
             if (window.Notification) window.Notification.show('Checkout failed: ' + message, 'error');

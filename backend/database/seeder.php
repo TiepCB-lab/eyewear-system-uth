@@ -2,54 +2,60 @@
 
 define('APP_ROOT', dirname(__DIR__));
 
-function env_value(array $config, array $keys, $default = null) {
-    foreach ($keys as $key) {
-        if (isset($config[$key]) && $config[$key] !== '') {
-            return $config[$key];
+if (!function_exists('env_value')) {
+    function env_value(array $config, array $keys, $default = null) {
+        foreach ($keys as $key) {
+            if (isset($config[$key]) && $config[$key] !== '') {
+                return $config[$key];
+            }
         }
+        return $default;
     }
-    return $default;
 }
 
-function parse_env_file(string $path): array {
-    $result = [];
-    $lines = @file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    if ($lines === false) {
+if (!function_exists('parse_env_file')) {
+    function parse_env_file(string $path): array {
+        $result = [];
+        $lines = @file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        if ($lines === false) {
+            return [];
+        }
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line === '' || str_starts_with($line, '#') || str_starts_with($line, ';') || !str_contains($line, '=')) {
+                continue;
+            }
+
+            [$name, $value] = explode('=', $line, 2);
+            $name = trim($name);
+            $value = trim($value);
+
+            if (($value !== '') && (($value[0] === '"' && str_ends_with($value, '"')) || ($value[0] === "'" && str_ends_with($value, "'")))) {
+                $value = substr($value, 1, -1);
+            }
+
+            $result[$name] = $value;
+        }
+
+        return $result;
+    }
+}
+
+if (!function_exists('load_env_config')) {
+    function load_env_config(): array {
+        foreach ([
+            APP_ROOT . DIRECTORY_SEPARATOR . '.env.local',
+            APP_ROOT . DIRECTORY_SEPARATOR . '.env',
+            dirname(APP_ROOT) . DIRECTORY_SEPARATOR . '.env',
+        ] as $path) {
+            if (is_file($path)) {
+                return parse_env_file($path);
+            }
+        }
+
         return [];
     }
-
-    foreach ($lines as $line) {
-        $line = trim($line);
-        if ($line === '' || str_starts_with($line, '#') || str_starts_with($line, ';') || !str_contains($line, '=')) {
-            continue;
-        }
-
-        [$name, $value] = explode('=', $line, 2);
-        $name = trim($name);
-        $value = trim($value);
-
-        if (($value !== '') && (($value[0] === '"' && str_ends_with($value, '"')) || ($value[0] === "'" && str_ends_with($value, "'")))) {
-            $value = substr($value, 1, -1);
-        }
-
-        $result[$name] = $value;
-    }
-
-    return $result;
-}
-
-function load_env_config(): array {
-    foreach ([
-        APP_ROOT . DIRECTORY_SEPARATOR . '.env.local',
-        APP_ROOT . DIRECTORY_SEPARATOR . '.env',
-        dirname(APP_ROOT) . DIRECTORY_SEPARATOR . '.env',
-    ] as $path) {
-        if (is_file($path)) {
-            return parse_env_file($path);
-        }
-    }
-
-    return [];
 }
 
 echo "Starting Database Seeder...\n";
@@ -72,36 +78,44 @@ try {
 
     echo "Connected to database.\n";
 
-    $pdo->exec("\n        INSERT INTO role (name, description) VALUES\n            ('ADMIN', 'System-level control ONLY'),\n            ('MANAGER', 'Business management'),\n            ('SALES_STAFF', 'Customer/order handling'),\n            ('OPERATIONS_STAFF', 'Fulfillment/logistics'),\n            ('CUSTOMER', 'Customer')\n        ON DUPLICATE KEY UPDATE description = VALUES(description);\n    ");
+    $pdo->exec("\n        INSERT INTO role (name, description) VALUES\n            ('ADMIN', 'Full system access'),\n            ('MANAGER', 'Business management and oversight'),\n            ('SALES_STAFF', 'Order verification and customer communication'),\n            ('OPERATIONS_STAFF', 'Production processing and fulfillment'),\n            ('CUSTOMER', 'Default registered customer')\n        ON DUPLICATE KEY UPDATE description = VALUES(description);\n    ");
 
     $permissions = [
-        'view_products' => 'View products',
+        // Customer Permissions
+        'view_products' => 'Ability to view product details',
         'search_products' => 'Search products',
         'view_product_detail' => 'View product details',
         'manage_cart' => 'Manage shopping cart',
         'create_order' => 'Create new orders',
+        'checkout' => 'Checkout process',
+        'make_payment' => 'Make payments',
         'view_own_orders' => 'View own orders',
         'request_return' => 'Request a return',
-        'view_orders' => 'View all orders',
+        'manage_profile' => 'Manage personal profile',
+
+        // Staff Permissions
+        'view_orders' => 'Ability to view order history and details',
+        'confirm_order' => 'Ability to verify and confirm pending orders',
+        'update_order_status' => 'Ability to advance production steps',
+        'pack_order' => 'Ability to prepare shipments',
+        'contact_customer' => 'Ability to reply to support tickets',
         'validate_prescription' => 'Validate prescription details',
-        'contact_customer' => 'Contact customers',
-        'confirm_order' => 'Confirm orders',
         'handle_preorder' => 'Handle preorders',
         'handle_returns' => 'Handle returns',
-        'pack_order' => 'Pack orders',
         'create_shipment' => 'Create shipment',
         'update_tracking' => 'Update tracking info',
         'process_preorder_inventory' => 'Process preorder inventory',
         'process_prescription_orders' => 'Process prescription orders',
-        'update_order_status' => 'Update order status',
-        'manage_products' => 'Manage products',
+
+        // Management & Admin Permissions
+        'manage_products' => 'Ability to create/edit/delete products',
         'manage_pricing' => 'Manage pricing',
         'manage_promotions' => 'Manage promotions',
-        'manage_users' => 'Manage users',
-        'view_reports' => 'View reports',
+        'manage_users' => 'Ability to manage staff accounts',
+        'view_reports' => 'Ability to access dashboard analytics',
         'manage_policies' => 'Manage policies',
-        'manage_roles' => 'Manage roles',
-        'manage_permissions' => 'Manage permissions',
+        'manage_roles' => 'Ability to manage role permissions',
+        'manage_permissions' => 'Manage permissions list',
         'manage_system_config' => 'Manage system config',
         'manage_all_users' => 'Manage all users',
         'view_system_logs' => 'View system logs'
@@ -112,11 +126,27 @@ try {
     }
 
     $rolePermissions = [
-        'CUSTOMER' => ['view_products', 'search_products', 'view_product_detail', 'manage_cart', 'create_order', 'view_own_orders', 'request_return'],
-        'SALES_STAFF' => ['view_orders', 'validate_prescription', 'contact_customer', 'confirm_order', 'handle_preorder', 'handle_returns'],
-        'OPERATIONS_STAFF' => ['pack_order', 'create_shipment', 'update_tracking', 'process_preorder_inventory', 'process_prescription_orders', 'update_order_status'],
-        'MANAGER' => ['manage_products', 'manage_pricing', 'manage_promotions', 'manage_users', 'view_reports', 'manage_policies'],
-        'ADMIN' => ['manage_roles', 'manage_permissions', 'manage_system_config', 'manage_all_users', 'view_system_logs']
+        'CUSTOMER' => [
+            'view_products', 'search_products', 'view_product_detail', 'manage_cart', 
+            'create_order', 'checkout', 'make_payment', 'view_own_orders', 
+            'request_return', 'manage_profile'
+        ],
+        'SALES_STAFF' => [
+            'view_orders', 'validate_prescription', 'contact_customer', 
+            'confirm_order', 'handle_preorder', 'handle_returns'
+        ],
+        'OPERATIONS_STAFF' => [
+            'view_orders', 'pack_order', 'create_shipment', 'update_tracking', 
+            'process_preorder_inventory', 'process_prescription_orders', 'update_order_status'
+        ],
+        'MANAGER' => [
+            'manage_products', 'manage_pricing', 'manage_promotions', 
+            'manage_users', 'view_reports', 'manage_policies'
+        ],
+        'ADMIN' => [
+            'manage_roles', 'manage_permissions', 'manage_system_config', 
+            'manage_all_users', 'view_system_logs'
+        ]
     ];
 
     foreach ($rolePermissions as $roleName => $perms) {

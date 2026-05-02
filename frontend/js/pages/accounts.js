@@ -38,6 +38,8 @@ function normalizeAvatarUrl(avatar) {
 
 function getStatusBadge(status) {
     const map = {
+        pending_payment: { cls: 'badge-pending', label: 'Pending Payment' },
+        pending_confirmation: { cls: 'badge-qc', label: 'Awaiting Confirmation' },
         pending: { cls: 'badge-pending', label: 'Pending' },
         verified: { cls: 'badge-qc', label: 'Verified' },
         processing: { cls: 'badge-shipped', label: 'Processing' },

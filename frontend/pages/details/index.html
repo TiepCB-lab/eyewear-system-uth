@@ -17,15 +17,82 @@
     />
 
     <!--=============== CSS ===============-->
-    <link rel="stylesheet" href="../../../assets/css/styles.css" />
-    <link rel="stylesheet" href="../../../assets/css/refactor-utils.css" />
+    <link rel="stylesheet" href="../../assets/css/styles.css" />
+    <link rel="stylesheet" href="../../assets/css/refactor-utils.css" />
 
     <!--=============== LAYOUT LOADER ===============-->
-    <script src="../../../js/core/layout-loader.js" defer></script>
+    <script src="../../js/core/layout-loader.js" defer></script>
 
     <title>EVELENS — Details</title>
   </head>
   <body>
+    <!--=============== PRESCRIPTION MODAL ===============-->
+    <div id="prescription-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999999; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; pointer-events: none;">
+        <style>
+            #prescription-modal.show {
+                opacity: 1 !important;
+                pointer-events: auto !important;
+            }
+        </style>
+        <div class="modal-content" style="background: #fff; padding: 2rem; border-radius: 1rem; max-width: 450px; width: 95%; color: #333;">
+            <h2 class="section__title" style="margin-bottom: 1rem;">Prescription Details</h2>
+            <form id="prescription-form">
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 1rem;">
+                    <div></div><div style="font-weight:bold;font-size:12px">SPH</div><div style="font-weight:bold;font-size:12px">CYL</div><div style="font-weight:bold;font-size:12px">Axis</div>
+                    <div style="font-weight:bold">Right</div>
+                    <input type="number" step="0.25" name="sph_od" style="width:100%;padding:5px" value="0.00">
+                    <input type="number" step="0.25" name="cyl_od" style="width:100%;padding:5px" value="0.00">
+                    <input type="number" name="axis_od" style="width:100%;padding:5px" value="0">
+                    <div style="font-weight:bold">Left</div>
+                    <input type="number" step="0.25" name="sph_os" style="width:100%;padding:5px" value="0.00">
+                    <input type="number" step="0.25" name="cyl_os" style="width:100%;padding:5px" value="0.00">
+                    <input type="number" name="axis_os" style="width:100%;padding:5px" value="0">
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display:block;margin-bottom:5px">Pupillary Distance (PD)</label>
+                    <input type="number" name="pd" style="width:100%;padding:8px" value="63">
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" class="btn btn--secondary" onclick="window.closePrescriptionModal()" style="flex: 1;">Cancel</button>
+                    <button type="submit" class="btn" style="flex: 1;">Save Details</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global functions for the modal
+        window.openPrescriptionModal = function() {
+            const modal = document.getElementById('prescription-modal');
+            if (modal) {
+                modal.style.setProperty('display', 'flex', 'important');
+                // Small delay to trigger CSS transition
+                setTimeout(() => modal.classList.add('show'), 10);
+            }
+        };
+        window.closePrescriptionModal = function() {
+            const modal = document.getElementById('prescription-modal');
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => modal.style.display = 'none', 300);
+            }
+        };
+        window.prescriptionData = null;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('prescription-form');
+            if(form) {
+                form.onsubmit = (e) => {
+                    e.preventDefault();
+                    const fd = new FormData(form);
+                    window.prescriptionData = Object.fromEntries(fd.entries());
+                    const status = document.getElementById('prescription-status');
+                    if(status) status.textContent = '✓ Saved';
+                    window.closePrescriptionModal();
+                };
+            }
+        });
+    </script>
     <!--=============== HEADER ===============-->
     <!--=============== HEADER ===============-->
     <header class="header" data-include="layout/Header"></header>
@@ -39,24 +106,24 @@
         <div class="details__container container grid">
           <div class="details__group">
             <img
-              src="../../../assets/images/products/AN550012_3849.png"
+              src="../../assets/images/products/AN550012_3849.png"
               alt=""
               id="details-main-image"
               class="details__img"
             />
             <div class="details__small-images grid" id="details-gallery">
               <img
-                src="../../../assets/images/products/AN550012_3849.png"
+                src="../../assets/images/products/AN550012_3849.png"
                 alt=""
                 class="details__small-img"
               />
               <img
-                src="../../../assets/images/products/AN550012_3849(1).png"
+                src="../../assets/images/products/AN550012_3849(1).png"
                 alt=""
                 class="details__small-img"
               />
               <img
-                src="../../../assets/images/products/AN550021_3933.png"
+                src="../../assets/images/products/AN550021_3933.png"
                 alt=""
                 class="details__small-img"
               />
@@ -160,6 +227,21 @@
                 <select id="lens-package" class="eyewear-select-premium details-lens-select">
                   <option value="">Loading lenses...</option>
                 </select>
+                <div id="prescription-toggle-container" style="display: none; margin-top: 1rem; position: relative; z-index: 999;">
+                    <button type="button" id="force-open-pres" class="btn btn--sm" 
+                            style="border: 1px solid var(--first-color) !important; color: var(--first-color) !important; padding: 10px 20px !important; border-radius: 6px !important; background: #fff !important; cursor: pointer !important; font-weight: 600 !important; display: inline-flex !important; align-items: center !important; gap: 8px !important; position: relative; z-index: 1000;">
+                        <i class="fi fi-rs-clipboard-list"></i> Enter Prescription Details
+                    </button>
+                    <script>
+                        document.getElementById('force-open-pres').onclick = function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            window.openPrescriptionModal();
+                            return false;
+                        };
+                    </script>
+                    <span id="prescription-status" style="margin-left: 10px; font-size: 0.8rem; color: var(--first-color); font-weight: 600;"></span>
+                </div>
             </div>
 
             <div class="details-price-box">
@@ -275,12 +357,12 @@
             <div class="product__banner">
               <a href="../details/" class="product__images">
                 <img
-                  src="../../../assets/images/products/AN550012_3849.png"
+                  src="../../assets/images/products/AN550012_3849.png"
                   alt=""
                   class="product__img default"
                 />
                 <img
-                  src="../../../assets/images/products/AN550012_3849.png"
+                  src="../../assets/images/products/AN550012_3849.png"
                   alt=""
                   class="product__img hover"
                 />
@@ -331,12 +413,12 @@
             <div class="product__banner">
               <a href="../details/" class="product__images">
                 <img
-                  src="../../../assets/images/products/AN550012_3849.png"
+                  src="../../assets/images/products/AN550012_3849.png"
                   alt=""
                   class="product__img default"
                 />
                 <img
-                  src="../../../assets/images/products/AN550012_3849.png"
+                  src="../../assets/images/products/AN550012_3849.png"
                   alt=""
                   class="product__img hover"
                 />
@@ -387,12 +469,12 @@
             <div class="product__banner">
               <a href="../details/" class="product__images">
                 <img
-                  src="../../../assets/images/products/AN550012_3849.png"
+                  src="../../assets/images/products/AN550012_3849.png"
                   alt=""
                   class="product__img default"
                 />
                 <img
-                  src="../../../assets/images/products/AN550012_3849.png"
+                  src="../../assets/images/products/AN550012_3849.png"
                   alt=""
                   class="product__img hover"
                 />
@@ -443,12 +525,12 @@
             <div class="product__banner">
               <a href="../details/" class="product__images">
                 <img
-                  src="../../../assets/images/products/AN550012_3849.png"
+                  src="../../assets/images/products/AN550012_3849.png"
                   alt=""
                   class="product__img default"
                 />
                 <img
-                  src="../../../assets/images/products/AN550012_3849.png"
+                  src="../../assets/images/products/AN550012_3849.png"
                   alt=""
                   class="product__img hover"
                 />
@@ -508,33 +590,12 @@
     <!--=============== SWIPER JS ===============-->
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
-    <!--=============== VIRTUAL TRY ON MODAL ===============-->
-    <div id="tryon-container"></div>
-    <script>
-        fetch('../../components/VirtualTryOn.html')
-            .then(response => {
-                if (!response.ok) throw new Error('VirtualTryOn component not found');
-                return response.text();
-            })
-            .then(data => {
-                document.getElementById('tryon-container').innerHTML = data;
-                // Re-run scripts inside the loaded component
-                const scripts = document.getElementById('tryon-container').querySelectorAll('script');
-                scripts.forEach(oldScript => {
-                    const newScript = document.createElement('script');
-                    newScript.text = oldScript.text;
-                    oldScript.parentNode.replaceChild(newScript, oldScript);
-                });
-            })
-            .catch(err => console.warn("Optional component [VirtualTryOn] failed to load:", err.message));
-    </script>
-
     <!--=============== MAIN JS ===============-->
-    <script src="../../../js/main.js"></script>
+    <script src="../../js/main.js"></script>
     <script type="module">
-      import apiClient from '../../../js/services/apiClient.js';
-      import CartService from '../../../js/services/cartService.js';
-      import WishlistService from '../../../js/services/wishlistService.js';
+      import apiClient from '../../js/services/apiClient.js';
+      import CartService from '../../js/services/cartService.js';
+      import WishlistService from '../../js/services/wishlistService.js';
 
       document.addEventListener('DOMContentLoaded', async () => {
         const params = new URLSearchParams(window.location.search);
@@ -608,10 +669,10 @@
 
         // --- RELATED PRODUCTS ---
         const fixImagePath = (path) => {
-            if (!path) return '../../../assets/images/products/placeholder.png';
+            if (!path) return '../../assets/images/products/placeholder.png';
             if (path.startsWith('http')) return path;
             const clean = path.startsWith('/') ? path.substring(1) : path;
-            return '../../../' + clean;
+            return '../../' + clean;
         };
 
         if(relatedEl) {
@@ -642,8 +703,8 @@
                                 <a href="index.html?id=${p.id}" class="product__item__overlay-link"></a>
                                 <div class="product__banner">
                                     <a href="index.html?id=${p.id}" class="product__images">
-                                        <img src="${img}" alt="${p.name}" class="product__img default" onerror="this.src='../../../assets/images/products/placeholder.png'">
-                                        <img src="${img}" alt="${p.name}" class="product__img hover" onerror="this.src='../../../assets/images/products/placeholder.png'">
+                                        <img src="${img}" alt="${p.name}" class="product__img default" onerror="this.src='../../assets/images/products/placeholder.png'">
+                                        <img src="${img}" alt="${p.name}" class="product__img hover" onerror="this.src='../../assets/images/products/placeholder.png'">
                                     </a>
                                     <div class="product__actions">
                                         <button class="action__btn" aria-label="Quick View" data-action="quick-view" data-product-id="${p.id}">
@@ -696,7 +757,7 @@
             if(relatedEl) {
                 relatedEl.innerHTML = relatedItems.map(p => {
                     const pPrice = parseFloat(p.base_price);
-                    let pImg = p.thumbnail || '../../../assets/images/products/placeholder.png';
+                    let pImg = p.thumbnail || '../../assets/images/products/placeholder.png';
                     if(pImg.startsWith('/')) pImg = '../../..' + pImg;
                     return `
                         <div class="product__item">
@@ -766,7 +827,7 @@
 
           selectedVariant = product.variants.find(v => v.color === color && v.size === size) || product.variants.find(v => v.color === color) || product.variants[0];
 
-          let img = selectedVariant.image_2d_url || '../../../assets/images/products/placeholder.png';
+          let img = selectedVariant.image_2d_url || '../../assets/images/products/placeholder.png';
           if(img.startsWith('/')) img = '../../..' + img;
           mainImageEl.src = img;
 
@@ -827,19 +888,72 @@
         });
 
         lensSelect.addEventListener("change", updatePricing);
-        quantityInput.addEventListener("input", updatePricing);
+        quantityInput.addEventListener("input", updatePricing);        // --- PRESCRIPTION MODAL LOGIC ---
+        const prescriptionModal = document.getElementById('prescription-modal');
+        const openPrescriptionBtn = document.getElementById('open-prescription-btn');
+        const closePrescriptionBtn = document.getElementById('close-prescription-modal');
+        const prescriptionForm = document.getElementById('prescription-form');
+        const prescriptionToggle = document.getElementById('prescription-toggle-container');
+        const prescriptionStatus = document.getElementById('prescription-status');
 
+        let prescriptionData = null;
+
+        if (openPrescriptionBtn) {
+            openPrescriptionBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                console.log('Opening Prescription Modal...');
+                prescriptionModal.classList.add('active');
+            });
+        }
+        
+        if (closePrescriptionBtn) {
+            closePrescriptionBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                prescriptionModal.classList.remove('active');
+            });
+        }
+
+        prescriptionForm?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const fd = new FormData(prescriptionForm);
+            prescriptionData = Object.fromEntries(fd.entries());
+            prescriptionStatus.textContent = '✓ Saved';
+            prescriptionModal.classList.remove('active');
+        });
+
+        // Show/Hide prescription entry based on radio selection
+        document.querySelectorAll('input[name="order_type"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (e.target.value === 'prescription') {
+                    prescriptionToggle.style.display = 'block';
+                } else {
+                    prescriptionToggle.style.display = 'none';
+                }
+            });
+        });
+
+        // --- ADD TO CART LOGIC ---
         if(addToCartBtn) {
             addToCartBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 if (!selectedVariant || addToCartBtn.classList.contains('animating')) return;
+
+                const orderTypeEl = document.querySelector('input[name="order_type"]:checked');
+                const orderType = orderTypeEl ? orderTypeEl.value : 'instock';
+
+                if (orderType === 'prescription' && !window.prescriptionData) {
+                    alert('Please enter your prescription details first.');
+                    window.openPrescriptionModal();
+                    return;
+                }
                 
                 addToCartBtn.classList.add('animating');
                 try {
                     await apiClient.post('/v1/cart', { 
                         variant_id: selectedVariant.id, 
                         lens_id: lensSelect.value ? parseInt(lensSelect.value) : null, 
-                        quantity: parseInt(quantityInput.value) 
+                        quantity: parseInt(quantityInput.value),
+                        prescription: orderType === 'prescription' ? window.prescriptionData : null
                     });
                     
                     setTimeout(() => {
@@ -867,7 +981,27 @@
             });
         }
 
-        const wishlistBtn = document.querySelector(".details__action-btn");
+        // --- INITIAL DATA LOAD ---
+        try {
+            const lensRes = await apiClient.get('/v1/products/lenses/available');
+            const lenses = lensRes.data?.data || [];
+            if(lenses.length > 0) {
+                lensSelect.innerHTML = '<option value="">Frame only (no lens)</option>' + 
+                    lenses.map(l => `<option value="${l.id}" data-price="${l.price}">${l.name} - ${l.lens_type} (+${format(l.price)})</option>`).join('');
+            } else {
+                throw new Error("No lenses returned");
+            }
+        } catch(e) {
+            console.error("Lens load failed, using fallbacks", e);
+            lensSelect.innerHTML = `
+                <option value="">Frame only (No add-on)</option>
+                <option value="1" data-price="200000">Basic Lens (+200.000₫)</option>
+                <option value="2" data-price="500000">BlueCut Lens (+500.000₫)</option>
+                <option value="3" data-price="1200000">Photochromic Lens (+1.200.000₫)</option>
+            `;
+        }
+        updatePricing();
+      const wishlistBtn = document.querySelector(".details__action-btn");
         if (wishlistBtn) {
             wishlistBtn.onclick = async (e) => {
                 e.preventDefault();

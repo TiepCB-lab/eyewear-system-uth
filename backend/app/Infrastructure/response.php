@@ -7,13 +7,13 @@ class Response
     /**
      * Send a standardized JSON success response.
      */
-    public static function json(array $data, int $statusCode = 200, string $message = 'Success'): void
+    public static function json(mixed $data = null, int $statusCode = 200, string $message = 'Success'): void
     {
         http_response_code($statusCode);
         echo json_encode([
-            'status'  => 'success',
+            'success' => true,
             'message' => $message,
-            ...$data
+            'data'    => $data
         ]);
         exit;
     }
@@ -25,8 +25,8 @@ class Response
     {
         http_response_code($statusCode);
         echo json_encode([
-            'status'  => 'error',
-            'message' => $message,
+            'success' => false,
+            'message' => $message
         ]);
         exit;
     }

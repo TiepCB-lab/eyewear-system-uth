@@ -54,7 +54,7 @@ Router::group(['prefix' => 'api/auth'], function () {
 });
 
 // Protected Profile & Address Routes
-Router::group(['prefix' => 'api/profile', 'middleware' => 'auth:sanctum'], function () {
+Router::group(['prefix' => 'api/profile', 'middleware' => ['auth:sanctum', 'permission:manage_profile']], function () {
     Router::get('/', [ProfileController::class, 'show']);
     Router::put('/', [ProfileController::class, 'update']);
     Router::post('avatar', [ProfileController::class, 'uploadAvatar']);
@@ -66,7 +66,7 @@ Router::group(['prefix' => 'api/profile', 'middleware' => 'auth:sanctum'], funct
 });
 
 // Shopping Routes
-Router::group(['prefix' => 'api/v1/cart', 'middleware' => 'auth:sanctum'], function () {
+Router::group(['prefix' => 'api/v1/cart', 'middleware' => ['auth:sanctum', 'permission:manage_cart']], function () {
     Router::get('/', [CartController::class, 'index']);
     Router::post('/', [CartController::class, 'store']);
     Router::put('update', [CartController::class, 'update']);
@@ -75,29 +75,29 @@ Router::group(['prefix' => 'api/v1/cart', 'middleware' => 'auth:sanctum'], funct
     Router::delete('delete', [CartController::class, 'destroy']);
 });
 
-Router::group(['prefix' => 'api/v1/wishlist', 'middleware' => 'auth:sanctum'], function () {
+Router::group(['prefix' => 'api/v1/wishlist', 'middleware' => ['auth:sanctum', 'permission:manage_cart']], function () {
     Router::get('/', [WishlistController::class, 'index']);
     Router::post('toggle', [WishlistController::class, 'toggle']);
     Router::delete('delete', [WishlistController::class, 'destroy']);
 });
 
-Router::group(['prefix' => 'api/v1/checkout', 'middleware' => 'auth:sanctum'], function () {
+Router::group(['prefix' => 'api/v1/checkout', 'middleware' => ['auth:sanctum', 'permission:checkout']], function () {
     Router::post('/', [CheckoutController::class, 'store']);
 });
 
 Router::group(['prefix' => 'api/v1/orders', 'middleware' => 'auth:sanctum'], function () {
-    Router::get('/', [OrderController::class, 'index']);
+    Router::get('/', [OrderController::class, 'index']); // Logic internally handles view_own_orders vs view_orders
     Router::get('show', [OrderController::class, 'show']);
 });
 
-Router::group(['prefix' => 'api/v1/prescriptions', 'middleware' => 'auth:sanctum'], function () {
+Router::group(['prefix' => 'api/v1/prescriptions', 'middleware' => ['auth:sanctum', 'permission:create_order|validate_prescription']], function () {
     Router::get('/', [PrescriptionController::class, 'index']);
     Router::post('/', [PrescriptionController::class, 'store']);
 });
 
 // Payments
 Router::group(['prefix' => 'api/v1/payments', 'middleware' => 'auth:sanctum'], function () {
-    Router::post('process', [PaymentController::class, 'process']);
+    Router::post('process', [PaymentController::class, 'process'])->middleware('permission:make_payment');
     Router::get('status',  [PaymentController::class, 'status']);
     
     // Staff only payment routes
@@ -122,49 +122,56 @@ Router::group(['prefix' => 'api/v1/support', 'middleware' => 'auth:sanctum'], fu
 });
 
 // Sales & Operations (Staff Only)
-Router::group(['prefix' => 'api/v1/sales', 'middleware' => ['auth:sanctum', 'permission:view_orders|confirm_order']], function () {
-    Router::get('pending-orders', [SalesController::class, 'pendingOrders']);
-    Router::post('verify', [SalesController::class, 'verify']);
-    Router::post('complaint', [SalesController::class, 'complaint']);
-    Router::get('order-complaints', [SalesController::class, 'orderComplaints']);
+Router::group(['prefix' => 'api/v1/sales', 'middleware' => ['auth:sanctum']], function () {
+    Router::get('pending-orders', [SalesController::class, 'pendingOrders'])->middleware('permission:view_orders');
+    Router::post('verify', [SalesController::class, 'verify'])->middleware('permission:confirm_order');
+    Router::post('complaint', [SalesController::class, 'complaint'])->middleware('permission:handle_returns');
+    Router::get('order-complaints', [SalesController::class, 'orderComplaints'])->middleware('permission:handle_returns');
 });
 
-Router::group(['prefix' => 'api/v1/ops', 'middleware' => ['auth:sanctum', 'permission:update_order_status|pack_order']], function () {
-    Router::get('/', [OperationsController::class, 'index']);
-    Router::post('advance', [OperationsController::class, 'advanceProduction']);
-    Router::post('shipments', [OperationsController::class, 'createShipment']);
-    Router::put('shipments', [OperationsController::class, 'updateShipment']);
+Router::group(['prefix' => 'api/v1/ops', 'middleware' => ['auth:sanctum']], function () {
+    Router::get('/', [OperationsController::class, 'index'])->middleware('permission:view_orders');
+    Router::post('advance', [OperationsController::class, 'advanceProduction'])->middleware('permission:update_order_status');
+    Router::post('shipments', [OperationsController::class, 'createShipment'])->middleware('permission:create_shipment');
+    Router::put('shipments', [OperationsController::class, 'updateShipment'])->middleware('permission:update_tracking');
 });
 
-Router::group(['prefix' => 'api/v1/admin/inventory', 'middleware' => ['auth:sanctum', 'permission:manage_products|process_preorder_inventory']], function () {
-    Router::get('/', [InventoryController::class, 'index']);
-    Router::put('stock', [InventoryController::class, 'updateStock']);
+Router::group(['prefix' => 'api/v1/admin/inventory', 'middleware' => ['auth:sanctum']], function () {
+    Router::get('/', [InventoryController::class, 'index'])->middleware('permission:manage_products|process_preorder_inventory');
+    Router::put('stock', [InventoryController::class, 'updateStock'])->middleware('permission:manage_products|process_preorder_inventory');
+});
+
+Router::group(['prefix' => 'api/v1/admin/products', 'middleware' => ['auth:sanctum', 'permission:manage_products']], function () {
+    Router::post('/', [ProductController::class, 'store']);
+    Router::put('/', [ProductController::class, 'update']);
+    Router::delete('/', [ProductController::class, 'destroy']);
 });
 
 Router::group(['prefix' => 'api/v1/dashboard', 'middleware' => ['auth:sanctum', 'permission:view_reports']], function () {
     Router::get('/', [DashboardController::class, 'index']);
     Router::get('operations', [DashboardController::class, 'operations']);
+    Router::get('sales-report', [DashboardController::class, 'salesReport']);
 });
 
 // System Administration (Admin Only)
-Router::group(['prefix' => 'api/v1/admin', 'middleware' => ['auth:sanctum', 'permission:manage_users|manage_roles']], function () {
+Router::group(['prefix' => 'api/v1/admin', 'middleware' => ['auth:sanctum']], function () {
     // Staff management
-    Router::get('staff', [AdminController::class, 'listStaff']);
-    Router::post('staff', [AdminController::class, 'createStaff']);
-    Router::get('staff/show', [AdminController::class, 'getStaff']);
-    Router::put('staff/update', [AdminController::class, 'updateStaff']);
-    Router::delete('staff/delete', [AdminController::class, 'deleteStaff']);
+    Router::get('staff', [AdminController::class, 'listStaff'])->middleware('permission:manage_users|manage_all_users');
+    Router::post('staff', [AdminController::class, 'createStaff'])->middleware('permission:manage_users|manage_all_users');
+    Router::get('staff/show', [AdminController::class, 'getStaff'])->middleware('permission:manage_users|manage_all_users');
+    Router::put('staff/update', [AdminController::class, 'updateStaff'])->middleware('permission:manage_users|manage_all_users');
+    Router::delete('staff/delete', [AdminController::class, 'deleteStaff'])->middleware('permission:manage_users|manage_all_users');
 
     // Role management
-    Router::get('roles', [AdminController::class, 'listRoles']);
+    Router::get('roles', [AdminController::class, 'listRoles'])->middleware('permission:manage_roles');
 
     // System configuration
-    Router::post('config', [AdminController::class, 'setConfig']);
-    Router::get('config', [AdminController::class, 'getConfig']);
+    Router::post('config', [AdminController::class, 'setConfig'])->middleware('permission:manage_system_config');
+    Router::get('config', [AdminController::class, 'getConfig'])->middleware('permission:manage_system_config');
 
     // Voucher management
-    Router::post('vouchers', [AdminController::class, 'createVoucher']);
-    Router::get('vouchers', [AdminController::class, 'listVouchers']);
-    Router::put('vouchers/update', [AdminController::class, 'updateVoucher']);
-    Router::delete('vouchers/delete', [AdminController::class, 'deleteVoucher']);
+    Router::post('vouchers', [AdminController::class, 'createVoucher'])->middleware('permission:manage_promotions');
+    Router::get('vouchers', [AdminController::class, 'listVouchers'])->middleware('permission:manage_promotions');
+    Router::put('vouchers/update', [AdminController::class, 'updateVoucher'])->middleware('permission:manage_promotions');
+    Router::delete('vouchers/delete', [AdminController::class, 'deleteVoucher'])->middleware('permission:manage_promotions');
 });
