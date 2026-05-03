@@ -5,6 +5,9 @@ const profileForm = document.getElementById('profile-form');
 const createTicketForm = document.getElementById('createTicketForm');
 const changePasswordForm = document.getElementById('change-password-form');
 const profileSaveButton = document.querySelector('.profile-editor__actions button[form="profile-form"]');
+const profileAvatarTrigger = document.getElementById('profile-avatar-trigger');
+const avatarInput = document.getElementById('avatar-input');
+const profileEditorAvatar = document.getElementById('profile-editor-avatar');
 const activeTabStorageKey = 'eyewear_account_active_tab';
 
 function setActiveAccountTab(tabSelector) {
@@ -34,6 +37,30 @@ function normalizeAvatarUrl(avatar) {
     if (!avatar) return '../../assets/images/avatar-1.jpg';
     if (avatar.startsWith('http')) return avatar;
     return `http://localhost:8000/${avatar.replace(/^\/+/, '')}`;
+}
+
+function setAvatarPreview(source) {
+    if (!profileEditorAvatar || !source) return;
+    profileEditorAvatar.src = source;
+}
+
+async function uploadSelectedAvatar(file) {
+    if (!file) return;
+
+    const previewUrl = URL.createObjectURL(file);
+    setAvatarPreview(previewUrl);
+
+    try {
+        await api.profile.uploadAvatar(file);
+        await loadProfileData();
+        alert('Avatar updated successfully!');
+    } catch (error) {
+        await loadProfileData();
+        alert('Failed to upload avatar: ' + (error.response?.data?.message || error.message));
+    } finally {
+        URL.revokeObjectURL(previewUrl);
+        if (avatarInput) avatarInput.value = '';
+    }
 }
 
 function getStatusBadge(status) {
@@ -266,9 +293,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+profileAvatarTrigger?.addEventListener('click', () => {
+    avatarInput?.click();
+});
+
+avatarInput?.addEventListener('change', async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    await uploadSelectedAvatar(file);
+});
+
 profileForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const file = document.getElementById('avatar-input')?.files?.[0];
     if (profileSaveButton) {
         profileSaveButton.disabled = true;
         profileSaveButton.textContent = 'Saving...';
@@ -276,7 +312,6 @@ profileForm?.addEventListener('submit', async (event) => {
     try {
         const formData = new FormData(profileForm);
         await api.profile.updateProfile(Object.fromEntries(formData));
-        if (file) await api.profile.uploadAvatar(file);
         await loadProfileData();
         alert('Profile updated successfully!');
     } catch (error) {

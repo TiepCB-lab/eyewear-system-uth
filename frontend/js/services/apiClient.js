@@ -7,6 +7,15 @@ const apiClient = axios.create({
   },
 });
 
+apiClient.interceptors.request.use((config) => {
+  if (config?.data instanceof FormData && config.headers) {
+    delete config.headers['Content-Type'];
+    delete config.headers['content-type'];
+  }
+
+  return config;
+});
+
 const savedToken = localStorage.getItem('auth_token');
 if (savedToken) {
   apiClient.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`;
