@@ -783,10 +783,10 @@ body.admin-body .container {
 .btn-edit { background: #f0fdfa; color: #0d9488; border-color: #ccfbf1; }
 .btn-edit:hover { background: #0d9488; color: #fff; }
 
-.btn-save { background: #ecfdf5; color: #059669; border-color: #d1fae5; display: none; }
+.btn-save { background: #ecfdf5; color: #059669; border-color: #d1fae5; }
 .btn-save:hover { background: #059669; color: #fff; }
 
-.btn-cancel { background: #fff1f2; color: #e11d48; border-color: #ffe4e6; display: none; }
+.btn-cancel { background: #fff1f2; color: #e11d48; border-color: #ffe4e6; }
 .btn-cancel:hover { background: #e11d48; color: #fff; }
 
 .status-badge {
