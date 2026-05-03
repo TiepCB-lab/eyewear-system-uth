@@ -55,12 +55,18 @@
   </div>
 
   <div class="header__search-wrap">
-    <div class="header__search">
-      <input type="text" placeholder="Search for items..." class="form__input" />
-      <button class="search__btn">
+    <form class="header__search" action="/pages/shop/" method="get" role="search">
+      <input
+        type="search"
+        name="q"
+        placeholder="Search for items..."
+        class="form__input"
+        aria-label="Search for items"
+      />
+      <button class="search__btn" type="submit" aria-label="Search">
         <i class="fi fi-rs-search"></i>
       </button>
-    </div>
+    </form>
 
     <div class="header__user-actions">
       <a href="/pages/wishlist/" class="header__action-btn" title="Wishlist">
