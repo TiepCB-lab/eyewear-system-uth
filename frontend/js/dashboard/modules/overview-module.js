@@ -1,5 +1,6 @@
 import { salesService, supportService } from '../../services/supportService.js';
 import dashboardService from '../../services/dashboardService.js';
+import api from '../../services/api.js';
 import { getCurrentUserPermissions } from '../../core/rbac.js';
 
 async function loadStats() {
@@ -20,7 +21,7 @@ async function loadStats() {
         const revenueElement = document.getElementById('overview-revenue');
         if (revenueElement && summaryResponse) {
             const rev = summaryResponse?.data?.revenue || 0;
-            revenueElement.innerText = `$${parseFloat(rev).toLocaleString()}`;
+            revenueElement.innerText = api.formatCurrency(rev);
         }
 
         const toPackElement = document.getElementById('overview-to-pack');
