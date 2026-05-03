@@ -18,6 +18,13 @@ const sortSelect = document.getElementById("sortSelect");
 const gridViewBtn = document.getElementById("gridViewBtn");
 const listViewBtn = document.getElementById("listViewBtn");
 
+const searchParams = new URLSearchParams(window.location.search);
+const initialSearch = searchParams.get("q")?.trim() || "";
+
+if (initialSearch) {
+    state.search = initialSearch;
+}
+
 let searchDebounceTimer = null;
 let productCardTemplate = "";
 let wishlistedIds = [];
@@ -169,6 +176,9 @@ function renderPagination(pagination) {
 
 function initFilters() {
     const searchInput = document.getElementById("searchInput");
+    if (searchInput) {
+        searchInput.value = state.search;
+    }
     searchInput?.addEventListener("input", (e) => {
         state.search = e.target.value;
         clearTimeout(searchDebounceTimer);
