@@ -635,7 +635,7 @@
         let selectedVariant = null;
 
         try {
-            const res = await apiClient.get('/v1/products/' + productId);
+            const res = await apiClient.get('/products/' + productId);
             product = res.data?.data;
             if(!product) throw new Error("Product not found");
         } catch(e) {
@@ -677,7 +677,7 @@
 
         if(relatedEl) {
             try {
-                const rRes = await apiClient.get('/v1/products/related', {
+                const rRes = await apiClient.get('/products/related', {
                     params: { exclude_id: productId, limit: 4 }
                 });
                 const related = rRes.data?.data || [];
@@ -909,7 +909,7 @@
                 
                 addToCartBtn.classList.add('animating');
                 try {
-                    await apiClient.post('/v1/cart', { 
+                    await apiClient.post('/cart', { 
                         variant_id: selectedVariant.id, 
                         lens_id: lensSelect.value ? parseInt(lensSelect.value) : null, 
                         quantity: parseInt(quantityInput.value),
@@ -943,7 +943,7 @@
 
         // --- INITIAL DATA LOAD ---
         try {
-            const lensRes = await apiClient.get('/v1/products/lenses/available');
+            const lensRes = await apiClient.get('/products/lenses/available');
             const lenses = lensRes.data?.data || [];
             if(lenses.length > 0) {
                 lensSelect.innerHTML = '<option value="">Frame only (no lens)</option>' + 
@@ -988,7 +988,7 @@
 
         // Initialize lens and pricing
         try {
-            const lensRes = await apiClient.get('/v1/products/lenses/available');
+            const lensRes = await apiClient.get('/products/lenses/available');
             const lenses = lensRes.data?.data || [];
             lensSelect.innerHTML = '<option value="">Frame only (no lens)</option>' + 
                 lenses.map(l => `<option value="${l.id}" data-price="${l.price}">${l.name} - ${l.lens_type} (+${format(l.price)})</option>`).join('');

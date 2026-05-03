@@ -15,7 +15,7 @@ export const supportService = {
             } else if (userId) {
                 params.user_id = userId;
             }
-            const response = await apiClient.get('/v1/support', { params });
+            const response = await apiClient.get('/support', { params });
             return response.data;
         } catch (error) {
             console.error('Support getTickets Error:', error);
@@ -28,7 +28,7 @@ export const supportService = {
      */
     async getTicketById(ticketId) {
         try {
-            const response = await apiClient.get(`/v1/support/${ticketId}`);
+            const response = await apiClient.get(`/support/${ticketId}`);
             return response.data;
         } catch (error) {
             console.error('Support getTicketById Error:', error);
@@ -43,7 +43,7 @@ export const supportService = {
         try {
             const body = { subject, message };
             if (orderId) body.order_id = orderId;
-            const response = await apiClient.post('/v1/support', body);
+            const response = await apiClient.post('/support', body);
             return response.data;
         } catch (error) {
             console.error('Support createTicket Error:', error);
@@ -58,7 +58,7 @@ export const supportService = {
         try {
             const body = { ticket_id: ticketId, message };
             if (userId) body.user_id = userId;
-            const response = await apiClient.post('/v1/support/reply', body);
+            const response = await apiClient.post('/support/reply', body);
             return response.data;
         } catch (error) {
             console.error('Support replyTicket Error:', error);
@@ -71,7 +71,7 @@ export const supportService = {
      */
     async updateTicketStatus(ticketId, status) {
         try {
-            const response = await apiClient.post('/v1/support/status', {
+            const response = await apiClient.post('/support/status', {
                 ticket_id: ticketId,
                 status: status
             });
@@ -92,7 +92,7 @@ export const salesService = {
      */
     async getPendingOrders() {
         try {
-            const response = await apiClient.get('/v1/sales/pending-orders');
+            const response = await apiClient.get('/sales/pending-orders');
             return response.data;
         } catch (error) {
             console.error('Sales getPendingOrders Error:', error);
@@ -105,7 +105,7 @@ export const salesService = {
      */
     async verifyOrder(orderId) {
         try {
-            const response = await apiClient.post('/v1/sales/verify', { order_id: orderId });
+            const response = await apiClient.post('/sales/verify', { order_id: orderId });
             return response.data;
         } catch (error) {
             console.error('Sales verifyOrder Error:', error);
@@ -118,7 +118,7 @@ export const salesService = {
      */
     async processComplaint(orderId, type, reason) {
         try {
-            const response = await apiClient.post('/v1/sales/complaint', {
+            const response = await apiClient.post('/sales/complaint', {
                 order_id: orderId,
                 type: type,
                 reason: reason

@@ -2,12 +2,12 @@ import apiClient from './apiClient.js';
 
 class AuthService {
   async register(userData) {
-    const response = await apiClient.post('/v1/auth/register', userData);
+    const response = await apiClient.post('/auth/register', userData);
     return response.data;
   }
 
   async login(credentials) {
-    const response = await apiClient.post('/v1/auth/login', credentials);
+    const response = await apiClient.post('/auth/login', credentials);
     const body = response.data;
     const data = body.data; // The inner data containing user and token
     
@@ -20,17 +20,17 @@ class AuthService {
   }
 
   async forgotPassword(email) {
-    const response = await apiClient.post('/v1/auth/forgot-password', { email });
+    const response = await apiClient.post('/auth/forgot-password', { email });
     return response.data;
   }
 
   async resetPassword(payload) {
-    const response = await apiClient.post('/v1/auth/reset-password', payload);
+    const response = await apiClient.post('/auth/reset-password', payload);
     return response.data;
   }
 
   async verifyEmail(token) {
-    const response = await fetch(`${apiClient.defaults.baseURL}/v1/auth/verify?token=${encodeURIComponent(token)}`, {
+    const response = await fetch(`${apiClient.defaults.baseURL}/auth/verify?token=${encodeURIComponent(token)}`, {
       headers: {
         Accept: 'application/json',
       },
@@ -51,7 +51,7 @@ class AuthService {
   }
 
   async getCurrentUser() {
-    const response = await apiClient.get('/v1/auth/me');
+    const response = await apiClient.get('/auth/me');
     // Unwrap the user object depending on the API structure
     if (response.data && response.data.data && response.data.data.user) {
         return response.data.data.user;
@@ -60,14 +60,14 @@ class AuthService {
   }
 
   async logout() {
-    const response = await apiClient.post('/v1/auth/logout');
+    const response = await apiClient.post('/auth/logout');
     localStorage.removeItem('auth_token');
     delete apiClient.defaults.headers.common['Authorization'];
     return response.data;
   }
 
   async changePassword(passwords) {
-    const response = await apiClient.post('/v1/auth/change-password', passwords);
+    const response = await apiClient.post('/auth/change-password', passwords);
     return response.data;
   }
 
