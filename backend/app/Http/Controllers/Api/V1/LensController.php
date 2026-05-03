@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Application\LensService;
+use Core\ApiResponse;
 
 class LensController
 {
@@ -17,18 +18,13 @@ class LensController
     {
         $variantId = isset($_GET['variant_id']) ? (int) $_GET['variant_id'] : 0;
         if ($variantId <= 0) {
-            http_response_code(400);
-            return ['message' => 'variant_id is required.'];
+            return ApiResponse::success($this->lensService->getAllLenses());
         }
 
         try {
-            return $this->lensService->getAvailableLensesForVariant($variantId);
+            return ApiResponse::success($this->lensService->getAvailableLensesForVariant($variantId));
         } catch (\Throwable $e) {
-            http_response_code(404);
-            return [
-                'message' => 'Failed to load available lenses.',
-                'error' => $e->getMessage(),
-            ];
+            return ApiResponse::notFound('Failed to load available lenses: ' . $e->getMessage());
         }
     }
 }

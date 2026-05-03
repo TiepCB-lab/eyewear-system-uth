@@ -40,11 +40,11 @@ class AdminController extends BaseController
     /**
      * GET /api/v1/admin/staff/{id} - Get staff by ID
      */
-    public function getStaff()
+    public function getStaff($id = null)
     {
 
 
-        $userId = (int) ($this->query('id') ?? 0);
+        $userId = (int) ($id ?? $this->query('id') ?? 0);
         if ($userId <= 0) {
             return ApiResponse::validationError('Invalid staff ID');
         }
@@ -84,11 +84,11 @@ class AdminController extends BaseController
     /**
      * PUT /api/v1/admin/staff/{id} - Update staff (status/role)
      */
-    public function updateStaff()
+    public function updateStaff($id = null)
     {
 
 
-        $userId = (int) ($this->query('id') ?? 0);
+        $userId = (int) ($id ?? $this->query('id') ?? 0);
         if ($userId <= 0) {
             return ApiResponse::validationError('Invalid staff ID');
         }
@@ -115,11 +115,11 @@ class AdminController extends BaseController
     /**
      * DELETE /api/v1/admin/staff/{id} - Delete/deactivate staff
      */
-    public function deleteStaff()
+    public function deleteStaff($id = null)
     {
 
 
-        $userId = (int) ($this->query('id') ?? 0);
+        $userId = (int) ($id ?? $this->query('id') ?? 0);
         if ($userId <= 0) {
             return ApiResponse::validationError('Invalid staff ID');
         }
@@ -227,11 +227,11 @@ class AdminController extends BaseController
     /**
      * PUT /api/v1/admin/vouchers/{id} - Update voucher
      */
-    public function updateVoucher()
+    public function updateVoucher($id = null)
     {
 
 
-        $voucherId = (int) ($this->query('id') ?? 0);
+        $voucherId = (int) ($id ?? $this->query('id') ?? 0);
         if ($voucherId <= 0) {
             return ApiResponse::validationError('Invalid voucher ID');
         }
@@ -249,11 +249,11 @@ class AdminController extends BaseController
     /**
      * DELETE /api/v1/admin/vouchers/{id} - Deactivate voucher
      */
-    public function deleteVoucher()
+    public function deleteVoucher($id = null)
     {
 
 
-        $voucherId = (int) ($this->query('id') ?? 0);
+        $voucherId = (int) ($id ?? $this->query('id') ?? 0);
         if ($voucherId <= 0) {
             return ApiResponse::validationError('Invalid voucher ID');
         }

@@ -53,7 +53,7 @@ class WishlistController extends BaseController
         }
     }
 
-    public function destroy()
+    public function destroy($id = null)
     {
         $userId = $this->getUserId();
         if (!$userId) {
@@ -61,7 +61,7 @@ class WishlistController extends BaseController
         }
 
         $data = $this->getJsonInput();
-        $productId = $data['product_id'] ?? null;
+        $productId = $id ?? $data['product_id'] ?? null;
 
         if (!$productId) {
             return ApiResponse::validationError('product_id is required.');

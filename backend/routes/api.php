@@ -27,18 +27,20 @@ Router::get('api/health', [HealthController::class, 'index']);
 // Public Product Routes
 Router::group(['prefix' => 'api/v1/products'], function () {
     Router::get('/', [ProductController::class, 'index']);
-    Router::get('show', [ProductController::class, 'show']);
     Router::get('categories', [CategoryController::class, 'index']);
     Router::get('brands', [ProductController::class, 'brands']);
     Router::get('lenses/available', [LensController::class, 'available']);
+    Router::get('related', [ProductController::class, 'related']);
+    Router::get('{id}', [ProductController::class, 'show']);
 });
 
 // Backward-compatible aliases
+Router::get('api/v1/products/show', [ProductController::class, 'show']);
 Router::get('api/v1/categories', [CategoryController::class, 'index']);
 Router::get('api/v1/lenses/available', [LensController::class, 'available']);
 
 // Auth Routes
-Router::group(['prefix' => 'api/auth'], function () {
+Router::group(['prefix' => 'api/v1/auth'], function () {
     Router::post('register', [AuthController::class, 'register']);
     Router::post('login', [AuthController::class, 'login']);
     Router::get('verify', [AuthController::class, 'verify']);
@@ -53,8 +55,22 @@ Router::group(['prefix' => 'api/auth'], function () {
     });
 });
 
+// Backward-compatible auth aliases
+Router::group(['prefix' => 'api/auth'], function () {
+    Router::post('register', [AuthController::class, 'register']);
+    Router::post('login', [AuthController::class, 'login']);
+    Router::get('verify', [AuthController::class, 'verify']);
+    Router::post('forgot-password', [AuthController::class, 'forgotPassword']);
+    Router::post('reset-password', [AuthController::class, 'resetPassword']);
+    Router::post('logout', [AuthController::class, 'logout']);
+    Router::group(['middleware' => 'auth:sanctum'], function() {
+        Router::post('change-password', [AuthController::class, 'changePassword']);
+        Router::get('me', [AuthController::class, 'me']);
+    });
+});
+
 // Protected Profile & Address Routes
-Router::group(['prefix' => 'api/profile', 'middleware' => ['auth:sanctum', 'permission:manage_profile']], function () {
+Router::group(['prefix' => 'api/v1/profile', 'middleware' => ['auth:sanctum', 'permission:manage_profile']], function () {
     Router::get('/', [ProfileController::class, 'show']);
     Router::put('/', [ProfileController::class, 'update']);
     Router::post('avatar', [ProfileController::class, 'uploadAvatar']);
@@ -65,19 +81,33 @@ Router::group(['prefix' => 'api/profile', 'middleware' => ['auth:sanctum', 'perm
     Router::delete('addresses/{id}', [AddressController::class, 'destroy']);
 });
 
+// Backward-compatible profile aliases
+Router::group(['prefix' => 'api/profile', 'middleware' => ['auth:sanctum', 'permission:manage_profile']], function () {
+    Router::get('/', [ProfileController::class, 'show']);
+    Router::put('/', [ProfileController::class, 'update']);
+    Router::post('avatar', [ProfileController::class, 'uploadAvatar']);
+    Router::get('addresses', [AddressController::class, 'index']);
+    Router::post('addresses', [AddressController::class, 'store']);
+    Router::put('addresses/{id}', [AddressController::class, 'update']);
+    Router::delete('addresses/{id}', [AddressController::class, 'destroy']);
+});
+
 // Shopping Routes
 Router::group(['prefix' => 'api/v1/cart', 'middleware' => ['auth:sanctum', 'permission:manage_cart']], function () {
     Router::get('/', [CartController::class, 'index']);
     Router::post('/', [CartController::class, 'store']);
-    Router::put('update', [CartController::class, 'update']);
+    Router::put('items/{id}', [CartController::class, 'update']);
+    Router::delete('items/{id}', [CartController::class, 'destroy']);
     Router::post('toggle-selection', [CartController::class, 'toggleSelection']);
     Router::post('select-all', [CartController::class, 'selectAll']);
+    Router::put('update', [CartController::class, 'update']);
     Router::delete('delete', [CartController::class, 'destroy']);
 });
 
 Router::group(['prefix' => 'api/v1/wishlist', 'middleware' => ['auth:sanctum', 'permission:manage_cart']], function () {
     Router::get('/', [WishlistController::class, 'index']);
     Router::post('toggle', [WishlistController::class, 'toggle']);
+    Router::delete('{id}', [WishlistController::class, 'destroy']);
     Router::delete('delete', [WishlistController::class, 'destroy']);
 });
 
@@ -87,6 +117,7 @@ Router::group(['prefix' => 'api/v1/checkout', 'middleware' => ['auth:sanctum', '
 
 Router::group(['prefix' => 'api/v1/orders', 'middleware' => 'auth:sanctum'], function () {
     Router::get('/', [OrderController::class, 'index']); // Logic internally handles view_own_orders vs view_orders
+    Router::get('{id}', [OrderController::class, 'show']);
     Router::get('show', [OrderController::class, 'show']);
 });
 
@@ -111,6 +142,7 @@ Router::group(['prefix' => 'api/v1/payments', 'middleware' => 'auth:sanctum'], f
 Router::group(['prefix' => 'api/v1/support', 'middleware' => 'auth:sanctum'], function () {
     Router::get('/', [SupportTicketController::class, 'index']);
     Router::post('/', [SupportTicketController::class, 'store']);
+    Router::get('{id}', [SupportTicketController::class, 'show']);
     Router::get('show', [SupportTicketController::class, 'show']);
     Router::post('reply', [SupportTicketController::class, 'reply']);
     
@@ -143,6 +175,8 @@ Router::group(['prefix' => 'api/v1/admin/inventory', 'middleware' => ['auth:sanc
 
 Router::group(['prefix' => 'api/v1/admin/products', 'middleware' => ['auth:sanctum', 'permission:manage_products']], function () {
     Router::post('/', [ProductController::class, 'store']);
+    Router::put('{id}', [ProductController::class, 'update']);
+    Router::delete('{id}', [ProductController::class, 'destroy']);
     Router::put('/', [ProductController::class, 'update']);
     Router::delete('/', [ProductController::class, 'destroy']);
 });
@@ -158,6 +192,9 @@ Router::group(['prefix' => 'api/v1/admin', 'middleware' => ['auth:sanctum']], fu
     // Staff management
     Router::get('staff', [AdminController::class, 'listStaff'])->middleware('permission:manage_users|manage_all_users');
     Router::post('staff', [AdminController::class, 'createStaff'])->middleware('permission:manage_users|manage_all_users');
+    Router::get('staff/{id}', [AdminController::class, 'getStaff'])->middleware('permission:manage_users|manage_all_users');
+    Router::put('staff/{id}', [AdminController::class, 'updateStaff'])->middleware('permission:manage_users|manage_all_users');
+    Router::delete('staff/{id}', [AdminController::class, 'deleteStaff'])->middleware('permission:manage_users|manage_all_users');
     Router::get('staff/show', [AdminController::class, 'getStaff'])->middleware('permission:manage_users|manage_all_users');
     Router::put('staff/update', [AdminController::class, 'updateStaff'])->middleware('permission:manage_users|manage_all_users');
     Router::delete('staff/delete', [AdminController::class, 'deleteStaff'])->middleware('permission:manage_users|manage_all_users');
@@ -172,6 +209,8 @@ Router::group(['prefix' => 'api/v1/admin', 'middleware' => ['auth:sanctum']], fu
     // Voucher management
     Router::post('vouchers', [AdminController::class, 'createVoucher'])->middleware('permission:manage_promotions');
     Router::get('vouchers', [AdminController::class, 'listVouchers'])->middleware('permission:manage_promotions');
+    Router::put('vouchers/{id}', [AdminController::class, 'updateVoucher'])->middleware('permission:manage_promotions');
+    Router::delete('vouchers/{id}', [AdminController::class, 'deleteVoucher'])->middleware('permission:manage_promotions');
     Router::put('vouchers/update', [AdminController::class, 'updateVoucher'])->middleware('permission:manage_promotions');
     Router::delete('vouchers/delete', [AdminController::class, 'deleteVoucher'])->middleware('permission:manage_promotions');
 });

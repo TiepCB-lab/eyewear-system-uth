@@ -65,7 +65,7 @@ class CartController extends BaseController
     /**
      * Cập nhật số lượng sản phẩm.
      */
-    public function update()
+    public function update($id = null)
     {
         $userId = $this->getUserId();
         if (!$userId) {
@@ -73,7 +73,7 @@ class CartController extends BaseController
         }
 
         $data = $this->getJsonInput();
-        $cartItemId = $data['cart_item_id'] ?? null;
+        $cartItemId = $id ?? $data['cart_item_id'] ?? null;
         $quantity = $data['quantity'] ?? null;
 
         if (!$cartItemId || $quantity === null) {
@@ -138,54 +138,26 @@ class CartController extends BaseController
     /**
      * Xóa sản phẩm khỏi giỏ hàng.
      */
-    public function destroy()
+    public function destroy($id = null)
     {
-        $userId = $this->getCurrentUserId();
+        $userId = $this->getUserId();
         if (!$userId) {
-            http_response_code(401);
-            return ['message' => 'Unauthorized'];
+            return ApiResponse::unauthorized();
         }
 
         // Với Router hiện tại, chúng ta có thể cần lấy ID từ query string hoặc input
-        $data = json_decode(file_get_contents('php://input'), true);
-        $cartItemId = $data['cart_item_id'] ?? null;
+        $data = $this->getJsonInput();
+        $cartItemId = $id ?? $data['cart_item_id'] ?? null;
 
         if (!$cartItemId) {
-            http_response_code(400);
-            return ['message' => 'cart_item_id is required.'];
+            return ApiResponse::validationError('cart_item_id is required.');
         }
 
         if ($this->cartService->removeItem($userId, $cartItemId)) {
-            return ['message' => 'Item removed from cart'];
+            return ApiResponse::success(null, 'Item removed from cart');
         }
 
-        http_response_code(404);
-        return ['message' => 'Item not found'];
+        return ApiResponse::notFound('Item not found');
     }
 
-    /**
-     * Mock function to get current user ID from token.
-     * In a real app, this would use a proper Auth middleware.
-     */
-    private function getCurrentUserId()
-    {
-        $headers = getallheaders();
-        $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
-
-        if (preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
-            $token = $matches[1];
-            try {
-                $decoded = base64_decode($token);
-                $parts = explode(':', $decoded);
-                // Token format was userId:roleName:timestamp
-                return (int) $parts[0];
-            } catch (Exception $e) {
-                return null;
-            }
-        }
-
-        // For testing purposes, if no token is provided, return a default user ID if in local env
-        // return 1; 
-        return null;
-    }
 }
