@@ -27,9 +27,9 @@ class ProductController extends BaseController
     /**
      * Return a single product by numeric id or slug.
      */
-    public function show()
+    public function show($id = null)
     {
-        $identifier = $this->query('id') ?? $this->query('slug');
+        $identifier = $id ?? $this->query('id') ?? $this->query('slug');
 
         if ($identifier === null || $identifier === '') {
             return ApiResponse::validationError('id or slug is required.');
@@ -61,9 +61,9 @@ class ProductController extends BaseController
     /**
      * Update an existing product (Manager only).
      */
-    public function update()
+    public function update($id = null)
     {
-        $id = $this->query('id');
+        $id = $id ?? $this->query('id');
         $input = $this->getJsonInput();
         
         if (!$id) return ApiResponse::validationError('Product ID is required');
@@ -79,9 +79,9 @@ class ProductController extends BaseController
     /**
      * Deactivate a product (Manager only).
      */
-    public function destroy()
+    public function destroy($id = null)
     {
-        $id = $this->query('id');
+        $id = $id ?? $this->query('id');
         if (!$id) return ApiResponse::validationError('Product ID is required');
 
         try {
@@ -99,5 +99,22 @@ class ProductController extends BaseController
     {
         $brands = $this->catalogService->getBrandsList();
         return ApiResponse::success($brands);
+    }
+
+    public function related()
+    {
+        $excludeId = (int) ($this->query('exclude_id') ?? 0);
+        $limit = (int) ($this->query('limit') ?? 4);
+
+        $products = $this->catalogService->searchProducts([
+            'per_page' => max(1, min(12, $limit + ($excludeId > 0 ? 1 : 0))),
+            'page' => 1,
+        ]);
+
+        $items = array_values(array_filter($products['data'] ?? [], static function (array $product) use ($excludeId): bool {
+            return $excludeId <= 0 || (int) $product['id'] !== $excludeId;
+        }));
+
+        return ApiResponse::success(array_slice($items, 0, $limit));
     }
 }

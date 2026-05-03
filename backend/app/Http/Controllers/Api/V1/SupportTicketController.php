@@ -41,14 +41,14 @@ class SupportTicketController extends BaseController
     /**
      * Get ticket details.
      */
-    public function show()
+    public function show($id = null)
     {
         $userId = $this->getUserId();
         if (!$userId) {
             return ApiResponse::unauthorized();
         }
 
-        $id = $this->query('id');
+        $id = $id ?? $this->query('id');
         if (!$id) {
             return ApiResponse::validationError('Ticket ID required');
         }

@@ -6,6 +6,31 @@ use Core\Database;
 
 class LensService
 {
+    public function getAllLenses(): array
+    {
+        $db = Database::getInstance();
+        $stmt = $db->query(
+            'SELECT id, name, type, lens_type, material, index_value, coating, price, created_at, updated_at
+             FROM lens
+             ORDER BY price ASC, name ASC, id ASC'
+        );
+
+        return array_map(static function (array $lens): array {
+            return [
+                'id' => (int) $lens['id'],
+                'name' => $lens['name'],
+                'type' => $lens['type'],
+                'lens_type' => $lens['lens_type'],
+                'material' => $lens['material'],
+                'index_value' => $lens['index_value'] !== null ? (float) $lens['index_value'] : null,
+                'coating' => $lens['coating'],
+                'price' => (float) $lens['price'],
+                'created_at' => $lens['created_at'],
+                'updated_at' => $lens['updated_at'],
+            ];
+        }, $stmt->fetchAll() ?: []);
+    }
+
     /**
      * Get lenses that are compatible with a specific product variant.
      *
@@ -44,12 +69,7 @@ class LensService
 
         $profile = $this->buildCompatibilityProfile($variant);
 
-        $lensStmt = $db->query(
-            'SELECT id, name, type, lens_type, material, index_value, coating, price, created_at, updated_at
-             FROM lens
-             ORDER BY price ASC, name ASC, id ASC'
-        );
-        $lenses = $lensStmt->fetchAll() ?: [];
+        $lenses = $this->getAllLenses();
 
         $availableLenses = [];
         foreach ($lenses as $lens) {

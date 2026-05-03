@@ -31,14 +31,14 @@ class OrderController extends BaseController
         }
     }
 
-    public function show()
+    public function show($id = null)
     {
         $userId = $this->getUserId();
         if (!$userId) {
             return ApiResponse::unauthorized();
         }
 
-        $orderId = $this->query('id');
+        $orderId = $id ?? $this->query('id');
         if (!$orderId) {
             return ApiResponse::validationError('order_id is required');
         }

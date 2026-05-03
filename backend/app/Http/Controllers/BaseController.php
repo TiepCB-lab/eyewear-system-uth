@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Core\ApiResponse;
+use App\Models\User;
 
 /**
  * Base controller providing shared helpers for ALL API controllers.
@@ -109,23 +110,6 @@ abstract class BaseController
             return false;
         }
 
-        $pdo = \Core\Database::getInstance();
-        $stmt = $pdo->prepare("
-            SELECT DISTINCT p.name
-            FROM permissions p
-            JOIN role_permissions rp ON p.id = rp.permission_id
-            JOIN user_roles ur ON rp.role_id = ur.role_id
-            WHERE ur.user_id = ?
-        ");
-        $stmt->execute([$userId]);
-        $userPermissions = $stmt->fetchAll(\PDO::FETCH_COLUMN);
-
-        foreach ($permissions as $permission) {
-            if (in_array(trim($permission), $userPermissions, true)) {
-                return true;
-            }
-        }
-        
-        return false;
+        return User::hasAnyPermission($userId, $permissions);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Application\CatalogService;
+use Core\ApiResponse;
 
 class CategoryController
 {
@@ -21,13 +22,13 @@ class CategoryController
         $activeOnly = $this->parseActiveOnly($_GET['active'] ?? null);
         $categories = $this->catalogService->getCategoriesList($activeOnly);
 
-        return [
+        return ApiResponse::success([
             'data' => $categories,
             'meta' => [
                 'total' => count($categories),
                 'active_only' => $activeOnly,
             ],
-        ];
+        ]);
     }
 
     private function parseActiveOnly(mixed $value): bool

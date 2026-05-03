@@ -32,6 +32,7 @@ class DashboardService
 			'revenue' => $revenue,
 			'active_orders' => $activeOrders,
 			'paid_orders' => $paidOrders,
+			'conversion_rate' => $activeOrders > 0 ? round(($paidOrders / $activeOrders) * 100, 2) : 0,
 			'top_products' => $topProducts,
 		];
 	}

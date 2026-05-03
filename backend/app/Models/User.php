@@ -38,4 +38,31 @@ class User extends Model
     {
         return Order::where('user_id', $this->attributes['id']);
     }
+
+    public static function permissionsForUser(int $userId): array
+    {
+        $stmt = static::db()->prepare("
+            SELECT DISTINCT p.name
+            FROM permissions p
+            JOIN role_permissions rp ON p.id = rp.permission_id
+            JOIN user_roles ur ON rp.role_id = ur.role_id
+            WHERE ur.user_id = ?
+        ");
+        $stmt->execute([$userId]);
+
+        return $stmt->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    public static function hasAnyPermission(int $userId, array $permissions): bool
+    {
+        $userPermissions = self::permissionsForUser($userId);
+
+        foreach ($permissions as $permission) {
+            if (in_array(trim((string) $permission), $userPermissions, true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

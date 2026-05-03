@@ -2,6 +2,8 @@
 
 namespace Core;
 
+use Core\ApiResponse;
+
 class Router
 {
     private static array $routes = [];
@@ -78,6 +80,83 @@ class Router
         ];
     }
 
+    private static function matchRoute(string $routeUri, string $requestUri): ?array
+    {
+        if ($routeUri === $requestUri) {
+            return [];
+        }
+
+        $pattern = preg_replace_callback('/\{([A-Za-z_][A-Za-z0-9_]*)\}/', static function (array $matches): string {
+            return '(?P<' . $matches[1] . '>[^/]+)';
+        }, $routeUri);
+
+        $pattern = '#^' . $pattern . '$#';
+        if (!preg_match($pattern, $requestUri, $matches)) {
+            return null;
+        }
+
+        $params = [];
+        foreach ($matches as $key => $value) {
+            if (is_string($key)) {
+                $params[$key] = urldecode($value);
+            }
+        }
+
+        return $params;
+    }
+
+    private static function sendResponse($response): void
+    {
+        if ($response === null) {
+            return;
+        }
+
+        if (is_array($response) || is_object($response)) {
+            echo json_encode($response);
+            return;
+        }
+
+        echo $response;
+    }
+
+    private static function handleMatchedRoute(array $route, array $params): void
+    {
+        if (!self::runMiddleware($route['middleware'])) {
+            return;
+        }
+
+        $controllerClass = $route['action'][0];
+        $methodName = $route['action'][1];
+
+        $constructorParams = [];
+        if (method_exists($controllerClass, '__construct')) {
+            $refMethod = new \ReflectionMethod($controllerClass, '__construct');
+            foreach ($refMethod->getParameters() as $param) {
+                $type = $param->getType();
+                if ($type instanceof \ReflectionNamedType && !$type->isBuiltin()) {
+                    $depClass = $type->getName();
+                    $constructorParams[] = new $depClass();
+                } else {
+                    $constructorParams[] = null;
+                }
+            }
+        }
+
+        foreach ($params as $key => $value) {
+            $_GET[$key] = $value;
+        }
+
+        $controller = new $controllerClass(...$constructorParams);
+        $methodParams = [];
+        $refAction = new \ReflectionMethod($controllerClass, $methodName);
+        foreach ($refAction->getParameters() as $param) {
+            $methodParams[] = $params[$param->getName()] ?? null;
+        }
+
+        $response = $controller->$methodName(...$methodParams);
+        self::sendResponse($response);
+    }
+
     private static function runMiddleware(array $middleware): bool
     {
         foreach ($middleware as $item) {
@@ -127,42 +206,23 @@ class Router
 
         foreach (self::$routes as $route) {
             if ($route['method'] === $method && $route['uri'] === $uri) {
-                if (!self::runMiddleware($route['middleware'])) {
-                    return;
-                }
-
-                // Very basic Dependency Injection for simple controllers
-                $controllerClass = $route['action'][0];
-                $methodName = $route['action'][1];
-
-                $constructorParams = [];
-                if (method_exists($controllerClass, '__construct')) {
-                    $refMethod = new \ReflectionMethod($controllerClass, '__construct');
-                    foreach ($refMethod->getParameters() as $param) {
-                        $type = $param->getType();
-                        if ($type instanceof \ReflectionNamedType && !$type->isBuiltin()) {
-                            $depClass = $type->getName();
-                            $constructorParams[] = new $depClass();
-                        } else {
-                            $constructorParams[] = null;
-                        }
-                    }
-                }
-
-                $controller = new $controllerClass(...$constructorParams);
-                $response = $controller->$methodName();
-                if ($response !== null) {
-                    if (is_array($response) || is_object($response)) {
-                        echo json_encode($response);
-                    } else {
-                        echo $response;
-                    }
-                }
+                self::handleMatchedRoute($route, []);
                 return;
             }
         }
 
-        http_response_code(404);
-        echo json_encode(['message' => "Route $method $uri not found"]);
+        foreach (self::$routes as $route) {
+            if ($route['method'] !== $method || $route['uri'] === $uri) {
+                continue;
+            }
+
+            $params = self::matchRoute($route['uri'], $uri);
+            if ($params !== null) {
+                self::handleMatchedRoute($route, $params);
+                return;
+            }
+        }
+
+        self::sendResponse(ApiResponse::notFound("Route $method $uri not found"));
     }
 }

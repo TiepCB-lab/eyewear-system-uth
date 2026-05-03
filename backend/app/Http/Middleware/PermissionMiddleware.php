@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use Core\Database;
+use App\Models\User;
 
 class PermissionMiddleware
 {
@@ -18,24 +18,7 @@ class PermissionMiddleware
             return false;
         }
 
-        $pdo = Database::getInstance();
-        $stmt = $pdo->prepare("
-            SELECT DISTINCT p.name
-            FROM permissions p
-            JOIN role_permissions rp ON p.id = rp.permission_id
-            JOIN user_roles ur ON rp.role_id = ur.role_id
-            WHERE ur.user_id = ?
-        ");
-        $stmt->execute([$userId]);
-        $userPermissions = $stmt->fetchAll(\PDO::FETCH_COLUMN);
-
-        $hasPermission = false;
-        foreach ($requiredPermissions as $permission) {
-            if (in_array(trim($permission), $userPermissions, true)) {
-                $hasPermission = true;
-                break;
-            }
-        }
+        $hasPermission = User::hasAnyPermission((int) $userId, $requiredPermissions);
 
         if (!$hasPermission) {
             echo json_encode(\Core\ApiResponse::forbidden('You do not have permission to access this resource'));
