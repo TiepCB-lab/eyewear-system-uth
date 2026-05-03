@@ -32,17 +32,17 @@
     <main class="main">
       <!--=============== CHECKOUT ===============-->
       <section class="checkout section--lg">
-        <div class="checkout__container container grid">
-          <div class="checkout__group">
+        <div class="checkout__container container" style="display: flex; flex-wrap: wrap; gap: 3rem; justify-content: space-between;">
+          <div class="checkout__group" style="flex: 1 1 calc(50% - 1.5rem); max-width: calc(50% - 1.5rem); width: 100%;">
             <h3 class="section__title">Billing Details</h3>
-            <form class="form grid">
-              <input type="text" placeholder="Name" class="form__input" id="checkout-name" />
-              <input type="email" placeholder="Email" class="form__input" id="checkout-email" />
+            <form style="display: flex; flex-direction: column; gap: 1.5rem; width: 100%;">
+              <input type="text" placeholder="Name" class="form__input" id="checkout-name" style="width: 100%; box-sizing: border-box;" />
+              <input type="email" placeholder="Email" class="form__input" id="checkout-email" style="width: 100%; box-sizing: border-box;" />
               
-              <div class="checkout__address-selector" style="grid-column: 1 / -1; margin-top: 1rem;">
+              <div class="checkout__address-selector" style="width: 100%;">
                 <label style="display:block; margin-bottom: 0.5rem; font-weight: 500;">Shipping Address</label>
-                <div class="flex" style="gap: 1rem;">
-                    <select id="checkout-address-select" class="form__input" style="flex: 1;">
+                <div class="flex" style="gap: 1rem; flex-wrap: wrap;">
+                    <select id="checkout-address-select" class="form__input" style="flex: 1; min-width: 200px; box-sizing: border-box;">
                         <option value="">Loading addresses...</option>
                     </select>
                     <button type="button" class="btn btn--sm" id="checkout-add-address-btn" style="white-space: nowrap;">
@@ -51,17 +51,27 @@
                 </div>
               </div>
 
-              <h3 class="checkout__title" style="grid-column: 1 / -1; margin-top: 1rem;">Additional Information</h3>
-              <textarea
-                id="checkout-note"
-                placeholder="order note"
-                class="form__input textarea"
-                style="grid-column: 1 / -1;"
-              ></textarea>
+              <div style="width: 100%;">
+                <h3 class="checkout__title" style="margin-top: 0.5rem;">Additional Information</h3>
+                <textarea
+                  id="checkout-note"
+                  placeholder="order note"
+                  class="form__input textarea"
+                  style="width: 100%; box-sizing: border-box; min-height: 120px;"
+                ></textarea>
+              </div>
+
+              <div style="width: 100%; margin-top: 1rem; padding: 1.5rem; background-color: #ffffff; border: 1px dashed var(--first-color); border-radius: 0.5rem; display: flex; align-items: center; gap: 1rem;">
+                <i class="fi fi-rs-truck-side" style="font-size: 2rem; color: var(--first-color);"></i>
+                <div>
+                  <h4 style="margin-bottom: 0.2rem; color: var(--title-color);">Estimated Delivery</h4>
+                  <p style="color: var(--text-color-light); font-size: 0.95rem;">You will receive your order in <strong>3 - 5 business days</strong>.</p>
+                </div>
+              </div>
             </form>
             <div class="address-editor-placeholder" data-include="components/modals/address-editor"></div>
           </div>
-          <div class="checkout__group">
+          <div class="checkout__group" style="flex: 1 1 calc(50% - 1.5rem); max-width: calc(50% - 1.5rem); width: 100%;">
             <h3 class="section__title">Cart Totals</h3>
             <table class="order__table">
               <thead>
@@ -85,6 +95,7 @@
                     <span class="table__price" id="checkout-shipping">Free Shipping</span>
                   </td>
                 </tr>
+
                 <tr>
                   <td><span class="order__subtitle">Total</span></td>
                   <td colspan="2">
@@ -94,36 +105,39 @@
               </tbody>
             </table>
             <div class="payment__methods">
-              <h3 class="checkout__title payment__title">Payment</h3>
+              <h3 class="checkout__title payment__title">Payment Method</h3>
               <div class="payment__option flex">
                 <input
                   type="radio"
-                  name="radio"
+                  name="payment_method"
+                  value="cod"
                   id="l1"
                   checked
                   class="payment__input"
                 />
                 <label for="l1" class="payment__label"
-                  >Direct Bank Transfer</label
+                  >Cash on Delivery (COD)</label
                 >
               </div>
               <div class="payment__option flex">
                 <input
                   type="radio"
-                  name="radio"
+                  name="payment_method"
+                  value="bank_transfer"
                   id="l2"
                   class="payment__input"
                 />
-                <label for="l2" class="payment__label">Check Payment</label>
+                <label for="l2" class="payment__label">Direct Bank Transfer</label>
               </div>
               <div class="payment__option flex">
                 <input
                   type="radio"
-                  name="radio"
+                  name="payment_method"
+                  value="e_wallet"
                   id="l3"
                   class="payment__input"
                 />
-                <label for="l3" class="payment__label">Paypal</label>
+                <label for="l3" class="payment__label">E-Wallet (MoMo / ZaloPay)</label>
               </div>
             </div>
             <button type="button" class="btn btn--md" id="place-order-btn">Place Order</button>
