@@ -20,9 +20,13 @@ const listViewBtn = document.getElementById("listViewBtn");
 
 const searchParams = new URLSearchParams(window.location.search);
 const initialSearch = searchParams.get("q")?.trim() || "";
+const initialCategory = searchParams.get("category")?.trim() || "";
 
 if (initialSearch) {
     state.search = initialSearch;
+}
+if (initialCategory) {
+    state.category_ids = [initialCategory];
 }
 
 let searchDebounceTimer = null;
@@ -46,12 +50,12 @@ async function fetchFilters() {
     // Load categories (fetch all including empty ones so all 3 always show)
     try {
         const catRes = await api.client.get('/v1/products/categories?active=false');
-        const categories = catRes.data?.data || [];
+        const categories = catRes.data?.data?.data || [];
         const catContainer = document.querySelector('#categoryFilters .filter-options');
         if (catContainer && categories.length > 0) {
             catContainer.innerHTML = categories.map(c => `
                 <label class="filter-option">
-                    <input type="checkbox" name="category" value="${c.id}"> ${c.name}
+                    <input type="checkbox" name="category" value="${c.id}" ${state.category_ids.includes(String(c.id)) ? 'checked' : ''}> ${c.name}
                 </label>
             `).join('');
         }

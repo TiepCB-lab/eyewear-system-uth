@@ -28,7 +28,7 @@ export const supportService = {
      */
     async getTicketById(ticketId) {
         try {
-            const response = await apiClient.get('/v1/support/show', { params: { id: ticketId } });
+            const response = await apiClient.get(`/v1/support/${ticketId}`);
             return response.data;
         } catch (error) {
             console.error('Support getTicketById Error:', error);
@@ -120,7 +120,7 @@ export const salesService = {
         try {
             const response = await apiClient.post('/v1/sales/complaint', {
                 order_id: orderId,
-                type: type,   // 'exchange' | 'return' | 'refund' | 'warranty'
+                type: type,
                 reason: reason
             });
             return response.data;

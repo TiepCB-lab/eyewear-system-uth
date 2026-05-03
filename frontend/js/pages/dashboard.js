@@ -11,7 +11,6 @@ class DashboardController {
     }
 
     async init() {
-        console.log('Dashboard Controller Initialized');
         this.setupNavigation();
         this.handleInitialLoad();
     }
@@ -88,7 +87,6 @@ class DashboardController {
     async switchView(viewName) {
         if (this.currentView === viewName) return;
 
-        console.log(`Switching to view: ${viewName}`);
         this.currentView = viewName;
 
         // Show loading state

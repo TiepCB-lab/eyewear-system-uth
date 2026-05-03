@@ -7,7 +7,6 @@ class AnalyticsController {
     }
 
     async init() {
-        console.log('Analytics Controller Initializing...');
         await this.loadData();
         this.render();
     }
@@ -41,11 +40,9 @@ class AnalyticsController {
 
         const convEl = document.querySelector('.metric-card:nth-child(3) .metric-value');
         if (convEl) {
-            // Mock conversion rate logic based on orders vs some total (placeholder)
-            convEl.innerText = '4.2%';
+            convEl.innerText = `${this.summary.conversion_rate || 0}%`;
         }
 
-        // Top Products Table (Reusing the table for products instead of categories as per DB structure)
         const tbody = document.querySelector('.table tbody');
         if (tbody && this.summary.top_products) {
             tbody.innerHTML = this.summary.top_products.map(p => `
@@ -53,7 +50,7 @@ class AnalyticsController {
                     <td><strong>${p.product_name}</strong></td>
                     <td>${p.units_sold} units</td>
                     <td>${api.formatCurrency(p.revenue)}</td>
-                    <td><span class="badge badge-active">+${Math.floor(Math.random() * 15) + 5}%</span></td>
+                    <td><span class="badge badge-active">Live</span></td>
                 </tr>
             `).join('');
         }

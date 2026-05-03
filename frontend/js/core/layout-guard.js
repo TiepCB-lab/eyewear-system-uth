@@ -13,7 +13,6 @@ class LayoutGuard {
     }
 
     async init() {
-        console.log(`LayoutGuard: Initializing in context "${this.ctx}"`);
         
         // 1. Enforce Routing Rules
         this.enforceRouting();

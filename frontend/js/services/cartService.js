@@ -26,8 +26,7 @@ const CartService = {
 
   updateQuantity: async (cartItemId, quantity) => {
     try {
-      const response = await apiClient.put('/v1/cart/update', {
-        cart_item_id: cartItemId,
+      const response = await apiClient.put(`/v1/cart/items/${cartItemId}`, {
         quantity: quantity
       });
       return response.data;
@@ -39,9 +38,7 @@ const CartService = {
 
   removeItem: async (cartItemId) => {
     try {
-      const response = await apiClient.delete('/v1/cart/delete', {
-        data: { cart_item_id: cartItemId }
-      });
+      const response = await apiClient.delete(`/v1/cart/items/${cartItemId}`);
       return response.data;
     } catch (error) {
       console.error('Error removing item from cart:', error);
@@ -76,7 +73,6 @@ const CartService = {
 
   checkout: async (shippingAddress, billingAddress = null) => {
     try {
-      // Backend now relies on is_selected state in the database
       const response = await apiClient.post('/v1/checkout', {
         shipping_address: shippingAddress,
         billing_address: billingAddress || shippingAddress

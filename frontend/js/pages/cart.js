@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const loadCart = async () => {
         try {
-            console.log('Fetching cart...');
             const body = await api.cart.getCart();
             const data = body.data || {}; // Inner data object
             const items = data.items || [];
@@ -19,7 +18,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             tbody.innerHTML = '';
             
             if (!items || items.length === 0) {
-                console.log('Cart is empty');
                 tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 2rem;">Your cart is empty. <a href="../shop/" class="inline-link">Go shopping!</a></td></tr>';
                 subtotalEl.innerText = api.formatCurrency(0);
                 totalEl.innerText = api.formatCurrency(0);

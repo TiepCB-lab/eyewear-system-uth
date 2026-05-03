@@ -635,7 +635,7 @@
         let selectedVariant = null;
 
         try {
-            const res = await apiClient.get('/v1/products/show?id=' + productId);
+            const res = await apiClient.get('/v1/products/' + productId);
             product = res.data?.data;
             if(!product) throw new Error("Product not found");
         } catch(e) {
@@ -677,14 +677,10 @@
 
         if(relatedEl) {
             try {
-                const rRes = await apiClient.get('/v1/products', { 
-                    params: { 
-                        category_ids: product.category_id,
-                        per_page: 8
-                    } 
+                const rRes = await apiClient.get('/v1/products/related', {
+                    params: { exclude_id: productId, limit: 4 }
                 });
-                const allR = rRes.data?.data?.data || [];
-                const related = allR.filter(p => p.id != productId).slice(0, 4);
+                const related = rRes.data?.data || [];
 
                 if(related.length > 0) {
                     let wlIds = [];
@@ -749,41 +745,6 @@
                 return `<img src="${fullImg}" alt="${product.name}" class="details__small-img" onclick="document.getElementById('details-main-image').src=this.src">`;
             }).join('');
         }
-
-        // Fetch Related Products
-        try {
-            const relatedRes = await apiClient.get('/v1/products', { params: { category_id: product.category_id, limit: 4 } });
-            const relatedItems = (relatedRes.data?.data || []).filter(p => p.id != productId);
-            if(relatedEl) {
-                relatedEl.innerHTML = relatedItems.map(p => {
-                    const pPrice = parseFloat(p.base_price);
-                    let pImg = p.thumbnail || '../../assets/images/products/placeholder.png';
-                    if(pImg.startsWith('/')) pImg = '../../..' + pImg;
-                    return `
-                        <div class="product__item">
-                            <div class="product__banner">
-                                <a href="../details/?id=${p.id}" class="product__images">
-                                    <img src="${pImg}" alt="${p.name}" class="product__img default" />
-                                    <img src="${pImg}" alt="${p.name}" class="product__img hover" />
-                                </a>
-                                <div class="product__actions">
-                                    <a href="#" class="action__btn" aria-label="Quick View" onclick="if(window.QuickView) window.QuickView.show(${p.id}); return false;">
-                                        <i class="fi fi-rs-eye"></i>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="product__content">
-                                <span class="product__category">${p.brand}</span>
-                                <a href="../details/?id=${p.id}"><h3 class="product__title">${p.name}</h3></a>
-                                <div class="product__price flex">
-                                    <span class="new__price">${format(pPrice)}</span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
-        } catch(e) {}
 
         // Render Variants
         const colors = {};
@@ -901,7 +862,6 @@
         if (openPrescriptionBtn) {
             openPrescriptionBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                console.log('Opening Prescription Modal...');
                 prescriptionModal.classList.add('active');
             });
         }
@@ -989,16 +949,10 @@
                 lensSelect.innerHTML = '<option value="">Frame only (no lens)</option>' + 
                     lenses.map(l => `<option value="${l.id}" data-price="${l.price}">${l.name} - ${l.lens_type} (+${format(l.price)})</option>`).join('');
             } else {
-                throw new Error("No lenses returned");
+                lensSelect.innerHTML = '<option value="">Frame only (no lens)</option>';
             }
         } catch(e) {
-            console.error("Lens load failed, using fallbacks", e);
-            lensSelect.innerHTML = `
-                <option value="">Frame only (No add-on)</option>
-                <option value="1" data-price="200000">Basic Lens (+200.000₫)</option>
-                <option value="2" data-price="500000">BlueCut Lens (+500.000₫)</option>
-                <option value="3" data-price="1200000">Photochromic Lens (+1.200.000₫)</option>
-            `;
+            lensSelect.innerHTML = '<option value="">Frame only (no lens)</option>';
         }
         updatePricing();
       const wishlistBtn = document.querySelector(".details__action-btn");
