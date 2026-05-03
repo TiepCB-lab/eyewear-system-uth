@@ -230,17 +230,25 @@ class InventoryService
         $db = Database::getInstance();
 
         $stmt = $db->prepare(
-            'SELECT r.name AS role_name
-             FROM `user` u
-             INNER JOIN role r ON r.id = u.role_id
-             WHERE u.id = ?
-             LIMIT 1'
+            'SELECT r.name 
+             FROM role r 
+             INNER JOIN user_roles ur ON r.id = ur.role_id 
+             WHERE ur.user_id = ?'
         );
         $stmt->execute([$userId]);
-        $row = $stmt->fetch();
+        $roles = $stmt->fetchAll(\PDO::FETCH_COLUMN) ?: [];
+        
+        $staffRoles = ['ADMIN', 'MANAGER', 'SALES_STAFF', 'OPERATIONS_STAFF'];
+        $hasAccess = false;
+        
+        foreach ($roles as $role) {
+            if (in_array(strtoupper((string)$role), $staffRoles)) {
+                $hasAccess = true;
+                break;
+            }
+        }
 
-        $roleName = strtolower((string) ($row['role_name'] ?? ''));
-        if ($roleName !== 'staff') {
+        if (!$hasAccess) {
             throw new \RuntimeException('Forbidden. Staff role is required for inventory management.');
         }
     }
