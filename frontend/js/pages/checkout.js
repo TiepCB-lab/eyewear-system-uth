@@ -1,5 +1,6 @@
 import api from '../services/api.js';
 import AddressEditor from '../components/address-editor.js';
+import { paymentService } from '../services/paymentService.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const tbody = document.getElementById('checkout-items');
@@ -144,26 +145,32 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         try {
             placeOrderBtn.disabled = true;
-            placeOrderBtn.innerText = 'Processing...';
+            placeOrderBtn.innerText = 'Processing Order...';
             
             const response = await api.cart.checkout(fullAddress);
             const orderData = response.data || {};
             
+            if (!orderData.order_id) {
+                throw new Error("Failed to create order, missing order ID");
+            }
+
+            // Lấy payment method
+            const paymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value || 'cod';
+            
+            placeOrderBtn.innerText = 'Processing Payment...';
+            const payResponse = await paymentService.processPayment(orderData.order_id, paymentMethod, orderData.total);
+            const isPaid = payResponse.data?.status === 'paid';
+
             if (orderData.status === 'pending_confirmation') {
                 if (window.Notification) window.Notification.show('Order placed! Waiting for sales staff to verify your prescription.', 'success');
                 else alert('Order placed! Waiting for sales staff to verify your prescription.');
             } else {
-                if (window.Notification) window.Notification.show('Order placed successfully! Redirecting to payment...', 'success');
-                else alert('Order placed successfully! Redirecting to payment...');
+                if (window.Notification) window.Notification.show(isPaid ? 'Payment successful! Order completed.' : 'Order placed successfully! (COD/Transfer)', 'success');
+                else alert(isPaid ? 'Payment successful! Order completed.' : 'Order placed successfully! (COD/Transfer)');
             }
 
             await new Promise((resolve) => setTimeout(resolve, 2000));
-
-            if (orderData.status === 'pending_confirmation') {
-                window.location.href = '../accounts/index.html?tab=orders';
-            } else {
-                window.location.href = '../payment/index.html?order_id=' + orderData.order_id;
-            }
+            window.location.href = '../../index.html';
         } catch (err) {
             const message = err.response?.data?.message || err.message;
             if (window.Notification) window.Notification.show('Checkout failed: ' + message, 'error');

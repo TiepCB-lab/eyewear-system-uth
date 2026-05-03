@@ -14,7 +14,7 @@ class SalesVerificationService
     {
         // Lấy đơn hàng có status pending hoặc paid nhưng chưa được verify
         $db   = Database::getInstance();
-        $stmt = $db->query("SELECT * FROM `order` WHERE verified_by IS NULL AND status IN ('pending', 'paid') ORDER BY created_at ASC");
+        $stmt = $db->query("SELECT * FROM `order` WHERE verified_by IS NULL AND status IN ('pending', 'paid', 'pending_payment', 'pending_confirmation') ORDER BY created_at ASC");
 
         $orders = [];
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {

@@ -51,12 +51,12 @@ class CheckoutService
 
             // Determine Order Type and Status
             $orderType = 'stock';
-            $status = 'pending_payment';
+            $status = 'pending';
 
             foreach ($cartItems as $item) {
                 if (!empty($item['prescription_id']) || !empty($item['lens_id'])) {
                     $orderType = 'prescription';
-                    $status = 'pending_confirmation';
+                    $status = 'pending'; // Staff will know it requires verification via order_type
                     break;
                 }
             }
@@ -114,7 +114,8 @@ class CheckoutService
                 'order_id' => $orderId,
                 'order_number' => $orderNumber,
                 'total' => $totals['total'],
-                'status' => $status
+                'status' => $status,
+                'order_type' => $orderType
             ];
 
         } catch (Exception $e) {
