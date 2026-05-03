@@ -1,4 +1,5 @@
 import { salesService } from '../../services/supportService.js';
+import api from '../../services/api.js';
 
 const ordersBody = document.getElementById('ordersListBody');
 const countEl = document.getElementById('sales-new-orders-count');
@@ -17,7 +18,7 @@ function renderOrders(rows) {
         <tr>
             <td><strong>#${order.order_number}</strong></td>
             <td><span class="badge badge-pending">${order.status}</span></td>
-            <td>$${order.total_amount}</td>
+            <td>${api.formatCurrency(order.total_amount)}</td>
             <td><button type="button" class="btn btn--sm order-verify-btn" data-order-id="${order.id}">Verify Order</button></td>
         </tr>
     `).join('');
