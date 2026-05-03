@@ -71,8 +71,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             const response = await api.profile.getProfile();
             const data = response.data || {};
-            console.log('Checkout Profile Data:', data);
-
             fillCheckoutFields(data.profile);
             
             // Addresses might be cached in profile, but let's fetch fresh

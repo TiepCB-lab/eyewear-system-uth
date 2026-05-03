@@ -9,7 +9,6 @@ class ProductsController {
     }
 
     async init() {
-        console.log('Products Controller Initializing...');
         await this.loadInitialData();
         this.render();
         this.setupEventListeners();

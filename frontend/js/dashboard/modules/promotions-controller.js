@@ -6,7 +6,6 @@ class PromotionsController {
     }
 
     async init() {
-        console.log('Promotions Controller Initializing...');
         await this.loadVouchers();
         this.render();
         this.setupEventListeners();

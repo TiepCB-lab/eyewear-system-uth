@@ -12,7 +12,7 @@ class AdminService {
   }
 
   async getStaffById(id) {
-    const response = await apiClient.get(`/v1/admin/staff/show?id=${id}`);
+    const response = await apiClient.get(`/v1/admin/staff/${id}`);
     return response.data;
   }
 
@@ -22,12 +22,12 @@ class AdminService {
   }
 
   async updateStaff(id, staffData) {
-    const response = await apiClient.put(`/v1/admin/staff/update?id=${id}`, staffData);
+    const response = await apiClient.put(`/v1/admin/staff/${id}`, staffData);
     return response.data;
   }
 
   async deleteStaff(id) {
-    const response = await apiClient.delete(`/v1/admin/staff/delete?id=${id}`);
+    const response = await apiClient.delete(`/v1/admin/staff/${id}`);
     return response.data;
   }
 
@@ -77,12 +77,12 @@ class AdminService {
   }
 
   async updateVoucher(id, voucherData) {
-    const response = await apiClient.put(`/v1/admin/vouchers/update?id=${id}`, voucherData);
+    const response = await apiClient.put(`/v1/admin/vouchers/${id}`, voucherData);
     return response.data;
   }
 
   async deleteVoucher(id) {
-    const response = await apiClient.delete(`/v1/admin/vouchers/delete?id=${id}`);
+    const response = await apiClient.delete(`/v1/admin/vouchers/${id}`);
     return response.data;
   }
 

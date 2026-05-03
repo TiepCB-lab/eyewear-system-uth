@@ -7,7 +7,14 @@ class ProductService {
     }
 
     async getProduct(id) {
-        const response = await apiClient.get('/v1/products/show', { params: { id } });
+        const response = await apiClient.get(`/v1/products/${id}`);
+        return response.data;
+    }
+
+    async getRelatedProducts(id, limit = 4) {
+        const response = await apiClient.get('/v1/products/related', {
+            params: { exclude_id: id, limit }
+        });
         return response.data;
     }
 

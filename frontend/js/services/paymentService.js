@@ -48,7 +48,7 @@ export const paymentService = {
      */
     async getOrderDetail(orderId) {
         try {
-            const response = await apiClient.get('/v1/orders/show', { params: { id: orderId } });
+            const response = await apiClient.get(`/v1/orders/${orderId}`);
             return response.data;
         } catch (error) {
             console.error('Payment getOrderDetail Error:', error);

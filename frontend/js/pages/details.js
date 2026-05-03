@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let selectedVariant = null;
 
     try {
-        const response = await api.client.get('/v1/products/show?id=' + productId);
+        const response = await api.client.get(`/v1/products/${productId}`);
         product = response.data.data;
     } catch (error) {
         console.error('Failed to fetch product', error);
@@ -114,28 +114,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!container) return;
 
         try {
-            const categoryId = product?.category?.id || null;
-            const params = {
-                per_page: 8,
-                sort_by: 'created_at',
-                sort_direction: 'DESC'
-            };
-            if (categoryId) {
-                params.category_ids = categoryId;
-            }
-
-            const res = await api.client.get('/v1/products', { params });
-            const allProds = res.data?.data?.data || [];
-            
-            // Filter out current product and take top 4
-            const related = allProds.filter(p => p.id != product.id).slice(0, 4);
+            const res = await api.client.get('/v1/products/related', {
+                params: { exclude_id: product.id, limit: 4 }
+            });
+            const related = res.data?.data || [];
 
             if (related.length === 0) {
                 container.closest('section').style.display = 'none';
                 return;
             }
 
-            // Fetch wishlist state to show correct heart icons
             let wishlistedIds = [];
             try {
                 const wl = await WishlistService.getWishlist();
@@ -197,7 +185,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         } catch (err) {
             console.error("Critical error loading related products:", err);
-            // If API fails, hide the section instead of showing broken mock data
             if (container.closest('section')) container.closest('section').style.display = 'none';
         }
     };

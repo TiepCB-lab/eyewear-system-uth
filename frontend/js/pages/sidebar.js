@@ -1,7 +1,6 @@
 import authService from '../services/authService.js';
 
 function initSidebar() {
-    console.log('Sidebar Logic Initialized');
     
     // Handle Logout in Sidebar
     const logoutBtn = document.getElementById('staff-logout');
