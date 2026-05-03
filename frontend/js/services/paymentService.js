@@ -9,7 +9,7 @@ export const paymentService = {
             const body = { order_id: orderId, method: method };
             if (amount !== null) body.amount = amount;
             
-            const response = await apiClient.post('/v1/payments/process', body);
+            const response = await apiClient.post('/payments/process', body);
             return response.data;
         } catch (error) {
             console.error('Payment processPayment Error:', error);
@@ -22,7 +22,7 @@ export const paymentService = {
      */
     async confirmPayment(paymentId) {
         try {
-            const response = await apiClient.post('/v1/payments/confirm', { payment_id: paymentId });
+            const response = await apiClient.post('/payments/confirm', { payment_id: paymentId });
             return response.data;
         } catch (error) {
             console.error('Payment confirmPayment Error:', error);
@@ -35,7 +35,7 @@ export const paymentService = {
      */
     async getPaymentByOrder(orderId) {
         try {
-            const response = await apiClient.get('/v1/payments/status', { params: { order_id: orderId } });
+            const response = await apiClient.get('/payments/status', { params: { order_id: orderId } });
             return response.data;
         } catch (error) {
             console.error('Payment getPaymentByOrder Error:', error);
@@ -48,7 +48,7 @@ export const paymentService = {
      */
     async getOrderDetail(orderId) {
         try {
-            const response = await apiClient.get(`/v1/orders/${orderId}`);
+            const response = await apiClient.get(`/orders/${orderId}`);
             return response.data;
         } catch (error) {
             console.error('Payment getOrderDetail Error:', error);
@@ -61,7 +61,7 @@ export const paymentService = {
      */
     async getPendingPayments() {
         try {
-            const response = await apiClient.get('/v1/payments/pending');
+            const response = await apiClient.get('/payments/pending');
             return response.data;
         } catch (error) {
             console.error('Payment getPendingPayments Error:', error);

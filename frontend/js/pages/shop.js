@@ -49,7 +49,7 @@ async function loadFilterComponent() {
 async function fetchFilters() {
     // Load categories (fetch all including empty ones so all 3 always show)
     try {
-        const catRes = await api.client.get('/v1/products/categories?active=false');
+        const catRes = await api.client.get('/products/categories?active=false');
         const categories = catRes.data?.data?.data || [];
         const catContainer = document.querySelector('#categoryFilters .filter-options');
         if (catContainer && categories.length > 0) {
@@ -65,7 +65,7 @@ async function fetchFilters() {
 
     // Load brands dynamically
     try {
-        const brandRes = await api.client.get('/v1/products/brands');
+        const brandRes = await api.client.get('/products/brands');
         const brands = brandRes.data?.data || [];
         const brandContainer = document.querySelector('#brandFilters .filter-options');
         if (brandContainer && brands.length > 0) {
@@ -102,7 +102,7 @@ async function fetchProducts() {
       page: state.page
     };
 
-    const response = await api.client.get('/v1/products', { params });
+    const response = await api.client.get('/products', { params });
     // Structure: response.data = { success: true, data: { data: [...], pagination: {...} } }
     const payload = response.data?.data || {};
     const products = payload.data || [];
@@ -230,7 +230,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     // Load Wishlist state
     try {
-        const wl = await api.client.get('/v1/wishlist').catch(() => ({ data: { data: [] } }));
+        const wl = await api.client.get('/wishlist').catch(() => ({ data: { data: [] } }));
         wishlistedIds = (wl.data.data || []).map(i => i.product_id);
     } catch (e) {}
 

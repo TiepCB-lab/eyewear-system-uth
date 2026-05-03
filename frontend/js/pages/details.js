@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let selectedVariant = null;
 
     try {
-        const response = await api.client.get(`/v1/products/${productId}`);
+        const response = await api.client.get(`/products/${productId}`);
         product = response.data.data;
     } catch (error) {
         console.error('Failed to fetch product', error);
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!container) return;
 
         try {
-            const res = await api.client.get('/v1/products/related', {
+            const res = await api.client.get('/products/related', {
                 params: { exclude_id: product.id, limit: 4 }
             });
             const related = res.data?.data || [];
@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        const lensResponse = await api.client.get('/v1/products/lenses/available');
+        const lensResponse = await api.client.get('/products/lenses/available');
         const lenses = lensResponse.data?.data || [];
 
         lensSelect.innerHTML = '<option value="">Frame only (no lens add-on)</option>';
@@ -362,7 +362,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         addToCartBtn.classList.add('animating');
 
         try {
-            await api.client.post('/v1/cart', {
+            await api.client.post('/cart', {
                 variant_id: selectedVariant.id,
                 lens_id: lensId,
                 quantity: parseInt(quantityInput.value, 10),
