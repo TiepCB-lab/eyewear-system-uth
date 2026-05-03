@@ -123,12 +123,31 @@ function initImageFallbacks() {
   );
 }
 
+function initNewsletter() {
+  document.addEventListener('submit', (e) => {
+    if (e.target.classList.contains('newsletter__form')) {
+      e.preventDefault();
+      const input = e.target.querySelector('.newsletter__input');
+      const email = input.value;
+      if (email) {
+        if (window.Notification) {
+          window.Notification.show('Thank you for subscribing!', 'success');
+        } else {
+          alert('Thank you for subscribing!');
+        }
+        input.value = '';
+      }
+    }
+  });
+}
+
 function initCoreUi() {
   initMenu();
   initImageGallery();
   initTabs();
   initSwiperInstances();
   initImageFallbacks();
+  initNewsletter();
 }
 
 window.formatVND = function formatVND(price) {

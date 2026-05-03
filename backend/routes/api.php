@@ -152,7 +152,9 @@ Router::group(['prefix' => 'api/v1'], function () {
 
             Router::group(['prefix' => 'products', 'middleware' => 'permission:manage_products'], function () {
                 Router::post('/', [ProductController::class, 'store']);
+                Router::put('/', [ProductController::class, 'update']);
                 Router::put('{id}', [ProductController::class, 'update']);
+                Router::delete('/', [ProductController::class, 'destroy']);
                 Router::delete('{id}', [ProductController::class, 'destroy']);
             });
 
