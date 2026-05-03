@@ -21,6 +21,8 @@ use App\Http\Controllers\Api\V1\AddressController;
 use App\Http\Controllers\Api\V1\WishlistController;
 use App\Http\Controllers\Api\V1\PrescriptionController;
 
+Router::get('/', [HealthController::class, 'index']);
+
 // Global prefix for all API routes
 Router::group(['prefix' => 'api/v1'], function () {
 
