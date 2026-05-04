@@ -374,7 +374,7 @@
     window.addToCart = async function(variantId) {
         try {
             const { default: cartService } = await import(projectRoot + 'js/services/cartService.js');
-            await cartService.addToCart(variantId, 1);
+            await cartService.addToCart({ variant_id: variantId, quantity: 1 });
             if (window.Notification) window.Notification.show('Product added to cart!', 'success');
             else alert('Product added to cart!');
             window.dispatchEvent(new CustomEvent('content-loaded', { detail: { path: 'layout/Header' } }));

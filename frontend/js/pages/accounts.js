@@ -75,7 +75,7 @@ function getStatusBadge(status) {
         cancelled: { cls: 'badge-inactive', label: 'Cancelled' },
         refunded: { cls: 'badge-inactive', label: 'Refunded' },
     };
-    const current = map[status] || { cls: 'badge-pending', label: status };
+    const current = map[status] || { cls: 'badge-pending', label: status || 'Pending' };
     return `<span class="badge ${current.cls}">${current.label}</span>`;
 }
 
@@ -105,9 +105,14 @@ function renderOrdersTable(orders) {
         const date = order.placed_at
             ? new Date(order.placed_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
             : '-';
-        const payAction = (order.payment_status === 'pending' || !order.payment_status)
-            ? `<a href="../payment/?order_id=${order.id}" class="view__order">Pay Now</a>`
-            : '<strong class="growth-positive">Paid ✓</strong>';
+        const isPaid = order.payment_status === 'paid' || order.payment_status === 'completed';
+        const isCOD = order.payment_method === 'cod';
+        
+        const payAction = (isPaid)
+            ? '<strong class="growth-positive">Paid ✓</strong>'
+            : (isCOD 
+                ? '<span class="badge badge-pending">Pay on Delivery</span>'
+                : `<a href="../payment/?order_id=${order.id}" class="view__order">Pay Now</a>`);
 
         return `
             <tr>

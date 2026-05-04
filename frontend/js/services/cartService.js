@@ -11,11 +11,16 @@ const CartService = {
     }
   },
 
-  addToCart: async (variantId, quantity = 1) => {
+  addToCart: async ({ variant_id, quantity = 1, lens_id = null, prescription = null }) => {
+    if (!variant_id) {
+      throw new Error('Variant ID is required.');
+    }
     try {
       const response = await apiClient.post('/cart', {
-        variant_id: Number(variantId),
-        quantity: quantity
+        variant_id: Number(variant_id),
+        quantity: Number(quantity),
+        lens_id: lens_id ? Number(lens_id) : null,
+        prescription: prescription
       });
       return response.data;
     } catch (error) {
@@ -71,15 +76,36 @@ const CartService = {
     }
   },
 
-  checkout: async (shippingAddress, billingAddress = null) => {
+  checkout: async (shippingAddress, paymentMethod = 'cod', billingAddress = null) => {
     try {
       const response = await apiClient.post('/checkout', {
         shipping_address: shippingAddress,
-        billing_address: billingAddress || shippingAddress
+        billing_address: billingAddress || shippingAddress,
+        payment_method: paymentMethod
       });
       return response.data;
     } catch (error) {
       console.error('Checkout error:', error);
+      throw error;
+    }
+  },
+
+  applyVoucher: async (code) => {
+    try {
+      const response = await apiClient.post('/cart/voucher', { code });
+      return response.data;
+    } catch (error) {
+      console.error('Error applying voucher:', error);
+      throw error;
+    }
+  },
+
+  removeVoucher: async () => {
+    try {
+      const response = await apiClient.delete('/cart/voucher');
+      return response.data;
+    } catch (error) {
+      console.error('Error removing voucher:', error);
       throw error;
     }
   },

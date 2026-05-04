@@ -140,21 +140,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         // We need to pass the actual full address text to checkout API since it expects a string
         const selectedOption = addressSelect.options[addressSelect.selectedIndex];
         const fullAddress = selectedOption ? selectedOption.text.split(':').slice(1).join(':').trim() : '';
-
+        // Get selected payment method
+        const paymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value || 'cod';
+        
         try {
             placeOrderBtn.disabled = true;
             placeOrderBtn.innerText = 'Processing Order...';
             
-            const response = await api.cart.checkout(fullAddress);
+            const response = await api.cart.checkout(fullAddress, paymentMethod);
             const orderData = response.data || {};
             
             if (!orderData.order_id) {
                 throw new Error("Failed to create order, missing order ID");
             }
 
-            // Lấy payment method
-            const paymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value || 'cod';
-            
             placeOrderBtn.innerText = 'Processing Payment...';
             const payResponse = await paymentService.processPayment(orderData.order_id, paymentMethod, orderData.total);
             const isPaid = payResponse.data?.status === 'paid';

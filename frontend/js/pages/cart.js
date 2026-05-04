@@ -36,10 +36,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <input type="checkbox" class="cart-item-check" data-id="${itemId}" ${isSelected ? 'checked' : ''}>
                     </td>
                     <td>
-                        <img src="${api.fixImagePath(item.image_2d_url)}" alt="${item.product_name}" class="table__img" />
+                        <a href="../details/index.html?id=${item.product_id}">
+                            <img src="${api.fixImagePath(item.image_2d_url)}" alt="${item.product_name}" class="table__img" />
+                        </a>
                     </td>
                     <td>
-                        <h3 class="table__title">${item.product_name || 'Product'}</h3>
+                        <a href="../details/index.html?id=${item.product_id}">
+                            <h3 class="table__title">${item.product_name || 'Product'}</h3>
+                        </a>
                         <p class="table__description">
                             Color: ${item.color || 'N/A'}, Size: ${item.size || 'N/A'} <br>
                             ${item.lens_name ? `Lens: ${item.lens_name} (+${api.formatCurrency(item.lens_price)})` : ''}
@@ -60,7 +64,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 tbody.appendChild(tr);
             });
 
-            renderTotals(totals.total);
+            renderTotals(totals);
             updateSelectAllState(items);
         } catch (error) {
             console.error('Error loading cart:', error);
@@ -72,13 +76,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    const renderTotals = (total) => {
-        const formatted = api.formatCurrency(total);
-        subtotalEl.innerText = formatted;
-        totalEl.innerText = formatted;
+    const renderTotals = (totals) => {
+        subtotalEl.innerText = api.formatCurrency(totals.subtotal || 0);
+        totalEl.innerText = api.formatCurrency(totals.total || 0);
+
+        // Hiển thị dòng giảm giá nếu có
+        const discountRow = document.querySelector('.cart__total-table tr:nth-child(2)');
+        if (totals.discount > 0) {
+            if (discountRow) {
+                discountRow.innerHTML = `
+                    <td><span class="cart__total-title">Discount (${totals.promotion_code})</span></td>
+                    <td><span class="cart__total-price" style="color: red;">-${api.formatCurrency(totals.discount)}</span></td>
+                `;
+            }
+        } else if (discountRow) {
+            // Trả về mặc định nếu không có giảm giá
+            discountRow.innerHTML = `
+                <td><span class="cart__total-title">Shipping</span></td>
+                <td><span class="cart__total-price">Free</span></td>
+            `;
+        }
         
         if (checkoutBtn) {
-            if (total > 0) checkoutBtn.classList.remove('is-disabled-link');
+            if (totals.total > 0) checkoutBtn.classList.remove('is-disabled-link');
             else checkoutBtn.classList.add('is-disabled-link');
         }
     };
@@ -135,6 +155,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (err) {
             e.target.checked = !e.target.checked;
             alert('Failed to update selection');
+        }
+    });
+
+    // Xử lý áp dụng mã giảm giá
+    const couponForm = document.querySelector('.coupon__form');
+    const couponInput = document.querySelector('.coupon__form input');
+    
+    couponForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const code = couponInput.value.trim();
+        if (!code) return;
+
+        try {
+            await api.cart.applyVoucher(code);
+            loadCart();
+            alert('Mã giảm giá đã được áp dụng!');
+        } catch (err) {
+            alert(err.response?.data?.message || 'Không thể áp dụng mã giảm giá');
         }
     });
 

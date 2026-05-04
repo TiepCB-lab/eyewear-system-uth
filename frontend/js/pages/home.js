@@ -15,14 +15,22 @@ async function initHome() {
     const topSellingContainer = document.getElementById('top-selling');
 
     try {
-        // Fetch Products and Categories in parallel
-        const [productRes, categoryRes] = await Promise.all([
-            productService.getProducts(),
+        // Fetch Featured Products and Categories in parallel
+        const [featuredRes, categoryRes] = await Promise.all([
+            productService.getFeaturedProducts(),
             productService.getCategories()
         ]);
 
-        const products = productRes.data?.data || [];
+        const featuredData = featuredRes.data || {};
         const categories = categoryRes.data?.data || [];
+        
+        // Phân loại dữ liệu cho từng khu vực
+        const newReleases = featuredData.new_releases || [];
+        const deals = featuredData.deals || [];
+        const topSelling = featuredData.top_selling || [];
+        
+        // All products combined for generic sections if needed
+        const allProducts = [...newReleases, ...deals, ...topSelling];
         
         let wishlistedIds = [];
         try {
@@ -35,11 +43,11 @@ async function initHome() {
         if (categoryWrapper && categories.length > 0) {
             const getCategoryImage = (name) => {
                 const n = name.toLowerCase();
-                if (n.includes('sun')) return 'assets/images/eyewear_category_sun.png';
-                if (n.includes('presc')) return 'assets/images/eyewear_category_presc.png';
-                if (n.includes('blue')) return 'assets/images/products/AN550016_3796.png';
-                if (n.includes('luxury')) return 'assets/images/products/AN550012_3849.png';
-                return 'assets/images/products/AN550016_3796.png'; // fallback
+                if (n.includes('sun')) return 'assets/images/category-sun.png';
+                if (n.includes('presc')) return 'assets/images/category-presc.png';
+                if (n.includes('blue')) return 'assets/images/products/frame-an-05.png';
+                if (n.includes('luxury')) return 'assets/images/products/frame-an-03.png';
+                return 'assets/images/products/frame-an-05.png'; // fallback
             };
 
             categoryWrapper.innerHTML = categories.map(cat => `
@@ -54,7 +62,7 @@ async function initHome() {
             }
         }
 
-        if (!products || products.length === 0) {
+        if (!allProducts || allProducts.length === 0) {
             console.warn('No products found for home page');
             return;
         }
@@ -69,7 +77,7 @@ async function initHome() {
         // Helper to render product card
         const renderProductItem = (p, idx) => {
             if (!p) return '';
-            const variantId = p.first_variant_id || p.id;
+            const variantId = p.first_variant_id || (p.variants && p.variants[0] ? p.variants[0].id : p.id);
             const isWishlisted = wishlistedIds.some(wid => wid == p.id);
             const heartIcon = isWishlisted ? 'fi fi-ss-heart' : 'fi fi-rs-heart';
             const heartClass = isWishlisted ? 'wishlist-active' : '';
@@ -137,12 +145,12 @@ async function initHome() {
         };
 
         // Populate Sections
-        if (featuredContainer) featuredContainer.innerHTML = products.slice(0, 8).map((p, i) => renderProductItem(p, i)).join('');
-        if (popularContainer) popularContainer.innerHTML = products.slice(Math.min(4, products.length), Math.min(12, products.length)).map((p, i) => renderProductItem(p, i)).join('');
-        if (newAddedContainer) newAddedContainer.innerHTML = products.slice(0, 8).map((p, i) => renderProductItem(p, i)).join('');
+        if (featuredContainer) featuredContainer.innerHTML = newReleases.slice(0, 8).map((p, i) => renderProductItem(p, i)).join('');
+        if (popularContainer) popularContainer.innerHTML = topSelling.slice(0, 8).map((p, i) => renderProductItem(p, i)).join('');
+        if (newAddedContainer) newAddedContainer.innerHTML = newReleases.slice(0, 8).map((p, i) => renderProductItem(p, i)).join('');
         
         if (newArrivalsContainer) {
-            newArrivalsContainer.innerHTML = products.slice(0, 8).map(p => `
+            newArrivalsContainer.innerHTML = newReleases.slice(0, 8).map(p => `
                 <div class="swiper-slide">
                     ${renderProductItem(p, 0)}
                 </div>
@@ -152,10 +160,10 @@ async function initHome() {
                 window.swiperProducts.update();
             }
         }
-
-        if (hotReleasesContainer) hotReleasesContainer.innerHTML = products.slice(0, 3).map(renderShowcaseItem).join('');
-        if (dealsOutletContainer) dealsOutletContainer.innerHTML = products.slice(Math.min(3, products.length), Math.min(6, products.length)).map(renderShowcaseItem).join('');
-        if (topSellingContainer) topSellingContainer.innerHTML = products.slice(Math.min(6, products.length), Math.min(9, products.length)).map(renderShowcaseItem).join('');
+ 
+        if (hotReleasesContainer) hotReleasesContainer.innerHTML = newReleases.slice(0, 3).map(renderShowcaseItem).join('');
+        if (dealsOutletContainer) dealsOutletContainer.innerHTML = deals.slice(0, 3).map(renderShowcaseItem).join('');
+        if (topSellingContainer) topSellingContainer.innerHTML = topSelling.slice(0, 3).map(renderShowcaseItem).join('');
 
         // Refresh AOS to recognize new elements with a slight delay
         if (window.AOS) {

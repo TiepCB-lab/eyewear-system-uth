@@ -114,7 +114,7 @@ async function fetchProducts() {
             .replaceAll("{{BRAND}}", item.brand || '')
             .replaceAll("{{PRICE}}", api.formatCurrency(item.base_price))
             .replaceAll("{{OLD_PRICE}}", api.formatCurrency(item.base_price * 1.2))
-            .replaceAll("{{ID}}", item.first_variant_id)
+            .replaceAll("{{ID}}", item.first_variant_id || (item.variants && item.variants[0] ? item.variants[0].id : item.id))
             .replaceAll("{{PRODUCT_ID}}", item.id)
             .replaceAll("{{WISHLIST_ICON}}", isWishlisted ? 'fi fi-ss-heart' : 'fi fi-rs-heart')
             .replaceAll("{{WISHLIST_CLASS}}", isWishlisted ? 'wishlist-active' : '')
