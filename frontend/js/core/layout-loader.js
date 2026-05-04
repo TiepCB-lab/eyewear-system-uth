@@ -171,7 +171,7 @@
     }
 
     function resolveAvatarUrl(avatar) {
-        if (!avatar) return `${projectRoot}assets/images/avatar-1.jpg`;
+        if (!avatar) return `${projectRoot}assets/images/avatars/avatar-1.jpg`;
         if (avatar.startsWith('http://') || avatar.startsWith('https://')) return avatar;
         if (avatar.startsWith('/')) return `http://localhost:8000${avatar}`;
         return `http://localhost:8000/${avatar.replace(/^\/+/, '')}`;
@@ -216,7 +216,7 @@
                 const isStaff = roles.some(r => staffRoles.includes(r));
                 const isCustomer = roles.includes('CUSTOMER');
                 
-                if (portalArea) renderUserPortal(portalArea, displayName, isStaff);
+                if (portalArea) renderUserPortal(portalArea, displayName, avatarSrc, isStaff);
                 if (adminPortal) renderAdminPortal(adminPortal, displayName, avatarSrc, isCustomer);
             }
         } catch (e) {
@@ -224,11 +224,11 @@
         }
     }
 
-    function renderUserPortal(container, displayName, isStaff) {
+    function renderUserPortal(container, displayName, avatarSrc, isStaff) {
         container.innerHTML = `
             <div class="user-info dropdown">
                 <div class="user-trigger">
-                    <i class="fi fi-rs-user"></i>
+                    <img src="${avatarSrc}" alt="${displayName}" class="user-avatar-mini" onerror="this.src='${projectRoot}assets/images/avatars/avatar-1.jpg'">
                     <span class="user-name-text">Hi, ${displayName}</span>
                     <i class="fi fi-rs-angle-small-down"></i>
                 </div>
@@ -345,9 +345,10 @@
     const dependencies = [
         { id: 'google-fonts', type: 'link', rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap' },
         { id: 'flaticon', type: 'link', rel: 'stylesheet', href: 'https://cdn-uicons.flaticon.com/2.0.0/uicons-regular-straight/css/uicons-regular-straight.css' },
+        { id: 'flaticon-solid', type: 'link', rel: 'stylesheet', href: 'https://cdn-uicons.flaticon.com/2.0.0/uicons-solid-straight/css/uicons-solid-straight.css' },
         { id: 'modal-style', type: 'link', rel: 'stylesheet', href: projectRoot + 'assets/css/components/modals.css' },
         { id: 'refactor-style', type: 'link', rel: 'stylesheet', href: projectRoot + 'assets/css/refactor-utils.css' },
-        { id: 'notify-style', type: 'link', rel: 'stylesheet', href: projectRoot + 'assets/css/components/notification.css' },
+        { id: 'notify-style', type: 'link', rel: 'stylesheet', href: projectRoot + 'assets/css/components/notifications.css' },
         { id: 'ui-style', type: 'link', rel: 'stylesheet', href: projectRoot + 'assets/css/custom-ui.css' }
     ];
 

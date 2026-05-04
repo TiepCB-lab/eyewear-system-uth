@@ -1,58 +1,30 @@
 /**
- * Notification Component - Handles toast notifications
+ * Notification Component - Legacy Wrapper for EvelensNotify
+ * Ensures old code calling window.Notification still works with the new Premium UI.
  */
 
 const Notification = {
-    container: null,
-
     init: function() {
-        if (!this.container) {
-            this.container = document.createElement('div');
-            this.container.id = 'notification-container';
-            document.body.appendChild(this.container);
-        }
+        // EvelensNotify initializes itself on first call
     },
 
-    show: function(message, type = 'info', duration = 3000) {
-        this.init();
-
-        const toast = document.createElement('div');
-        toast.className = `notification-toast notification--${type}`;
-        
-        let icon = 'fi-rs-info';
-        if (type === 'success') icon = 'fi-rs-check-circle';
-        if (type === 'error') icon = 'fi-rs-cross-circle';
-        if (type === 'warning') icon = 'fi-rs-exclamation';
-
-        toast.innerHTML = `
-            <div class="notification__content">
-                <i class="fi ${icon} notification__icon"></i>
-                <span class="notification__message">${message}</span>
-            </div>
-            <div class="notification__progress"></div>
-        `;
-
-        toast.querySelector('.notification__progress').style.animationDuration = `${duration}ms`;
-        
-        this.container.appendChild(toast);
-        
-        // Trigger reflow
-        toast.offsetHeight;
-        toast.classList.add('show');
-
-        const removeToast = () => {
-            toast.classList.remove('show');
-            setTimeout(() => toast.remove(), 500);
-        };
-
-        const timeout = setTimeout(removeToast, duration);
-        
-        toast.onclick = () => {
-            clearTimeout(timeout);
-            removeToast();
-        };
+    /**
+     * Legacy show method
+     * @param {string} message 
+     * @param {string} type 'success', 'error', 'warning', 'info'
+     */
+    show: function(message, type = 'info') {
+        if (window.EvelensNotify) {
+            const title = type.charAt(0).toUpperCase() + type.slice(1);
+            if (type === 'success') window.EvelensNotify.success(title, message);
+            else if (type === 'error') window.EvelensNotify.error(title, message);
+            else if (type === 'warning') window.EvelensNotify.confirm(title, message, () => {});
+            else window.EvelensNotify.info(title, message);
+        } else {
+            // Fallback to basic alert if EvelensNotify is not loaded
+            alert(message);
+        }
     }
 };
-
 
 export default Notification;

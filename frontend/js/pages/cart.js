@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 loadCart();
                 window.dispatchEvent(new CustomEvent('content-loaded', { detail: { path: 'layout/Header' } }));
             } catch (err) {
-                alert('Failed to update quantity');
+                await EvelensNotify.error('Error', 'Could not update quantity. Please try again.');
             }
         }
     });
@@ -131,20 +131,26 @@ document.addEventListener('DOMContentLoaded', async () => {
                 loadCart();
             } catch (err) {
                 e.target.checked = !e.target.checked; // Revert on failure
-                alert('Failed to update selection');
+                await EvelensNotify.error('Error', 'Could not update selection status.');
             }
             return;
         }
 
         const removeButton = e.target.closest('.cart-remove-btn');
-        if (removeButton && confirm('Are you sure you want to remove this item?')) {
-            try {
-                await api.cart.removeItem(removeButton.dataset.id);
-                loadCart();
-                window.dispatchEvent(new CustomEvent('content-loaded', { detail: { path: 'layout/Header' } }));
-            } catch (err) {
-                alert('Failed to remove item');
-            }
+        if (removeButton) {
+            await EvelensNotify.confirm(
+                'Confirm Removal',
+                'Are you sure you want to remove this item from your cart?',
+                async () => {
+                    try {
+                        await api.cart.removeItem(removeButton.dataset.id);
+                        loadCart();
+                        window.dispatchEvent(new CustomEvent('content-loaded', { detail: { path: 'layout/Header' } }));
+                    } catch (err) {
+                        await EvelensNotify.error('Error', 'Could not remove item.');
+                    }
+                }
+            );
         }
     });
 

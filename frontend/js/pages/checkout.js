@@ -128,12 +128,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         const name = nameInput?.value;
 
         if (!selectedAddressId) {
-            alert('Please select or add a shipping address.');
+            await EvelensNotify.info('Missing Info', 'Please select or add a shipping address.');
             return;
         }
         
         if (!name) {
-            alert('Please provide your name.');
+            await EvelensNotify.info('Missing Info', 'Please provide your name.');
             return;
         }
         
@@ -143,37 +143,47 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Get selected payment method
         const paymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value || 'cod';
         
+        const loader = await EvelensNotify.loading('Processing your order...');
         try {
             placeOrderBtn.disabled = true;
-            placeOrderBtn.innerText = 'Processing Order...';
             
             const response = await api.cart.checkout(fullAddress, paymentMethod);
             const orderData = response.data || {};
             
             if (!orderData.order_id) {
-                throw new Error("Failed to create order, missing order ID");
+                throw new Error("Could not create order.");
             }
 
-            placeOrderBtn.innerText = 'Processing Payment...';
+            loader.update({ desc: 'Processing payment...' });
             const payResponse = await paymentService.processPayment(orderData.order_id, paymentMethod, orderData.total);
             const isPaid = payResponse.data?.status === 'paid';
 
             if (orderData.status === 'pending_confirmation') {
-                if (window.Notification) window.Notification.show('Order placed! Waiting for sales staff to verify your prescription.', 'success');
-                else alert('Order placed! Waiting for sales staff to verify your prescription.');
+                loader.update({
+                    type: 'success',
+                    title: 'Order Placed!',
+                    desc: 'Your order has been recorded. Please wait for our staff to verify your prescription.',
+                    btnText: 'Back to Home',
+                    onConfirm: () => window.location.href = '../../index.html'
+                });
             } else {
-                if (window.Notification) window.Notification.show(isPaid ? 'Payment successful! Order completed.' : 'Order placed successfully! (COD/Transfer)', 'success');
-                else alert(isPaid ? 'Payment successful! Order completed.' : 'Order placed successfully! (COD/Transfer)');
+                loader.update({
+                    type: 'success',
+                    title: 'Success!',
+                    desc: isPaid ? 'Payment successful! Your order has been completed.' : 'Order placed successfully! Thank you for choosing Evelens.',
+                    btnText: 'Back to Home',
+                    onConfirm: () => window.location.href = '../../index.html'
+                });
             }
-
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-            window.location.href = '../../index.html';
         } catch (err) {
             const message = err.response?.data?.message || err.message;
-            if (window.Notification) window.Notification.show('Checkout failed: ' + message, 'error');
-            else alert('Checkout failed: ' + message);
+            loader.update({
+                type: 'error',
+                title: 'Checkout Failed',
+                desc: 'An error occurred during checkout: ' + message,
+                btnText: 'Check Again'
+            });
             placeOrderBtn.disabled = false;
-            placeOrderBtn.innerText = 'Place Order';
         }
     });
 

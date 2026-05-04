@@ -74,13 +74,14 @@
       <div class="overlay-container">
         <div class="overlay">
           <div class="overlay-panel overlay-left">
-            <img src="/assets/images/home-img.png" alt="Glasses Model" class="overlay-img auth-delay--alt" />
-            <h1>Welcome Back!</h1>
-            <p>To keep connected with us please Sign In with your personal info</p>
-            <button class="btn ghost" id="signIn">Sign In</button>
+            <img src="/assets/images/banners/home-img.png" alt="Glasses Model" class="overlay-img auth-delay--alt" />
+            <div class="auth-card-backdrop auth-delay--alt"></div>
           </div>
-          <div class="overlay-panel overlay-right">
-            <img src="/assets/images/home-img.png" alt="Glasses Model" class="overlay-img" />
+          <div class="auth-overlay-panel auth-overlay-right">
+            <h1 class="auth-overlay__title">Welcome Back!</h1>
+            <p class="auth-overlay__text">To keep connected with us please login with your personal info</p>
+            <button class="auth-ghost-btn" id="signIn">Sign In</button>
+            <img src="/assets/images/banners/home-img.png" alt="Glasses Model" class="overlay-img" />
             <h1>Hello, Friend!</h1>
             <p>Enter your personal details and start journey with us</p>
             <button class="btn ghost" id="signUp">Sign Up</button>
@@ -91,6 +92,7 @@
     </div>
 
     <!-- Page Logic -->
+    <script src="../../js/main.js"></script>
     <script type="module" src="../../js/pages/auth.js"></script>
     <!-- Layout Loader -->
     <script src="../../js/core/layout-loader.js"></script>

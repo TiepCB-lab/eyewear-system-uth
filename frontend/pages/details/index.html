@@ -109,7 +109,7 @@
             <img
               src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
               alt=""
-              id="details-main-image"
+              id="details-main-img"
               class="details__img skeleton skeleton-img"
             />
             <div class="details__small-images grid" id="details-gallery">
@@ -223,12 +223,30 @@
               </ul>
             </div>
 
-            <div class="details-lens-group">
+            <!-- Lens Specialist Info (Shown for Category 3) -->
+            <div class="lens-specialist-info" id="lens-specialist-ui">
+              <h3 class="lens-specialist__title"><i class="fi fi-rs-interrogation"></i> Professional Installation</h3>
+              <p class="lens-specialist__desc">
+                To have these lenses professionally mounted for <strong>FREE</strong>, please also add any <strong>Frame</strong> from our collection to your cart. 
+                Our experts will verify your prescription and build your glasses within 24 hours.
+              </p>
+              <a href="../shop/?category=1" class="lens-specialist__action">Browse Frames <i class="fi fi-rs-arrow-right"></i></a>
+            </div>
+
+            <div class="details-lens-group" id="lens-selection-ui">
               <span class="details__size-title details-lens-title">Step 2: Choose Lens Package</span>
               <p class="details-lens-guide"><i class="fi fi-rs-info"></i> Select a lens to have it professionally mounted to this frame for free.</p>
-              <select id="lens-package" class="eyewear-select-premium details-lens-select">
-                <option value="">Loading lens options...</option>
+              
+              <div id="lens-cards-container" class="lens-cards-grid">
+                <!-- Dynamically populated VIP cards -->
+                <p class="loading-text">Loading premium lens options...</p>
+              </div>
+
+              <!-- Keep hidden select for fallback/data compatibility -->
+              <select id="lens-package" style="display: none;">
+                <option value="">Frame only</option>
               </select>
+
               <div id="prescription-toggle-container" style="display: none; margin-top: 1rem; position: relative; z-index: 999;">
                   <button type="button" id="force-open-pres" class="btn btn--sm">
                       <i class="fi fi-rs-clipboard-list"></i> Enter Prescription Details
@@ -239,9 +257,9 @@
 
             <div class="details-price-box">
               <p class="details-price-box__title">Price Breakdown</p>
-              <p class="details-price-box__line">Base frame: <strong id="line-base">$0.00</strong></p>
-              <p class="details-price-box__line">Variant add-on: <strong id="line-variant">$0.00</strong></p>
-              <p class="details-price-box__line">Lens package: <strong id="line-lens">$0.00</strong></p>
+              <p class="details-price-box__line" id="price-line-base">Base price: <strong id="line-base">$0.00</strong></p>
+              <p class="details-price-box__line" id="price-line-variant">Variant add-on: <strong id="line-variant">$0.00</strong></p>
+              <p class="details-price-box__line" id="price-line-lens">Lens package: <strong id="line-lens">$0.00</strong></p>
               <p class="details-price-box__line">Quantity: <strong id="line-qty">1</strong></p>
               <p class="details-price-box__total">Estimated total: <span id="line-total">$0.00</span></p>
             </div>
@@ -597,7 +615,7 @@
         const titleEl = document.getElementById("details-title");
         const brandEl = document.getElementById("details-brand");
         const breadcrumbEl = document.getElementById("breadcrumb-product");
-        const mainImageEl = document.getElementById("details-main-image");
+        const mainImageEl = document.getElementById("details-main-img");
         const descEl = document.querySelector(".short__description");
         const galleryEl = document.getElementById("details-gallery");
         const infoTable = document.getElementById("info-table");
@@ -635,6 +653,12 @@
             // Clear skeletons and show content
             document.querySelectorAll('.skeleton').forEach(el => el.classList.remove('skeleton', 'skeleton-title', 'skeleton-brand', 'skeleton-price', 'skeleton-img'));
             document.getElementById('details-container')?.classList.add('is-ready');
+
+            // Handle Lens Product Special UI (Category 3 is Lenses)
+            const catId = product.category?.id || product.category_id;
+            if (catId == 3) {
+                document.getElementById('details-container')?.classList.add('is-lens-product');
+            }
         } catch(e) {
             console.error("Failed to fetch product", e);
             alert("Product not found or connection error.");
@@ -646,22 +670,45 @@
         brandEl.textContent = product.brand;
         if(breadcrumbEl) breadcrumbEl.textContent = product.name;
         document.title = `${product.name} — EVELENS`;
-        if(descEl) descEl.textContent = product.description || 'Experience the perfect blend of style and clarity with our premium handcrafted frames.';        // Render Specs Table
+        if(descEl) descEl.textContent = product.description || 'Experience the perfect blend of style and clarity with our premium handcrafted frames.';        // Render Specs Table & UI Customization
         if(infoTable) {
-            const uniqueColors = [...new Set(product.variants.map(v => v.color).filter(Boolean))];
-            const uniqueSizes = [...new Set(product.variants.map(v => v.size).filter(Boolean))];
-            infoTable.innerHTML = `
-                <tr><th>Brand</th><td>${product.brand || 'EVELENS'}</td></tr>
-                <tr><th>Model Name</th><td>${product.model_name || 'N/A'}</td></tr>
-                <tr><th>Product Code</th><td>${product.slug.toUpperCase()}</td></tr>
-                <tr><th>Bridge Width</th><td>18mm - 22mm</td></tr>
-                <tr><th>Temple Length</th><td>140mm - 145mm</td></tr>
-                <tr><th>Lens Diameter</th><td>50mm - 54mm</td></tr>
-                <tr><th>Frame Material</th><td>Premium Hand-polished Acetate</td></tr>
-                <tr><th>Gender</th><td>${product.gender ? product.gender.charAt(0).toUpperCase() + product.gender.slice(1) : 'Unisex'}</td></tr>
-                <tr><th>Available Finishes</th><td>${uniqueColors.join(', ') || 'N/A'}</td></tr>
-                <tr><th>Available Sizes</th><td>${uniqueSizes.join(', ') || 'N/A'}</td></tr>
-            `;
+            const catId = product.category?.id || product.category_id;
+            if (catId == 3 && product.lens_details) {
+                infoTable.innerHTML = `
+                    <tr><th>Brand</th><td>${product.brand || 'EVELENS'}</td></tr>
+                    <tr><th>Lens Type</th><td>${product.lens_details.lens_type}</td></tr>
+                    <tr><th>Vision Type</th><td>${product.lens_details.type.replace('_', ' ')}</td></tr>
+                    <tr><th>Material</th><td>${product.lens_details.material}</td></tr>
+                    <tr><th>Refractive Index</th><td>${product.lens_details.index_value}</td></tr>
+                    <tr><th>Coating</th><td>${product.lens_details.coating}</td></tr>
+                `;
+                
+                // Customize Price Labels for Lenses
+                const baseLabel = document.getElementById('price-line-base');
+                if(baseLabel) baseLabel.innerHTML = `Lens price (pair): <strong id="line-base">${format(product.base_price)}</strong>`;
+                
+                const variantLabel = document.getElementById('price-line-variant');
+                if(variantLabel) variantLabel.style.display = 'none';
+
+                const lensLabel = document.getElementById('price-line-lens');
+                if(lensLabel) lensLabel.style.display = 'none';
+
+                // Show prescription button for lenses
+                const presContainer = document.getElementById('prescription-toggle-container');
+                if(presContainer) presContainer.style.display = 'block';
+            } else {
+                const uniqueColors = [...new Set(product.variants.map(v => v.color).filter(Boolean))];
+                const uniqueSizes = [...new Set(product.variants.map(v => v.size).filter(Boolean))];
+                infoTable.innerHTML = `
+                    <tr><th>Brand</th><td>${product.brand || 'EVELENS'}</td></tr>
+                    <tr><th>Model Name</th><td>${product.model_name || 'N/A'}</td></tr>
+                    <tr><th>Product Code</th><td>${product.slug.toUpperCase()}</td></tr>
+                    <tr><th>Bridge Width</th><td>18mm - 22mm</td></tr>
+                    <tr><th>Temple Length</th><td>140mm - 145mm</td></tr>
+                    <tr><th>Available Colors</th><td>${uniqueColors.join(', ')}</td></tr>
+                    <tr><th>Available Sizes</th><td>${uniqueSizes.join(', ')}</td></tr>
+                `;
+            }
         }
 
         // --- RELATED PRODUCTS ---
@@ -739,7 +786,7 @@
             const images = [...new Set(product.variants.map(v => v.image_2d_url).filter(Boolean))];
             galleryEl.innerHTML = images.map(img => {
                 let fullImg = img.startsWith('/') ? '../../..' + img : img;
-                return `<img src="${fullImg}" alt="${product.name}" class="details__small-img" onclick="document.getElementById('details-main-image').src=this.src">`;
+                return `<img src="${fullImg}" alt="${product.name}" class="details__small-img" onclick="document.getElementById('details-main-img').src=this.src">`;
             }).join('');
         }
 
@@ -800,12 +847,13 @@
           quantityInput.value = qty;
 
           const unitPrice = basePrice + variantFee + lensFee;
+          const productOnlyPrice = basePrice + variantFee;
           const total = unitPrice * qty;
-          const oldPrice = unitPrice * 1.2;
+          const oldPrice = productOnlyPrice * 1.2;
 
-          if(ui.priceCurrent) ui.priceCurrent.textContent = format(unitPrice);
+          if(ui.priceCurrent) ui.priceCurrent.textContent = format(productOnlyPrice);
           if(ui.priceOld) ui.priceOld.textContent = format(oldPrice);
-          if(ui.priceDiscount) ui.priceDiscount.textContent = `Save ${format(oldPrice - unitPrice)}`;
+          if(ui.priceDiscount) ui.priceDiscount.textContent = `Save ${format(oldPrice - productOnlyPrice)}`;
           if(ui.lineBase) ui.lineBase.textContent = format(basePrice);
           if(ui.lineVariant) ui.lineVariant.textContent = format(variantFee);
           if(ui.lineLens) ui.lineLens.textContent = format(lensFee);
@@ -903,8 +951,27 @@
                 const orderTypeEl = document.querySelector('input[name="order_type"]:checked');
                 const orderType = orderTypeEl ? orderTypeEl.value : 'instock';
 
+                // Intercept if it's a standalone lens product
+                const catId = product.category?.id || product.category_id;
+                if (catId == 3 && !e.target.dataset.confirmed) {
+                    const confirmModal = document.getElementById('lens-confirm-modal');
+                    if (confirmModal) {
+                        confirmModal.querySelector('strong').textContent = product.name;
+                        confirmModal.classList.add('show');
+                        
+                        // Handle "Continue Anyway"
+                        document.getElementById('confirm-add-lens').onclick = () => {
+                            confirmModal.classList.remove('show');
+                            addToCartBtn.dataset.confirmed = "true";
+                            addToCartBtn.click(); // Trigger again
+                            delete addToCartBtn.dataset.confirmed;
+                        };
+                        return;
+                    }
+                }
+
                 if (orderType === 'prescription' && !window.prescriptionData) {
-                    alert('Please enter your prescription details first.');
+                    await EvelensNotify.info('Prescription Needed', 'Please enter your prescription details first to continue with this lens package.');
                     window.openPrescriptionModal();
                     return;
                 }
@@ -913,7 +980,7 @@
                 try {
                     await CartService.addToCart({ 
                         variant_id: selectedVariant.id, 
-                        lens_id: lensSelect.value ? parseInt(lensSelect.value) : null, 
+                        lens_id: lensSelect?.value ? parseInt(lensSelect.value) : null, 
                         quantity: parseInt(quantityInput.value),
                         prescription: orderType === 'prescription' ? window.prescriptionData : null
                     });
@@ -929,15 +996,25 @@
                             addToCartBtn.querySelector('.btn-text').textContent = originalText;
                         }, 2000);
                         
+                        // Show cart
+                        const cartSidebar = document.getElementById('cart-sidebar');
+                        if(cartSidebar) cartSidebar.classList.add('active');
+                        
                         window.dispatchEvent(new CustomEvent('content-loaded', { detail: { path: 'layout/Header' } }));
                     }, 700);
+
                 } catch (err) {
                     addToCartBtn.classList.remove('animating');
                     if(err.response?.status === 401) {
-                        alert('Please login to continue.');
-                        window.location.href = '../auth/';
+                        await EvelensNotify.confirm(
+                            'Login Required', 
+                            'Please login to your account to add items to your cart.',
+                            () => window.location.href = '../auth/',
+                            'Login Now',
+                            'Later'
+                        );
                     } else {
-                        alert('Error: ' + (err.response?.data?.message || err.message));
+                        await EvelensNotify.error('Error', err.response?.data?.message || err.message);
                     }
                 }
             });
@@ -976,26 +1053,102 @@
             };
         }
 
-        // --- INITIAL DATA LOAD ---
+        // --- VIP LENS SELECTOR LOGIC ---
         async function initLenses() {
+            const cardsContainer = document.getElementById('lens-cards-container');
+            if(!cardsContainer) return;
+
+            // Don't fetch lenses if viewing a lens product
+            const catId = product.category?.id || product.category_id;
+            if (catId == 3) return;
+
             try {
                 const lensRes = await apiClient.get('/products/lenses/available');
                 const lenses = lensRes.data?.data || [];
+                
                 if(lenses.length > 0) {
-                    lensSelect.innerHTML = '<option value="">Frame only (no lens)</option>' + 
-                        lenses.map(l => `<option value="${l.id}" data-price="${l.price}">${l.name} - ${l.lens_type} (+${format(l.price)})</option>`).join('');
+                    // Update hidden select for cart logic compatibility
+                    lensSelect.innerHTML = '<option value="">Frame only</option>' + 
+                        lenses.map(l => `<option value="${l.id}" data-price="${l.price}">${l.name}</option>`).join('');
+
+                    // Render VIP Cards
+                    const getLensImg = (name) => {
+                        const n = name.toLowerCase();
+                        if (n.includes('chemi u2 1.67')) return 'chemi U2 1.67.jpg';
+                        if (n.includes('chemi u6 1.60')) return 'chemi U6 1.60.jpg';
+                        if (n.includes('chemi u6 1.67')) return 'chemi U6 1.67.jpg';
+                        if (n.includes('chemi u6 1.74')) return 'chemi U6 1.74.jpg';
+                        if (n.includes('bevis')) return 'bevis optical.jpg';
+                        if (n.includes('essilor')) return 'essilor crizal.jpg';
+                        return 'elements.jpg';
+                    };
+
+                    cardsContainer.innerHTML = `
+                        <div class="lens-card selected" data-id="">
+                            <div class="lens-card__img-wrapper">
+                                <img src="../../assets/images/logo.png" class="lens-card__img" alt="None" style="opacity: 0.2">
+                            </div>
+                            <h4 class="lens-card__name">Frame Only</h4>
+                            <p class="lens-card__type">Standard original lenses</p>
+                            <span class="lens-card__price">+${format(0)}</span>
+                        </div>
+                    ` + lenses.map(l => `
+                        <div class="lens-card" data-id="${l.id}" data-price="${l.price}">
+                            <img src="../../assets/images/lens/${getLensImg(l.name)}" 
+                                 class="lens-card__img" alt="${l.name}" 
+                                 onerror="this.src='../../assets/images/products/placeholder.png'">
+                            <h4 class="lens-card__name">${l.name}</h4>
+                            <p class="lens-card__type">${l.lens_type} • ${l.material}</p>
+                            <span class="lens-card__price">+${format(l.price)}</span>
+                        </div>
+                    `).join('');
+
+                    // Add click handlers
+                    cardsContainer.querySelectorAll('.lens-card').forEach(card => {
+                        card.addEventListener('click', () => {
+                            cardsContainer.querySelectorAll('.lens-card').forEach(c => c.classList.remove('selected'));
+                            card.classList.add('selected');
+                            
+                            // Sync with hidden select
+                            lensSelect.value = card.dataset.id || "";
+                            updatePricing();
+                        });
+                    });
                 } else {
-                    lensSelect.innerHTML = '<option value="">Frame only (no lens)</option>';
+                    cardsContainer.innerHTML = '<p class="info-text">No lens packages available for this frame.</p>';
                 }
-                updatePricing();
             } catch(e) {
                 console.error("Lens loading failed", e);
-                lensSelect.innerHTML = '<option value="">Frame only (no lens)</option>';
+                cardsContainer.innerHTML = '<p class="error-text">Failed to load lens options.</p>';
             }
         }
         
-        initLenses();
+        await initLenses();
+        updatePricing();
       });
     </script>
+    <!-- Standalone Lens Confirmation Modal -->
+    <div id="lens-confirm-modal" class="prescription-modal-overlay">
+        <div class="prescription-modal-content" style="max-width: 500px; text-align: center;">
+            <div style="font-size: 3rem; color: var(--first-color); margin-bottom: 1rem;">
+                <i class="fi fi-rs-info"></i>
+            </div>
+            <h3 style="margin-bottom: 1rem; font-size: 1.5rem;">Standalone Lens Purchase</h3>
+            <p style="color: #666; line-height: 1.6; margin-bottom: 2rem;">
+                You are adding <strong>Lens</strong> without a frame. 
+                <br><br>
+                To have these lenses professionally mounted, please also add a <strong>Frame</strong> to your cart. 
+                If you proceed with standalone purchase, they will be shipped as uncut lens blanks unless you provide specific instructions at checkout.
+            </p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <a href="../shop/?category=1" class="btn btn--outline" style="flex: 1;">Browse Frames</a>
+                <button type="button" id="confirm-add-lens" class="btn" style="flex: 1;">Continue Anyway</button>
+            </div>
+            <button type="button" onclick="document.getElementById('lens-confirm-modal').classList.remove('show')" 
+                    style="margin-top: 1.5rem; background: none; border: none; color: #999; cursor: pointer; text-decoration: underline;">
+                Cancel
+            </button>
+        </div>
+    </div>
   </body>
 </html>

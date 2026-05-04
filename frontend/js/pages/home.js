@@ -43,8 +43,8 @@ async function initHome() {
         if (categoryWrapper && categories.length > 0) {
             const getCategoryImage = (name) => {
                 const n = name.toLowerCase();
-                if (n.includes('sun')) return 'assets/images/category-sun.png';
-                if (n.includes('presc')) return 'assets/images/category-presc.png';
+                if (n.includes('sun')) return 'assets/images/ui/category-sun.png';
+                if (n.includes('presc')) return 'assets/images/ui/category-presc.png';
                 if (n.includes('blue')) return 'assets/images/products/frame-an-05.png';
                 if (n.includes('luxury')) return 'assets/images/products/frame-an-03.png';
                 return 'assets/images/products/frame-an-05.png'; // fallback
