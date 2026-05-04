@@ -210,30 +210,30 @@ try {
         '/assets/images/products/EVLS_vuông đen to.jpeg',
         '/assets/images/products/EVLS_vuông đen.png',
         '/assets/images/products/EVLS_đen vuông.jpeg',
-        '/assets/images/products/AN550006_3916.jpeg',
-        '/assets/images/products/AN550011_4171.jpeg',
-        '/assets/images/products/AN550012_3849.png',
-        '/assets/images/products/AN550015_3817.png',
-        '/assets/images/products/AN550016_3796.png',
-        '/assets/images/products/AN550021_3933.png',
-        '/assets/images/products/AN550029_3863.png',
-        '/assets/images/products/AN550030_3896.png',
-        '/assets/images/products/AN550036_3832.png',
-        '/assets/images/products/Ban-sao-cua-ANNA_S0958_9940-scaled.jpeg',
-        '/assets/images/products/JN0014_2000.jpeg',
-        '/assets/images/products/JN0016_2051.jpeg',
-        '/assets/images/products/JN0021_2006.jpeg',
-        '/assets/images/products/JN0023_1993.jpeg',
-        '/assets/images/products/1111100001_1089.jpeg',
-        '/assets/images/products/235WhiteBackGround-54.jpeg',
-        '/assets/images/products/27013_1598.png',
-        '/assets/images/products/27021_1277.png',
-        '/assets/images/products/B2SNT2206-scaled.jpeg',
-        '/assets/images/products/B2SNT3243-scaled.jpeg',
-        '/assets/images/products/DSC05353-scaled.jpeg',
-        '/assets/images/products/KINH-NEN-TRANG-19.jpeg',
-        '/assets/images/products/S868_2759.jpeg',
-        '/assets/images/products/TR27075_1264.jpeg',
+        '/assets/images/products/frame-an-01.jpeg',
+        '/assets/images/products/frame-an-02.jpeg',
+        '/assets/images/products/frame-an-03.png',
+        '/assets/images/products/frame-an-04.png',
+        '/assets/images/products/frame-an-05.png',
+        '/assets/images/products/frame-an-06.png',
+        '/assets/images/products/frame-an-07.png',
+        '/assets/images/products/frame-an-08.png',
+        '/assets/images/products/frame-an-09.png',
+        '/assets/images/products/frame-anna-01.jpeg',
+        '/assets/images/products/frame-jn-01.jpeg',
+        '/assets/images/products/frame-jn-02.jpeg',
+        '/assets/images/products/frame-jn-03.jpeg',
+        '/assets/images/products/frame-jn-04.jpeg',
+        '/assets/images/products/frame-classic-01.jpeg',
+        '/assets/images/products/frame-white-bg.jpeg',
+        '/assets/images/products/frame-opt-2701.png',
+        '/assets/images/products/frame-opt-2702.png',
+        '/assets/images/products/frame-bevis-01.jpeg',
+        '/assets/images/products/frame-bevis-02.jpeg',
+        '/assets/images/products/frame-studio-01.jpeg',
+        '/assets/images/products/frame-white-studio.jpeg',
+        '/assets/images/products/frame-s868.jpeg',
+        '/assets/images/products/frame-tr27.jpeg',
     ];
 
     $lensImages = [
@@ -255,10 +255,17 @@ try {
             'gender' => 'unisex',
             'color' => 'Clear',
             'size' => 'STD',
-            'base_price' => 1800000,
+            'base_price' => 200000,
             'stock' => 50,
             'count' => 1,
             'image_index' => 0,
+            'lens_details' => [
+                'lens_type' => 'Basic',
+                'type' => 'single_vision',
+                'material' => 'Plastic',
+                'index_value' => 1.56,
+                'coating' => 'Hard Coat'
+            ]
         ],
         [
             'category' => 'trong-kinh',
@@ -268,10 +275,17 @@ try {
             'gender' => 'unisex',
             'color' => 'Clear',
             'size' => 'STD',
-            'base_price' => 2200000,
+            'base_price' => 850000,
             'stock' => 50,
             'count' => 1,
             'image_index' => 1,
+            'lens_details' => [
+                'lens_type' => 'Anti-Reflective',
+                'type' => 'single_vision',
+                'material' => 'Resin',
+                'index_value' => 1.67,
+                'coating' => 'U2'
+            ]
         ],
         [
             'category' => 'trong-kinh',
@@ -555,13 +569,44 @@ try {
                 $image,
             ]);
 
+            // TỰ ĐỘNG LIÊN KẾT VỚI BẢNG LENS NẾU LÀ TRÒNG KÍNH
+            // TỰ ĐỘNG LIÊN KẾT VỚI BẢNG LENS NẾU LÀ TRÒNG KÍNH
+            if ($group['category'] === 'trong-kinh') {
+                $lensDetails = $group['lens_details'] ?? [];
+                
+                // Tự động bóc tách chiết suất (Index) từ tên (ví dụ: "1.67")
+                $indexValue = $lensDetails['index_value'] ?? 1.56;
+                if (!isset($lensDetails['index_value'])) {
+                    if (preg_match('/1\.\d+/', $name, $matches)) {
+                        $indexValue = floatval($matches[0]);
+                    }
+                }
+
+                // Thiết lập các giá trị mặc định thông minh
+                $lensType = $lensDetails['lens_type'] ?? (strpos($name, 'U6') !== false ? 'Blue Control' : 'Standard');
+                $material = $lensDetails['material'] ?? ($group['brand'] === 'Chemi' ? 'Resin' : 'Plastic');
+                $coating = $lensDetails['coating'] ?? (strpos($name, 'U2') !== false ? 'U2 Coating' : 'Hard Coat');
+
+                $lensStmt = $pdo->prepare("INSERT INTO lens (product_id, name, lens_type, type, material, index_value, coating, price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                $lensStmt->execute([
+                    $productId,
+                    $name,
+                    $lensType,
+                    $lensDetails['type'] ?? 'single_vision',
+                    $material,
+                    $indexValue,
+                    $coating,
+                    $price
+                ]);
+            }
+
             $productIndex++;
         }
     }
 
     $pdo->exec("\n        INSERT INTO inventory (productvariant_id, quantity)\n        SELECT id, stock_quantity FROM productvariant\n        ON DUPLICATE KEY UPDATE quantity = VALUES(quantity);\n    ");
 
-    $pdo->exec("\n        INSERT INTO lens (name, lens_type, type, material, price) VALUES\n            ('Cơ bản', 'Basic', 'single_vision', 'Plastic', 200000),\n            ('Chống ánh sáng xanh', 'BlueCut', 'single_vision', 'Poly', 500000),\n            ('Đổi màu khói', 'Photochromic', 'single_vision', 'HighIndex', 1200000)\n        ON DUPLICATE KEY UPDATE price = VALUES(price);\n    ");
+    $pdo->exec("DELETE FROM lens WHERE product_id IS NULL;");
 
     echo "Successfully seeded product data.\n";
 
