@@ -534,36 +534,34 @@ select.form__input:disabled {
 .rotate { animation: spin 1.5s linear infinite; }
 
 /* --- PREMIUM WISHLIST ACTIVE STATE --- */
+.thumb-action-btn.wishlist-active,
 .action__btn.wishlist-active {
-    background-color: #fff1f2 !important; /* Soft Rose */
-    color: #e11d48 !important; /* Rose 600 */
-    border-color: #fecdd3 !important; /* Rose 200 */
-    transform: scale(1.1);
-    box-shadow: 0 10px 20px -5px rgba(225, 29, 72, 0.2);
+    background-color: #f0f7f6 !important; /* Light Teal to match others */
+    color: #f43f5e !important; /* Only Red Heart */
+    border: 1px solid transparent !important;
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
+.thumb-action-btn.wishlist-active i,
 .action__btn.wishlist-active i {
-    animation: heart-pop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: heart-pop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+.thumb-action-btn.wishlist-active:hover,
 .action__btn.wishlist-active:hover {
-    background-color: #e11d48 !important;
-    color: #ffffff !important;
-    border-color: #e11d48 !important;
-    box-shadow: 0 15px 25px -5px rgba(225, 29, 72, 0.4);
-}
-
-/* Red tooltip for favorited state */
-.action__btn.wishlist-active::after {
-    background-color: #e11d48 !important;
-}
-.action__btn.wishlist-active::before {
-    border-top-color: #e11d48 !important;
+    background-color: #f0f7f6 !important;
+    color: #f43f5e !important;
+    border-color: var(--first-color) !important;
+    box-shadow: 0 8px 20px rgba(var(--first-color-rgb), 0.2);
+    transform: scale(1.1) translateY(-2px);
 }
 
 @keyframes heart-pop {
     0% { transform: scale(1); }
-    50% { transform: scale(1.5); }
+    15% { transform: scale(1.4); }
+    30% { transform: scale(1.1); }
+    45% { transform: scale(1.3); }
     100% { transform: scale(1); }
 }
 
@@ -648,4 +646,31 @@ select.form__input:disabled {
 
 .search__btn i {
     font-size: 0.9rem !important;
+}
+
+/* Mini Avatar for Header - Strictly Enforced */
+.user-avatar-mini {
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+    min-height: 24px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    border: 1px solid var(--first-color) !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    margin-right: 2px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.user-trigger {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.user-trigger:hover .user-avatar-mini {
+    transform: scale(1.1);
+    border-color: #0f172a !important;
 }

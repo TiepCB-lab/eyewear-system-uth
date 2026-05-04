@@ -1,0 +1,175 @@
+/* Premium Notification Modals */
+.evelens-notify-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    z-index: 1000000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.evelens-notify-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.evelens-notify-card {
+    background: #fff;
+    width: 90%;
+    max-width: 750px;
+    border-radius: 30px;
+    overflow: hidden;
+    display: flex;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.2);
+    transform: scale(0.9) translateY(30px);
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+}
+
+.evelens-notify-overlay.show .evelens-notify-card {
+    transform: scale(1) translateY(0);
+}
+
+/* Left Side: Image */
+.evelens-notify-image {
+    flex: 1;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    position: relative;
+    border-right: 1px solid #f0f0f0;
+}
+
+.evelens-notify-image img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 20px 40px rgba(0,0,0,0.1));
+    transition: all 0.8s ease;
+}
+
+.evelens-notify-image::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, transparent 70%);
+}
+
+/* Right Side: Content */
+.evelens-notify-content {
+    flex: 1.2;
+    padding: 3.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+}
+
+.evelens-notify-close {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: #cbd5e1;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.evelens-notify-close:hover {
+    color: #0f172a;
+    transform: rotate(90deg);
+}
+
+.evelens-notify-brand {
+    font-size: 0.75rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin-bottom: 1.5rem;
+}
+
+.evelens-notify-icon-box {
+    width: 50px;
+    height: 50px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    background: #f1f5f9;
+}
+
+.evelens-notify-title {
+    font-family: var(--second-font);
+    font-size: 2rem;
+    color: #0f172a;
+    margin-bottom: 1rem;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.evelens-notify-desc {
+    color: #64748b;
+    line-height: 1.6;
+    margin-bottom: 2.5rem;
+    font-size: 1rem;
+}
+
+.evelens-notify-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.evelens-notify-btn {
+    padding: 1rem 2rem;
+    border-radius: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    font-size: 0.95rem;
+    font-family: var(--second-font);
+}
+
+.evelens-notify-btn.primary {
+    background: #0f172a;
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2);
+}
+
+.evelens-notify-btn.secondary {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.evelens-notify-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+}
+
+/* Types Styling */
+.notify-success .evelens-notify-icon-box { background: #ecfdf5; color: #10b981; }
+.notify-error .evelens-notify-icon-box { background: #fef2f2; color: #ef4444; }
+.notify-warning .evelens-notify-icon-box { background: #fffbeb; color: #f59e0b; }
+.notify-loading .evelens-notify-icon-box { background: #f8fafc; color: #0f172a; }
+
+@media screen and (max-width: 800px) {
+    .evelens-notify-card { flex-direction: column; max-width: 400px; }
+    .evelens-notify-image { padding: 2rem; border-right: none; border-bottom: 1px solid #f0f0f0; }
+    .evelens-notify-content { padding: 2.5rem; text-align: center; align-items: center; }
+    .evelens-notify-actions { justify-content: center; width: 100%; }
+    .evelens-notify-btn { width: 100%; }
+}

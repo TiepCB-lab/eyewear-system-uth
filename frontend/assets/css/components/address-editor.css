@@ -1,0 +1,272 @@
+/* Address Editor Modal - Premium Design */
+.address-modal {
+    background: #fff;
+    width: 90%;
+    max-width: 650px;
+    border-radius: 24px;
+    padding: 2rem;
+    position: relative;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+}
+
+.address-modal__close {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: #999;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.address-modal__close:hover {
+    color: #333;
+}
+
+.address-modal__header {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+.address-modal__icon {
+    width: 50px;
+    height: 50px;
+    background: #f0f7f6;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: var(--first-color);
+}
+
+.address-modal__title {
+    font-family: var(--second-font);
+    font-size: 1.5rem;
+    color: var(--title-color);
+    margin-bottom: 0.2rem;
+}
+
+.address-modal__subtitle {
+    color: var(--text-color-light);
+    font-size: 0.9rem;
+}
+
+.address-modal__form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.address-modal__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+}
+
+.address-modal__group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.address-modal__label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--title-color);
+}
+
+.label-hint {
+    font-weight: 400;
+    color: #999;
+    font-size: 0.8rem;
+}
+
+.address-modal__input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.address-modal__input-wrapper .input-icon {
+    position: absolute;
+    left: 1rem;
+    color: #ccc;
+    font-size: 1rem;
+}
+
+.address-modal__input-wrapper input,
+.address-modal__input-wrapper select {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    padding-left: 2.8rem;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    background: #fafafa;
+}
+
+.address-modal__input-wrapper select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 0.8rem;
+}
+
+.address-modal__input-wrapper input:focus,
+.address-modal__input-wrapper select:focus {
+    border-color: var(--first-color);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(45, 90, 87, 0.05);
+    outline: none;
+}
+
+.input-char-count {
+    position: absolute;
+    right: 1rem;
+    font-size: 0.7rem;
+    color: #ccc;
+}
+
+/* Checkbox Styling */
+.address-modal__checkbox {
+    margin-top: 0.2rem;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.checkbox-container input {
+    display: none;
+}
+
+.checkmark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #eee;
+    border-radius: 5px;
+    display: inline-block;
+    position: relative;
+    transition: all 0.2s;
+}
+
+.checkbox-container input:checked ~ .checkmark {
+    background: var(--first-color);
+    border-color: var(--first-color);
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 6px;
+    top: 2px;
+    width: 4px;
+    height: 9px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.address-modal__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.8rem;
+    margin-top: 0.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #f5f5f5;
+}
+
+.address-modal__actions button {
+    padding: 0.8rem 2rem;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-cancel {
+    background: #fff;
+    border: 1px solid #eee;
+    color: #666;
+}
+
+.btn-cancel:hover {
+    background: #f9f9f9;
+}
+
+.btn-save {
+    background: var(--first-color);
+    border: none;
+    color: #fff;
+}
+
+.btn-save:hover {
+    background: #234744;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(45, 90, 87, 0.15);
+}
+
+.address-modal__footer {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #f5f5f5;
+}
+
+.footer-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.footer-item i {
+    font-size: 1.5rem;
+    color: var(--first-color);
+}
+
+.footer-item__text {
+    display: flex;
+    flex-direction: column;
+}
+
+.footer-item__text strong {
+    font-size: 0.85rem;
+    color: var(--title-color);
+}
+
+.footer-item__text span {
+    font-size: 0.75rem;
+    color: #999;
+}
+
+@media screen and (max-width: 768px) {
+    .address-modal {
+        padding: 2rem;
+    }
+    .address-modal__row {
+        grid-template-columns: 1fr;
+    }
+    .address-modal__footer {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
