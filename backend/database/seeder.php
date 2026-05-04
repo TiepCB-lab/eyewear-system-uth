@@ -161,7 +161,7 @@ try {
         }
     }
 
-    $pdo->exec("\n        INSERT INTO category (name, slug, description) VALUES\n            ('Gọng kính', 'gong-kinh', 'Các loại gọng kính thời trang'),\n            ('Kính râm', 'kinh-ram', 'Kính chống nắng và bảo vệ mắt'),\n            ('Tròng kính', 'trong-kinh', 'Các loại tròng kính thuốc')\n        ON DUPLICATE KEY UPDATE name = VALUES(name);\n    ");
+    $pdo->exec("\n        INSERT INTO category (name, slug, description) VALUES\n            ('Frames', 'gong-kinh', 'Fashion eyeglass frames and styles'),\n            ('Sunglasses', 'kinh-ram', 'Sunglasses and UV protection eyewear'),\n            ('Lenses', 'trong-kinh', 'Prescription and specialty lenses')\n        ON DUPLICATE KEY UPDATE name = VALUES(name);\n    ");
 
     $categoryIds = [
         'gong-kinh' => (int) $pdo->query("SELECT id FROM category WHERE slug = 'gong-kinh'")->fetchColumn(),
@@ -169,18 +169,18 @@ try {
         'trong-kinh' => (int) $pdo->query("SELECT id FROM category WHERE slug = 'trong-kinh'")->fetchColumn(),
     ];
 
-    $pdo->exec("\n        DELETE inventory\n        FROM inventory\n        INNER JOIN productvariant ON inventory.productvariant_id = productvariant.id\n        INNER JOIN product ON productvariant.product_id = product.id\n        WHERE product.slug LIKE 'evls-%';\n    ");
-    $pdo->exec("\n        DELETE cartitem\n        FROM cartitem\n        INNER JOIN productvariant ON cartitem.productvariant_id = productvariant.id\n        INNER JOIN product ON productvariant.product_id = product.id\n        WHERE product.slug LIKE 'evls-%';\n    ");
-    $pdo->exec("\n        DELETE orderitem\n        FROM orderitem\n        INNER JOIN productvariant ON orderitem.productvariant_id = productvariant.id\n        INNER JOIN product ON productvariant.product_id = product.id\n        WHERE product.slug LIKE 'evls-%';\n    ");
-    $pdo->exec("\n        DELETE productvariant\n        FROM productvariant\n        INNER JOIN product ON productvariant.product_id = product.id\n        WHERE product.slug LIKE 'evls-%';\n    ");
-    $pdo->exec("DELETE FROM product WHERE slug LIKE 'evls-%';");
+    $pdo->exec("DELETE FROM inventory");
+    $pdo->exec("DELETE FROM cartitem");
+    $pdo->exec("DELETE FROM orderitem");
+    $pdo->exec("DELETE FROM productvariant");
+    $pdo->exec("DELETE FROM wishlist");
+    $pdo->exec("DELETE FROM product");
 
     $productStmt = $pdo->prepare("\n        INSERT INTO product (category_id, name, model_name, slug, base_price, brand, gender)\n        VALUES (?, ?, ?, ?, ?, ?, ?)\n        ON DUPLICATE KEY UPDATE\n            category_id = VALUES(category_id),\n            name = VALUES(name),\n            model_name = VALUES(model_name),\n            base_price = VALUES(base_price),\n            brand = VALUES(brand),\n            gender = VALUES(gender)\n    ");
 
     $variantStmt = $pdo->prepare("\n        INSERT INTO productvariant (product_id, sku, color, size, stock_quantity, image_2d_url)\n        VALUES (?, ?, ?, ?, ?, ?)\n        ON DUPLICATE KEY UPDATE\n            product_id = VALUES(product_id),\n            color = VALUES(color),\n            size = VALUES(size),\n            stock_quantity = VALUES(stock_quantity),\n            image_2d_url = VALUES(image_2d_url)\n    ");
 
     $imagePool = [
-        // EVLS frames
         '/assets/images/products/ELVS_Tròn trà.png',
         '/assets/images/products/EVLS_Lục giác nâu.jpg',
         '/assets/images/products/EVLS_Lục giác.png',
@@ -210,7 +210,6 @@ try {
         '/assets/images/products/EVLS_vuông đen to.jpeg',
         '/assets/images/products/EVLS_vuông đen.png',
         '/assets/images/products/EVLS_đen vuông.jpeg',
-        // Anna frames
         '/assets/images/products/AN550006_3916.jpeg',
         '/assets/images/products/AN550011_4171.jpeg',
         '/assets/images/products/AN550012_3849.png',
@@ -221,12 +220,10 @@ try {
         '/assets/images/products/AN550030_3896.png',
         '/assets/images/products/AN550036_3832.png',
         '/assets/images/products/Ban-sao-cua-ANNA_S0958_9940-scaled.jpeg',
-        // J.Crew frames
         '/assets/images/products/JN0014_2000.jpeg',
         '/assets/images/products/JN0016_2051.jpeg',
         '/assets/images/products/JN0021_2006.jpeg',
         '/assets/images/products/JN0023_1993.jpeg',
-        // Other brands
         '/assets/images/products/1111100001_1089.jpeg',
         '/assets/images/products/235WhiteBackGround-54.jpeg',
         '/assets/images/products/27013_1598.png',
@@ -239,7 +236,225 @@ try {
         '/assets/images/products/TR27075_1264.jpeg',
     ];
 
+    $lensImages = [
+        '/assets/images/lens/bevis optical.jpg',
+        '/assets/images/lens/chemi U2 1.67.jpg',
+        '/assets/images/lens/chemi U6 1.60.jpg',
+        '/assets/images/lens/chemi U6 1.67.jpg',
+        '/assets/images/lens/chemi U6 1.74.jpg',
+        '/assets/images/lens/elements.jpg',
+        '/assets/images/lens/essilor crizal.jpg',
+    ];
+
     $groups = [
+        [
+            'category' => 'trong-kinh',
+            'prefix' => 'Lens Bevis Optical',
+            'model' => 'LENS-BVO',
+            'brand' => 'Bevis',
+            'gender' => 'unisex',
+            'color' => 'Clear',
+            'size' => 'STD',
+            'base_price' => 1800000,
+            'stock' => 50,
+            'count' => 1,
+            'image_index' => 0,
+        ],
+        [
+            'category' => 'trong-kinh',
+            'prefix' => 'Lens Chemi U2 1.67',
+            'model' => 'LENS-CHU2',
+            'brand' => 'Chemi',
+            'gender' => 'unisex',
+            'color' => 'Clear',
+            'size' => 'STD',
+            'base_price' => 2200000,
+            'stock' => 50,
+            'count' => 1,
+            'image_index' => 1,
+        ],
+        [
+            'category' => 'trong-kinh',
+            'prefix' => 'Lens Chemi U6 1.60',
+            'model' => 'LENS-CHU6-160',
+            'brand' => 'Chemi',
+            'gender' => 'unisex',
+            'color' => 'Clear',
+            'size' => 'STD',
+            'base_price' => 1900000,
+            'stock' => 50,
+            'count' => 1,
+            'image_index' => 2,
+        ],
+        [
+            'category' => 'trong-kinh',
+            'prefix' => 'Lens Chemi U6 1.67',
+            'model' => 'LENS-CHU6-167',
+            'brand' => 'Chemi',
+            'gender' => 'unisex',
+            'color' => 'Clear',
+            'size' => 'STD',
+            'base_price' => 2100000,
+            'stock' => 50,
+            'count' => 1,
+            'image_index' => 3,
+        ],
+        [
+            'category' => 'trong-kinh',
+            'prefix' => 'Lens Chemi U6 1.74',
+            'model' => 'LENS-CHU6-174',
+            'brand' => 'Chemi',
+            'gender' => 'unisex',
+            'color' => 'Clear',
+            'size' => 'STD',
+            'base_price' => 2500000,
+            'stock' => 50,
+            'count' => 1,
+            'image_index' => 4,
+        ],
+        [
+            'category' => 'trong-kinh',
+            'prefix' => 'Lens Elements',
+            'model' => 'LENS-ELM',
+            'brand' => 'Elements',
+            'gender' => 'unisex',
+            'color' => 'Clear',
+            'size' => 'STD',
+            'base_price' => 2300000,
+            'stock' => 50,
+            'count' => 1,
+            'image_index' => 5,
+        ],
+        [
+            'category' => 'trong-kinh',
+            'prefix' => 'Lens Essilor Crizal',
+            'model' => 'LENS-ESS',
+            'brand' => 'Essilor',
+            'gender' => 'unisex',
+            'color' => 'Clear',
+            'size' => 'STD',
+            'base_price' => 2800000,
+            'stock' => 50,
+            'count' => 1,
+            'image_index' => 6,
+        ],
+        [
+            'category' => 'kinh-ram',
+            'prefix' => 'Sunglasses Black Classic',
+            'model' => 'SUNGLASS-BLK-CLS',
+            'brand' => 'Classic',
+            'gender' => 'unisex',
+            'color' => 'Black',
+            'size' => 'M',
+            'base_price' => 500000,
+            'stock' => 40,
+            'count' => 1,
+            'image_index' => 0, // sunglasses-black-classic.jpg
+        ],
+        [
+            'category' => 'kinh-ram',
+            'prefix' => 'Sunglasses Black Hot',
+            'model' => 'SUNGLASS-BLK-HOT',
+            'brand' => 'Premium',
+            'gender' => 'unisex',
+            'color' => 'Black',
+            'size' => 'M',
+            'base_price' => 550000,
+            'stock' => 38,
+            'count' => 1,
+            'image_index' => 1, // sunglasses-black-hot.jpg
+        ],
+        [
+            'category' => 'kinh-ram',
+            'prefix' => 'Sunglasses Black Oval',
+            'model' => 'SUNGLASS-BLK-OVL',
+            'brand' => 'Fashion',
+            'gender' => 'unisex',
+            'color' => 'Black',
+            'size' => 'M',
+            'base_price' => 600000,
+            'stock' => 36,
+            'count' => 1,
+            'image_index' => 2, // sunglasses-black-oval.jpg
+        ],
+        [
+            'category' => 'kinh-ram',
+            'prefix' => 'Sunglasses Black Square',
+            'model' => 'SUNGLASS-BLK-SQR',
+            'brand' => 'Modern',
+            'gender' => 'unisex',
+            'color' => 'Black',
+            'size' => 'L',
+            'base_price' => 650000,
+            'stock' => 35,
+            'count' => 1,
+            'image_index' => 3, // sunglasses-black-square.jpg
+        ],
+        [
+            'category' => 'kinh-ram',
+            'prefix' => 'Sunglasses Brown Square',
+            'model' => 'SUNGLASS-BRN-SQR',
+            'brand' => 'Elegant',
+            'gender' => 'women',
+            'color' => 'Brown',
+            'size' => 'M',
+            'base_price' => 700000,
+            'stock' => 32,
+            'count' => 1,
+            'image_index' => 4, // sunglasses-brown-square.jpg
+        ],
+        [
+            'category' => 'kinh-ram',
+            'prefix' => 'Sunglasses Brown',
+            'model' => 'SUNGLASS-BRN',
+            'brand' => 'Stylish',
+            'gender' => 'women',
+            'color' => 'Brown',
+            'size' => 'M',
+            'base_price' => 750000,
+            'stock' => 34,
+            'count' => 1,
+            'image_index' => 5, // sunglasses-brown.jpg
+        ],
+        [
+            'category' => 'kinh-ram',
+            'prefix' => 'Sunglasses Pink',
+            'model' => 'SUNGLASS-PNK',
+            'brand' => 'Trendy',
+            'gender' => 'women',
+            'color' => 'Pink',
+            'size' => 'M',
+            'base_price' => 800000,
+            'stock' => 30,
+            'count' => 1,
+            'image_index' => 6, // sunglasses-pink.jpg
+        ],
+        [
+            'category' => 'kinh-ram',
+            'prefix' => 'Sunglasses White Square',
+            'model' => 'SUNGLASS-WHT-SQR',
+            'brand' => 'Chic',
+            'gender' => 'women',
+            'color' => 'White',
+            'size' => 'M',
+            'base_price' => 850000,
+            'stock' => 28,
+            'count' => 1,
+            'image_index' => 7, // sunglasses-white-square.jpg
+        ],
+        [
+            'category' => 'kinh-ram',
+            'prefix' => 'Sunglasses White',
+            'model' => 'SUNGLASS-WHT',
+            'brand' => 'Premium White',
+            'gender' => 'women',
+            'color' => 'White',
+            'size' => 'M',
+            'base_price' => 900000,
+            'stock' => 25,
+            'count' => 1,
+            'image_index' => 8, // sunglasses-white.jpg
+        ],
         [
             'category' => 'gong-kinh',
             'prefix' => 'EVLS Clear Frame',
@@ -290,16 +505,34 @@ try {
         ],
     ];
 
+    $sunglassesImages = [
+        '/assets/images/products/sunglasses-black-classic.jpg',
+        '/assets/images/products/sunglasses-black-hot.jpg',
+        '/assets/images/products/sunglasses-black-oval.jpg',
+        '/assets/images/products/sunglasses-black-square.jpg',
+        '/assets/images/products/sunglasses-brown-square.jpg',
+        '/assets/images/products/sunglasses-brown.jpg',
+        '/assets/images/products/sunglasses-pink.jpg',
+        '/assets/images/products/sunglasses-white-square.jpg',
+        '/assets/images/products/sunglasses-white.jpg',
+    ];
+
     $productIndex = 1;
     foreach ($groups as $group) {
         for ($i = 0; $i < $group['count']; $i++) {
             $sequence = str_pad((string) $productIndex, 2, '0', STR_PAD_LEFT);
             $stockOffset = ($i % 5) * 3;
-            $name = $group['prefix'] . ' ' . $sequence;
+            $name = $group['prefix'] . ($group['count'] > 1 ? ' ' . $sequence : '');
             $modelName = $group['model'] . '-' . $sequence;
-            $slug = strtolower(str_replace(' ', '-', $name));
+            $slug = strtolower(str_replace([' ', '.'], '-', $name));
             $sku = $group['model'] . '-' . $sequence;
-            $image = $imagePool[($productIndex - 1) % count($imagePool)];
+            if ($group['category'] === 'kinh-ram') {
+                $image = $sunglassesImages[$group['image_index']];
+            } elseif ($group['category'] === 'trong-kinh') {
+                $image = $lensImages[$group['image_index']];
+            } else {
+                $image = $imagePool[($productIndex - 1) % count($imagePool)];
+            }
             $price = $group['base_price'] + ($i * 10000);
 
             $productStmt->execute([

@@ -292,7 +292,7 @@ class CatalogService
 
 		$search = trim((string) ($params['search'] ?? $params['q'] ?? ''));
 		$categoryIds = $this->normalizeIntList($params['category_ids'] ?? $params['category_id'] ?? $params['category'] ?? []);
-		$brands = $this->normalizeStringList($params['brands'] ?? $params['brand'] ?? []);
+		$brands = $this->normalizeStringList($params['brands'] ?? $params['brand'] ?? [], false);
 		$genders = $this->normalizeStringList($params['genders'] ?? $params['gender'] ?? []);
 		$genders = array_values(array_filter($genders, static function (string $gender): bool {
 			return $gender !== 'all';
@@ -393,18 +393,23 @@ class CatalogService
 		return ['WHERE ' . implode(' AND ', $conditions), $bindings];
 	}
 
-	private function normalizeIntList($value): array
+	private function normalizeIntList(mixed $value): array
 	{
 		$list = is_array($value) ? $value : explode(',', (string) $value);
 		$result = [];
 
 		foreach ($list as $item) {
-			if ($item === null || $item === '') {
+			if (is_array($item) || $item === null) {
 				continue;
 			}
 
-			if (is_numeric($item)) {
-				$intValue = (int) $item;
+			$itemValue = trim((string) $item);
+			if ($itemValue === '') {
+				continue;
+			}
+
+			if (is_numeric($itemValue)) {
+				$intValue = (int) $itemValue;
 				if ($intValue > 0) {
 					$result[] = $intValue;
 				}
@@ -414,19 +419,23 @@ class CatalogService
 		return array_values(array_unique($result));
 	}
 
-	private function normalizeStringList($value): array
+	private function normalizeStringList(mixed $value, bool $lowercase = true): array
 	{
 		$list = is_array($value) ? $value : explode(',', (string) $value);
 		$result = [];
 
 		foreach ($list as $item) {
-			if (!is_string($item) && !is_numeric($item)) {
+			if (is_array($item) || ($item === null)) {
 				continue;
 			}
 
-			$normalized = strtolower(trim((string) $item));
+			$normalized = trim((string) $item);
 			if ($normalized === '') {
 				continue;
+			}
+
+			if ($lowercase) {
+				$normalized = strtolower($normalized);
 			}
 
 			$result[] = $normalized;
@@ -506,10 +515,19 @@ class CatalogService
         return $slug . '-' . uniqid();
     }
 
-	private function toFloatOrNull($value): ?float
+	private function toFloatOrNull(mixed $value): ?float
 	{
 		if ($value === null || $value === '') {
 			return null;
+		}
+
+		if (is_string($value)) {
+			$value = preg_replace('/[^0-9,.-]/', '', $value);
+			if (is_string($value) && str_contains($value, ',') && !str_contains($value, '.')) {
+				$value = str_replace(',', '.', $value);
+			} else {
+				$value = str_replace(',', '', (string) $value);
+			}
 		}
 
 		if (!is_numeric($value)) {

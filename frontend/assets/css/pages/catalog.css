@@ -375,6 +375,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.6rem;
+  flex-wrap: wrap;
+  min-height: 48px;
 }
 
 .catalog-cart-wrap {
@@ -423,6 +425,8 @@
   display: flex;
   align-items: baseline;
   gap: 0.55rem;
+  flex: 1;
+  min-width: 0;
 }
 
 .catalog-price-group .price {
@@ -443,10 +447,11 @@
   border: 1px solid #cfe7d8;
   background: #edf8f1;
   color: #245c4d;
-  display: inline-grid;
+  display: inline-grid !important;
   place-items: center;
   cursor: pointer;
   transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+  flex-shrink: 0;
 }
 
 .catalog-cart-btn:hover {
