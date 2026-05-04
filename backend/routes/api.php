@@ -134,10 +134,12 @@ Router::group(['prefix' => 'api/v1'], function () {
         
         // Sales & Operations
         Router::group(['prefix' => 'sales'], function () {
-            Router::get('pending-orders', [SalesController::class, 'pendingOrders'])->middleware('permission:view_orders');
+            Router::get('orders', [SalesController::class, 'listOrders'])->middleware('permission:view_orders');
+            Router::get('orders/{id}', [SalesController::class, 'showOrder'])->middleware('permission:view_orders');
             Router::post('verify', [SalesController::class, 'verify'])->middleware('permission:confirm_order');
             Router::post('complaint', [SalesController::class, 'complaint'])->middleware('permission:handle_returns');
             Router::get('order-complaints', [SalesController::class, 'orderComplaints'])->middleware('permission:handle_returns');
+            Router::put('prescription', [SalesController::class, 'updatePrescription'])->middleware('permission:update_order_status');
         });
 
         Router::group(['prefix' => 'ops'], function () {
@@ -164,10 +166,10 @@ Router::group(['prefix' => 'api/v1'], function () {
             });
 
             Router::group(['middleware' => 'permission:manage_users|manage_all_users'], function() {
-                Router::get('staff', [AdminController::class, 'listStaff']);
+                Router::get('users', [AdminController::class, 'listUsers']);
                 Router::post('staff', [AdminController::class, 'createStaff']);
-                Router::get('staff/{id}', [AdminController::class, 'getStaff']);
-                Router::put('staff/{id}', [AdminController::class, 'updateStaff']);
+                Router::get('users/{id}', [AdminController::class, 'getUser']);
+                Router::put('users/{id}', [AdminController::class, 'updateUser']);
                 Router::delete('staff/{id}', [AdminController::class, 'deleteStaff']);
             });
 

@@ -189,7 +189,7 @@ window.EvelensNotify = {
         return overlay;
     },
 
-    async show({ type = 'success', title = '', desc = '', btnText = 'Close', onConfirm = null, secondaryBtn = null }) {
+    async show({ type = 'success', title = '', desc = '', btnText = 'Close', onConfirm = null, secondaryBtn = null, image = null }) {
         const overlay = await this._createOverlay();
         const card = overlay.querySelector('.evelens-notify-card');
         const imgEl = overlay.querySelector('#evelens-notify-img');
@@ -209,7 +209,7 @@ window.EvelensNotify = {
                 error: '<i class="fi fi-rs-cross-circle"></i>',
                 warning: '<i class="fi fi-rs-exclamation"></i>',
                 info: '<i class="fi fi-rs-info"></i>',
-                loading: '<i class="fi fi-rs-spinner rotate-anime"></i>'
+                loading: '<i class="fi fi-rs-spinner"></i>'
             };
             iconBox.innerHTML = icons[type] || icons.info;
         }
@@ -218,14 +218,9 @@ window.EvelensNotify = {
         if (titleEl) titleEl.textContent = title;
         if (descEl) descEl.textContent = desc;
 
-        // Random Image
+        // Image Logic
         if (imgEl) {
-            const images = [
-                '/assets/images/products/frame-an-03.png',
-                '/assets/images/products/frame-an-06.png',
-                '/assets/images/products/frame-an-09.png'
-            ];
-            imgEl.src = images[Math.floor(Math.random() * images.length)];
+            imgEl.src = image || '/assets/images/ui/notification-brand.png';
         }
 
         // Set actions
@@ -255,7 +250,7 @@ window.EvelensNotify = {
         setTimeout(() => overlay.classList.add('show'), 10);
 
         return {
-            update: (newOpts) => this.show({ ...{ type, title, desc, btnText, onConfirm, secondaryBtn }, ...newOpts }),
+            update: (newOpts) => this.show({ ...{ type, title, desc, btnText, onConfirm, secondaryBtn, image }, ...newOpts }),
             hide: () => this.hide()
         };
     },

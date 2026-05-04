@@ -2,7 +2,7 @@ import api from '../services/api.js';
 
 (async function() {
     if (api.auth.isAuthenticated()) {
-        window.location.href = api.auth.isStaff() ? '/pages/dashboard/index.html' : '/index.html';
+        window.location.href = api.auth.isStaff() ? '/pages/portal/index.html' : '/index.html';
         return;
     }
 
@@ -93,7 +93,7 @@ import api from '../services/api.js';
         try {
             await api.auth.login(Object.fromEntries(formData));
             loader.hide();
-            window.location.href = api.auth.isStaff() ? '/pages/dashboard/index.html' : '/index.html';
+            window.location.href = api.auth.isStaff() ? '/pages/portal/index.html' : '/index.html';
         } catch (error) {
             loader.update({
                 type: 'error',

@@ -1,0 +1,61 @@
+<!--=============== ORDERS MODULE ===============-->
+<div class="flex admin-flex-between">
+    <h2 class="section__title admin-title-reset">Sales & Support Order Hub</h2>
+    <div class="metrics-grid--compact">
+        <div class="metric-card--small">
+            <span class="metric-label">New Orders:</span>
+            <strong class="metric-value" id="sales-new-orders-count">...</strong>
+        </div>
+    </div>
+</div>
+
+<div class="admin-table container admin-panel admin-panel--compact">
+    <div class="flex admin-filter-row">
+        <input id="orderSearchInput" class="form__input admin-input-limit-300" placeholder="Search Order # or Customer..." />
+        <select id="orderStatusFilter" class="form__input admin-input-limit-220">
+            <option value="">All Orders</option>
+            <option value="pending">Pending Verification</option>
+            <option value="confirmed">Confirmed (In Lab)</option>
+            <option value="processing">Processing</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="refunded">Refunded</option>
+        </select>
+        <button id="syncOrdersBtn" class="btn btn--sm"><i class="fi fi-rs-refresh"></i> Sync</button>
+    </div>
+
+    <div class="table__container">
+        <table class="table" id="ordersTable">
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>Status</th>
+                    <th>Payment</th>
+                    <th>Total</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="ordersListBody">
+                <tr><td colspan="7" class="table-state-cell">Loading order queue...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal xem chi tiết & Sửa đơn thuốc (Sẽ được xử lý bởi JS) -->
+<div id="salesOrderDetailModal" class="admin-modal" hidden>
+    <div class="admin-modal__card admin-modal__card--large">
+        <div class="flex admin-modal__header">
+            <h3 class="table__title admin-title-reset">Order Management Detail</h3>
+            <button id="closeSalesModal" class="btn btn--sm" type="button">Close</button>
+        </div>
+        <div id="salesModalContent" class="admin-modal__body">
+            <!-- Content dynamic inject here -->
+        </div>
+    </div>
+</div>
+
+<script type="module" src="/js/dashboard/modules/orders-module.js"></script>

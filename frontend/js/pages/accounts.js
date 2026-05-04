@@ -69,9 +69,11 @@ function getStatusBadge(status) {
         pending_confirmation: { cls: 'badge-qc', label: 'Awaiting Confirmation' },
         pending: { cls: 'badge-pending', label: 'Pending' },
         verified: { cls: 'badge-qc', label: 'Verified' },
+        confirmed: { cls: 'badge-qc', label: 'Confirmed' },
         processing: { cls: 'badge-shipped', label: 'Processing' },
         shipped: { cls: 'badge-shipped', label: 'Shipped' },
         delivered: { cls: 'badge-active', label: 'Delivered' },
+        paid: { cls: 'badge-active', label: 'Paid' },
         cancelled: { cls: 'badge-inactive', label: 'Cancelled' },
         refunded: { cls: 'badge-inactive', label: 'Refunded' },
     };
@@ -105,26 +107,174 @@ function renderOrdersTable(orders) {
         const date = order.placed_at
             ? new Date(order.placed_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
             : '-';
-        const isPaid = order.payment_status === 'paid' || order.payment_status === 'completed';
-        const isCOD = order.payment_method === 'cod';
+        
+        const isPaid = order.payment_status?.toLowerCase() === 'paid' || order.payment_status?.toLowerCase() === 'completed';
+        const isCOD = order.payment_method?.toLowerCase() === 'cod';
+        const isPrescription = order.is_prescription || order.order_type === 'prescription';
+        
+        const methodLabel = isCOD ? 'COD' : (order.payment_method?.toUpperCase() || 'MOMO');
         
         const payAction = (isPaid)
-            ? '<strong class="growth-positive">Paid ✓</strong>'
+            ? '<strong class="growth-positive"><i class="fi fi-rs-check-circle"></i> Paid</strong>'
             : (isCOD 
                 ? '<span class="badge badge-pending">Pay on Delivery</span>'
                 : `<a href="../payment/?order_id=${order.id}" class="view__order">Pay Now</a>`);
 
+        const prescriptionBadge = isPrescription 
+            ? '<span class="badge badge-qc" style="font-size: 10px; margin-top: 4px; display: inline-block;">Prescription</span>' 
+            : '';
+
         return `
             <tr>
-                <td><strong>#${order.order_number || order.id}</strong></td>
+                <td>
+                    <div class="flex-column">
+                        <strong>#${order.order_number || order.id}</strong>
+                        ${prescriptionBadge}
+                    </div>
+                </td>
                 <td>${date}</td>
+                <td><strong>${api.formatCurrency(order.total_amount)}</strong></td>
+                <td>
+                    <div class="flex-column" style="gap: 2px;">
+                        <span style="font-size: 11px; color: #888;">${methodLabel}</span>
+                        ${isPaid ? '<span class="text-success" style="font-size: 11px;">Completed</span>' : '<span class="text-warning" style="font-size: 11px;">Pending</span>'}
+                    </div>
+                </td>
                 <td>${getStatusBadge(order.status)}</td>
-                <td>${payAction}</td>
-                <td><strong>${order.payment_status || 'pending'}</strong></td>
-                <td><em>${order.production_step || '—'}</em></td>
+                <td><span class="production-step-text">${order.production_step || '—'}</span></td>
+                <td>
+                    <div class="flex items-center gap-2">
+                        ${payAction}
+                        <button type="button" class="view-order-detail-btn" data-id="${order.id}" title="View Items">
+                            <i class="fi fi-rs-eye"></i>
+                        </button>
+                    </div>
+                </td>
             </tr>
         `;
     }).join('');
+}
+
+async function showOrderDetails(orderId) {
+    const modal = document.getElementById('order-details-modal');
+    const content = document.getElementById('order-modal-content');
+    const orderNumEl = document.getElementById('modal-order-number');
+    
+    if (!modal || !content) return;
+    
+    modal.classList.add('active');
+    content.innerHTML = '<div class="table-state-cell">Loading details...</div>';
+    
+    try {
+        const response = await api.client.get(`/orders/${orderId}`);
+        const order = response.data.data;
+        
+        if (orderNumEl) orderNumEl.textContent = `#${order.order_number}`;
+        
+        content.innerHTML = `
+            <div class="order-detail-info grid">
+                <div class="info-block">
+                    <p class="info-label">Date Placed</p>
+                    <p class="info-value">${new Date(order.placed_at).toLocaleString('en-GB')}</p>
+                </div>
+                <div class="info-block">
+                    <p class="info-label">Status</p>
+                    <p class="info-value">${getStatusBadge(order.status)}</p>
+                </div>
+                <div class="info-block">
+                    <p class="info-label">Shipping Address</p>
+                    <p class="info-value" style="font-size: 13px;">${order.shipping_address || 'N/A'}</p>
+                </div>
+            </div>
+
+            <div class="order-items-list">
+                <h4 class="section-title">Order Items</h4>
+                <div class="items-table-wrap">
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Qty</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${order.items.map(item => {
+                                const hasPrescription = item.sph_od !== null || item.sph_os !== null;
+                                const lensInfo = item.lens_name ? `
+                                    <div class="item-lens-badge">
+                                        <i class="fi fi-rs-settings"></i>
+                                        <span>Lens: ${item.lens_name} (${item.lens_type} ${item.index_value || ''})</span>
+                                    </div>
+                                ` : '';
+                                
+                                const prescriptionTable = hasPrescription ? `
+                                    <div class="mini-pres-table-wrap">
+                                        <table class="mini-pres-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Eye</th>
+                                                    <th>SPH</th>
+                                                    <th>CYL</th>
+                                                    <th>AXIS</th>
+                                                    <th>PD</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>OD (Right)</td>
+                                                    <td>${item.sph_od || '0.00'}</td>
+                                                    <td>${item.cyl_od || '0.00'}</td>
+                                                    <td>${item.axis_od || '0'}</td>
+                                                    <td rowspan="2" style="vertical-align: middle;">${item.pd || '--'}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>OS (Left)</td>
+                                                    <td>${item.sph_os || '0.00'}</td>
+                                                    <td>${item.cyl_os || '0.00'}</td>
+                                                    <td>${item.axis_os || '0'}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        ${item.prescription_notes ? `<p class="item-notes">Note: ${item.prescription_notes}</p>` : ''}
+                                    </div>
+                                ` : '';
+
+                                return `
+                                    <tr>
+                                        <td>
+                                            <div class="item-product-cell">
+                                                <img src="${item.image_2d_url ? '../../..' + item.image_2d_url : '../../assets/images/products/placeholder.png'}" class="item-img" />
+                                                <div class="item-details-meta">
+                                                    <p class="item-name">${item.product_name}</p>
+                                                    <p class="item-variant">${item.color} / ${item.size}</p>
+                                                    ${lensInfo}
+                                                    ${prescriptionTable}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>${api.formatCurrency(item.unit_price)}</td>
+                                        <td>${item.quantity}</td>
+                                        <td><strong>${api.formatCurrency(item.line_total)}</strong></td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" style="text-align: right; padding-top: 15px;"><strong>Subtotal:</strong></td>
+                                <td style="padding-top: 15px;"><strong>${api.formatCurrency(order.total_amount)}</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        `;
+    } catch (err) {
+        console.error("Failed to load order details:", err);
+        content.innerHTML = '<div class="table-state-cell table-state-cell--error">Failed to load order details.</div>';
+    }
 }
 
 async function loadOrderTracking() {
@@ -363,6 +513,8 @@ changePasswordForm?.addEventListener('submit', async (event) => {
 
 document.addEventListener('click', async (event) => {
     const target = event.target;
+    
+    // --- LOGOUT ---
     if (target.closest('.account__tab:last-child')) {
         await api.auth.logout();
         localStorage.removeItem('auth_token');
@@ -370,12 +522,22 @@ document.addEventListener('click', async (event) => {
         localStorage.removeItem('eyewear_cart_count');
         localStorage.removeItem('eyewear_wishlist_count');
         window.location.href = '../auth/index.html';
-    } else if (target.closest('[data-target="#orders"]')) {
+        return;
+    } 
+    
+    // --- TAB NAVIGATION ---
+    if (target.closest('[data-target="#orders"]')) {
         loadOrderTracking();
     } else if (target.closest('[data-target="#support-tickets"]')) {
         setActiveAccountTab('#support-tickets');
         loadUserTickets();
-    } else if (target.closest('#add-new-address-btn')) {
+    } else if (target.closest('.account__tab[data-target]')) {
+        const tab = target.closest('.account__tab');
+        setActiveAccountTab(tab.dataset.target);
+    } 
+    
+    // --- ADDRESS MANAGEMENT ---
+    if (target.closest('#add-new-address-btn')) {
         AddressEditor.open();
     } else if (target.closest('.address-action-btn.edit-btn')) {
         const id = target.closest('.edit-btn').dataset.id;
@@ -386,9 +548,14 @@ document.addEventListener('click', async (event) => {
             await api.profile.deleteAddress(target.closest('.delete-btn').dataset.id);
             loadAddresses();
         }
-    } else if (target.closest('.account__tab[data-target]')) {
-        const tab = target.closest('.account__tab');
-        setActiveAccountTab(tab.dataset.target);
+    } 
+    
+    // --- ORDER DETAILS MODAL ---
+    if (target.closest('.view-order-detail-btn')) {
+        const id = target.closest('.view-order-detail-btn').dataset.id;
+        showOrderDetails(id);
+    } else if (target.closest('#close-order-modal')) {
+        document.getElementById('order-details-modal')?.classList.remove('active');
     }
 });
 

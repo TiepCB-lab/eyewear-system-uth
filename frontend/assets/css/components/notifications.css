@@ -40,39 +40,37 @@
 
 /* Left Side: Image */
 .evelens-notify-image {
-    flex: 1;
-    background: #f8f9fa;
+    flex: 1.4;
+    background: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 3rem;
+    padding: 0;
     position: relative;
-    border-right: 1px solid #f0f0f0;
+    overflow: hidden;
 }
 
 .evelens-notify-image img {
     width: 100%;
-    height: auto;
-    object-fit: contain;
-    filter: drop-shadow(0 20px 40px rgba(0,0,0,0.1));
+    height: 100%;
+    object-fit: cover;
+    object-position: 20% center;
+    filter: brightness(1.02) contrast(1.05);
     transition: all 0.8s ease;
+    mask-image: linear-gradient(to right, black 65%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, black 65%, transparent 100%);
 }
 
-.evelens-notify-image::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, transparent 70%);
-}
 
 /* Right Side: Content */
 .evelens-notify-content {
-    flex: 1.2;
-    padding: 3.5rem;
+    flex: 1;
+    padding: 4rem 3.5rem 4rem 1rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
     position: relative;
+    background: #fff;
 }
 
 .evelens-notify-close {
@@ -165,6 +163,14 @@
 .notify-error .evelens-notify-icon-box { background: #fef2f2; color: #ef4444; }
 .notify-warning .evelens-notify-icon-box { background: #fffbeb; color: #f59e0b; }
 .notify-loading .evelens-notify-icon-box { background: #f8fafc; color: #0f172a; }
+.notify-loading .evelens-notify-icon-box i {
+    animation: evelens-spin 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes evelens-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
 
 @media screen and (max-width: 800px) {
     .evelens-notify-card { flex-direction: column; max-width: 400px; }

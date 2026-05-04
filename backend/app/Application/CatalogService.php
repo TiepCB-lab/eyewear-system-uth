@@ -351,6 +351,7 @@ class CatalogService
 			'min_price' => $minPrice,
 			'max_price' => $maxPrice,
 			'active_only' => $activeOnly,
+			'in_stock' => (bool) ($params['in_stock'] ?? false),
 			'sort_by' => $sortBy,
 			'sort_direction' => $sortDirection,
 		];
@@ -406,6 +407,10 @@ class CatalogService
 		if ($filters['max_price'] !== null) {
 			$conditions[] = 'p.base_price <= ?';
 			$bindings[] = $filters['max_price'];
+		}
+        
+		if ($filters['in_stock']) {
+			$conditions[] = 'EXISTS (SELECT 1 FROM productvariant v3 WHERE v3.product_id = p.id AND v3.stock_quantity > 0)';
 		}
 
 		if (empty($conditions)) {

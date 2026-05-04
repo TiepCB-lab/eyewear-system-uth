@@ -545,13 +545,13 @@ try {
         ],
         [
             'category' => 'gong-kinh',
-            'prefix' => 'EVLS Sold Out Edition',
-            'model' => 'EVLS-SOE',
-            'brand' => 'EVLS Premium',
+            'prefix' => 'EVLS Heritage Gold',
+            'model' => 'EVLS-HGD',
+            'brand' => 'EVLS Premium Heritage',
             'gender' => 'unisex',
             'color' => 'Gold',
             'size' => 'M',
-            'base_price' => 1200000,
+            'base_price' => 1250000,
             'stock' => 0, // Out of stock for testing
             'count' => 2,
         ],

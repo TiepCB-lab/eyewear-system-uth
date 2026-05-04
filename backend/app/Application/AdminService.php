@@ -6,14 +6,15 @@ use Core\Database;
 
 class AdminService
 {
-    private const ALLOWED_STAFF_ROLES = ['ADMIN', 'MANAGER', 'SALES_STAFF', 'OPERATIONS_STAFF'];
+    private const STAFF_ROLES = ['ADMIN', 'MANAGER', 'SALES_STAFF', 'OPERATIONS_STAFF'];
+    private const ALL_ROLES = ['ADMIN', 'MANAGER', 'SALES_STAFF', 'OPERATIONS_STAFF', 'CUSTOMER'];
 
-    private function allowedRolesSql(): string
+    private function allowedRolesSql(array $roles = self::STAFF_ROLES): string
     {
-        return "'" . implode("', '", self::ALLOWED_STAFF_ROLES) . "'";
+        return "'" . implode("', '", $roles) . "'";
     }
 
-    public function getAllStaff(array $filters = []): array
+    public function getAllUsers(array $filters = []): array
     {
         $db = Database::getInstance();
 
@@ -22,7 +23,7 @@ class AdminService
                 FROM `user` u
                 INNER JOIN user_roles ur ON u.id = ur.user_id
                 INNER JOIN role r ON r.id = ur.role_id
-                WHERE r.name IN (" . $this->allowedRolesSql() . ")";
+                WHERE 1=1";
 
         $params = [];
 
@@ -36,6 +37,12 @@ class AdminService
             $params[] = $filters['role'];
         }
 
+        if (!empty($filters['search'])) {
+            $sql .= " AND (u.full_name LIKE ? OR u.email LIKE ?)";
+            $params[] = '%' . $filters['search'] . '%';
+            $params[] = '%' . $filters['search'] . '%';
+        }
+
         $sql .= " ORDER BY u.created_at DESC";
 
         $stmt = $db->prepare($sql);
@@ -44,7 +51,7 @@ class AdminService
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
-    public function getStaffById(int $userId): ?array
+    public function getUserById(int $userId): ?array
     {
         $db = Database::getInstance();
 
@@ -54,7 +61,7 @@ class AdminService
              FROM `user` u
              INNER JOIN user_roles ur ON u.id = ur.user_id
              INNER JOIN role r ON r.id = ur.role_id
-             WHERE u.id = ? AND r.name IN (" . $this->allowedRolesSql() . ")"
+             WHERE u.id = ?"
         );
         $stmt->execute([$userId]);
         $result = $stmt->fetch(\PDO::FETCH_ASSOC);
@@ -101,6 +108,26 @@ class AdminService
         return $this->getStaffById($userId);
     }
 
+    public function getStaffById(int $userId): array
+    {
+        $db = Database::getInstance();
+        $stmt = $db->prepare("
+            SELECT u.id, u.full_name, u.email, u.phone, u.status, u.created_at, r.name AS role_name, r.id AS role_id
+            FROM user u
+            JOIN user_roles ur ON u.id = ur.user_id
+            JOIN roles r ON ur.role_id = r.id
+            WHERE u.id = ?
+        ");
+        $stmt->execute([$userId]);
+        $user = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+        if (!$user) {
+            throw new \Exception('Staff member not found');
+        }
+        
+        return $user;
+    }
+
     public function updateStaffStatus(int $userId, string $status): array
     {
         $db = Database::getInstance();
@@ -109,42 +136,42 @@ class AdminService
             throw new \Exception('Invalid status. Must be: active, inactive, or blocked');
         }
 
-        if (!$this->getStaffById($userId)) {
-            throw new \Exception('Staff user not found');
+        if (!$this->getUserById($userId)) {
+            throw new \Exception('User not found');
         }
 
         $stmt = $db->prepare("UPDATE `user` SET status = ? WHERE id = ?");
         $stmt->execute([$status, $userId]);
 
-        return $this->getStaffById($userId);
+        return $this->getUserById($userId);
     }
 
-    public function updateStaffRole(int $userId, int $roleId): array
+    public function updateUserRole(int $userId, int $roleId): array
     {
         $db = Database::getInstance();
 
-        if (!$this->getStaffById($userId)) {
-            throw new \Exception('Staff user not found');
+        if (!$this->getUserById($userId)) {
+            throw new \Exception('User not found');
         }
 
-        $roleStmt = $db->prepare("SELECT id FROM role WHERE id = ? AND name IN (" . $this->allowedRolesSql() . ")");
+        $roleStmt = $db->prepare("SELECT id FROM role WHERE id = ?");
         $roleStmt->execute([$roleId]);
         if (!$roleStmt->fetch()) {
-            throw new \Exception('Invalid role. Only system_admin, manager, sales_staff, and operations_staff roles are allowed.');
+            throw new \Exception('Invalid role ID');
         }
 
         $stmt = $db->prepare("UPDATE user_roles SET role_id = ? WHERE user_id = ?");
         $stmt->execute([$roleId, $userId]);
 
-        return $this->getStaffById($userId);
+        return $this->getUserById($userId);
     }
 
     public function deleteStaff(int $userId): bool
     {
         $db = Database::getInstance();
 
-        if (!$this->getStaffById($userId)) {
-            throw new \Exception('Staff user not found');
+        if (!$this->getUserById($userId)) {
+            throw new \Exception('User not found');
         }
 
         $stmt = $db->prepare("UPDATE `user` SET status = 'inactive' WHERE id = ?");

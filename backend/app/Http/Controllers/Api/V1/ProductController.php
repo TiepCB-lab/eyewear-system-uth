@@ -121,9 +121,9 @@ class ProductController extends BaseController
     public function featured()
     {
         try {
-            $newReleases = $this->catalogService->searchProducts(['per_page' => 8, 'sort' => 'newest']);
-            $deals = $this->catalogService->searchProducts(['per_page' => 8, 'sort' => 'random']);
-            $topSelling = $this->catalogService->searchProducts(['per_page' => 8, 'sort' => 'popular']);
+            $newReleases = $this->catalogService->searchProducts(['per_page' => 8, 'sort' => 'newest', 'in_stock' => true]);
+            $deals = $this->catalogService->searchProducts(['per_page' => 8, 'sort' => 'random', 'in_stock' => true]);
+            $topSelling = $this->catalogService->searchProducts(['per_page' => 8, 'sort' => 'popular', 'in_stock' => true]);
 
             return ApiResponse::success([
                 'new_releases' => $newReleases['data'] ?? [],
