@@ -12,6 +12,9 @@ export async function applyPermissions() {
     elements.forEach(el => {
         const requiredPermissions = el.getAttribute('data-permission').split(',').map(p => p.trim());
         
+        // Clear existing permission classes to avoid conflicts
+        el.classList.remove('permission-granted', 'permission-denied');
+        
         // Check if user has ANY of the required permissions (OR logic)
         // If you need AND logic, you could support a different attribute like data-permission-all
         const granted = requiredPermissions.some(p => hasPermission(p));

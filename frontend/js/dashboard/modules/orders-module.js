@@ -1,57 +1,275 @@
 import { salesService } from '../../services/supportService.js';
+import orderService from '../../services/orderService.js';
 import api from '../../services/api.js';
 
 const ordersBody = document.getElementById('ordersListBody');
 const countEl = document.getElementById('sales-new-orders-count');
+const searchInput = document.getElementById('orderSearchInput');
+const statusFilter = document.getElementById('orderStatusFilter');
+const syncBtn = document.getElementById('syncOrdersBtn');
 
-function renderOrders(rows) {
-    if (!ordersBody) {
-        return;
-    }
+const detailModal = document.getElementById('salesOrderDetailModal');
+const modalContent = document.getElementById('salesModalContent');
+const closeModalBtn = document.getElementById('closeSalesModal');
 
-    if (!rows || rows.length === 0) {
-        ordersBody.innerHTML = '<tr><td colspan="4" class="table-state-cell">No pending orders.</td></tr>';
-        return;
-    }
+let currentOrders = [];
 
-    ordersBody.innerHTML = rows.map((order) => `
-        <tr>
-            <td><strong>#${order.order_number}</strong></td>
-            <td><span class="badge badge-pending">${order.status}</span></td>
-            <td>${api.formatCurrency(order.total_amount)}</td>
-            <td><button type="button" class="btn btn--sm order-verify-btn" data-order-id="${order.id}">Verify Order</button></td>
-        </tr>
-    `).join('');
+async function initializeOrdersPage() {
+    await loadOrders();
+    setupEventListeners();
 }
 
 async function loadOrders() {
     try {
-        const response = await salesService.getPendingOrders();
+        const filters = {
+            status: statusFilter?.value || '',
+            search: searchInput?.value || ''
+        };
+        const response = await salesService.getOrders(filters);
+        currentOrders = Array.isArray(response) ? response : (response?.data || []);
+        
         if (countEl) {
-            countEl.innerText = response?.data?.length || 0;
+            const pendingCount = currentOrders.filter(o => o.status === 'pending' || o.status === 'pending_confirmation').length;
+            countEl.innerText = pendingCount;
         }
-        renderOrders(response?.data || []);
+        renderOrdersTable(currentOrders);
     } catch (err) {
-        ordersBody.innerHTML = '<tr><td colspan="4" class="table-state-cell table-state-cell--error">Error loading orders.</td></tr>';
+        console.error('LoadOrders Error:', err);
+        alert('Failed to load orders: ' + (err.response?.data?.message || err.message));
     }
 }
 
-document.addEventListener('click', async (event) => {
-    const verifyButton = event.target.closest('.order-verify-btn');
-    if (verifyButton) {
-        if (!confirm('Verify this order for production?')) {
+function renderOrdersTable(rows) {
+    if (!ordersBody) return;
+    if (!rows || rows.length === 0) {
+        ordersBody.innerHTML = '<tr><td colspan="7" class="table-state-cell">No orders found.</td></tr>';
+        return;
+    }
+
+    ordersBody.innerHTML = rows.map((order) => {
+        const status = order.status || 'pending';
+        const statusClass = getStatusClass(status);
+        const isPaid = (order.payment_status || '').toLowerCase() === 'paid';
+        const isCOD = (order.payment_method || '').toLowerCase() === 'cod';
+        
+        let paymentLabel = (order.payment_status || 'unpaid').toUpperCase();
+        let paymentClass = isPaid ? 'badge-active' : 'badge-pending';
+        if (isCOD && !isPaid) { paymentLabel = 'COD'; paymentClass = 'badge-shipped'; }
+
+        let dateStr = order.placed_at ? new Date(order.placed_at).toLocaleDateString() : '—';
+
+        return `
+            <tr>
+                <td>#${order.order_number || order.id}</td>
+                <td><span style="font-size: 11px;">${dateStr}</span></td>
+                <td>${order.customer_name || 'Customer'}</td>
+                <td><span class="badge ${statusClass}">${status.toUpperCase()}</span></td>
+                <td>
+                    <div class="flex-column" style="gap: 2px;">
+                        <span class="badge ${paymentClass}">${paymentLabel}</span>
+                        <span style="font-size: 10px; color: #888; text-transform: uppercase;">${order.payment_method || 'N/A'}</span>
+                    </div>
+                </td>
+                <td>${api.formatCurrency(order.total_amount)}</td>
+                <td>
+                    <button type="button" class="btn btn--sm order-manage-btn" data-order-id="${order.id}">Manage</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function getStatusClass(status) {
+    const map = {
+        'pending': 'badge-pending', 'confirmed': 'badge-active', 'shipped': 'badge-shipped',
+        'delivered': 'badge-active', 'cancelled': 'badge-qc', 'refunded': 'badge-pending'
+    };
+    return map[status] || 'badge-pending';
+}
+
+function setupEventListeners() {
+    if (searchInput) searchInput.addEventListener('input', debounce(() => loadOrders(), 500));
+    if (statusFilter) statusFilter.addEventListener('change', () => loadOrders());
+    if (syncBtn) syncBtn.addEventListener('click', () => loadOrders());
+    if (closeModalBtn) closeModalBtn.addEventListener('click', () => { detailModal.hidden = true; });
+
+    document.addEventListener('click', async (event) => {
+        const target = event.target;
+        const manageBtn = target.closest('.order-manage-btn');
+        if (manageBtn) {
+            await openOrderManagement(Number(manageBtn.dataset.orderId));
             return;
         }
 
-        try {
-            await salesService.verifyOrder(Number(verifyButton.dataset.orderId));
-            alert('Order verified successfully!');
-            loadOrders();
-        } catch (err) {
-            alert('Verification failed: ' + err.message);
+        const actionBtn = target.closest('.modal-action-btn');
+        if (actionBtn) {
+            const orderId = Number(actionBtn.dataset.orderId);
+            const action = actionBtn.dataset.action;
+            await handleOrderAction(orderId, action);
+            return;
         }
-        return;
-    }
-});
+    });
 
-loadOrders();
+    document.addEventListener('submit', async (event) => {
+        if (event.target.classList.contains('pres-update-form')) {
+            event.preventDefault();
+            const form = event.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerText;
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Saving...';
+
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            try {
+                await salesService.updateOrderPrescription(data);
+                alert('Updated successfully!');
+            } catch (err) {
+                alert('Update failed: ' + err.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalText;
+            }
+        }
+    });
+}
+
+async function openOrderManagement(orderId) {
+    try {
+        const response = await orderService.getStaffOrderDetail(orderId);
+        const order = response.data || response;
+        renderModalContent(order);
+        
+        const card = detailModal.querySelector('.admin-modal__card');
+        if (card) {
+            card.style.maxWidth = '1000px'; // Reduced width
+            card.style.width = '90%';
+            card.style.margin = '20px auto';
+        }
+        detailModal.hidden = false;
+    } catch (err) {
+        console.error('OpenOrderManagement Error:', err);
+        alert('Failed to load details: ' + err.message);
+    }
+}
+
+function renderModalContent(order) {
+    const isPaid = (order.payment_status || '').toLowerCase() === 'paid';
+    const isCOD = (order.payment_method || '').toLowerCase() === 'cod';
+
+    const itemsHtml = order.items.map(item => {
+        const hasPrescription = item.sph_od !== null || item.sph_os !== null;
+        const presHtml = hasPrescription ? `
+            <div style="margin-top: 12px; padding: 15px; background: #fff; border: 1px solid #eee; border-radius: 10px;">
+                <form class="pres-update-form">
+                    <input type="hidden" name="order_item_id" value="${item.id}">
+                    <div class="flex admin-flex-between" style="margin-bottom: 10px;">
+                        <h5 style="margin: 0; font-size: 13px; color: #555;">Prescription Info</h5>
+                        <button type="submit" class="btn btn--sm" style="padding: 2px 10px; font-size: 10px; background: #333;">Save</button>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; min-width: 450px; font-size: 11px; border-collapse: collapse;">
+                            <thead>
+                                <tr style="text-align: left; color: #888;">
+                                    <th>Eye</th><th>SPH</th><th>CYL</th><th>AXIS</th><th style="text-align: center;">PD</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>OD</strong></td>
+                                    <td><input type="text" name="sph_od" value="${item.sph_od}" class="form__input" style="padding: 4px; height: 28px;"></td>
+                                    <td><input type="text" name="cyl_od" value="${item.cyl_od}" class="form__input" style="padding: 4px; height: 28px;"></td>
+                                    <td><input type="number" name="axis_od" value="${item.axis_od}" class="form__input" style="padding: 4px; height: 28px;"></td>
+                                    <td rowspan="2" style="text-align: center; border-left: 1px dashed #eee;">
+                                        <input type="text" name="pd" value="${item.pd}" class="form__input" style="padding: 4px; width: 45px; text-align: center;">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>OS</strong></td>
+                                    <td><input type="text" name="sph_os" value="${item.sph_os}" class="form__input" style="padding: 4px; height: 28px;"></td>
+                                    <td><input type="text" name="cyl_os" value="${item.cyl_os}" class="form__input" style="padding: 4px; height: 28px;"></td>
+                                    <td><input type="number" name="axis_os" value="${item.axis_os}" class="form__input" style="padding: 4px; height: 28px;"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+            </div>
+        ` : '';
+
+        return `
+            <div class="order-item-row" style="padding: 15px 0; border-bottom: 1px solid #eee; display: flex; flex-wrap: wrap; gap: 15px;">
+                <img src="${api.fixImagePath(item.image_2d_url, '../../../')}" style="width: 70px; height: 50px; object-fit: contain;">
+                <div style="flex: 1; min-width: 250px;">
+                    <strong style="display: block; font-size: 14px;">${item.product_name}</strong>
+                    <div style="font-size: 11px; color: #888; margin: 4px 0;">${item.sku} | ${item.color} / ${item.size}</div>
+                    <div style="display: flex; gap: 5px;">
+                        ${item.lens_name ? `<span class="badge badge-shipped" style="font-size: 9px; padding: 2px 6px;">${item.lens_name}</span>` : ''}
+                    </div>
+                    ${presHtml}
+                </div>
+                <div style="text-align: right; min-width: 100px;">
+                    <strong style="color: var(--first-color); font-size: 15px;">${api.formatCurrency(item.unit_price)}</strong>
+                    <div style="font-size: 12px; color: #999;">Qty: ${item.quantity}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    modalContent.innerHTML = `
+        <div style="display: flex; flex-wrap: wrap; gap: 30px; align-items: start;">
+            <div style="flex: 1; min-width: 300px; max-height: 65vh; overflow-y: auto;">
+                <h4 class="table__title" style="font-size: 16px; margin-bottom: 15px;">Order Items</h4>
+                <div class="items-list">${itemsHtml}</div>
+            </div>
+            <div style="width: 320px; flex-shrink: 0; background: #fafafa; padding: 20px; border-radius: 15px; border: 1px solid #eee;">
+                <h4 class="table__title" style="font-size: 16px; margin-bottom: 20px;">Summary</h4>
+                <div style="display: grid; gap: 12px; font-size: 13px;">
+                    <div class="flex admin-flex-between"><span>Status:</span> <span class="badge ${getStatusClass(order.status)}">${order.status.toUpperCase()}</span></div>
+                    <div class="flex admin-flex-between"><span>Payment:</span> <strong style="font-size: 11px;">${order.payment_method || 'N/A'}</strong></div>
+                    <div class="flex admin-flex-between"><span>Amount:</span> <strong style="color: var(--first-color); font-size: 18px;">${api.formatCurrency(order.total_amount)}</strong></div>
+                </div>
+                <div style="margin-top: 25px;">
+                    ${(!order.verified_by && !['confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'].includes(order.status.toLowerCase())) ? 
+                        `<button class="modal-action-btn" data-action="confirm" data-order-id="${order.id}" 
+                            style="width: 100%; padding: 14px; background: #008080; color: #fff; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,128,128,0.2);">Confirm Order</button>` : ''}
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+                        <button class="btn btn--sm btn--outline modal-action-btn" data-action="complaint_refund" data-order-id="${order.id}" style="font-size: 11px;">Refund</button>
+                        <button class="btn btn--sm btn--outline modal-action-btn" data-action="complaint_warranty" data-order-id="${order.id}" style="font-size: 11px;">Warranty</button>
+                    </div>
+                    <button class="btn btn--sm btn--outline modal-action-btn" style="color: #dc3545; border-color: #dc3545; width: 100%; margin-top: 10px;" data-action="cancel" data-order-id="${order.id}">Cancel</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+async function handleOrderAction(orderId, action) {
+    if (!confirm(`Are you sure you want to perform action: ${action.toUpperCase()}?`)) return;
+    try {
+        if (action === 'confirm') { await salesService.verifyOrder(orderId); alert('Confirmed!'); }
+        else if (action === 'cancel') { await salesService.processComplaint(orderId, 'return', 'Sales cancelled'); alert('Cancelled!'); }
+        else if (action === 'complaint_refund') { 
+            const reason = prompt('Refund reason:'); 
+            if (reason) { await salesService.processComplaint(orderId, 'refund', reason); alert('Refund initiated!'); }
+        }
+        else if (action === 'complaint_warranty') { 
+            const reason = prompt('Issue:'); 
+            if (reason) { await salesService.processComplaint(orderId, 'warranty', reason); alert('Warranty created!'); }
+        }
+        detailModal.hidden = true;
+        await loadOrders();
+    } catch (err) {
+        alert('Action failed: ' + err.message);
+    }
+}
+
+function debounce(func, timeout = 300) {
+    let timer;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => { func.apply(this, args); }, timeout);
+    };
+}
+
+initializeOrdersPage();

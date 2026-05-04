@@ -1,6 +1,6 @@
 <!--=============== USERS MODULE ===============-->
 <div class="flex admin-flex-between">
-    <h1 class="section__title admin-title-reset">Staff Management</h1>
+    <h1 class="section__title admin-title-reset">User Management</h1>
     <button id="openCreateStaffModal" type="button" class="btn btn--sm">
         Add New Staff
     </button>
@@ -13,10 +13,11 @@
         <input id="searchInput" class="form__input admin-input-limit-300" placeholder="Search by name/email" />
         <select id="roleFilter" class="form__input admin-input-limit-220">
             <option value="">All Roles</option>
-            <option value="system_admin">System Admin</option>
-            <option value="manager">Manager</option>
-            <option value="sales_staff">Sales Staff</option>
-            <option value="operations_staff">Operations Staff</option>
+            <option value="ADMIN">System Admin</option>
+            <option value="MANAGER">Manager</option>
+            <option value="SALES_STAFF">Sales Staff</option>
+            <option value="OPERATIONS_STAFF">Operations Staff</option>
+            <option value="CUSTOMER">Customer</option>
         </select>
         <select id="statusFilter" class="form__input admin-input-limit-180">
             <option value="">All Status</option>
@@ -42,7 +43,7 @@
             </thead>
             <tbody id="staffTableBody">
                 <tr>
-                    <td colspan="8" class="table-state-cell">Loading staff...</td>
+                    <td colspan="8" class="table-state-cell">Loading users...</td>
                 </tr>
             </tbody>
         </table>
@@ -62,10 +63,11 @@
                 <input id="phone" class="form__input" placeholder="Phone">
                 <select id="staffRole" class="form__input" required>
                     <option value="">Select role</option>
-                    <option value="system_admin">System Admin</option>
-                    <option value="manager">Manager</option>
-                    <option value="sales_staff">Sales Staff</option>
-                    <option value="operations_staff">Operations Staff</option>
+                    <option value="ADMIN">System Admin</option>
+                    <option value="MANAGER">Manager</option>
+                    <option value="SALES_STAFF">Sales Staff</option>
+                    <option value="OPERATIONS_STAFF">Operations Staff</option>
+                    <option value="CUSTOMER">Customer</option>
                 </select>
                 <select id="staffStatus" class="form__input" required>
                     <option value="active">Active</option>

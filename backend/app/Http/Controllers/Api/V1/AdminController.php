@@ -11,7 +11,7 @@ class AdminController extends BaseController
 {
     private AdminService $adminService;
 
-    public function __construct(AdminService $adminService = null)
+    public function __construct(?AdminService $adminService = null)
     {
         $this->adminService = $adminService ?? new AdminService();
     }
@@ -22,15 +22,13 @@ class AdminController extends BaseController
     }
 
     /**
-     * GET /api/v1/admin/staff - List all staff
+     * GET /api/v1/admin/users - List all users (staff & customers)
      */
-    public function listStaff()
+    public function listUsers()
     {
-
-
         try {
             $filters = $_GET;
-            $data = $this->adminService->getAllStaff($filters);
+            $data = $this->adminService->getAllUsers($filters);
             return ApiResponse::success($data);
         } catch (Throwable $e) {
             return ApiResponse::serverError($e->getMessage());
@@ -38,23 +36,21 @@ class AdminController extends BaseController
     }
 
     /**
-     * GET /api/v1/admin/staff/{id} - Get staff by ID
+     * GET /api/v1/admin/users/{id} - Get user by ID
      */
-    public function getStaff($id = null)
+    public function getUser($id = null)
     {
-
-
         $userId = (int) ($id ?? $this->query('id') ?? 0);
         if ($userId <= 0) {
-            return ApiResponse::validationError('Invalid staff ID');
+            return ApiResponse::validationError('Invalid user ID');
         }
 
         try {
-            $staff = $this->adminService->getStaffById($userId);
-            if (!$staff) {
-                return ApiResponse::notFound('Staff not found');
+            $user = $this->adminService->getUserById($userId);
+            if (!$user) {
+                return ApiResponse::notFound('User not found');
             }
-            return ApiResponse::success($staff);
+            return ApiResponse::success($user);
         } catch (Throwable $e) {
             return ApiResponse::serverError($e->getMessage());
         }
@@ -82,28 +78,26 @@ class AdminController extends BaseController
     }
 
     /**
-     * PUT /api/v1/admin/staff/{id} - Update staff (status/role)
+     * PUT /api/v1/admin/users/{id} - Update user (status/role)
      */
-    public function updateStaff($id = null)
+    public function updateUser($id = null)
     {
-
-
         $userId = (int) ($id ?? $this->query('id') ?? 0);
         if ($userId <= 0) {
-            return ApiResponse::validationError('Invalid staff ID');
+            return ApiResponse::validationError('Invalid user ID');
         }
 
         $input = $this->getJsonInput();
 
         try {
             if (!empty($input['status'])) {
-                $staff = $this->adminService->updateStaffStatus($userId, $input['status']);
-                return ApiResponse::success($staff, 'Staff status updated');
+                $user = $this->adminService->updateStaffStatus($userId, $input['status']); // Reusing status update
+                return ApiResponse::success($user, 'User status updated');
             }
 
             if (!empty($input['role_id'])) {
-                $staff = $this->adminService->updateStaffRole($userId, (int) $input['role_id']);
-                return ApiResponse::success($staff, 'Staff role updated');
+                $user = $this->adminService->updateUserRole($userId, (int) $input['role_id']);
+                return ApiResponse::success($user, 'User role updated');
             }
 
             return ApiResponse::validationError('Provide status or role_id to update');

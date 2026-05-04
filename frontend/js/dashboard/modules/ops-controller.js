@@ -69,14 +69,33 @@ function renderQueueTable(queue) {
 
     return `
       <tr class="ops-table__row">
-        <td class="ops-table__cell ops-table__cell--strong">#${order.id}</td>
-        <td class="ops-table__cell">${order.customer_name || 'Unknown'}</td>
-        <td class="ops-table__cell">${stepLabel}</td>
+        <td class="ops-table__cell ops-table__cell--strong">
+            <div class="flex-column">
+                <strong>#${order.order_number || order.id}</strong>
+                <span style="font-size: 10px; color: #888;">${new Date(order.placed_at || Date.now()).toLocaleDateString()}</span>
+            </div>
+        </td>
+        <td class="ops-table__cell">
+            <div class="flex-column">
+                <span>${order.customer_name || 'Customer'}</span>
+                <span style="font-size: 11px; color: var(--first-color); font-weight: 600;">${order.lens_name || 'Standard Lens'}</span>
+            </div>
+        </td>
+        <td class="ops-table__cell">
+            <div class="production-step-badge">
+                <i class="fi fi-rs-settings"></i> ${stepLabel}
+            </div>
+        </td>
         <td class="ops-table__cell"><span class="status-pill ${status.class}">${status.label}</span></td>
         <td class="ops-table__cell">
-          <button type="button" class="btn btn--sm ops-table__action" data-order-id="${order.id}">
-            Advance
-          </button>
+          ${order.production_step === 'ready_to_ship' 
+            ? `<button type="button" class="btn btn--sm btn--outline ops-table__action" data-order-id="${order.id}" data-action="ship">
+                 <i class="fi fi-rs-paper-plane"></i> Ship
+               </button>`
+            : `<button type="button" class="btn btn--sm ops-table__action" data-order-id="${order.id}" data-action="advance">
+                 Advance
+               </button>`
+          }
         </td>
       </tr>
     `;
@@ -120,8 +139,33 @@ function setupEventListeners() {
       return;
     }
 
-    await advanceStep(Number(advanceButton.dataset.orderId));
+    const orderId = Number(advanceButton.dataset.orderId);
+    const action = advanceButton.dataset.action;
+
+    if (action === 'ship') {
+        await handleShipAction(orderId);
+    } else {
+        await advanceStep(orderId);
+    }
   });
+}
+
+async function handleShipAction(orderId) {
+    const trackingNumber = prompt("Enter Tracking Number (e.g., GHTK123456):");
+    if (trackingNumber === null) return; // User cancelled
+
+    try {
+        await dashboardService.createShipment({
+            order_id: orderId,
+            tracking_number: trackingNumber || 'SHIP-' + Date.now(),
+            carrier: 'GHTK'
+        });
+        showAlert('Order marked as Shipped!', 'success');
+        await loadOperationsData();
+    } catch (error) {
+        console.error('Error creating shipment:', error);
+        showAlert('Failed to create shipment', 'error');
+    }
 }
 
 async function advanceStep(orderId) {

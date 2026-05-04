@@ -88,14 +88,34 @@ export const supportService = {
  */
 export const salesService = {
     /**
-     * Lấy danh sách đơn hàng đang chờ xác minh
+     * Lấy danh sách đơn hàng (mặc định là pending, nhưng có thể lọc)
      */
-    async getPendingOrders() {
+    async getOrders(filters = {}) {
         try {
-            const response = await apiClient.get('/sales/pending-orders');
+            const params = new URLSearchParams();
+            if (filters.status) params.append('status', filters.status);
+            if (filters.search) params.append('search', filters.search);
+            
+            const response = await apiClient.get(`/sales/orders${params.toString() ? '?' + params : ''}`);
             return response.data;
         } catch (error) {
-            console.error('Sales getPendingOrders Error:', error);
+            console.error('Sales getOrders Error:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Cập nhật thông số độ cận cho một item
+     */
+    async updateOrderPrescription(orderItemId, data) {
+        try {
+            const response = await apiClient.put('/sales/prescription', {
+                order_item_id: orderItemId,
+                ...data
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Sales updateOrderPrescription Error:', error);
             throw error;
         }
     },

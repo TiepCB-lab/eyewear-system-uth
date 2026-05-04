@@ -24,6 +24,7 @@
     <script src="../../js/core/layout-loader.js" defer></script>
 
     <title>My Account — EVELENS</title>
+    <link rel="stylesheet" href="../../assets/css/pages/accounts.css" />
   </head>
   <body>
     <!--======= STAFF SIDEBAR (Shows only if layout-staff class present) =======-->
@@ -96,17 +97,18 @@
                   <table class="placed__order-table">
                     <thead>
                       <tr>
-                        <th>Orders</th>
+                        <th>Order</th>
                         <th>Date</th>
+                        <th>Total</th>
+                        <th>Payment</th>
                         <th>Status</th>
-                        <th>Actions</th>
-                        <th>Payment Status</th>
-                        <th>Production Step</th>
+                        <th>Production</th>
+                        <th>Action</th>
                       </tr>
                     </thead>
                     <tbody id="ordersListBody">
                       <tr>
-                        <td colspan="7">Loading order tracking...</td>
+                        <td colspan="7" class="table-state-cell">Loading order tracking...</td>
                       </tr>
                     </tbody>
                   </table>
@@ -250,6 +252,19 @@
     <!--=============== FOOTER ===============-->
     <!--=============== FOOTER ===============-->
     <footer class="footer container" data-include="layout/Footer"></footer>
+
+    <!--=============== ORDER DETAILS MODAL ===============-->
+    <div id="order-details-modal" class="prescription-modal-overlay">
+        <div class="prescription-modal-content order-details-modal">
+            <div class="modal__header">
+                <h3 class="modal__title">Order Details <span id="modal-order-number">#...</span></h3>
+                <button type="button" class="modal__close" id="close-order-modal">&times;</button>
+            </div>
+            <div class="modal__body" id="order-modal-content">
+                <div class="loading-spinner">Loading...</div>
+            </div>
+        </div>
+    </div>
 
     <!--=============== SWIPER JS ===============-->
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>

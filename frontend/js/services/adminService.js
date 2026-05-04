@@ -1,18 +1,19 @@
 import apiClient from './apiClient.js';
 
 class AdminService {
-  // ========== STAFF MANAGEMENT ==========
-  async getStaffList(filters = {}) {
+  // ========== USER MANAGEMENT (Staff & Customers) ==========
+  async getUserList(filters = {}) {
     const params = new URLSearchParams();
     if (filters.status) params.append('status', filters.status);
     if (filters.role) params.append('role', filters.role);
+    if (filters.search) params.append('search', filters.search);
     
-    const response = await apiClient.get(`/admin/staff${params.toString() ? '?' + params : ''}`);
+    const response = await apiClient.get(`/admin/users${params.toString() ? '?' + params : ''}`);
     return response.data;
   }
 
-  async getStaffById(id) {
-    const response = await apiClient.get(`/admin/staff/${id}`);
+  async getUserById(id) {
+    const response = await apiClient.get(`/admin/users/${id}`);
     return response.data;
   }
 
@@ -21,8 +22,8 @@ class AdminService {
     return response.data;
   }
 
-  async updateStaff(id, staffData) {
-    const response = await apiClient.put(`/admin/staff/${id}`, staffData);
+  async updateUser(id, userData) {
+    const response = await apiClient.put(`/admin/users/${id}`, userData);
     return response.data;
   }
 

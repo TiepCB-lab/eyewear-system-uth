@@ -143,7 +143,6 @@
                 <div class="flex details-order-options">
                     <label><input type="radio" name="order_type" value="instock" checked> In-stock</label>
                     <label><input type="radio" name="order_type" value="preorder"> Pre-order (10-14 days)</label>
-                    <label><input type="radio" name="order_type" value="prescription"> Add Prescription Lens</label>
                 </div>
             </div>
             <p class="short__description">
@@ -659,6 +658,14 @@
             if (catId == 3) {
                 document.getElementById('details-container')?.classList.add('is-lens-product');
             }
+            
+            // Handle Sunglasses (Category 2) - Hide Lens Selection
+            if (catId == 2) {
+                const lensUI = document.getElementById('lens-selection-ui');
+                if (lensUI) lensUI.style.display = 'none';
+                const orderTypeUI = document.querySelector('.details-order-type');
+                if (orderTypeUI) orderTypeUI.style.display = 'none';
+            }
         } catch(e) {
             console.error("Failed to fetch product", e);
             alert("Product not found or connection error.");
@@ -896,7 +903,7 @@
         lensSelect.addEventListener("change", updatePricing);
         quantityInput.addEventListener("input", updatePricing);        // --- PRESCRIPTION MODAL LOGIC ---
         const prescriptionModal = document.getElementById('prescription-modal');
-        const openPrescriptionBtn = document.getElementById('open-prescription-btn');
+        const openPrescriptionBtn = document.getElementById('force-open-pres');
         const closePrescriptionBtn = document.getElementById('close-prescription-modal');
         const prescriptionForm = document.getElementById('prescription-form');
         const prescriptionToggle = document.getElementById('prescription-toggle-container');
@@ -907,7 +914,7 @@
         if (openPrescriptionBtn) {
             openPrescriptionBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                prescriptionModal.classList.add('active');
+                window.openPrescriptionModal();
             });
         }
         
@@ -926,21 +933,20 @@
             window.closePrescriptionModal();
         });
 
-        // Show/Hide prescription entry based on radio selection
-        document.querySelectorAll('input[name="order_type"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                if (e.target.value === 'prescription') {
-                    if (prescriptionToggle) prescriptionToggle.style.display = 'block';
-                    document.querySelector('.details-lens-group')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    if (lensSelect) {
-                        lensSelect.style.borderColor = 'var(--first-color)';
-                        setTimeout(() => lensSelect.style.borderColor = '', 2000);
-                    }
+        // Prescription Visibility Logic
+        function updatePrescriptionVisibility() {
+            const hasLens = lensSelect && lensSelect.value !== "";
+            const catId = product?.category?.id || product?.category_id;
+            
+            if (prescriptionToggle) {
+                // Show if it's a frame with a lens selected, OR if it's a standalone lens product
+                if ((catId == 1 && hasLens) || catId == 3) {
+                    prescriptionToggle.style.display = 'block';
                 } else {
-                    if (prescriptionToggle) prescriptionToggle.style.display = 'none';
+                    prescriptionToggle.style.display = 'none';
                 }
-            });
-        });
+            }
+        }
 
         // --- ADD TO CART LOGIC ---
         if(addToCartBtn) {
@@ -949,7 +955,12 @@
                 if (!selectedVariant || addToCartBtn.classList.contains('animating')) return;
 
                 const orderTypeEl = document.querySelector('input[name="order_type"]:checked');
-                const orderType = orderTypeEl ? orderTypeEl.value : 'instock';
+                let orderType = orderTypeEl ? orderTypeEl.value : 'instock';
+                
+                // If a lens is selected, it's automatically a prescription order
+                if (lensSelect && lensSelect.value !== "") {
+                    orderType = 'prescription';
+                }
 
                 // Intercept if it's a standalone lens product
                 const catId = product.category?.id || product.category_id;
@@ -970,11 +981,7 @@
                     }
                 }
 
-                if (orderType === 'prescription' && !window.prescriptionData) {
-                    await EvelensNotify.info('Prescription Needed', 'Please enter your prescription details first to continue with this lens package.');
-                    window.openPrescriptionModal();
-                    return;
-                }
+                // Prescription is optional, don't block adding to cart
                 
                 addToCartBtn.classList.add('animating');
                 try {
@@ -1093,7 +1100,7 @@
                             <span class="lens-card__price">+${format(0)}</span>
                         </div>
                     ` + lenses.map(l => `
-                        <div class="lens-card" data-id="${l.id}" data-price="${l.price}">
+                        <div class="lens-card" data-id="${l.id}" data-product-id="${l.product_id}" data-price="${l.price}" title="Double click to view lens details">
                             <img src="../../assets/images/lens/${getLensImg(l.name)}" 
                                  class="lens-card__img" alt="${l.name}" 
                                  onerror="this.src='../../assets/images/products/placeholder.png'">
@@ -1112,7 +1119,15 @@
                             // Sync with hidden select
                             lensSelect.value = card.dataset.id || "";
                             updatePricing();
+                            updatePrescriptionVisibility();
                         });
+
+                            // Double click to view lens details
+                            card.addEventListener('dblclick', () => {
+                                if (card.dataset.productId) {
+                                    window.location.href = `index.html?id=${card.dataset.productId}`;
+                                }
+                            });
                     });
                 } else {
                     cardsContainer.innerHTML = '<p class="info-text">No lens packages available for this frame.</p>';
@@ -1125,6 +1140,7 @@
         
         await initLenses();
         updatePricing();
+        updatePrescriptionVisibility();
       });
     </script>
     <!-- Standalone Lens Confirmation Modal -->

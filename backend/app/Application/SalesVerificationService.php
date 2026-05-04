@@ -10,18 +10,32 @@ class SalesVerificationService
     /**
      * Lấy danh sách các đơn hàng đang chờ xác minh (Staff)
      */
-    public function getPendingOrders(): array
+    public function getAllOrders(array $filters = []): array
     {
-        // Lấy đơn hàng có status pending hoặc paid nhưng chưa được verify
-        $db   = Database::getInstance();
-        $stmt = $db->query("SELECT * FROM `order` WHERE verified_by IS NULL AND status IN ('pending', 'paid', 'pending_payment', 'pending_confirmation') ORDER BY created_at ASC");
+        $db = Database::getInstance();
+        $sql = "SELECT u.full_name AS customer_name, o.*, p.payment_method, p.status AS payment_status 
+                FROM `order` o
+                JOIN `user` u ON o.user_id = u.id
+                LEFT JOIN payment p ON p.id = (SELECT MAX(id) FROM payment WHERE order_id = o.id)
+                WHERE 1=1";
+        $params = [];
 
-        $orders = [];
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $orders[] = $row;
+        if (!empty($filters['status'])) {
+            $sql .= " AND o.status = ?";
+            $params[] = $filters['status'];
         }
 
-        return $orders;
+        if (!empty($filters['search'])) {
+            $sql .= " AND (o.order_number LIKE ? OR u.full_name LIKE ?)";
+            $params[] = '%' . $filters['search'] . '%';
+            $params[] = '%' . $filters['search'] . '%';
+        }
+
+        $sql .= " ORDER BY o.placed_at DESC";
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     /**
@@ -101,14 +115,40 @@ class SalesVerificationService
     }
 
     /**
-     * Lấy lịch sử khiếu nại/đổi trả của một đơn hàng
+     * Cập nhật thông số độ cận (Prescription) cho một item trong đơn hàng
      */
-    public function getOrderComplaints(int $orderId): array
+    public function updatePrescription(int $orderItemId, array $data): bool
     {
         $db = Database::getInstance();
-        $stmt = $db->prepare("SELECT * FROM supportticket WHERE order_id = ? AND subject LIKE '[COMPLAINT]%' ORDER BY created_at DESC");
-        $stmt->execute([$orderId]);
-        $complaints = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        return $complaints;
+        
+        // Find the prescription_id for this order item
+        $stmt = $db->prepare("SELECT prescription_id FROM orderitem WHERE id = ?");
+        $stmt->execute([$orderItemId]);
+        $item = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+        if (!$item || !$item['prescription_id']) {
+            throw new \Exception('Prescription not found for this item');
+        }
+        
+        $prescriptionId = $item['prescription_id'];
+        
+        $fields = ['sph_od', 'sph_os', 'cyl_od', 'cyl_os', 'axis_od', 'axis_os', 'pd', 'notes'];
+        $updates = [];
+        $params = [];
+        
+        foreach ($fields as $field) {
+            if (isset($data[$field])) {
+                $updates[] = "$field = ?";
+                $params[] = $data[$field];
+            }
+        }
+        
+        if (empty($updates)) return true;
+        
+        $params[] = $prescriptionId;
+        $sql = "UPDATE prescription SET " . implode(', ', $updates) . " WHERE id = ?";
+        
+        $stmt = $db->prepare($sql);
+        return $stmt->execute($params);
     }
 }

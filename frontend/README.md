@@ -13,7 +13,7 @@ Dự án sử dụng cơ chế **Unified Dashboard Shell** (Vỏ Dashboard Hợp
     *   `layout-loader.js`: Tự động nạp Header, Footer, Sidebar dựa trên ngữ cảnh.
     *   `layout-guard.js`: Bảo vệ tuyến đường (Route Guard), ngăn chặn truy cập trái phép giữa Staff và Customer.
 *   **`js/services/`**: Các dịch vụ kết nối API (Catalog, Auth, Order, Payment...).
-*   **`pages/dashboard/`**:
+*   **`pages/portal/`**:
     *   `index.html`: Cửa ngõ duy nhất của Dashboard Staff.
     *   `modules/`: Các phân đoạn giao diện động (Overview, Inventory, Orders, Users, Analytics...) được nạp vào Shell dựa trên quyền của người dùng.
 *   **`layouts/`**: Chứa các thành phần giao diện dùng chung (Partial HTML).
@@ -27,7 +27,7 @@ Chúng ta thực thi chiến lược **Option A (Strict Separation)**:
 
 ## 🛠️ Quy trình Phát triển cho Thành viên
 
-1.  **Giao diện**: Các thành viên phát triển module của mình trong thư mục `pages/dashboard/modules/`.
+1.  **Giao diện**: Các thành viên phát triển module của mình trong thư mục `pages/portal/modules/`.
 2.  **Logic**: Viết logic JS tương ứng trong `js/dashboard/modules/`.
 3.  **Quyền hạn**: Sử dụng thuộc tính `data-permission` trên các phần tử HTML để tự động ẩn/hiện chức năng theo Role.
 4.  **Dữ liệu**: Gọi API thông qua các file trong `js/services/`.

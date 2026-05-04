@@ -59,6 +59,17 @@ class DashboardController {
         window.addEventListener('popstate', () => {
             this.handleInitialLoad();
         });
+
+        // Handle Logout
+        document.addEventListener('click', async (e) => {
+            const logoutBtn = e.target.closest('#sidebar-logout');
+            if (logoutBtn) {
+                e.preventDefault();
+                const { default: authService } = await import('../services/authService.js');
+                await authService.logout();
+                window.location.href = '/pages/auth/index.html';
+            }
+        });
     }
 
     toggleOverlay(show) {
@@ -98,15 +109,15 @@ class DashboardController {
             // Map view names to permissions. We use arrays so multiple roles can access common modules.
             const viewPermissions = {
                 'overview':  null, // Public staff overview
-                'orders':    ['view_orders', 'update_order_status'], // Sales or Operations
-                'support':   ['contact_customer'], // Sales
-                'inventory': ['process_preorder_inventory', 'manage_products'], // Operations or Manager
-                'products':  ['manage_products'], // Manager
-                'analytics': ['view_reports'], // Manager
-                'users':     ['manage_users', 'manage_all_users', 'manage_roles'], // Manager or Admin
-                'settings':  ['manage_system_config'], // Admin
-                'profile':   null, // Self-profile is allowed for all staff
-                'ops':       ['pack_order', 'create_shipment'], // Operations module
+                'orders':    ['view_orders', 'confirm_order', 'update_order_status'], 
+                'support':   ['contact_customer', 'handle_returns'], 
+                'inventory': ['process_preorder_inventory', 'manage_products'], 
+                'products':  ['manage_products'], 
+                'analytics': ['view_reports'], 
+                'users':     ['manage_users', 'manage_all_users'], 
+                'settings':  ['manage_system_config'], 
+                'profile':   null, 
+                'ops':       ['pack_order', 'create_shipment'], 
             };
 
             const requiredPermission = viewPermissions[viewName];
@@ -116,7 +127,7 @@ class DashboardController {
             }
 
             // Load module HTML
-            const moduleUrl = new URL(`../../pages/dashboard/modules/${viewName}.html`, import.meta.url);
+            const moduleUrl = new URL(`../../pages/portal/modules/${viewName}.html`, import.meta.url);
             const response = await fetch(moduleUrl);
             if (!response.ok) throw new Error(`Module ${viewName} not found`);
             

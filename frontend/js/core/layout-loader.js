@@ -237,7 +237,7 @@
                         <i class="fi fi-rs-settings-sliders"></i> My Profile
                     </a>
                     ${isStaff ? `
-                    <a href="${projectRoot}pages/dashboard/index.html" class="dropdown__item dropdown__item--accent">
+                    <a href="${projectRoot}pages/portal/index.html" class="dropdown__item dropdown__item--accent">
                         <i class="fi fi-rs-apps"></i> Admin Dashboard
                     </a>
                     ` : ''}
@@ -259,7 +259,7 @@
                     <i class="fi fi-rs-angle-small-down"></i>
                 </div>
                 <div class="user-dropdown user-dropdown--align-right">
-                    <a href="${projectRoot}pages/dashboard/index.html?view=profile" class="dropdown__item">
+                    <a href="${projectRoot}pages/portal/index.html?view=profile" class="dropdown__item">
                         <i class="fi fi-rs-user"></i> My Profile
                     </a>
                     ${isCustomer ? `

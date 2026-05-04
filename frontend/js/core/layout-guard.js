@@ -39,7 +39,7 @@ class LayoutGuard {
         const isShopRoute = (this.path === '/' || this.path.includes('/shop/') || this.path === '/index.html');
         if (isShopRoute && authService.isStaff() && !authService.isCustomer()) {
              console.warn('LayoutGuard: Staff user on shop route without Customer role. Redirecting to dashboard...');
-               window.location.href = '/pages/dashboard/index.html';
+               window.location.href = '/pages/portal/index.html';
              return;
         }
     }

@@ -17,12 +17,13 @@ class SalesController extends BaseController
     }
 
     /**
-     * Get pending orders for verification (Staff only).
+     * Get orders for sales staff (with filtering).
      */
-    public function pendingOrders()
+    public function listOrders()
     {
         try {
-            $orders = $this->salesService->getPendingOrders();
+            $filters = $_GET;
+            $orders = $this->salesService->getAllOrders($filters);
             return ApiResponse::success($orders);
         } catch (Exception $e) {
             return ApiResponse::serverError($e->getMessage());
@@ -86,18 +87,39 @@ class SalesController extends BaseController
     }
 
     /**
-     * Get order complaints history.
+     * Update prescription for an order item.
      */
-    public function orderComplaints()
+    public function updatePrescription()
     {
-        $orderId = $this->query('order_id');
-        if (!$orderId) {
-            return ApiResponse::validationError('order_id query parameter is required');
+        $input = $this->getJsonInput();
+        $orderItemId = $input['order_item_id'] ?? null;
+        
+        if (!$orderItemId) {
+            return ApiResponse::validationError('order_item_id is required');
         }
-
+        
         try {
-            $complaints = $this->salesService->getOrderComplaints((int)$orderId);
-            return ApiResponse::success($complaints);
+            $this->salesService->updatePrescription((int)$orderItemId, $input);
+            return ApiResponse::success(null, 'Prescription updated successfully');
+        } catch (Exception $e) {
+            return ApiResponse::error($e->getMessage());
+        }
+    }
+
+    /**
+     * Get single order detail for staff.
+     */
+    public function showOrder($id)
+    {
+        try {
+            $orderService = new \App\Application\OrderService();
+            $order = $orderService->getOrderDetail((int)$id);
+            
+            if (!$order) {
+                return ApiResponse::notFound('Order not found');
+            }
+            
+            return ApiResponse::success($order);
         } catch (Exception $e) {
             return ApiResponse::serverError($e->getMessage());
         }
