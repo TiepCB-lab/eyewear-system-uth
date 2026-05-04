@@ -30,10 +30,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 
                 tr.innerHTML = `
                     <td>
-                        <img src="${fixImagePath(item.thumbnail)}" alt="${item.name}" class="table__img" data-fallback-src="../../assets/images/products/placeholder.png"/>
+                        <a href="../details/index.html?id=${item.product_id}">
+                            <img src="${fixImagePath(item.thumbnail)}" alt="${item.name}" class="table__img" data-fallback-src="../../assets/images/products/placeholder.png"/>
+                        </a>
                     </td>
                     <td>
-                        <h3 class="table__title">${item.name}</h3>
+                        <a href="../details/index.html?id=${item.product_id}">
+                            <h3 class="table__title">${item.name}</h3>
+                        </a>
                         <p class="table__description">${item.brand || 'Premium Brand'}</p>
                     </td>
                     <td><span class="table__price">${window.formatVND ? window.formatVND(item.base_price) : '$' + item.base_price}</span></td>
@@ -84,7 +88,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
-            await CartService.addToCart(firstVariantId, 1);
+            await CartService.addToCart({ variant_id: firstVariantId, quantity: 1 });
             alert('Added to cart!');
             window.dispatchEvent(new CustomEvent('content-loaded', { detail: { path: 'layout/Header' } }));
         } catch (err) {

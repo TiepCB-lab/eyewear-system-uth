@@ -6,6 +6,11 @@ class ProductService {
         return response.data;
     }
 
+    async getFeaturedProducts() {
+        const response = await apiClient.get('/products/featured');
+        return response.data;
+    }
+
     async getProduct(id) {
         const response = await apiClient.get(`/products/${id}`);
         return response.data;

@@ -115,7 +115,7 @@ const QuickView = {
                 
                 try {
                     const { default: cartService } = await import(projectRoot + 'js/services/cartService.js');
-                    await cartService.addToCart(variantId, 1);
+                    await cartService.addToCart({ variant_id: variantId, quantity: 1 });
                     
                     setTimeout(() => {
                         addBtn.classList.remove('animating');
