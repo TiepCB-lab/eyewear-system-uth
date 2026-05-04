@@ -10,7 +10,7 @@ class LensService
     {
         $db = Database::getInstance();
         $stmt = $db->query(
-            'SELECT id, name, type, lens_type, material, index_value, coating, price, created_at, updated_at
+            'SELECT id, product_id, name, type, lens_type, material, index_value, coating, price, created_at, updated_at
              FROM lens
              ORDER BY price ASC, name ASC, id ASC'
         );
@@ -18,6 +18,7 @@ class LensService
         return array_map(static function (array $lens): array {
             return [
                 'id' => (int) $lens['id'],
+                'product_id' => $lens['product_id'] !== null ? (int) $lens['product_id'] : null,
                 'name' => $lens['name'],
                 'type' => $lens['type'],
                 'lens_type' => $lens['lens_type'],
@@ -80,6 +81,7 @@ class LensService
 
             $availableLenses[] = [
                 'id' => (int) $lens['id'],
+                'product_id' => $lens['product_id'],
                 'name' => $lens['name'],
                 'type' => $lens['type'],
                 'lens_type' => $lens['lens_type'],

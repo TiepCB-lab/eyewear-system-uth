@@ -18,7 +18,7 @@ class CartService
     public function getCart(int $userId)
     {
         $stmt = $this->db->prepare("
-            SELECT ci.*, pv.sku, pv.color, pv.size, pv.image_2d_url, p.name as product_name, p.base_price, 
+            SELECT ci.*, pv.product_id, pv.sku, pv.color, pv.size, pv.image_2d_url, p.name as product_name, p.base_price, 
                    pv.additional_price, l.name as lens_name, l.price as lens_price,
                    pre.sph_od, pre.sph_os, pre.cyl_od, pre.cyl_os, pre.axis_od, pre.axis_os, pre.pd
             FROM cart c
@@ -42,10 +42,37 @@ class CartService
                 $subtotal += ($item['unit_price'] * $item['quantity']);
             }
         }
+
+        // Kiểm tra xem giỏ hàng có đang áp dụng mã giảm giá nào không
+        $stmt = $this->db->prepare("
+            SELECT p.* 
+            FROM cart c
+            JOIN promotion p ON c.promotion_id = p.id
+            WHERE c.user_id = ? AND c.status = 'active' AND p.is_active = 1
+              AND NOW() BETWEEN p.starts_at AND p.ends_at
+        ");
+        $stmt->execute([$userId]);
+        $promo = $stmt->fetch();
+
+        $discount = 0;
+        if ($promo) {
+            if ($promo['discount_type'] === 'percentage') {
+                $discount = $subtotal * ($promo['discount_value'] / 100);
+            } else {
+                // Giảm theo số tiền cố định
+                $discount = $promo['discount_value'];
+            }
+        }
+
+        $total = max(0, $subtotal - $discount);
+
         return [
             'subtotal' => $subtotal,
-            'shipping' => 0, // Placeholder
-            'total' => $subtotal
+            'discount' => $discount,
+            'promotion_id' => $promo ? $promo['id'] : null,
+            'promotion_code' => $promo ? $promo['code'] : null,
+            'shipping' => 0,
+            'total' => $total
         ];
     }
 
@@ -171,6 +198,42 @@ class CartService
             WHERE c.user_id = ? AND c.status = 'active'
         ");
         return $stmt->execute([$selected ? 1 : 0, $userId]);
+    }
+
+    /**
+     * Áp dụng mã giảm giá vào giỏ hàng.
+     */
+    public function applyVoucher(int $userId, string $code)
+    {
+        // 1. Tìm mã giảm giá hợp lệ
+        $stmt = $this->db->prepare("
+            SELECT * FROM promotion 
+            WHERE code = ? AND is_active = 1 AND NOW() BETWEEN starts_at AND ends_at
+        ");
+        $stmt->execute([$code]);
+        $promo = $stmt->fetch();
+
+        if (!$promo) {
+            throw new Exception("Mã giảm giá không tồn tại hoặc đã hết hạn.");
+        }
+
+        // 2. Cập nhật vào giỏ hàng của user
+        $cartId = $this->getOrCreateCart($userId);
+        $stmt = $this->db->prepare("UPDATE cart SET promotion_id = ? WHERE id = ?");
+        $stmt->execute([$promo['id'], $cartId]);
+
+        return $promo;
+    }
+
+    /**
+     * Hủy bỏ mã giảm giá.
+     */
+    public function removeVoucher(int $userId)
+    {
+        $cartId = $this->getOrCreateCart($userId);
+        $stmt = $this->db->prepare("UPDATE cart SET promotion_id = NULL WHERE id = ?");
+        $stmt->execute([$cartId]);
+        return true;
     }
 
     private function getOrCreateCart(int $userId)

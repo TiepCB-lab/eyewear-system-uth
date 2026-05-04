@@ -117,4 +117,21 @@ class ProductController extends BaseController
 
         return ApiResponse::success(array_slice($items, 0, $limit));
     }
+
+    public function featured()
+    {
+        try {
+            $newReleases = $this->catalogService->searchProducts(['per_page' => 8, 'sort' => 'newest']);
+            $deals = $this->catalogService->searchProducts(['per_page' => 8, 'sort' => 'random']);
+            $topSelling = $this->catalogService->searchProducts(['per_page' => 8, 'sort' => 'popular']);
+
+            return ApiResponse::success([
+                'new_releases' => $newReleases['data'] ?? [],
+                'deals' => $deals['data'] ?? [],
+                'top_selling' => $topSelling['data'] ?? []
+            ]);
+        } catch (\Exception $e) {
+            return ApiResponse::serverError($e->getMessage());
+        }
+    }
 }

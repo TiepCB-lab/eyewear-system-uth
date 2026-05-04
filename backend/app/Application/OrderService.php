@@ -7,12 +7,13 @@ use Core\Database;
 class OrderService
 {
     private const ORDER_WORKFLOW = [
-        'pending'    => ['confirmed', 'cancelled'],
-        'confirmed'  => ['processing', 'cancelled'],
-        'processing' => ['shipped', 'cancelled'],
-        'shipped'    => ['completed'],
-        'completed'  => [],
-        'cancelled'  => []
+        'pending'              => ['confirmed', 'cancelled'],
+        'pending_confirmation' => ['confirmed', 'cancelled'],
+        'confirmed'            => ['processing', 'cancelled'],
+        'processing'           => ['shipped', 'cancelled'],
+        'shipped'              => ['completed'],
+        'completed'            => [],
+        'cancelled'            => []
     ];
 
     public function transitionStatus(int $orderId, string $newStatus, int $staffId): bool
@@ -67,10 +68,11 @@ class OrderService
         $db = Database::getInstance();
         $stmt = $db->prepare(
             'SELECT o.id, o.order_number, o.status, o.total_amount, o.placed_at, o.production_step,
-                    COALESCE(p.status, o.status) AS payment_status
+                    p.payment_method, COALESCE(p.status, o.status) AS payment_status
              FROM `order` o
              LEFT JOIN payment p ON p.order_id = o.id
              WHERE o.user_id = ?
+             GROUP BY o.id
              ORDER BY o.placed_at DESC'
         );
         $stmt->execute([$userId]);

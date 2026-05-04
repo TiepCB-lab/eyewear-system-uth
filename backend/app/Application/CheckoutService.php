@@ -49,37 +49,47 @@ class CheckoutService
             $totals = $this->cartService->getCartTotals($userId);
             $orderNumber = 'ORD-' . strtoupper(uniqid());
 
-            // Determine Order Type and Status
-            $orderType = 'stock';
+            // 1. Xác định trạng thái đơn hàng ban đầu
             $status = 'pending';
+            $orderType = 'stock';
 
             foreach ($cartItems as $item) {
                 if (!empty($item['prescription_id']) || !empty($item['lens_id'])) {
                     $orderType = 'prescription';
-                    $status = 'pending'; // Staff will know it requires verification via order_type
+                    $status = 'pending_confirmation'; // Bắt buộc nhân viên duyệt cho kính thuốc
                     break;
                 }
             }
 
-            // 1. Create Order
+            // 2. Tạo đơn hàng
             $stmt = $this->db->prepare("
                 INSERT INTO `order` (
-                    user_id, order_number, total_amount, shipping_address, billing_address, 
-                    status, order_type, placed_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
+                    user_id, order_number, total_amount, discount_amount, shipping_address, billing_address, 
+                    status, order_type, promotion_id, placed_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
             ");
             
             $stmt->execute([
                 $userId,
                 $orderNumber,
                 $totals['total'],
+                $totals['discount'] ?? 0,
                 $checkoutData['shipping_address'],
                 $checkoutData['billing_address'] ?? $checkoutData['shipping_address'],
                 $status,
-                $orderType
+                $orderType,
+                $totals['promotion_id'] ?? null
             ]);
 
             $orderId = $this->db->lastInsertId();
+
+            // 3. Khởi tạo bản ghi thanh toán
+            $paymentMethod = $checkoutData['payment_method'] ?? 'cod';
+            $stmtPayment = $this->db->prepare("
+                INSERT INTO payment (order_id, payment_method, amount, status)
+                VALUES (?, ?, ?, 'pending')
+            ");
+            $stmtPayment->execute([$orderId, $paymentMethod, $totals['total']]);
 
             // 2. Process Items
             foreach ($cartItems as $item) {

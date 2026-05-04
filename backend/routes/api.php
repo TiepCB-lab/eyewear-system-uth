@@ -47,6 +47,7 @@ Router::group(['prefix' => 'api/v1'], function () {
     // --- PUBLIC PRODUCT ROUTES ---
     Router::group(['prefix' => 'products'], function () {
         Router::get('/', [ProductController::class, 'index']);
+        Router::get('featured', [ProductController::class, 'featured']);
         Router::get('categories', [CategoryController::class, 'index']);
         Router::get('brands', [ProductController::class, 'brands']);
         Router::get('lenses/available', [LensController::class, 'available']);
@@ -73,6 +74,8 @@ Router::group(['prefix' => 'api/v1'], function () {
         Router::group(['prefix' => 'cart', 'middleware' => 'permission:manage_cart'], function () {
             Router::get('/', [CartController::class, 'index']);
             Router::post('/', [CartController::class, 'store']);
+            Router::post('voucher', [CartController::class, 'applyVoucher']);
+            Router::delete('voucher', [CartController::class, 'removeVoucher']);
             Router::put('items/{id}', [CartController::class, 'update']);
             Router::delete('items/{id}', [CartController::class, 'destroy']);
             Router::post('toggle-selection', [CartController::class, 'toggleSelection']);

@@ -160,4 +160,42 @@ class CartController extends BaseController
         return ApiResponse::notFound('Item not found');
     }
 
+    /**
+     * Áp dụng mã giảm giá.
+     */
+    public function applyVoucher()
+    {
+        $userId = $this->getUserId();
+        if (!$userId) return ApiResponse::unauthorized();
+
+        $data = $this->getJsonInput();
+        $code = $data['code'] ?? null;
+
+        if (!$code) {
+            return ApiResponse::validationError('Voucher code is required.');
+        }
+
+        try {
+            $promo = $this->cartService->applyVoucher($userId, $code);
+            return ApiResponse::success($promo, 'Mã giảm giá đã được áp dụng.');
+        } catch (Exception $e) {
+            return ApiResponse::error($e->getMessage());
+        }
+    }
+
+    /**
+     * Hủy mã giảm giá.
+     */
+    public function removeVoucher()
+    {
+        $userId = $this->getUserId();
+        if (!$userId) return ApiResponse::unauthorized();
+
+        try {
+            $this->cartService->removeVoucher($userId);
+            return ApiResponse::success(null, 'Đã hủy mã giảm giá.');
+        } catch (Exception $e) {
+            return ApiResponse::error($e->getMessage());
+        }
+    }
 }
