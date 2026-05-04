@@ -63,21 +63,6 @@ async function fetchFilters() {
         console.warn("Failed to fetch categories:", err);
     }
 
-    // Load brands dynamically
-    try {
-        const brandRes = await api.client.get('/products/brands');
-        const brands = brandRes.data?.data || [];
-        const brandContainer = document.querySelector('#brandFilters .filter-options');
-        if (brandContainer && brands.length > 0) {
-            brandContainer.innerHTML = brands.map(b => `
-                <label class="filter-option">
-                    <input type="checkbox" name="brand" value="${b}"> ${b}
-                </label>
-            `).join('');
-        }
-    } catch (err) {
-        console.warn("Failed to fetch brands:", err);
-    }
 }
 
 async function loadProductCardTemplate() {
@@ -203,16 +188,12 @@ function initFilters() {
         const input = e.target;
         if (input.type === 'checkbox') {
             const val = input.value;
-            // Determine if it's category or brand based on parent ID
+            // Determine if it's category based on parent ID
             const isCategory = input.closest('#categoryFilters');
-            const isBrand = input.closest('#brandFilters');
             
             if (isCategory) {
                 if (input.checked) state.category_ids.push(val);
                 else state.category_ids = state.category_ids.filter(id => id !== val);
-            } else if (isBrand) {
-                if (input.checked) state.brands.push(val);
-                else state.brands = state.brands.filter(b => b !== val);
             }
             state.page = 1; // Reset to page 1 on filter change
             fetchProducts();
