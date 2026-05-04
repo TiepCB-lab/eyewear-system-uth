@@ -22,6 +22,7 @@ const AddressEditor = {
 
         if (!this.form) return;
 
+        // Province change handler
         this.provinceSelect?.addEventListener('change', () => {
             const pCode = this.provinceSelect.value;
             if (pCode) this.loadWards(pCode);
@@ -31,10 +32,29 @@ const AddressEditor = {
             }
         });
 
+        // Close buttons handlers
+        const closeBtns = ['cancel-address-edit', 'cancel-address-edit-x'];
+        closeBtns.forEach(id => {
+            const btn = document.getElementById(id);
+            if (btn) btn.onclick = () => this.close();
+        });
+
+        // Character counters
+        const setupCounter = (inputId, maxLength) => {
+            const input = document.getElementById(inputId);
+            const counter = input?.parentElement?.querySelector('.input-char-count');
+            if (input && counter) {
+                input.addEventListener('input', () => {
+                    const length = input.value.length;
+                    counter.textContent = `${length}/${maxLength}`;
+                    counter.style.color = length > maxLength ? '#f56565' : '#ccc';
+                });
+            }
+        };
+        setupCounter('address-label-input', 50);
+        setupCounter('address-street-input', 120);
+
         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
-        
-        const cancelBtn = document.getElementById('cancel-address-edit');
-        if (cancelBtn) cancelBtn.onclick = () => this.close();
     },
 
     open: function(address = null) {
@@ -43,6 +63,13 @@ const AddressEditor = {
         this.overlay.hidden = false;
         this.form.reset();
 
+        // Reset character counters
+        document.querySelectorAll('.input-char-count').forEach(c => {
+            const max = c.textContent.split('/')[1];
+            c.textContent = `0/${max}`;
+            c.style.color = '#ccc';
+        });
+
         const title = document.getElementById('address-editor-title');
         if (address) {
             if (title) title.textContent = 'Edit Address';
@@ -50,6 +77,9 @@ const AddressEditor = {
             this.form.label.value = address.label;
             this.form.phone.value = address.phone;
             this.form.is_default.checked = !!address.is_default;
+            
+            // Trigger input events to update counters
+            document.getElementById('address-label-input')?.dispatchEvent(new Event('input'));
         } else {
             if (title) title.textContent = 'Add New Address';
             this.form.id.value = '';
@@ -78,7 +108,7 @@ const AddressEditor = {
             const response = await fetch('https://provinces.open-api.vn/api/v2/p/');
             const provinces = await response.json();
             
-            this.provinceSelect.innerHTML = '<option value="">Select Province/City (2025 Standard)</option>';
+            this.provinceSelect.innerHTML = '<option value="">Select Province/City</option>';
             provinces.sort((a, b) => a.name.localeCompare(b.name, 'vi')).forEach(p => {
                 const option = document.createElement('option');
                 option.value = p.code;
@@ -90,6 +120,8 @@ const AddressEditor = {
                 const parts = address.address.split(',').map(s => s.trim());
                 if (parts.length >= 3) {
                     this.streetInput.value = parts[0];
+                    document.getElementById('address-street-input')?.dispatchEvent(new Event('input'));
+
                     const wardName = parts[1];
                     const provinceName = parts[2];
 
@@ -151,8 +183,9 @@ const AddressEditor = {
         const id = data.id;
         delete data.id;
         data.is_default = !!data.is_default;
-        data.address = fullAddress; // Ensure address is set
+        data.address = fullAddress;
 
+        const loader = await EvelensNotify.loading('Saving address...');
         try {
             if (id) {
                 await profileService.updateAddress(id, data);
@@ -161,9 +194,19 @@ const AddressEditor = {
             }
             this.close();
             if (this.onSaveSuccess) this.onSaveSuccess();
-            if (window.alert) window.alert('Address saved successfully!');
+            await loader.update({
+                type: 'success',
+                title: 'Saved!',
+                desc: 'Your address has been saved successfully.',
+                btnText: 'Great'
+            });
         } catch (err) {
-            if (window.alert) window.alert('Failed to save address: ' + (err.response?.data?.message || err.message));
+            await loader.update({
+                type: 'error',
+                title: 'Error',
+                desc: 'Failed to save address: ' + (err.response?.data?.message || err.message),
+                btnText: 'Try Again'
+            });
         }
     }
 };

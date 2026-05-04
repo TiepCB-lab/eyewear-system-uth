@@ -3,7 +3,8 @@
 define('APP_ROOT', dirname(__DIR__));
 
 if (!function_exists('env_value')) {
-    function env_value(array $config, array $keys, $default = null) {
+    function env_value(array $config, array $keys, $default = null)
+    {
         foreach ($keys as $key) {
             if (isset($config[$key]) && $config[$key] !== '') {
                 return $config[$key];
@@ -14,7 +15,8 @@ if (!function_exists('env_value')) {
 }
 
 if (!function_exists('parse_env_file')) {
-    function parse_env_file(string $path): array {
+    function parse_env_file(string $path): array
+    {
         $result = [];
         $lines = @file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         if ($lines === false) {
@@ -43,7 +45,8 @@ if (!function_exists('parse_env_file')) {
 }
 
 if (!function_exists('load_env_config')) {
-    function load_env_config(): array {
+    function load_env_config(): array
+    {
         foreach ([
             APP_ROOT . DIRECTORY_SEPARATOR . '.env.local',
             APP_ROOT . DIRECTORY_SEPARATOR . '.env',
@@ -127,25 +130,48 @@ try {
 
     $rolePermissions = [
         'CUSTOMER' => [
-            'view_products', 'search_products', 'view_product_detail', 'manage_cart', 
-            'create_order', 'checkout', 'make_payment', 'view_own_orders', 
-            'request_return', 'manage_profile'
+            'view_products',
+            'search_products',
+            'view_product_detail',
+            'manage_cart',
+            'create_order',
+            'checkout',
+            'make_payment',
+            'view_own_orders',
+            'request_return',
+            'manage_profile'
         ],
         'SALES_STAFF' => [
-            'view_orders', 'validate_prescription', 'contact_customer', 
-            'confirm_order', 'handle_preorder', 'handle_returns'
+            'view_orders',
+            'validate_prescription',
+            'contact_customer',
+            'confirm_order',
+            'handle_preorder',
+            'handle_returns'
         ],
         'OPERATIONS_STAFF' => [
-            'view_orders', 'pack_order', 'create_shipment', 'update_tracking', 
-            'process_preorder_inventory', 'process_prescription_orders', 'update_order_status'
+            'view_orders',
+            'pack_order',
+            'create_shipment',
+            'update_tracking',
+            'process_preorder_inventory',
+            'process_prescription_orders',
+            'update_order_status'
         ],
         'MANAGER' => [
-            'manage_products', 'manage_pricing', 'manage_promotions', 
-            'manage_users', 'view_reports', 'manage_policies'
+            'manage_products',
+            'manage_pricing',
+            'manage_promotions',
+            'manage_users',
+            'view_reports',
+            'manage_policies'
         ],
         'ADMIN' => [
-            'manage_roles', 'manage_permissions', 'manage_system_config', 
-            'manage_all_users', 'view_system_logs'
+            'manage_roles',
+            'manage_permissions',
+            'manage_system_config',
+            'manage_all_users',
+            'view_system_logs'
         ]
     ];
 
@@ -517,6 +543,18 @@ try {
             'stock' => 28,
             'count' => 7,
         ],
+        [
+            'category' => 'gong-kinh',
+            'prefix' => 'EVLS Sold Out Edition',
+            'model' => 'EVLS-SOE',
+            'brand' => 'EVLS Premium',
+            'gender' => 'unisex',
+            'color' => 'Gold',
+            'size' => 'M',
+            'base_price' => 1200000,
+            'stock' => 0, // Out of stock for testing
+            'count' => 2,
+        ],
     ];
 
     $sunglassesImages = [
@@ -570,10 +608,9 @@ try {
             ]);
 
             // TỰ ĐỘNG LIÊN KẾT VỚI BẢNG LENS NẾU LÀ TRÒNG KÍNH
-            // TỰ ĐỘNG LIÊN KẾT VỚI BẢNG LENS NẾU LÀ TRÒNG KÍNH
             if ($group['category'] === 'trong-kinh') {
                 $lensDetails = $group['lens_details'] ?? [];
-                
+
                 // Tự động bóc tách chiết suất (Index) từ tên (ví dụ: "1.67")
                 $indexValue = $lensDetails['index_value'] ?? 1.56;
                 if (!isset($lensDetails['index_value'])) {
@@ -610,7 +647,7 @@ try {
 
     echo "Successfully seeded product data.\n";
 
-    $passHash = password_hash('password123', PASSWORD_DEFAULT);
+    $passHash = password_hash('123', PASSWORD_DEFAULT);
     $pdo->exec("\n        INSERT INTO `user` (full_name, email, password_hash, status) VALUES\n            ('System Admin', 'admin@eyewear.com', '$passHash', 'active'),\n            ('Project Manager', 'manager@eyewear.com', '$passHash', 'active'),\n            ('Sales Staff', 'sales@eyewear.com', '$passHash', 'active'),\n            ('Operations Staff', 'operations@eyewear.com', '$passHash', 'active'),\n            ('Test Customer', 'customer@eyewear.com', '$passHash', 'active')\n        ON DUPLICATE KEY UPDATE full_name = VALUES(full_name);\n    ");
 
     $adminId = $pdo->query("SELECT id FROM `user` WHERE email = 'admin@eyewear.com'")->fetchColumn();

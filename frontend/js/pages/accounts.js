@@ -34,7 +34,7 @@ function formatBirthdate(value) {
 }
 
 function normalizeAvatarUrl(avatar) {
-    if (!avatar) return '../../assets/images/avatar-1.jpg';
+    if (!avatar) return '../../assets/images/avatars/avatar-1.jpg';
     if (avatar.startsWith('http')) return avatar;
     return `http://localhost:8000/${avatar.replace(/^\/+/, '')}`;
 }

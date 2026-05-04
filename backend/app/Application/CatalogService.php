@@ -232,7 +232,29 @@ class CatalogService
 			'in_stock' => $totalStock > 0,
 			'created_at' => $product['created_at'],
 			'updated_at' => $product['updated_at'],
+			'lens_details' => null
 		];
+
+		// If it's a lens product (Category 3), fetch lens details
+		if ($product['category_id'] == 3) {
+			$lensSql = 'SELECT * FROM lens WHERE product_id = ? LIMIT 1';
+			$lensStmt = $db->prepare($lensSql);
+			$lensStmt->execute([(int) $product['id']]);
+			$lensRow = $lensStmt->fetch();
+			if ($lensRow) {
+				$result['lens_details'] = [
+					'id' => (int) $lensRow['id'],
+					'lens_type' => $lensRow['lens_type'],
+					'type' => $lensRow['type'],
+					'material' => $lensRow['material'],
+					'index_value' => (float) $lensRow['index_value'],
+					'coating' => $lensRow['coating'],
+					'price' => (float) $lensRow['price']
+				];
+			}
+		}
+
+		return $result;
 	}
 
 	public function getCategoriesList(bool $activeOnly = true): array

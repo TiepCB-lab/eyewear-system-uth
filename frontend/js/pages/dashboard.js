@@ -129,6 +129,11 @@ class DashboardController {
             // Re-run scripts in the module
             this.executeModuleScripts(this.modulesContainer);
 
+            // Trigger global permission check for the new content
+            window.dispatchEvent(new CustomEvent('content-loaded', { 
+                detail: { path: `dashboard/modules/${viewName}` } 
+            }));
+
         } catch (error) {
             console.error('Module load error:', error);
             this.modulesContainer.innerHTML = `<div class="error-msg">Error loading module: ${error.message}</div>`;
