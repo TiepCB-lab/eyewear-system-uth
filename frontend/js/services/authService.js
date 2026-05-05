@@ -12,7 +12,7 @@ class AuthService {
     const data = body.data; // The inner data containing user and token
     
     if (data && data.token) {
-      localStorage.setItem('auth_token', data.token);
+      sessionStorage.setItem('auth_token', data.token);
       this.saveUserInfo(data.user);
       apiClient.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
     }
@@ -61,7 +61,7 @@ class AuthService {
 
   async logout() {
     const response = await apiClient.post('/auth/logout');
-    localStorage.removeItem('auth_token');
+    sessionStorage.removeItem('auth_token');
     delete apiClient.defaults.headers.common['Authorization'];
     return response.data;
   }
@@ -72,15 +72,15 @@ class AuthService {
   }
 
   isAuthenticated() {
-    return !!localStorage.getItem('auth_token');
+    return !!sessionStorage.getItem('auth_token');
   }
 
   getToken() {
-    return localStorage.getItem('auth_token');
+    return sessionStorage.getItem('auth_token');
   }
 
   getUserRoles() {
-    const userJson = localStorage.getItem('user_info');
+    const userJson = sessionStorage.getItem('user_info');
     if (!userJson) return [];
     try {
       const user = JSON.parse(userJson);
@@ -110,7 +110,7 @@ class AuthService {
   }
 
   getUserPermissions() {
-    const userJson = localStorage.getItem('user_info');
+    const userJson = sessionStorage.getItem('user_info');
     if (!userJson) return [];
     try {
       const user = JSON.parse(userJson);
@@ -133,7 +133,7 @@ class AuthService {
   }
 
   saveUserInfo(user) {
-    localStorage.setItem('user_info', JSON.stringify(user));
+    sessionStorage.setItem('user_info', JSON.stringify(user));
   }
 }
 
