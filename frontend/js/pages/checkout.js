@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const payResponse = await paymentService.processPayment(orderData.order_id, paymentMethod, orderData.total);
             const isPaid = payResponse.data?.status === 'paid';
 
-            if (orderData.status === 'pending_confirmation') {
+            if (orderData.order_type === 'prescription') {
                 loader.update({
                     type: 'success',
                     title: 'Order Placed!',

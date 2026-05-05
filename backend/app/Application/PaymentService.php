@@ -17,28 +17,22 @@ class PaymentService
             throw new \Exception('Order not found');
         }
 
-        // 1. Xác định trạng thái dựa trên phương thức
-        $status = in_array($method, ['card', 'e_wallet']) ? 'paid' : 'pending';
+        // 1. Xác định trạng thái thanh toán dựa trên phương thức (case-insensitive)
+        $methodLower = strtolower($method);
+        $paymentStatus = in_array($methodLower, ['card', 'e_wallet', 'momo']) ? 'paid' : 'pending';
 
-        // 2. Tạo bản ghi Payment
+        // 2. Tạo bản ghi Payment (chỉ record payment, không update order status)
         $transactionRef = strtoupper(bin2hex(random_bytes(5)));
         $payment = Payment::create([
             'order_id' => $orderId,
             'payment_method' => $method,
             'amount' => $amount,
-            'status' => $status,
+            'status' => $paymentStatus,
             'transaction_ref' => $transactionRef,
-            'paid_at' => $status === 'paid' ? date('Y-m-d H:i:s') : null,
+            'paid_at' => $paymentStatus === 'paid' ? date('Y-m-d H:i:s') : null,
         ]);
 
-        // 3. Cập nhật Order status để chuyển qua Sales Verification
-        // Không set 'verified' - chỉ update status để follow workflow
-        if ($status === 'paid') {
-            $order->update([
-                'status' => 'paid',
-                // Nhân viên sales sẽ verify sau
-            ]);
-        }
+        // Order status vẫn 'pending' cho đến khi staff verify
 
         return $payment->toArray();
     }

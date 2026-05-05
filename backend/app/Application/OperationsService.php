@@ -39,8 +39,8 @@ class OperationsService
 
         $orderService = new \App\Application\OrderService();
 
-        // If order is still 'confirmed', move it to 'processing' to start production
-		if ($order->status === 'confirmed') {
+        // If order is still 'paid', move it to 'processing' to start production
+		if ($order->status === 'paid') {
 			$orderService->transitionStatus($orderId, 'processing', 0); // System/Ops transition
 		}
 
@@ -155,7 +155,7 @@ class OperationsService
 		return self::PRODUCTION_FLOW[$index + 1] ?? null;
 	}
 
-	private function normalizeString($value): ?string
+	private function normalizeString(mixed $value): ?string
 	{
 		$value = is_string($value) ? trim($value) : '';
 		return $value !== '' ? $value : null;

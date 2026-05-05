@@ -39,7 +39,7 @@ class SalesVerificationService
     }
 
     /**
-     * Xác minh đơn hàng hợp lệ để chuyển qua xác nhận (Confirmed)
+     * Xác minh đơn hàng hợp lệ để chuyển qua xử lý (Processing)
      */
     public function verifyOrder(int $orderId, int $staffId): array
     {

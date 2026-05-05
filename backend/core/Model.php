@@ -29,7 +29,7 @@ abstract class Model
     /**
      * Magic getter for attribute access: $model->name
      */
-    public function __get(string $key)
+    public function __get(string $key): mixed
     {
         return $this->attributes[$key] ?? null;
     }
@@ -37,7 +37,7 @@ abstract class Model
     /**
      * Magic setter for attribute assignment: $model->name = 'value'
      */
-    public function __set(string $key, $value): void
+    public function __set(string $key, mixed $value): void
     {
         $this->attributes[$key] = $value;
     }
@@ -107,7 +107,7 @@ abstract class Model
      * Find records matching a simple WHERE condition.
      * Example: User::where('email', $email)
      */
-    public static function where(string $column, $value): array
+    public static function where(string $column, mixed $value): array
     {
         $table = static::getTable();
         $stmt = static::db()->prepare("SELECT * FROM `{$table}` WHERE `{$column}` = ?");
@@ -121,7 +121,7 @@ abstract class Model
      * Find the first record matching a simple WHERE condition.
      * Example: User::firstWhere('email', $email)
      */
-    public static function firstWhere(string $column, $value): ?static
+    public static function firstWhere(string $column, mixed $value): ?static
     {
         $table = static::getTable();
         $stmt = static::db()->prepare("SELECT * FROM `{$table}` WHERE `{$column}` = ? LIMIT 1");

@@ -7,14 +7,13 @@ use Core\Database;
 class OrderService
 {
     private const ORDER_WORKFLOW = [
-        'pending'              => ['confirmed', 'cancelled', 'paid'],
-        'pending_confirmation' => ['confirmed', 'cancelled', 'paid'],
-        'paid'                 => ['confirmed', 'cancelled'],
-        'confirmed'            => ['processing', 'cancelled'],
-        'processing'           => ['shipped', 'cancelled'],
-        'shipped'              => ['completed'],
-        'completed'            => [],
-        'cancelled'            => []
+        'pending'     => ['paid', 'processing', 'cancelled'],
+        'paid'        => ['processing', 'cancelled'],
+        'processing'  => ['shipped', 'cancelled'],
+        'shipped'     => ['delivered', 'cancelled'],
+        'delivered'   => [],
+        'cancelled'   => [],
+        'refunded'    => []
     ];
 
     public function transitionStatus(int $orderId, string $newStatus, int $staffId): bool
@@ -52,8 +51,8 @@ class OrderService
     {
         $db = Database::getInstance();
         
-        // Specific logic for confirmation (can include verification by staff)
-        $this->transitionStatus($orderId, 'confirmed', $staffId);
+        // Transition order from pending/paid to processing (production workflow)
+        $this->transitionStatus($orderId, 'processing', $staffId);
 
         $stmt = $db->prepare("
             UPDATE `order` 
