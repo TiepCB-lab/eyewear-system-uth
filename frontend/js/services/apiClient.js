@@ -16,7 +16,7 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-const savedToken = localStorage.getItem('auth_token');
+const savedToken = sessionStorage.getItem('auth_token');
 if (savedToken) {
   apiClient.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`;
 }
@@ -26,10 +26,10 @@ apiClient.interceptors.response.use(
   (error) => {
     const status = error?.response?.status;
     if (status === 401) {
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('user_info');
-      localStorage.removeItem('eyewear_cart_count');
-      localStorage.removeItem('eyewear_wishlist_count');
+      sessionStorage.removeItem('auth_token');
+      sessionStorage.removeItem('user_info');
+      sessionStorage.removeItem('eyewear_cart_count');
+      sessionStorage.removeItem('eyewear_wishlist_count');
       delete apiClient.defaults.headers.common['Authorization'];
 
       const currentPath = window.location.pathname.toLowerCase();
