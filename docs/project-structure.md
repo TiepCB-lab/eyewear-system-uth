@@ -7,7 +7,7 @@ This document provides a comprehensive overview of the project's directory struc
 ```text
 .
 ├── backend/           # Pure PHP (API-first, Custom N-Layered Framework)
-├── frontend/          # HTML/CSS/JS (SPA-style with dynamic partials)
+├── frontend/          # Vanilla JS/HTML/CSS (SPA-style with unified shell)
 ├── docs/              # Detailed documentation & diagrams
 └── .env.example       # Global environment template
 ```
@@ -22,11 +22,11 @@ The backend follows an N-layered architecture to ensure separation of concerns a
 
 | Layer | Path | Responsibility |
 | :--- | :--- | :--- |
-| **Presentation** | `app/Http` | Handles HTTP requests, routing, and returns API responses. |
+| **Presentation** | `app/Http` | Handles HTTP requests, routing, validation, and JSON responses. |
 | **Application** | `app/Application` | Orchestrates business flows; translates user actions into domain operations. |
-| **Domain** | `app/Domain` | Core business logic, entities, and repository interfaces (contracts). |
-| **Infrastructure** | `app/Infrastructure` | Implementation of database repositories, external API integrations (VNPay). |
-| **Persistence** | `app/Models` | Models extending `Core\Model` for PDO-based database interaction. |
+| **Domain** | `app/Domain` | Core business logic, entities, and repository interfaces. |
+| **Infrastructure** | `app/Infrastructure` | Infrastructure concerns: Database wrapper, Env loading, Response helpers. |
+| **Persistence** | `app/Models` | Models extending `Core\Model` for database interaction. |
 
 ### Core Framework (`core/`)
 
@@ -42,13 +42,14 @@ The backend follows an N-layered architecture to ensure separation of concerns a
 
 The frontend is built with HTML/CSS/JS, focusing on a modular and maintainable structure.
 
-### Source Directory Mapping (`frontend/src/`)
+### Source Directory Mapping (`frontend/`)
 
 | Folder | Description |
 | :--- | :--- |
 | `assets/` | Static files like images, icons, and fonts. |
-| `components/` | Reusable UI components (Common, Forms, Layout, Product-specific). |
-| `pages/` | Unique route-based views (Home, ProductDetail, Cart). |
-| `services/` | API communication layer using Fetch. |
-| `store/` | Local state management (localStorage-based). |
-| `partials/` | Shared layout components (header, footer, sidebar). |
+| `components/` | Reusable UI components (Modals, Forms, Product, etc.). |
+| `pages/` | Route-based views (Shop, Cart, Portal/Dashboard). |
+| `js/services/` | API communication layer using Fetch. |
+| `js/core/` | Fundamental logic (RBAC, Layout Loading, Auth). |
+| `layouts/` | Shared HTML layout components (Header, Footer, Sidebar). |
+| `js/dashboard/` | Specific logic for the administrative portal. |
