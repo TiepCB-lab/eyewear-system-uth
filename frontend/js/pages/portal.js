@@ -60,16 +60,7 @@ class DashboardController {
             this.handleInitialLoad();
         });
 
-        // Handle Logout
-        document.addEventListener('click', async (e) => {
-            const logoutBtn = e.target.closest('#sidebar-logout');
-            if (logoutBtn) {
-                e.preventDefault();
-                const { default: authService } = await import('../services/authService.js');
-                await authService.logout();
-                window.location.href = '/pages/auth/index.html';
-            }
-        });
+        // Logout handling is now centralized in layout-loader.js via .logout-btn class
     }
 
     toggleOverlay(show) {

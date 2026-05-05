@@ -3,7 +3,7 @@
  * Handles component injection from layouts/ folder and fixes global paths.
  */
 
-(function() {
+(function () {
     // 1. Detect project root from script source
     const scriptTag = document.currentScript || document.querySelector('script[src*="layout-loader.js"]');
     const scriptSrc = scriptTag ? scriptTag.src : window.location.origin + '/';
@@ -15,12 +15,12 @@
         const componentPath = el.getAttribute('data-include');
         let mappedPath = componentPath;
         const isStaffLayout = document.body.classList.contains('layout-staff');
-        
+
         // Logical mapping with Context Override
         if (componentPath === 'layout/Header') {
-            mappedPath = isStaffLayout ? 'header-admin' : 'header'; 
+            mappedPath = isStaffLayout ? 'header-admin' : 'header';
         }
-        
+
         if (componentPath === 'layout/Footer') mappedPath = 'footer';
         if (componentPath === 'layout/StaffSidebar') mappedPath = 'sidebar-staff';
         if (componentPath === 'layout/CustomerSidebar') mappedPath = 'sidebar-customer';
@@ -29,10 +29,10 @@
         // Contextual UI Overrides for Profile Page etc.
         if (isStaffLayout) {
             if (componentPath === 'layout/Header') {
-                mappedPath = 'header-admin'; 
+                mappedPath = 'header-admin';
             }
         }
-        
+
         let url;
         if (componentPath.startsWith('layout/')) {
             url = `${projectRoot}layouts/${mappedPath}.html`;
@@ -49,10 +49,10 @@
             const response = await fetch(fetchUrl);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const html = await response.text();
-            
+
             // Inject content
             el.innerHTML = html;
-            
+
             // Fix absolute paths if project is in a subdirectory
             if (projectRoot !== '/' && projectRoot !== '') {
                 fixInternalPaths(el, projectRoot);
@@ -66,7 +66,7 @@
                 updateAuthUI().catch(err => console.warn("LayoutLoader AuthUI Error:", err));
                 highlightActiveElements(el);
             }
-            
+
             el.classList.remove('component-loading');
             el.classList.add('component-loaded');
 
@@ -101,8 +101,8 @@
 
     function initMenu() {
         const navMenu = document.getElementById("nav-menu"),
-              navToggle = document.getElementById("nav-toggle"),
-              navClose = document.getElementById("nav-close");
+            navToggle = document.getElementById("nav-toggle"),
+            navClose = document.getElementById("nav-close");
         if (navToggle && navMenu) {
             navToggle.addEventListener('click', () => navMenu.classList.add("show-menu"));
         }
@@ -121,7 +121,7 @@
                 pathname.startsWith(targetPath + '/') ||
                 pathname.endsWith(targetPath);
         }
-        
+
         // 1. Highlight Text Links
         const navLinks = container.querySelectorAll('.nav__link');
         const navCandidates = [];
@@ -191,7 +191,7 @@
                 if (localUser && (localUser.full_name || localUser.name)) {
                     renderUserPortal(portalArea, localUser.full_name || localUser.name, false);
                 }
-            } catch (e) {}
+            } catch (e) { }
         }
 
         try {
@@ -204,7 +204,7 @@
             if (user && (user.id || user.email)) {
                 const displayName = user.full_name || user.name || user.username || 'User';
                 const avatarSrc = resolveAvatarUrl(user.avatar);
-                
+
                 // Determine roles directly from user object if available, fallback to service
                 let roles = user.roles || authService.getUserRoles();
                 if (Array.isArray(roles)) {
@@ -215,7 +215,7 @@
                 const staffRoles = authService.getStaffRoles();
                 const isStaff = roles.some(r => staffRoles.includes(r));
                 const isCustomer = roles.includes('CUSTOMER');
-                
+
                 if (portalArea) renderUserPortal(portalArea, displayName, avatarSrc, isStaff);
                 if (adminPortal) renderAdminPortal(adminPortal, displayName, avatarSrc, isCustomer);
             }
@@ -281,7 +281,7 @@
         if (e.detail.path === 'layout/Header' || e.detail.path === 'layout/AdminHeader') {
             const cartCountEl = document.getElementById('cart-count');
             const wishlistCountEl = document.getElementById('wishlist-count');
-            
+
             if (wishlistCountEl) {
                 // 1. Synchronous Update from Cache
                 const cachedWlCount = localStorage.getItem('eyewear_wishlist_count');
@@ -303,38 +303,38 @@
             }
 
             if (cartCountEl) {
-                 // 1. Instant Synchronous Update to Prevent UI Flicker (FOUC)
-                 const cachedCount = localStorage.getItem('eyewear_cart_count');
-                 if (cachedCount !== null) {
-                     cartCountEl.innerText = cachedCount;
-                 } else {
-                     cartCountEl.innerText = '0';
-                 }
+                // 1. Instant Synchronous Update to Prevent UI Flicker (FOUC)
+                const cachedCount = localStorage.getItem('eyewear_cart_count');
+                if (cachedCount !== null) {
+                    cartCountEl.innerText = cachedCount;
+                } else {
+                    cartCountEl.innerText = '0';
+                }
 
-                 // 2. Asynchronous API fetch
-                 import(projectRoot + 'js/services/cartService.js').then(module => {
-                     module.default.getCart().then(res => {
-                         // Robust check for cart structure (could be {items: [], totals: {}} or just an array)
-                         const data = res.data || res;
-                         const items = Array.isArray(data) ? data : (data.items || []);
-                         
-                         let totalItems = 0;
-                         if (items.length > 0) {
+                // 2. Asynchronous API fetch
+                import(projectRoot + 'js/services/cartService.js').then(module => {
+                    module.default.getCart().then(res => {
+                        // Robust check for cart structure (could be {items: [], totals: {}} or just an array)
+                        const data = res.data || res;
+                        const items = Array.isArray(data) ? data : (data.items || []);
+
+                        let totalItems = 0;
+                        if (items.length > 0) {
                             totalItems = items.reduce((sum, item) => sum + parseInt(item.quantity || 1), 0);
-                         }
-                         cartCountEl.innerText = totalItems;
-                         localStorage.setItem('eyewear_cart_count', totalItems); 
-                     }).catch(err => {
-                         console.warn("Cart count update failed", err);
-                     });
-                 }).catch(err => console.error("LayoutLoader: Could not load cartService for badge update", err));
+                        }
+                        cartCountEl.innerText = totalItems;
+                        localStorage.setItem('eyewear_cart_count', totalItems);
+                    }).catch(err => {
+                        console.warn("Cart count update failed", err);
+                    });
+                }).catch(err => console.error("LayoutLoader: Could not load cartService for badge update", err));
             }
         }
     });
 
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('[data-include]').forEach(loadComponent);
-        
+
         // Load role/layout enforcement
         import(`${projectRoot}js/core/layout-guard.js`).then(m => {
             // Guard already initializes on DOMContentLoaded in its own file
@@ -372,7 +372,7 @@
         window.Notification = m.default;
     }).catch(err => console.error("Failed to load Notification component:", err));
 
-    window.addToCart = async function(variantId) {
+    window.addToCart = async function (variantId) {
         try {
             const { default: cartService } = await import(projectRoot + 'js/services/cartService.js');
             await cartService.addToCart({ variant_id: variantId, quantity: 1 });
@@ -417,27 +417,27 @@
     // QuickView implementation moved to js/components/quick-view.js
 
     // 12. Global Wishlist Logic
-    window.addToWishlist = async function(btn, productId) {
+    window.addToWishlist = async function (btn, productId) {
         try {
             const { default: wishlistService } = await import(projectRoot + 'js/services/wishlistService.js');
             const res = await wishlistService.toggleItem(productId);
-            
+
             // Find ALL buttons for this product across the page
             const allButtons = document.querySelectorAll(`[data-action="toggle-wishlist"][data-product-id="${productId}"]`);
             const status = res.data && res.data.status ? res.data.status : res.status;
-            
+
             allButtons.forEach(button => {
                 const icon = button.querySelector('i');
                 if (status === 'added') {
-                    if(icon) icon.className = 'fi fi-ss-heart';
+                    if (icon) icon.className = 'fi fi-ss-heart';
                     button.classList.add('wishlist-active');
                     button.setAttribute('aria-label', 'Remove from Wishlist');
-                    if(button.title) button.title = 'Remove from Wishlist';
+                    if (button.title) button.title = 'Remove from Wishlist';
                 } else {
-                    if(icon) icon.className = 'fi fi-rs-heart';
+                    if (icon) icon.className = 'fi fi-rs-heart';
                     button.classList.remove('wishlist-active');
                     button.setAttribute('aria-label', 'Add to Wishlist');
-                    if(button.title) button.title = 'Add to Wishlist';
+                    if (button.title) button.title = 'Add to Wishlist';
                 }
             });
 
@@ -448,7 +448,7 @@
                 if (window.Notification) window.Notification.show('Removed from wishlist!', 'info');
                 else alert('Removed from wishlist!');
             }
-            
+
             window.dispatchEvent(new CustomEvent('content-loaded', { detail: { path: 'layout/Header' } }));
         } catch (err) {
             if (err.response && err.response.status === 401) {
@@ -467,22 +467,32 @@
     document.addEventListener('click', async (e) => {
         const logoutBtn = e.target.closest('.logout-btn');
         if (!logoutBtn) return;
-        
+
         e.preventDefault();
-        
-        // Immediate local cleanup to ensure UI responds on 1st click
+
+        let isStaff = false;
+        try {
+            // We need to check role BEFORE clearing the session
+            const { default: authService } = await import(projectRoot + 'js/services/authService.js');
+            isStaff = authService.isStaff();
+            
+            // Perform official logout (clears sessionStorage)
+            await authService.logout().catch(() => { });
+        } catch (err) {
+            console.error("Logout error during authService call:", err);
+        }
+
+        // Immediate local cleanup for layout-loader's own cache (localStorage)
         localStorage.removeItem('auth_token');
         localStorage.removeItem('user_info');
         localStorage.removeItem('eyewear_cart_count');
         localStorage.removeItem('eyewear_wishlist_count');
-        
-        try {
-            // We still try to notify the server, but we don't wait for it to redirect
-            const { default: authService } = await import(projectRoot + 'js/services/authService.js');
-            authService.logout().catch(() => {}); 
-        } catch (err) {}
 
-        // Immediate redirect
-        window.location.href = projectRoot + 'index.html';
+        // Conditional redirect based on the role we detected
+        if (isStaff) {
+            window.location.href = projectRoot + 'pages/auth/index.html';
+        } else {
+            window.location.href = projectRoot + 'index.html';
+        }
     });
 })();
