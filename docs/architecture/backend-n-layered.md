@@ -17,8 +17,9 @@ The backend of this project is built with **Pure PHP** using an API-first approa
 - **Responsibilities**: House core business rules, entities, and define Repository Interfaces (Contracts).
 
 ### 4. Infrastructure Layer
-- **Directories**: `app/Infrastructure/Persistence`, `app/Infrastructure/Services`
-- **Responsibilities**: Implement Repository Interfaces using PDO, integrate with external gateways (VNPay), and handle low-level operations.
+- **Directory**: `app/Infrastructure/`
+- **Files**: `database.php` (DB wrapper), `env.php` (Env loading), `response.php` (JSON helpers), `validator.php` (Input validation).
+- **Responsibilities**: Provide shared utilities for cross-cutting concerns and external system communication.
 
 ## 🔧 Core Framework (`core/`)
 

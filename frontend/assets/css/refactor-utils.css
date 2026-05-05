@@ -1631,8 +1631,9 @@
   .craft__grid,
   .values__grid,
   .payment-layout,
-  .admin-grid--settings {
-    grid-template-columns: 1fr;
+  .admin-grid--settings,
+  .admin-grid--two {
+    grid-template-columns: 1fr !important;
   }
 
   .narrative__content,

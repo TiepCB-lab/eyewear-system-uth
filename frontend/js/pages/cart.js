@@ -32,15 +32,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const itemTotal = (item.unit_price || 0) * (item.quantity || 0);
                 
                 tr.innerHTML = `
-                    <td>
+                    <td data-label="Select">
                         <input type="checkbox" class="cart-item-check" data-id="${itemId}" ${isSelected ? 'checked' : ''}>
                     </td>
-                    <td>
+                    <td data-label="Image">
                         <a href="../details/index.html?id=${item.product_id}">
                             <img src="${api.fixImagePath(item.image_2d_url)}" alt="${item.product_name}" class="table__img" />
                         </a>
                     </td>
-                    <td>
+                    <td data-label="Product">
                         <a href="../details/index.html?id=${item.product_id}">
                             <h3 class="table__title">${item.product_name || 'Product'}</h3>
                         </a>
@@ -56,10 +56,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                             ` : ''}
                         </p>
                     </td>
-                    <td><span class="table__price">${api.formatCurrency(item.unit_price)}</span></td>
-                    <td><input type="number" value="${item.quantity}" class="quantity cart-qty-input" data-id="${itemId}" min="1"/></td>
-                    <td><span class="subtotal">${api.formatCurrency(itemTotal)}</span></td>
-                    <td><i class="fi fi-rs-trash table__trash table__trash--interactive cart-remove-btn" data-id="${itemId}"></i></td>
+                    <td data-label="Price"><span class="table__price">${api.formatCurrency(item.unit_price)}</span></td>
+                    <td data-label="Quantity"><input type="number" value="${item.quantity}" class="quantity cart-qty-input" data-id="${itemId}" min="1"/></td>
+                    <td data-label="Subtotal"><span class="subtotal">${api.formatCurrency(itemTotal)}</span></td>
+                    <td data-label="Remove"><i class="fi fi-rs-trash table__trash table__trash--interactive cart-remove-btn" data-id="${itemId}"></i></td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -176,9 +176,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             await api.cart.applyVoucher(code);
             loadCart();
-            alert('Mã giảm giá đã được áp dụng!');
+            alert('Voucher applied successfully!');
         } catch (err) {
-            alert(err.response?.data?.message || 'Không thể áp dụng mã giảm giá');
+            alert(err.response?.data?.message || 'Could not apply voucher');
         }
     });
 

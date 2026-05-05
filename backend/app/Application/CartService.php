@@ -43,7 +43,7 @@ class CartService
             }
         }
 
-        // Kiểm tra xem giỏ hàng có đang áp dụng mã giảm giá nào không
+        // Check if the cart has any applied vouchers
         $stmt = $this->db->prepare("
             SELECT p.* 
             FROM cart c
@@ -59,7 +59,7 @@ class CartService
             if ($promo['discount_type'] === 'percentage') {
                 $discount = $subtotal * ($promo['discount_value'] / 100);
             } else {
-                // Giảm theo số tiền cố định
+                // Fixed amount discount
                 $discount = $promo['discount_value'];
             }
         }
@@ -93,7 +93,7 @@ class CartService
         $stock = $stmt->fetch();
         
         if (!$stock || $stock['quantity'] < $quantity) {
-            throw new Exception("Sản phẩm không đủ số lượng trong kho.");
+            throw new Exception("Product out of stock or insufficient quantity.");
         }
 
         $cartId = $this->getOrCreateCart($userId);
@@ -109,7 +109,7 @@ class CartService
 
         if ($existing) {
             $newQty = $existing['quantity'] + $quantity;
-            if ($stock['quantity'] < $newQty) throw new Exception("Không thể thêm tiếp, vượt quá tồn kho.");
+            if ($stock['quantity'] < $newQty) throw new Exception("Cannot add more, exceeds available stock.");
             return $this->updateQuantity($userId, (int)$existing['id'], $newQty);
         }
 
@@ -154,7 +154,7 @@ class CartService
         $stock = $stmt->fetch();
 
         if (!$stock || $stock['quantity'] < $quantity) {
-            throw new Exception("Số lượng cập nhật vượt quá tồn kho.");
+            throw new Exception("Update quantity exceeds available stock.");
         }
 
         $stmt = $this->db->prepare("
@@ -201,7 +201,7 @@ class CartService
     }
 
     /**
-     * Áp dụng mã giảm giá vào giỏ hàng.
+     * Apply voucher to cart.
      */
     public function applyVoucher(int $userId, string $code)
     {
@@ -214,7 +214,7 @@ class CartService
         $promo = $stmt->fetch();
 
         if (!$promo) {
-            throw new Exception("Mã giảm giá không tồn tại hoặc đã hết hạn.");
+            throw new Exception("Voucher does not exist or has expired.");
         }
 
         // 2. Cập nhật vào giỏ hàng của user
@@ -226,7 +226,7 @@ class CartService
     }
 
     /**
-     * Hủy bỏ mã giảm giá.
+     * Remove voucher.
      */
     public function removeVoucher(int $userId)
     {

@@ -126,23 +126,23 @@ function renderOrdersTable(orders) {
 
         return `
             <tr>
-                <td>
+                <td data-label="Order">
                     <div class="flex-column">
                         <strong>#${order.order_number || order.id}</strong>
                         ${prescriptionBadge}
                     </div>
                 </td>
-                <td>${date}</td>
-                <td><strong>${api.formatCurrency(order.total_amount)}</strong></td>
-                <td>
+                <td data-label="Date">${date}</td>
+                <td data-label="Total"><strong>${api.formatCurrency(order.total_amount)}</strong></td>
+                <td data-label="Payment">
                     <div class="flex-column" style="gap: 2px;">
                         <span style="font-size: 11px; color: #888;">${methodLabel}</span>
                         ${isPaid ? '<span class="text-success" style="font-size: 11px;">Completed</span>' : '<span class="text-warning" style="font-size: 11px;">Pending</span>'}
                     </div>
                 </td>
-                <td>${getStatusBadge(order.status)}</td>
-                <td><span class="production-step-text">${order.production_step || '—'}</span></td>
-                <td>
+                <td data-label="Status">${getStatusBadge(order.status)}</td>
+                <td data-label="Production"><span class="production-step-text">${order.production_step || '—'}</span></td>
+                <td data-label="Action">
                     <div class="flex items-center gap-2">
                         ${payAction}
                         <button type="button" class="view-order-detail-btn" data-id="${order.id}" title="View Items">

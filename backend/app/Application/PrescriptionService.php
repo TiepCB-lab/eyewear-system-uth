@@ -74,7 +74,7 @@ class PrescriptionService
     private function validateRange($value, $min, $max, $field)
     {
         if ($value < $min || $value > $max) {
-            throw new Exception("Thông số $field ($value) không hợp lệ. Phải nằm trong khoảng $min đến $max.");
+            throw new Exception("$field value ($value) is invalid. Must be between $min and $max.");
         }
     }
 }

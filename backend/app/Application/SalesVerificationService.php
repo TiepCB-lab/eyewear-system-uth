@@ -139,7 +139,9 @@ class SalesVerificationService
         foreach ($fields as $field) {
             if (isset($data[$field])) {
                 $updates[] = "$field = ?";
-                $params[] = $data[$field];
+                $val = trim($data[$field]);
+                // Convert empty strings to null for numeric fields (but keep for notes)
+                $params[] = ($val === '' && $field !== 'notes') ? null : $val;
             }
         }
         

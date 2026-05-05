@@ -17,7 +17,7 @@ class CartController extends BaseController
     }
 
     /**
-     * Lấy danh sách sản phẩm trong giỏ hàng.
+     * Get items in cart.
      */
     public function index()
     {
@@ -40,7 +40,7 @@ class CartController extends BaseController
     }
 
     /**
-     * Thêm sản phẩm vào giỏ hàng.
+     * Add item to cart.
      */
     public function store()
     {
@@ -63,7 +63,7 @@ class CartController extends BaseController
     }
 
     /**
-     * Cập nhật số lượng sản phẩm.
+     * Update item quantity.
      */
     public function update($id = null)
     {
@@ -89,7 +89,7 @@ class CartController extends BaseController
     }
 
     /**
-     * Thay đổi trạng thái chọn của sản phẩm.
+     * Toggle item selection status.
      */
     public function toggleSelection()
     {
@@ -115,7 +115,7 @@ class CartController extends BaseController
     }
 
     /**
-     * Chọn hoặc bỏ chọn tất cả.
+     * Select or deselect all items.
      */
     public function selectAll()
     {
@@ -136,7 +136,7 @@ class CartController extends BaseController
     }
 
     /**
-     * Xóa sản phẩm khỏi giỏ hàng.
+     * Remove item from cart.
      */
     public function destroy($id = null)
     {
@@ -161,7 +161,7 @@ class CartController extends BaseController
     }
 
     /**
-     * Áp dụng mã giảm giá.
+     * Apply voucher.
      */
     public function applyVoucher()
     {
@@ -177,14 +177,14 @@ class CartController extends BaseController
 
         try {
             $promo = $this->cartService->applyVoucher($userId, $code);
-            return ApiResponse::success($promo, 'Mã giảm giá đã được áp dụng.');
+            return ApiResponse::success($promo, 'Voucher applied successfully.');
         } catch (Exception $e) {
             return ApiResponse::error($e->getMessage());
         }
     }
 
     /**
-     * Hủy mã giảm giá.
+     * Remove voucher.
      */
     public function removeVoucher()
     {
@@ -193,7 +193,7 @@ class CartController extends BaseController
 
         try {
             $this->cartService->removeVoucher($userId);
-            return ApiResponse::success(null, 'Đã hủy mã giảm giá.');
+            return ApiResponse::success(null, 'Voucher removed.');
         } catch (Exception $e) {
             return ApiResponse::error($e->getMessage());
         }

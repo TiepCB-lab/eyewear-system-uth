@@ -55,7 +55,7 @@ class CatalogService
 			LEFT JOIN productvariant v ON v.product_id = p.id
 			' . $whereSql . '
 			GROUP BY p.id, p.category_id, c.name, c.slug, p.name, p.model_name, p.slug, p.description, p.base_price, p.brand, p.gender, p.is_active
-			ORDER BY ' . $filters['sort_by'] . ' ' . $filters['sort_direction'] . ', p.id DESC
+			ORDER BY (COALESCE(SUM(v.stock_quantity), 0) > 0) DESC, ' . $filters['sort_by'] . ' ' . $filters['sort_direction'] . ', p.id DESC
 			LIMIT ' . (int) $filters['per_page'] . ' OFFSET ' . (int) $offset;
 
 		$dataStmt = $db->prepare($dataSql);

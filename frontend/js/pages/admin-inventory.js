@@ -92,7 +92,7 @@ function renderTable(data = null) {
 
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>
+            <td data-label="Product">
                 <div class="product-cell">
                     <img src="${item.productImage}" alt="" class="product-image" data-fallback-src="/assets/images/products/placeholder.png">
                     <div class="product-info">
@@ -101,19 +101,19 @@ function renderTable(data = null) {
                     </div>
                 </div>
             </td>
-            <td>
+            <td data-label="Variant">
                 <div>
                     <span class="variant-badge">${item.color || 'N/A'}</span>
                     <span class="variant-badge">${item.size || 'N/A'}</span>
                 </div>
             </td>
-            <td><span class="product-sku">${item.sku}</span></td>
-            <td class="stock-cell"><span id="stock-val-${index}">${item.stock}</span></td>
-            <td class="stock-cell">${item.reserved}</td>
-            <td class="stock-cell">${item.available}</td>
-            <td class="stock-cell">${item.reorder_level}</td>
-            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-            <td>
+            <td data-label="SKU"><span class="product-sku">${item.sku}</span></td>
+            <td data-label="Stock" class="stock-cell"><span id="stock-val-${index}">${item.stock}</span></td>
+            <td data-label="Reserved" class="stock-cell">${item.reserved}</td>
+            <td data-label="Available" class="stock-cell">${item.available}</td>
+            <td data-label="Reorder" class="stock-cell">${item.reorder_level}</td>
+            <td data-label="Status"><span class="status-badge ${statusClass}">${statusText}</span></td>
+            <td data-label="Action">
                 <div class="action-buttons">
                     <button type="button" class="btn-small btn-edit inventory-edit-btn" id="editBtn-${index}" data-index="${index}">
                         <i class="fi fi-rs-edit"></i> Edit

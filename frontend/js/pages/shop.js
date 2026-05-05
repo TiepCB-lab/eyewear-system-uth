@@ -118,7 +118,9 @@ async function fetchProducts() {
             .replaceAll("{{PRODUCT_ID}}", item.id)
             .replaceAll("{{WISHLIST_ICON}}", isWishlisted ? 'fi fi-ss-heart' : 'fi fi-rs-heart')
             .replaceAll("{{WISHLIST_CLASS}}", isWishlisted ? 'wishlist-active' : '')
-            .replaceAll("{{WISHLIST_LABEL}}", isWishlisted ? 'Remove' : 'Add');
+            .replaceAll("{{WISHLIST_LABEL}}", isWishlisted ? 'Remove' : 'Add')
+            .replaceAll("{{STOCK_CLASS}}", item.in_stock ? '' : 'is-out-of-stock')
+            .replaceAll("{{STOCK_LABEL}}", item.in_stock ? '' : 'Sold Out');
     }).join("");
 
     renderPagination(pagination);
@@ -222,6 +224,24 @@ document.addEventListener("DOMContentLoaded", async () => {
         state.page = 1; // Reset to page 1 on sort change
         fetchProducts();
     });
+
+    // Mobile Filter Toggle
+    const mobileToggle = document.getElementById('mobileFilterToggle');
+    const catalogSidebar = document.getElementById('catalogFilterMount');
+    if (mobileToggle && catalogSidebar) {
+        mobileToggle.addEventListener('click', () => {
+            catalogSidebar.classList.toggle('active');
+        });
+
+        // Close when clicking outside
+        document.addEventListener('click', (e) => {
+            if (catalogSidebar.classList.contains('active')) {
+                if (!catalogSidebar.contains(e.target) && !mobileToggle.contains(e.target)) {
+                    catalogSidebar.classList.remove('active');
+                }
+            }
+        });
+    }
 
     fetchProducts();
 });

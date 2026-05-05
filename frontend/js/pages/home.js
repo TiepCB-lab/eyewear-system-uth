@@ -83,15 +83,18 @@ async function initHome() {
             const heartClass = isWishlisted ? 'wishlist-active' : '';
             const label = isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist';
             
-            const img = fixImagePath(p.thumbnail);
-            const price = parseFloat(p.base_price || 0);
-            const displayPrice = window.formatVND ? window.formatVND(price) : price + ' VND';
+        const img = fixImagePath(p.thumbnail);
+        const price = parseFloat(p.base_price || 0);
+        const displayPrice = window.formatVND ? window.formatVND(price) : price + ' VND';
+        const stockClass = (p.total_stock > 0 || p.in_stock) ? '' : 'is-out-of-stock';
+        const stockLabel = (p.total_stock > 0 || p.in_stock) ? '' : 'Sold Out';
 
-            return `
-                <div class="product__item" data-aos="fade-up" data-aos-delay="${idx * 50}">
-                    <a href="pages/details/?id=${p.id}" class="product__item__overlay-link" aria-label="View Details"></a>
-                    <div class="product__banner">
-                        <a href="pages/details/?id=${p.id}" class="product__images">
+        return `
+            <div class="product__item ${stockClass}" data-aos="fade-up" data-aos-delay="${idx * 50}">
+                <a href="pages/details/?id=${p.id}" class="product__item__overlay-link" aria-label="View Details"></a>
+                <div class="product__banner">
+                    <span class="out-of-stock-label">${stockLabel}</span>
+                    <a href="pages/details/?id=${p.id}" class="product__images">
                             <img src="${img}" alt="${p.name}" class="product__img default" data-fallback-src="assets/images/logo.png" />
                             <img src="${img}" alt="${p.name}" class="product__img hover" data-fallback-src="assets/images/logo.png" />
                         </a>

@@ -7,8 +7,9 @@ use Core\Database;
 class OrderService
 {
     private const ORDER_WORKFLOW = [
-        'pending'              => ['confirmed', 'cancelled'],
-        'pending_confirmation' => ['confirmed', 'cancelled'],
+        'pending'              => ['confirmed', 'cancelled', 'paid'],
+        'pending_confirmation' => ['confirmed', 'cancelled', 'paid'],
+        'paid'                 => ['confirmed', 'cancelled'],
         'confirmed'            => ['processing', 'cancelled'],
         'processing'           => ['shipped', 'cancelled'],
         'shipped'              => ['completed'],

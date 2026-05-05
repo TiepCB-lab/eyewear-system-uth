@@ -8,7 +8,7 @@ async function loadStats() {
 
     try {
         const [ordersResponse, summaryResponse, opsOverview] = await Promise.all([
-            hasPermission('view_orders') ? salesService.getPendingOrders() : Promise.resolve(null),
+            hasPermission('view_orders') ? salesService.getOrders({ status: 'pending' }) : Promise.resolve(null),
             hasPermission('view_reports') ? dashboardService.getSummary() : Promise.resolve(null),
             hasPermission('pack_order') ? dashboardService.getOperationsOverview() : Promise.resolve(null)
         ]);
