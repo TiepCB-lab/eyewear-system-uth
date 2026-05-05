@@ -255,11 +255,15 @@
 body.admin-body .container {
     max-width: 100% !important;
     margin-inline: 0 !important;
-    padding-inline: 0 !important;
+    padding-inline: 1.5rem !important;
 }
 
 .admin-table.container {
     width: 100% !important;
+}
+
+.filter-section {
+    margin-bottom: 2rem;
 }
 
 .filter-grid {
@@ -296,6 +300,15 @@ body.admin-body .container {
     background: #f8f9fa;
     font-size: 0.95rem;
     color: var(--text-color);
+    transition: all 0.3s ease;
+}
+
+.filter-group input:focus, 
+.filter-group select:focus {
+    border-color: var(--first-color);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.1);
+    outline: none;
 }
 
 /* Metrics Cards */
@@ -686,8 +699,11 @@ body.admin-body .container {
 }
 
 .admin-table {
-    padding: 3rem !important;
-    margin-top: 3rem !important;
+    padding: 2.5rem 3rem !important;
+    margin-top: 2rem !important;
+    background: #fff;
+    border-radius: 1.5rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
 }
 
 .table__title {
@@ -701,7 +717,7 @@ body.admin-body .container {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
     padding-bottom: 1.5rem;
     border-bottom: 1px solid var(--border-color-alt);
     flex-wrap: wrap;
