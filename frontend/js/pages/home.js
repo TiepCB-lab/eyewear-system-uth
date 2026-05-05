@@ -44,9 +44,8 @@ async function initHome() {
             const getCategoryImage = (name) => {
                 const n = name.toLowerCase();
                 if (n.includes('sun')) return 'assets/images/ui/category-sun.png';
-                if (n.includes('presc')) return 'assets/images/ui/category-presc.png';
-                if (n.includes('blue')) return 'assets/images/products/frame-an-05.png';
-                if (n.includes('luxury')) return 'assets/images/products/frame-an-03.png';
+                if (n.includes('lens')) return 'assets/images/lens/chemi U6 1.74.jpg';
+                if (n.includes('frame')) return 'assets/images/products/frame-an-03.png';
                 return 'assets/images/products/frame-an-05.png'; // fallback
             };
 
