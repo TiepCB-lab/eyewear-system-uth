@@ -14,8 +14,8 @@ class AnalyticsController {
     async loadData() {
         try {
             const [summaryRes, salesRes] = await Promise.all([
-                api.client.get('/v1/dashboard'),
-                api.client.get('/v1/dashboard/sales-report?days=30')
+                api.client.get('/dashboard'),
+                api.client.get('/dashboard/sales-report?days=30')
             ]);
             
             this.summary = summaryRes.data?.data || {};
@@ -32,22 +32,35 @@ class AnalyticsController {
         const revenueEl = document.querySelector('.metric-card:nth-child(1) .metric-value');
         if (revenueEl) revenueEl.innerText = api.formatCurrency(this.summary.revenue);
 
+        const revenueBadge = document.querySelector('.metric-card:nth-child(1) .badge');
+        if (revenueBadge) revenueBadge.textContent = 'Live';
+
         const avgOrderEl = document.querySelector('.metric-card:nth-child(2) .metric-value');
         if (avgOrderEl) {
-            const avg = this.summary.paid_orders > 0 ? this.summary.revenue / this.summary.paid_orders : 0;
+            const avg = this.summary.average_order_value || (this.summary.paid_orders > 0 ? this.summary.revenue / this.summary.paid_orders : 0);
             avgOrderEl.innerText = api.formatCurrency(avg);
         }
+
+        const avgOrderBadge = document.querySelector('.metric-card:nth-child(2) .badge');
+        if (avgOrderBadge) avgOrderBadge.textContent = 'Live';
 
         const convEl = document.querySelector('.metric-card:nth-child(3) .metric-value');
         if (convEl) {
             convEl.innerText = `${this.summary.conversion_rate || 0}%`;
         }
 
+        const convBadge = document.querySelector('.metric-card:nth-child(3) .badge');
+        if (convBadge) convBadge.textContent = 'Live';
+
         const tbody = document.querySelector('.table tbody');
-        if (tbody && this.summary.top_products) {
-            tbody.innerHTML = this.summary.top_products.map(p => `
+        const categories = this.summary.top_categories || [];
+        const products = this.summary.top_products || [];
+        const rows = categories.length ? categories : products;
+
+        if (tbody && rows.length) {
+            tbody.innerHTML = rows.map(p => `
                 <tr>
-                    <td><strong>${p.product_name}</strong></td>
+                    <td><strong>${p.category_name || p.product_name}</strong></td>
                     <td>${p.units_sold} units</td>
                     <td>${api.formatCurrency(p.revenue)}</td>
                     <td><span class="badge badge-active">Live</span></td>
