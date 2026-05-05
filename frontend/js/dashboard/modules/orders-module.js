@@ -29,7 +29,7 @@ async function loadOrders() {
         currentOrders = Array.isArray(response) ? response : (response?.data || []);
         
         if (countEl) {
-            const pendingCount = currentOrders.filter(o => o.status === 'pending' || o.status === 'pending_confirmation').length;
+            const pendingCount = currentOrders.filter(o => o.status === 'pending' || o.status === 'paid').length;
             countEl.innerText = pendingCount;
         }
         renderOrdersTable(currentOrders);
@@ -82,9 +82,8 @@ function renderOrdersTable(rows) {
 function getStatusClass(status) {
     const map = {
         'pending': 'badge-pending', 
-        'pending_confirmation': 'badge-pending',
         'paid': 'badge-active', 
-        'confirmed': 'badge-active', 
+        'processing': 'badge-shipped',
         'shipped': 'badge-shipped',
         'delivered': 'badge-active', 
         'cancelled': 'badge-qc', 
@@ -243,7 +242,7 @@ function renderModalContent(order) {
                     <div class="flex admin-flex-between"><span>Amount:</span> <strong style="color: var(--first-color); font-size: 18px;">${api.formatCurrency(order.total_amount)}</strong></div>
                 </div>
                 <div style="margin-top: 25px;">
-                    ${(!order.verified_by && ['pending', 'pending_confirmation', 'paid'].includes(order.status.toLowerCase())) ? 
+                    ${(!order.verified_by && ['pending', 'paid'].includes(order.status.toLowerCase())) ? 
                         `<button class="modal-action-btn" data-action="confirm" data-order-id="${order.id}" 
                             style="width: 100%; padding: 14px; background: #008080; color: #fff; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,128,128,0.2);">Confirm Order</button>` : ''}
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
@@ -260,7 +259,7 @@ function renderModalContent(order) {
 async function handleOrderAction(orderId, action) {
     if (!confirm(`Are you sure you want to perform action: ${action.toUpperCase()}?`)) return;
     try {
-        if (action === 'confirm') { await salesService.verifyOrder(orderId); alert('Confirmed!'); }
+        if (action === 'confirm') { await salesService.verifyOrder(orderId); alert('Order moved to production!'); }
         else if (action === 'cancel') { await salesService.processComplaint(orderId, 'return', 'Sales cancelled'); alert('Cancelled!'); }
         else if (action === 'complaint_refund') { 
             const reason = prompt('Refund reason:'); 

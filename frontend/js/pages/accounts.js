@@ -65,15 +65,11 @@ async function uploadSelectedAvatar(file) {
 
 function getStatusBadge(status) {
     const map = {
-        pending_payment: { cls: 'badge-pending', label: 'Pending Payment' },
-        pending_confirmation: { cls: 'badge-qc', label: 'Awaiting Confirmation' },
         pending: { cls: 'badge-pending', label: 'Pending' },
-        verified: { cls: 'badge-qc', label: 'Verified' },
-        confirmed: { cls: 'badge-qc', label: 'Confirmed' },
+        paid: { cls: 'badge-active', label: 'Paid' },
         processing: { cls: 'badge-shipped', label: 'Processing' },
         shipped: { cls: 'badge-shipped', label: 'Shipped' },
         delivered: { cls: 'badge-active', label: 'Delivered' },
-        paid: { cls: 'badge-active', label: 'Paid' },
         cancelled: { cls: 'badge-inactive', label: 'Cancelled' },
         refunded: { cls: 'badge-inactive', label: 'Refunded' },
     };
@@ -108,7 +104,7 @@ function renderOrdersTable(orders) {
             ? new Date(order.placed_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
             : '-';
         
-        const isPaid = order.payment_status?.toLowerCase() === 'paid' || order.payment_status?.toLowerCase() === 'completed';
+        const isPaid = order.payment_status?.toLowerCase() === 'paid';
         const isCOD = order.payment_method?.toLowerCase() === 'cod';
         const isPrescription = order.is_prescription || order.order_type === 'prescription';
         

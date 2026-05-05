@@ -40,7 +40,7 @@ class CheckoutService
             foreach ($cartItems as $item) {
                 if (!empty($item['prescription_id']) || !empty($item['lens_id'])) {
                     $orderType = 'prescription';
-                    $status = 'pending_confirmation'; // Bắt buộc nhân viên duyệt cho kính thuốc
+                    $status = 'pending'; // Orders wait for payment and staff verification
                     break;
                 }
             }
