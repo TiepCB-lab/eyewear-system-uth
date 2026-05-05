@@ -318,12 +318,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         ui.variantSku.textContent = selectedVariant.sku;
 
         const isOutOfStock = maxStock <= 0;
-        ui.variantStock.textContent = isOutOfStock ? 'Out of Stock' : `${maxStock} Items in Stock`;
+        ui.variantStock.textContent = isOutOfStock ? 'Out of Stock — Pre-order Available' : `${maxStock} Items in Stock`;
         ui.variantStock.classList.toggle('text-danger', isOutOfStock);
-        addToCartBtn.classList.toggle('is-disabled-link', isOutOfStock);
-        addToCartBtn.innerHTML = isOutOfStock
-            ? '<i class="fi fi-rs-shopping-bag"></i><span class="btn-text">Out of Stock</span><i class="fi fi-rs-glasses falling-item"></i>'
-            : '<i class="fi fi-rs-shopping-bag"></i><span class="btn-text">Add to Cart</span><i class="fi fi-rs-glasses falling-item"></i>';
+        
+        if (isOutOfStock) {
+            // Allow pre-order when out of stock
+            addToCartBtn.classList.remove('is-disabled-link');
+            addToCartBtn.dataset.preorder = 'true';
+            addToCartBtn.innerHTML = '<i class="fi fi-rs-shopping-bag"></i><span class="btn-text">Pre-order Now</span><i class="fi fi-rs-glasses falling-item"></i>';
+        } else {
+            addToCartBtn.classList.remove('is-disabled-link');
+            delete addToCartBtn.dataset.preorder;
+            addToCartBtn.innerHTML = '<i class="fi fi-rs-shopping-bag"></i><span class="btn-text">Add to Cart</span><i class="fi fi-rs-glasses falling-item"></i>';
+        }
     }
 
     colorContainer.addEventListener('click', (event) => {
@@ -354,10 +361,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     addToCartBtn.addEventListener('click', async (event) => {
         event.preventDefault();
-        if (!selectedVariant || addToCartBtn.classList.contains('animating') || addToCartBtn.classList.contains('is-disabled-link')) {
+        if (!selectedVariant || addToCartBtn.classList.contains('animating')) {
             return;
         }
 
+        const isPreorder = addToCartBtn.dataset.preorder === 'true';
         const lensId = lensSelect.value ? parseInt(lensSelect.value, 10) : null;
         addToCartBtn.classList.add('animating');
 
@@ -366,6 +374,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 variant_id: selectedVariant.id,
                 lens_id: lensId,
                 quantity: parseInt(quantityInput.value, 10),
+                is_preorder: isPreorder
             });
 
             window.setTimeout(() => {

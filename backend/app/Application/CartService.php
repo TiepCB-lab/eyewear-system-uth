@@ -18,7 +18,7 @@ class CartService
     public function getCart(int $userId)
     {
         $stmt = $this->db->prepare("
-            SELECT ci.*, pv.product_id, pv.sku, pv.color, pv.size, pv.image_2d_url, p.name as product_name, p.base_price, 
+            SELECT ci.*, pv.product_id, pv.sku, pv.color, pv.size, pv.image_2d_url, pv.stock_quantity, p.name as product_name, p.base_price, 
                    pv.additional_price, l.name as lens_name, l.price as lens_price,
                    pre.sph_od, pre.sph_os, pre.cyl_od, pre.cyl_os, pre.axis_od, pre.axis_os, pre.pd
             FROM cart c
@@ -86,13 +86,14 @@ class CartService
 
         $variantId = $data['variant_id'];
         $quantity = $data['quantity'] ?? 1;
+        $isPreorder = !empty($data['is_preorder']);
 
-        // Check stock availability
+        // Check stock availability (skip for pre-orders)
         $stmt = $this->db->prepare("SELECT quantity FROM inventory WHERE productvariant_id = ?");
         $stmt->execute([$variantId]);
         $stock = $stmt->fetch();
         
-        if (!$stock || $stock['quantity'] < $quantity) {
+        if (!$isPreorder && (!$stock || $stock['quantity'] < $quantity)) {
             throw new Exception("Product out of stock or insufficient quantity.");
         }
 

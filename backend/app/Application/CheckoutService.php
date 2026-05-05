@@ -36,13 +36,36 @@ class CheckoutService
             // 1. Xác định trạng thái đơn hàng ban đầu
             $status = 'pending';
             $orderType = 'stock';
+            $hasPrescription = false;
+            $instockCount = 0;
+            $preorderCount = 0;
 
             foreach ($cartItems as $item) {
                 if (!empty($item['prescription_id']) || !empty($item['lens_id'])) {
-                    $orderType = 'prescription';
-                    $status = 'pending'; // Orders wait for payment and staff verification
-                    break;
+                    $hasPrescription = true;
                 }
+
+                // Check real stock availability for each item
+                $stockCheck = $this->db->prepare("SELECT quantity FROM inventory WHERE productvariant_id = ?");
+                $stockCheck->execute([$item['productvariant_id']]);
+                $stockRow = $stockCheck->fetch();
+                if ($stockRow && $stockRow['quantity'] >= $item['quantity']) {
+                    $instockCount++;
+                } else {
+                    $preorderCount++;
+                }
+            }
+
+            // Block mixed orders: cannot combine in-stock and pre-order items
+            if ($instockCount > 0 && $preorderCount > 0) {
+                throw new Exception("Cannot mix in-stock and pre-order items in one order. Please checkout them separately.");
+            }
+
+            // Priority: prescription > preorder > stock
+            if ($hasPrescription) {
+                $orderType = 'prescription';
+            } elseif ($preorderCount > 0) {
+                $orderType = 'preorder';
             }
 
             // 2. Tạo đơn hàng
@@ -75,10 +98,16 @@ class CheckoutService
             ");
             $stmtPayment->execute([$orderId, $paymentMethod, $totals['total']]);
 
-            // 2. Process Items
+            // 4. Process Items
             foreach ($cartItems as $item) {
-                // Reduce stock
-                $this->reduceStock($item['productvariant_id'], $item['quantity']);
+                // Only reduce stock if sufficient inventory exists (skip for preorder items)
+                $stockCheck = $this->db->prepare("SELECT quantity FROM inventory WHERE productvariant_id = ?");
+                $stockCheck->execute([$item['productvariant_id']]);
+                $stockRow = $stockCheck->fetch();
+                
+                if ($stockRow && $stockRow['quantity'] >= $item['quantity']) {
+                    $this->reduceStock($item['productvariant_id'], $item['quantity']);
+                }
 
                 // Create OrderItem
                 $stmtItem = $this->db->prepare("

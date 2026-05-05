@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const totalEl = document.getElementById('cart-total');
     const checkoutBtn = document.getElementById('checkout-btn');
     const selectAllCheckbox = document.getElementById('select-all-cart');
+    let cachedCartItems = []; // Cache for checkout mixed-cart validation
     
 
     const loadCart = async () => {
@@ -14,6 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const data = body.data || {}; // Inner data object
             const items = data.items || [];
             const totals = data.totals || { subtotal: 0, total: 0 };
+            cachedCartItems = items; // Cache for checkout validation
             
             tbody.innerHTML = '';
             
@@ -179,6 +181,27 @@ document.addEventListener('DOMContentLoaded', async () => {
             alert('Voucher applied successfully!');
         } catch (err) {
             alert(err.response?.data?.message || 'Could not apply voucher');
+        }
+    });
+
+    // --- Mixed cart check: block checkout if both in-stock and pre-order items ---
+    // Intercept checkout button click
+    checkoutBtn?.addEventListener('click', (e) => {
+        const selectedItems = cachedCartItems.filter(i => parseInt(i.is_selected) === 1);
+        const preorderItems = selectedItems.filter(i => parseInt(i.stock_quantity || 0) <= 0);
+        const instockItems = selectedItems.filter(i => parseInt(i.stock_quantity || 0) > 0);
+
+        if (preorderItems.length > 0 && instockItems.length > 0) {
+            e.preventDefault();
+            const preorderNames = preorderItems.map(i => i.product_name).join(', ');
+            const instockNames = instockItems.map(i => i.product_name).join(', ');
+
+            if (typeof EvelensNotify !== 'undefined') {
+                EvelensNotify.info(
+                    'Cannot Mix Order Types',
+                    `Your cart has both in-stock items (${instockNames}) and pre-order items (${preorderNames}). Please deselect one type and checkout them separately.`
+                );
+            }
         }
     });
 

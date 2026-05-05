@@ -11,7 +11,7 @@ const CartService = {
     }
   },
 
-  addToCart: async ({ variant_id, quantity = 1, lens_id = null, prescription = null }) => {
+  addToCart: async ({ variant_id, quantity = 1, lens_id = null, prescription = null, is_preorder = false }) => {
     if (!variant_id) {
       throw new Error('Variant ID is required.');
     }
@@ -20,7 +20,8 @@ const CartService = {
         variant_id: Number(variant_id),
         quantity: Number(quantity),
         lens_id: lens_id ? Number(lens_id) : null,
-        prescription: prescription
+        prescription: prescription,
+        is_preorder: is_preorder ? true : false
       });
       return response.data;
     } catch (error) {

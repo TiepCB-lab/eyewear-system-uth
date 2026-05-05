@@ -107,17 +107,15 @@ function renderOrdersTable(orders) {
         const isPaid = order.payment_status?.toLowerCase() === 'paid';
         const isCOD = order.payment_method?.toLowerCase() === 'cod';
         const isPrescription = order.is_prescription || order.order_type === 'prescription';
+        const isPreorder = order.order_type === 'preorder';
         
         const methodLabel = isCOD ? 'COD' : (order.payment_method?.toUpperCase() || 'MOMO');
         
-        const payAction = (isPaid)
-            ? '<strong class="growth-positive"><i class="fi fi-rs-check-circle"></i> Paid</strong>'
-            : (isCOD 
-                ? '<span class="badge badge-pending">Pay on Delivery</span>'
-                : `<a href="../payment/?order_id=${order.id}" class="view__order">Pay Now</a>`);
-
         const prescriptionBadge = isPrescription 
             ? '<span class="badge badge-qc" style="font-size: 10px; margin-top: 4px; display: inline-block;">Prescription</span>' 
+            : '';
+        const preorderBadge = isPreorder
+            ? '<span class="badge badge-pending" style="font-size: 10px; margin-top: 4px; display: inline-block; background: #fff3e0; color: #e65100;">Pre-order</span>'
             : '';
 
         return `
@@ -125,7 +123,7 @@ function renderOrdersTable(orders) {
                 <td data-label="Order">
                     <div class="flex-column">
                         <strong>#${order.order_number || order.id}</strong>
-                        ${prescriptionBadge}
+                        ${prescriptionBadge}${preorderBadge}
                     </div>
                 </td>
                 <td data-label="Date">${date}</td>
@@ -139,12 +137,9 @@ function renderOrdersTable(orders) {
                 <td data-label="Status">${getStatusBadge(order.status)}</td>
                 <td data-label="Production"><span class="production-step-text">${order.production_step || '—'}</span></td>
                 <td data-label="Action">
-                    <div class="flex items-center gap-2">
-                        ${payAction}
-                        <button type="button" class="view-order-detail-btn" data-id="${order.id}" title="View Items">
-                            <i class="fi fi-rs-eye"></i>
-                        </button>
-                    </div>
+                    <button type="button" class="view-order-detail-btn" data-id="${order.id}" title="View Details" style="width: auto; padding: 0 12px; gap: 6px;">
+                        <i class="fi fi-rs-eye"></i> View Details
+                    </button>
                 </td>
             </tr>
         `;
