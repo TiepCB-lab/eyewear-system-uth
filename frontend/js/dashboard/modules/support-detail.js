@@ -13,15 +13,6 @@ const threadNotice = document.getElementById('threadNotice');
 const replyForm = document.getElementById('replyForm');
 const replySuccess = document.getElementById('replySuccess');
 const replyError = document.getElementById('replyError');
-const currentUser = (() => {
-    try {
-        const raw = localStorage.getItem('user_info');
-        return raw ? JSON.parse(raw) : null;
-    } catch (error) {
-        return null;
-    }
-})();
-const currentStaffId = Number(currentUser?.id || 0);
 
 let pollTimer = null;
 let lastTicketSignature = '';
@@ -133,7 +124,7 @@ function getConversationState(ticket) {
     }
 
     const lastReply = replies[replies.length - 1];
-    const lastReplyIsStaff = currentStaffId && Number(lastReply?.user_id) === currentStaffId;
+    const lastReplyIsStaff = Number(lastReply?.user_id) !== Number(ticket?.user_id);
 
     if (lastReplyIsStaff) {
         return {
@@ -199,7 +190,7 @@ async function loadTicketDetail(options = {}) {
         });
 
         (ticket.replies || []).forEach((reply) => {
-            const isStaffReply = Number(reply.user_id) === currentStaffId;
+            const isStaffReply = Number(reply.user_id) !== Number(ticket.user_id);
             conversation.push({
                 title: isStaffReply ? 'Staff' : `Customer #${ticket.user_id || 'N/A'}`,
                 meta: formatDateTime(reply.created_at),

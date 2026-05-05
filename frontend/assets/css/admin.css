@@ -582,6 +582,12 @@ body.admin-body .container {
     font-weight: 700;
 }
 
+.support-message--right .support-message__avatar {
+    background: var(--title-color);
+    color: #fff;
+    border-color: var(--title-color);
+}
+
 .support-message__body {
     display: grid;
     gap: 0.35rem;
