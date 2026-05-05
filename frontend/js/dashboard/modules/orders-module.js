@@ -62,7 +62,12 @@ function renderOrdersTable(rows) {
             <tr>
                 <td data-label="Order #">#${order.order_number || order.id}</td>
                 <td data-label="Date"><span style="font-size: 11px;">${dateStr}</span></td>
-                <td data-label="Customer">${order.customer_name || 'Customer'}</td>
+                <td data-label="Customer">
+                    <div class="flex-column" style="gap: 2px;">
+                        <strong>${order.customer_name || 'Customer'}</strong>
+                        <span style="font-size: 10px; color: #666;">${order.customer_phone || ''}</span>
+                    </div>
+                </td>
                 <td data-label="Status"><span class="badge ${statusClass}">${status.toUpperCase()}</span></td>
                 <td data-label="Payment">
                     <div class="flex-column" style="gap: 2px;">
@@ -244,7 +249,20 @@ function renderModalContent(order) {
                 <div class="items-list">${itemsHtml}</div>
             </div>
             <div style="width: 320px; flex-shrink: 0; background: #fafafa; padding: 20px; border-radius: 15px; border: 1px solid #eee;">
-                <h4 class="table__title" style="font-size: 16px; margin-bottom: 20px;">Summary</h4>
+                <h4 class="table__title" style="font-size: 16px; margin-bottom: 20px;">Order Summary</h4>
+                
+                <div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px dashed #ddd;">
+                    <h5 style="font-size: 11px; color: #888; text-transform: uppercase; margin-bottom: 8px;">Delivery Information</h5>
+                    <div style="font-size: 12px; line-height: 1.5;">
+                        <div style="font-weight: 700; margin-bottom: 4px;">${order.customer_name}</div>
+                        <div style="color: #555;"><i class="fi fi-rs-phone-call" style="font-size: 10px;"></i> ${order.customer_phone || 'N/A'}</div>
+                        <div style="color: #555;"><i class="fi fi-rs-envelope" style="font-size: 10px;"></i> ${order.customer_email || 'N/A'}</div>
+                        <div style="margin-top: 8px; padding: 8px; background: #fff; border-radius: 6px; border: 1px solid #eee; font-style: italic; color: #444;">
+                            <i class="fi fi-rs-marker" style="font-size: 10px;"></i> ${order.shipping_address || 'No shipping address provided'}
+                        </div>
+                    </div>
+                </div>
+
                 <div style="display: grid; gap: 12px; font-size: 13px;">
                     <div class="flex admin-flex-between"><span>Status:</span> <span class="badge ${getStatusClass(order.status)}">${order.status.toUpperCase()}</span></div>
                     <div class="flex admin-flex-between"><span>Payment:</span> <strong style="font-size: 11px;">${order.payment_method || 'N/A'}</strong></div>

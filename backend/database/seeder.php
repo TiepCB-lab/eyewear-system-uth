@@ -170,7 +170,7 @@ try {
             'manage_roles',
             'manage_permissions',
             'manage_system_config',
-            'manage_all_users',
+            'manage_users',
             'view_system_logs'
         ]
     ];
@@ -645,10 +645,19 @@ try {
 
     $pdo->exec("DELETE FROM lens WHERE product_id IS NULL;");
 
-    echo "Successfully seeded product data.\n";
-
     $passHash = password_hash('123', PASSWORD_DEFAULT);
-    $pdo->exec("\n        INSERT INTO `user` (full_name, email, password_hash, status) VALUES\n            ('System Admin', 'admin@eyewear.com', '$passHash', 'active'),\n            ('Project Manager', 'manager@eyewear.com', '$passHash', 'active'),\n            ('Sales Staff', 'sales@eyewear.com', '$passHash', 'active'),\n            ('Operations Staff', 'operations@eyewear.com', '$passHash', 'active'),\n            ('Test Customer', 'customer@eyewear.com', '$passHash', 'active')\n        ON DUPLICATE KEY UPDATE full_name = VALUES(full_name);\n    ");
+    $pdo->exec("
+        INSERT INTO `user` (full_name, email, password_hash, status) VALUES
+            ('System Admin', 'admin@eyewear.com', '$passHash', 'active'),
+            ('Project Manager', 'manager@eyewear.com', '$passHash', 'active'),
+            ('Sales Staff', 'sales@eyewear.com', '$passHash', 'active'),
+            ('Operations Staff', 'operations@eyewear.com', '$passHash', 'active'),
+            ('Test Customer', 'customer@eyewear.com', '$passHash', 'active'),
+            ('Nguyen Van A', 'vana@gmail.com', '$passHash', 'active'),
+            ('Tran Thi B', 'thib@gmail.com', '$passHash', 'active'),
+            ('Le Van C', 'vanc@gmail.com', '$passHash', 'active')
+        ON DUPLICATE KEY UPDATE full_name = VALUES(full_name);
+    ");
 
     $adminId = $pdo->query("SELECT id FROM `user` WHERE email = 'admin@eyewear.com'")->fetchColumn();
     $managerId = $pdo->query("SELECT id FROM `user` WHERE email = 'manager@eyewear.com'")->fetchColumn();
@@ -662,9 +671,199 @@ try {
     $roleOperations = $pdo->query("SELECT id FROM role WHERE name = 'OPERATIONS_STAFF'")->fetchColumn();
     $roleCustomer = $pdo->query("SELECT id FROM role WHERE name = 'CUSTOMER'")->fetchColumn();
 
-    $pdo->exec("\n        INSERT IGNORE INTO user_roles (user_id, role_id) VALUES\n            ($adminId, $roleAdmin),\n            ($managerId, $roleManager),\n            ($salesId, $roleSales),\n            ($operationsId, $roleOperations),\n            ($customerId, $roleCustomer)\n    ");
+    $pdo->exec("
+        INSERT IGNORE INTO user_roles (user_id, role_id) VALUES
+            ($adminId, $roleAdmin),
+            ($managerId, $roleManager),
+            ($salesId, $roleSales),
+            ($operationsId, $roleOperations),
+            ($customerId, $roleCustomer)
+    ");
 
-    echo "Successfully seeded all data including users and multiple roles.\n";
+    $otherCusEmails = ['vana@gmail.com', 'thib@gmail.com', 'vanc@gmail.com'];
+    foreach ($otherCusEmails as $email) {
+        $uId = $pdo->query("SELECT id FROM `user` WHERE email = '$email'")->fetchColumn();
+        if ($uId) {
+            $pdo->exec("INSERT IGNORE INTO user_roles (user_id, role_id) VALUES ($uId, $roleCustomer)");
+        }
+    }
+
+    echo "Successfully seeded users and roles.\n";
+
+    // --- ENHANCED SEEDING: PROMOTIONS ---
+    echo "Seeding promotions...\n";
+    $pdo->exec("DELETE FROM promotion");
+    $pdo->exec("
+        INSERT INTO promotion (code, title, discount_type, discount_value, starts_at, ends_at, is_active) VALUES
+            ('WELCOME10', 'Welcome Discount 10%', 'percentage', 10.00, '2024-01-01 00:00:00', '2026-12-31 23:59:59', 1),
+            ('SUMMER2024', 'Summer Sale 2024', 'percentage', 20.00, '2024-06-01 00:00:00', '2024-08-31 23:59:59', 1),
+            ('SAVE50K', 'Fixed 50k Discount', 'fixed', 50000.00, '2024-01-01 00:00:00', '2026-12-31 23:59:59', 1)
+    ");
+    $promoId = $pdo->query("SELECT id FROM promotion WHERE code = 'WELCOME10'")->fetchColumn();
+
+    // --- ENHANCED SEEDING: PRESCRIPTIONS ---
+    echo "Seeding prescriptions...\n";
+    $pdo->exec("DELETE FROM prescription");
+    $pdo->prepare("INSERT INTO prescription (user_id, sph_od, sph_os, cyl_od, cyl_os, axis_od, axis_os, pd, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
+        ->execute([$customerId, -2.50, -2.25, -0.75, -0.50, 180, 175, 63.5, 'Test prescription for daily use']);
+    $prescriptionId = $pdo->lastInsertId();
+
+    // --- ENHANCED SEEDING: ORDERS ---
+    echo "Seeding varied orders...\n";
+    $pdo->exec("DELETE FROM `order` WHERE 1"); // This cascade deletes orderitems, payments, shipments
+
+    $products = $pdo->query("SELECT p.id, pv.id as variant_id, p.base_price FROM product p JOIN productvariant pv ON p.id = pv.product_id LIMIT 10")->fetchAll();
+    $lens = $pdo->query("SELECT id, price FROM lens LIMIT 5")->fetchAll();
+
+    $orderStates = [
+        [
+            'number' => 'ORD-PENDING-001',
+            'status' => 'pending',
+            'type' => 'stock',
+            'items' => [ ['idx' => 0, 'qty' => 1] ]
+        ],
+        [
+            'number' => 'ORD-PREORDER-002',
+            'status' => 'paid',
+            'type' => 'pre_order',
+            'items' => [ ['idx' => 1, 'qty' => 1] ]
+        ],
+        [
+            'number' => 'ORD-PRESCRIPTION-003',
+            'status' => 'paid',
+            'type' => 'prescription',
+            'items' => [ ['idx' => 2, 'qty' => 1, 'lens_idx' => 0, 'presc' => true] ]
+        ],
+        [
+            'number' => 'ORD-PRODUCING-004',
+            'status' => 'processing',
+            'step' => 'lens_cutting',
+            'type' => 'prescription',
+            'items' => [ ['idx' => 3, 'qty' => 1, 'lens_idx' => 1, 'presc' => true] ]
+        ],
+        [
+            'number' => 'ORD-READY-005',
+            'status' => 'processing',
+            'step' => 'ready_to_ship',
+            'type' => 'stock',
+            'items' => [ ['idx' => 4, 'qty' => 2] ]
+        ],
+        [
+            'number' => 'ORD-SHIPPED-006',
+            'status' => 'shipped',
+            'step' => 'ready_to_ship',
+            'type' => 'stock',
+            'shipment' => 'GHTK' . time(),
+            'items' => [ ['idx' => 5, 'qty' => 1] ]
+        ]
+    ];
+
+    foreach ($orderStates as $o) {
+        $total = 0;
+        foreach ($o['items'] as $item) {
+            $total += $products[$item['idx']]['base_price'] * $item['qty'];
+            if (isset($item['lens_idx'])) $total += $lens[$item['lens_idx']]['price'] * $item['qty'];
+        }
+
+        $stmt = $pdo->prepare("INSERT INTO `order` (user_id, order_number, total_amount, status, production_step, order_type, shipping_address, placed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([
+            $customerId,
+            $o['number'],
+            $total,
+            $o['status'],
+            $o['step'] ?? null,
+            $o['type'],
+            '123 Test Street, District 1, HCMC',
+            date('Y-m-d H:i:s', strtotime('-' . rand(1, 10) . ' days'))
+        ]);
+        $orderId = $pdo->lastInsertId();
+
+        // Items
+        foreach ($o['items'] as $item) {
+            $p = $products[$item['idx']];
+            $l = isset($item['lens_idx']) ? $lens[$item['lens_idx']] : null;
+            $itemPrice = $p['base_price'] + ($l ? $l['price'] : 0);
+            
+            $pdo->prepare("INSERT INTO orderitem (order_id, productvariant_id, lens_id, prescription_id, quantity, unit_price, line_total) VALUES (?, ?, ?, ?, ?, ?, ?)")
+                ->execute([
+                    $orderId,
+                    $p['variant_id'],
+                    $l ? $l['id'] : null,
+                    isset($item['presc']) ? $prescriptionId : null,
+                    $item['qty'],
+                    $itemPrice,
+                    $itemPrice * $item['qty']
+                ]);
+        }
+
+        // Payment
+        if ($o['status'] !== 'pending') {
+            $pdo->prepare("INSERT INTO payment (order_id, payment_method, amount, status, paid_at) VALUES (?, ?, ?, ?, ?)")
+                ->execute([$orderId, 'bank_transfer', $total, 'paid', date('Y-m-d H:i:s')]);
+        }
+
+        // Shipment
+        if (isset($o['shipment'])) {
+            $pdo->prepare("INSERT INTO shipment (order_id, courier, tracking_number, shipping_status, shipped_at) VALUES (?, ?, ?, ?, ?)")
+                ->execute([$orderId, 'GHTK', $o['shipment'], 'shipping', date('Y-m-d H:i:s')]);
+        }
+    }
+
+    // --- ADDING MORE ORDERS FOR NEW CUSTOMERS ---
+    echo "Seeding additional orders for new customers...\n";
+    $newCustomers = $pdo->query("SELECT id FROM `user` WHERE email IN ('vana@gmail.com', 'thib@gmail.com', 'vanc@gmail.com')")->fetchAll(PDO::FETCH_COLUMN);
+    
+    foreach ($newCustomers as $uId) {
+        for ($j = 1; $j <= 3; $j++) {
+            $orderNum = 'ORD-NEW-' . $uId . '-' . $j . '-' . time();
+            $status = ['pending', 'paid', 'shipped'][rand(0, 2)];
+            $type = ['stock', 'prescription', 'sunglasses'][rand(0, 2)];
+            $total = rand(500000, 3000000);
+            
+            $pdo->prepare("INSERT INTO `order` (user_id, order_number, total_amount, status, order_type, shipping_address, placed_at) VALUES (?, ?, ?, ?, ?, ?, ?)")
+                ->execute([
+                    $uId,
+                    $orderNum,
+                    $total,
+                    $status,
+                    $type === 'sunglasses' ? 'stock' : $type,
+                    '456 Avenue, District 7, HCMC',
+                    date('Y-m-d H:i:s', strtotime('-' . rand(1, 5) . ' days'))
+                ]);
+            $orderId = $pdo->lastInsertId();
+            
+            // Add 1-2 items per order
+            $itemCount = rand(1, 2);
+            for ($k = 0; $k < $itemCount; $k++) {
+                $p = $products[rand(0, count($products) - 1)];
+                $pdo->prepare("INSERT INTO orderitem (order_id, productvariant_id, quantity, unit_price, line_total) VALUES (?, ?, ?, ?, ?)")
+                    ->execute([$orderId, $p['variant_id'], 1, $p['base_price'], $p['base_price']]);
+            }
+        }
+    }
+
+    echo "Seeding complete!\n";
+
+    // --- ENHANCED SEEDING: SUPPORT TICKETS ---
+    echo "Seeding support tickets...\n";
+    $pdo->exec("DELETE FROM supportticket");
+    $tickets = [
+        ['subject' => 'Wrong frame color', 'message' => 'I ordered black but got brown.', 'priority' => 'high'],
+        ['subject' => 'Delivery delay', 'message' => 'My order is late.', 'priority' => 'medium'],
+        ['subject' => 'Broken lens upon arrival', 'message' => 'The left lens has a crack.', 'priority' => 'urgent']
+    ];
+
+    foreach ($tickets as $t) {
+        $pdo->prepare("INSERT INTO supportticket (user_id, subject, message, status, priority) VALUES (?, ?, ?, ?, ?)")
+            ->execute([$customerId, $t['subject'], $t['message'], 'open', $t['priority']]);
+        $ticketId = $pdo->lastInsertId();
+
+        // Reply from staff
+        $pdo->prepare("INSERT INTO ticket_replies (ticket_id, user_id, message) VALUES (?, ?, ?)")
+            ->execute([$ticketId, $salesId, "We are sorry to hear that. Our team is looking into it."]);
+    }
+
+    echo "Successfully seeded all 'thick' test data.\n";
 } catch (PDOException $e) {
     echo "Seed failed: " . $e->getMessage() . "\n";
 }

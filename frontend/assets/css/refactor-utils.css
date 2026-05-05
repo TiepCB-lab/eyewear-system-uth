@@ -404,7 +404,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 999;
+  z-index: 10000;
 }
 
 .admin-modal__card {
@@ -1325,17 +1325,40 @@
 }
 
 .values {
-  padding-block: 6rem;
-  background-color: var(--title-color);
+  padding-block: 8rem;
+  background: linear-gradient(180deg, var(--title-color) 0%, #0f172a 100%);
   color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+.values::before {
+  content: '';
+  position: absolute;
+  top: -10%;
+  right: -10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(11, 67, 60, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
 }
 
 .values__title {
-  margin-bottom: 4rem;
+  margin-bottom: 5rem;
   text-align: center;
-  font-family: var(--heading-font);
-  font-size: var(--h2-font-size);
+  font-family: var(--second-font);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 400;
   color: #fff;
+}
+
+.values__title span {
+  display: block;
+  font-size: var(--small-font-size);
+  color: var(--accent-gold);
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  margin-bottom: 1rem;
 }
 
 .values__grid {
@@ -1380,10 +1403,15 @@
 }
 
 .standards {
-  padding-block: 6rem;
-  background: var(--first-color);
-  color: #fff;
+  padding-block: 8rem;
+  background: #fff;
+  color: var(--title-color);
   text-align: center;
+}
+
+.standards .about-hero__badge {
+    background: var(--first-color-alt);
+    color: var(--first-color);
 }
 
 .standards__grid {
@@ -1393,23 +1421,39 @@
 }
 
 .standard__item i {
-  display: block;
-  margin-bottom: 1.5rem;
-  font-size: 2.5rem;
-  color: var(--accent-gold);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  color: var(--first-color);
+  background: var(--first-color-alt);
+  border-radius: 50%;
+  transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.standard__item:hover i {
+    transform: rotate(10deg) scale(1.1);
+    background: var(--first-color);
+    color: #fff;
 }
 
 .standard__title {
-  margin-bottom: 1rem;
-  font-family: var(--heading-font);
-  font-size: var(--h4-font-size);
-  color: #fff;
+  margin-bottom: 1.25rem;
+  font-family: var(--second-font);
+  font-size: var(--h3-font-size);
+  font-weight: 500;
+  color: var(--title-color);
 }
 
 .standard__text {
-  font-size: var(--smaller-font-size);
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.8);
+  font-size: var(--normal-font-size);
+  line-height: 1.7;
+  color: var(--text-color-light);
+  max-width: 320px;
+  margin: 0 auto;
 }
 
 /*=============== PAYMENT PAGE ===============*/

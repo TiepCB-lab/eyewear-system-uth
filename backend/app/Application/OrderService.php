@@ -8,7 +8,7 @@ class OrderService
 {
     private const ORDER_WORKFLOW = [
         'pending'     => ['paid', 'processing', 'cancelled'],
-        'paid'        => ['processing', 'cancelled'],
+        'paid'        => ['processing', 'shipped', 'cancelled'],
         'processing'  => ['shipped', 'cancelled'],
         'shipped'     => ['delivered', 'cancelled'],
         'delivered'   => [],
@@ -84,11 +84,11 @@ class OrderService
     {
         $db = Database::getInstance();
         $stmt = $db->prepare(
-            'SELECT o.id, o.order_number, o.status, o.total_amount, o.shipping_address, o.billing_address,
-                    o.order_type, o.placed_at, o.production_step, o.verified_by, o.verified_at,
+            'SELECT o.*, u.full_name AS customer_name, u.email AS customer_email, u.phone AS customer_phone,
                     COALESCE(p.status, o.status) AS payment_status,
                     p.payment_method, p.amount AS payment_amount, p.transaction_ref, p.paid_at
              FROM `order` o
+             LEFT JOIN `user` u ON u.id = o.user_id
              LEFT JOIN payment p ON p.id = (SELECT MAX(id) FROM payment WHERE order_id = o.id)
              WHERE o.id = ?
              LIMIT 1'

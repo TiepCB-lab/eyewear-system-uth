@@ -9,8 +9,15 @@
     </div>
 </div>
 
-<div class="admin-table container admin-panel">
-    <h3 class="table__title">Voucher List</h3>
+<div class="admin-table container admin-panel admin-panel--compact">
+    <div class="flex admin-filter-row">
+        <input id="searchVoucher" class="form__input admin-input-limit-300" placeholder="Search by code/title" />
+        <select id="statusVoucherFilter" class="form__input admin-input-limit-180">
+            <option value="">All Status</option>
+            <option value="1">Active</option>
+            <option value="0">Inactive</option>
+        </select>
+    </div>
     <div class="table__container">
         <table class="table">
             <thead>

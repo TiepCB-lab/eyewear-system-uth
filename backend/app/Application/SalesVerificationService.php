@@ -13,7 +13,7 @@ class SalesVerificationService
     public function getAllOrders(array $filters = []): array
     {
         $db = Database::getInstance();
-        $sql = "SELECT u.full_name AS customer_name, o.*, p.payment_method, p.status AS payment_status 
+        $sql = "SELECT u.full_name AS customer_name, u.phone AS customer_phone, o.*, p.payment_method, p.status AS payment_status 
                 FROM `order` o
                 JOIN `user` u ON o.user_id = u.id
                 LEFT JOIN payment p ON p.id = (SELECT MAX(id) FROM payment WHERE order_id = o.id)

@@ -20,8 +20,17 @@ class OperationsService
 	{
 		$db = Database::getInstance();
 		$stmt = $db->query(
-			"SELECT o.*, s.id AS shipment_id, s.courier, s.tracking_number, s.shipping_status
+			"SELECT o.*, u.full_name as customer_name, u.phone as customer_phone,
+                    s.id AS shipment_id, s.courier, s.tracking_number, s.shipping_status,
+                    (SELECT GROUP_CONCAT(CONCAT(oi.quantity, 'x ', COALESCE(p.name, l.name)))
+                     FROM orderitem oi
+                     LEFT JOIN productvariant pv ON pv.id = oi.productvariant_id
+                     LEFT JOIN product p ON p.id = pv.product_id
+                     LEFT JOIN lens l ON l.id = oi.lens_id
+                     WHERE oi.order_id = o.id) as items_summary,
+                    (SELECT COUNT(*) FROM orderitem WHERE order_id = o.id AND (lens_id IS NOT NULL OR prescription_id IS NOT NULL)) as lab_count
 			 FROM `order` o
+             LEFT JOIN `user` u ON u.id = o.user_id
 			 LEFT JOIN shipment s ON s.order_id = o.id
 			 WHERE o.status IN ('pending', 'paid', 'processing', 'shipped')
 			 ORDER BY o.created_at ASC"
@@ -51,8 +60,19 @@ class OperationsService
 			throw new \Exception('Order must be in processing state to advance production');
 		}
 
-		$currentStep = $order->production_step ?: self::PRODUCTION_FLOW[0];
-		$nextStep = $this->getNextProductionStep($currentStep);
+		$currentStep = $order->production_step;
+        
+        // Logic for skipping Lab (lens cutting/mounting) for accessories/sunglasses
+        $db = Database::getInstance();
+        $stmt = $db->prepare("SELECT COUNT(*) FROM orderitem WHERE order_id = ? AND (lens_id IS NOT NULL OR prescription_id IS NOT NULL)");
+        $stmt->execute([$orderId]);
+        $needsLab = (int)$stmt->fetchColumn() > 0;
+
+        if (!$currentStep) {
+            $nextStep = $needsLab ? self::PRODUCTION_FLOW[0] : 'packaging';
+        } else {
+            $nextStep = $this->getNextProductionStep($currentStep);
+        }
 
 		if ($nextStep === null) {
 			throw new \Exception('Order is already ready to ship');

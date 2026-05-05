@@ -79,10 +79,23 @@ function renderQueueTable(queue) {
                 <span style="font-size: 10px; color: #888;">${new Date(order.placed_at || Date.now()).toLocaleDateString()}</span>
             </div>
         </td>
-        <td class="ops-table__cell" data-label="Details">
+        <td class="ops-table__cell" data-label="Customer">
             <div class="flex-column">
-                <span>${order.customer_name || 'Customer'}</span>
-                <span style="font-size: 11px; color: var(--first-color); font-weight: 600;">${order.lens_name || 'Standard Lens'}</span>
+                <span class="ops-table__cell--strong">${order.customer_name || 'Guest User'}</span>
+                <span style="font-size: 11px; color: #475569;"><i class="fi fi-rs-phone-call"></i> ${order.customer_phone || 'N/A'}</span>
+                <p style="font-size: 10px; color: #64748b; margin-top: 4px; line-height: 1.3; max-width: 180px;">
+                    <i class="fi fi-rs-marker"></i> ${order.shipping_address || 'No address provided'}
+                </p>
+            </div>
+        </td>
+        <td class="ops-table__cell" data-label="Production Details">
+            <div class="flex-column" title="${order.items_summary || ''}">
+                <span class="ops-table__cell--strong" style="font-size: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2;">
+                    ${order.items_summary || 'Order Items'}
+                </span>
+                ${Number(order.lab_count) > 0 
+                  ? `<span style="font-size: 10px; color: #e11d48; font-weight: 700; margin-top: 4px;"><i class="fi fi-rs-beaker"></i> RX LAB REQUIRED</span>` 
+                  : `<span style="font-size: 10px; color: #10b981; font-weight: 700; margin-top: 4px;"><i class="fi fi-rs-box-open"></i> READY STOCK</span>`}
             </div>
         </td>
         <td class="ops-table__cell" data-label="Step">
@@ -92,19 +105,19 @@ function renderQueueTable(queue) {
         </td>
         <td class="ops-table__cell" data-label="Progress"><span class="status-pill ${status.class}">${status.label}</span></td>
         <td class="ops-table__cell" data-label="Action">
-          ${order.status === 'shipped' || order.status === 'shipping'
+          ${['shipped', 'shipping', 'delivered'].includes((order.status || '').toLowerCase())
             ? `<span class="status-pill status-done">Shipped</span>`
             : (!order.verified_by && ['pending', 'paid'].includes((order.status || '').toLowerCase()))
               ? `<div class="status-pill status-wait" style="font-size: 10px; opacity: 0.8;"><i class="fi fi-rs-time-clock"></i> Waiting for Sales</div>`
               : (order.production_step === 'ready_to_ship'
                   ? (order.shipment_id
-                      ? `<button type="button" class="btn btn--sm btn--outline ops-table__action" data-order-id="${order.id}" data-shipment-id="${order.shipment_id}" data-action="update">
+                      ? `<button type="button" class="btn btn--sm btn--outline ops-table__action" onclick="window.handleOpsAction(this, ${order.id}, 'update', ${order.shipment_id})">
                            <i class="fi fi-rs-edit"></i> Update
                          </button>`
-                      : `<button type="button" class="btn btn--sm btn--outline ops-table__action" data-order-id="${order.id}" data-action="ship">
+                      : `<button type="button" class="btn btn--sm btn--outline ops-table__action" onclick="window.handleOpsAction(this, ${order.id}, 'ship')">
                            <i class="fi fi-rs-paper-plane"></i> Ship
                          </button>`)
-                  : `<button type="button" class="btn btn--sm ops-table__action" data-order-id="${order.id}" data-action="advance">
+                  : `<button type="button" class="btn btn--sm ops-table__action" onclick="window.handleOpsAction(this, ${order.id}, 'advance')">
                        Next Step <i class="fi fi-rs-angle-small-right"></i>
                      </button>`)
           }
@@ -122,6 +135,7 @@ function getStepIcon(step) {
     'packaging': 'fi-rs-box-alt',
     'ready_to_ship': 'fi-rs-truck-side'
   };
+  if (!step) return 'fi-rs-time-clock';
   return iconMap[step] || 'fi-rs-settings';
 }
 
@@ -133,6 +147,7 @@ function formatProductionStep(step) {
     'packaging': 'Packaging',
     'ready_to_ship': 'Ready to Ship'
   };
+  if (!step) return 'Pending Verification';
   return stepMap[step] || step;
 }
 
@@ -156,16 +171,8 @@ function setupEventListeners() {
     });
   }
 
-  document.addEventListener('click', async (event) => {
-    const advanceButton = event.target.closest('.ops-table__action');
-    if (!advanceButton) {
-      return;
-    }
-
-    const orderId = Number(advanceButton.dataset.orderId);
-    const shipmentId = Number(advanceButton.dataset.shipmentId || 0);
-    const action = advanceButton.dataset.action;
-
+  // Global handler for inline onclicks
+  window.handleOpsAction = async (btn, orderId, action, shipmentId = 0) => {
     if (action === 'ship') {
       await handleShipAction(orderId);
     } else if (action === 'update') {
@@ -173,26 +180,40 @@ function setupEventListeners() {
     } else {
       await advanceStep(orderId);
     }
-  });
+  };
 }
 
 async function handleShipAction(orderId) {
-    const trackingNumber = prompt("Enter Tracking Number (e.g., GHTK123456):");
-    if (trackingNumber === null) return; // User cancelled
+    if (!window.EvelensNotify) {
+        const tracking = prompt("Enter Tracking Number:");
+        if (tracking === null) return;
+        return executeShipment(orderId, tracking);
+    }
 
+    await window.EvelensNotify.confirm(
+        'Confirm Shipment',
+        'Are you sure you want to mark this order as Shipped? A tracking number will be generated automatically.',
+        async () => {
+            await executeShipment(orderId);
+        },
+        'Ship Now',
+        'Cancel'
+    );
+}
+
+async function executeShipment(orderId, trackingNumber = null) {
     try {
         await dashboardService.createShipment({
             order_id: orderId,
-            tracking_number: trackingNumber || 'SHIP-' + Date.now(),
-        courier: 'GHTK',
-        shipping_status: 'shipping'
+            tracking_number: trackingNumber || 'TRK-' + Date.now(),
+            courier: 'GHTK',
+            shipping_status: 'shipping'
         });
         showAlert('Order marked as Shipped!', 'success');
         await loadOperationsData();
     } catch (error) {
-      const serverMsg = error?.response?.data?.message || error?.response?.data?.error || error?.message || 'Unknown error';
-      console.error('Error creating shipment:', error?.response || error);
-      showAlert('Failed to create shipment: ' + serverMsg, 'error');
+        const serverMsg = error?.response?.data?.message || error?.response?.data?.error || error?.message || 'Unknown error';
+        showAlert('Failed to create shipment: ' + serverMsg, 'error');
     }
 }
 
@@ -233,8 +254,9 @@ async function advanceStep(orderId) {
 }
 
 function showAlert(message, type) {
-  if (window.Notification) {
-      window.Notification.show(message, type);
+  const notify = window.Notification;
+  if (notify && typeof notify.show === 'function') {
+      notify.show(message, type);
       return;
   }
 
