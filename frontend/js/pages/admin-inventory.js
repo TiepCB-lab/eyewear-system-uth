@@ -100,28 +100,28 @@ function renderTable(data = null) {
                     </div>
                 </div>
             </td>
-            <td data-label="Variant">
-                <div>
-                    <span class="variant-badge">${item.color || 'N/A'}</span>
-                    <span class="variant-badge">${item.size || 'N/A'}</span>
+            <td data-label="Variant" style="text-align: center;">
+                <div style="display: flex; gap: 4px; justify-content: center;">
+                    <span class="variant-badge" style="background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600;">${item.color || 'N/A'}</span>
+                    <span class="variant-badge" style="background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600;">${item.size || 'N/A'}</span>
                 </div>
             </td>
-            <td data-label="SKU"><span class="product-sku">${item.sku}</span></td>
-            <td data-label="Stock" class="stock-cell"><span id="stock-val-${index}">${item.stock}</span></td>
-            <td data-label="Reserved" class="stock-cell">${item.reserved}</td>
-            <td data-label="Available" class="stock-cell">${item.available}</td>
-            <td data-label="Reorder" class="stock-cell">${item.reorder_level}</td>
-            <td data-label="Status"><span class="status-badge ${statusClass}">${statusText}</span></td>
-            <td data-label="Action">
-                <div class="action-buttons">
-                    <button type="button" class="btn-small btn-edit inventory-edit-btn" id="editBtn-${index}" data-index="${index}">
-                        <i class="fi fi-rs-edit"></i> Edit
+            <td data-label="SKU" style="text-align: center;"><span class="product-sku" style="font-size: 11px;">${item.sku}</span></td>
+            <td data-label="Stock" class="stock-cell" style="text-align: center;"><span id="stock-val-${index}" style="font-weight: 700;">${item.stock}</span></td>
+            <td data-label="Reserved" class="stock-cell" style="text-align: center;">${item.reserved}</td>
+            <td data-label="Available" class="stock-cell" style="text-align: center;"><strong style="color: var(--first-color);">${item.available}</strong></td>
+            <td data-label="Reorder" class="stock-cell" style="text-align: center;">${item.reorder_level}</td>
+            <td data-label="Status" style="text-align: center;"><span class="status-badge ${statusClass}" style="font-size: 10px;">${statusText}</span></td>
+            <td data-label="Action" style="text-align: center;">
+                <div class="action-buttons-group">
+                    <button type="button" class="btn-inventory-action inventory-edit-btn" id="editBtn-${index}" data-index="${index}" title="Edit Stock">
+                        <i class="fi fi-rs-pencil"></i>
                     </button>
-                    <button type="button" class="btn-small btn-save inventory-save-btn" id="saveBtn-${index}" data-index="${index}" hidden>
-                        <i class="fi fi-rs-check"></i> Save
+                    <button type="button" class="btn-inventory-action btn-inventory-action--save inventory-save-btn" id="saveBtn-${index}" data-index="${index}" hidden title="Save Changes">
+                        <i class="fi fi-rs-check"></i>
                     </button>
-                    <button type="button" class="btn-small btn-cancel inventory-cancel-btn" id="cancelBtn-${index}" data-index="${index}" hidden>
-                        <i class="fi fi-rs-cross"></i> Cancel
+                    <button type="button" class="btn-inventory-action btn-inventory-action--cancel inventory-cancel-btn" id="cancelBtn-${index}" data-index="${index}" hidden title="Cancel">
+                        <i class="fi fi-rs-cross"></i>
                     </button>
                 </div>
             </td>
@@ -158,7 +158,7 @@ function startEdit(index) {
     const item = inventoryData[index];
     const stockCell = document.getElementById(`stock-val-${index}`);
     
-    stockCell.innerHTML = `<input type="number" id="edit-input-${index}" class="stock-input" value="${item.stock}" min="0">`;
+    stockCell.innerHTML = `<input type="number" id="edit-input-${index}" class="stock-input-premium" value="${item.stock}" min="0">`;
     
     document.getElementById(`editBtn-${index}`).hidden = true;
     document.getElementById(`saveBtn-${index}`).hidden = false;

@@ -165,7 +165,7 @@ Router::group(['prefix' => 'api/v1'], function () {
                 Router::delete('{id}', [ProductController::class, 'destroy']);
             });
 
-            Router::group(['middleware' => 'permission:manage_users|manage_all_users'], function() {
+            Router::group(['middleware' => 'permission:manage_users'], function() {
                 Router::get('users', [AdminController::class, 'listUsers']);
                 Router::post('staff', [AdminController::class, 'createStaff']);
                 Router::get('users/{id}', [AdminController::class, 'getUser']);

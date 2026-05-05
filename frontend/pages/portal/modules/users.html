@@ -58,25 +58,43 @@
         </div>
         <form id="staffForm">
             <div class="grid admin-modal__grid">
-                <input id="fullName" class="form__input" placeholder="Full name" required>
-                <input id="email" type="email" class="form__input" placeholder="Email" required>
-                <input id="phone" class="form__input" placeholder="Phone">
-                <select id="staffRole" class="form__input" required>
-                    <option value="">Select role</option>
-                    <option value="ADMIN">System Admin</option>
-                    <option value="MANAGER">Manager</option>
-                    <option value="SALES_STAFF">Sales Staff</option>
-                    <option value="OPERATIONS_STAFF">Operations Staff</option>
-                    <option value="CUSTOMER">Customer</option>
-                </select>
-                <select id="staffStatus" class="form__input" required>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                    <option value="blocked">Blocked</option>
-                </select>
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.85rem;">Full Name</label>
+                    <input id="fullName" class="form__input" placeholder="e.g. Nguyen Van A" required>
+                </div>
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.85rem;">Email Address</label>
+                    <input id="email" type="email" class="form__input" placeholder="vana@eyewear.com" required>
+                </div>
+                <div id="passwordFieldContainer" class="form-group">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.85rem;">Temporary Password</label>
+                    <input id="password" type="text" class="form__input" placeholder="At least 6 characters">
+                </div>
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.85rem;">Phone Number</label>
+                    <input id="phone" class="form__input" placeholder="090 123 4567">
+                </div>
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.85rem;">Staff Role</label>
+                    <select id="staffRole" class="form__input" required>
+                        <option value="">Select role</option>
+                        <option value="SALES_STAFF">Sales Staff</option>
+                        <option value="OPERATIONS_STAFF">Operations Staff</option>
+                        <option value="MANAGER">Manager</option>
+                        <option value="CUSTOMER">Customer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.85rem;">Account Status</label>
+                    <select id="staffStatus" class="form__input" required>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="blocked">Blocked</option>
+                    </select>
+                </div>
             </div>
-            <div class="flex admin-modal__actions">
-                <button type="submit" class="btn btn--sm"><span id="submitText">Create Staff</span></button>
+            <div class="flex admin-modal__actions" style="margin-top: 2rem;">
+                <button type="submit" class="btn btn--sm" style="width: 100%;"><span id="submitText">Create Account</span></button>
             </div>
         </form>
     </div>

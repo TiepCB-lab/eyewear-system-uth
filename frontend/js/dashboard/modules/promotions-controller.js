@@ -13,7 +13,9 @@ class PromotionsController {
 
     async loadVouchers() {
         try {
-            const response = await api.client.get('/v1/admin/vouchers');
+            const code = document.getElementById('searchVoucher')?.value || '';
+            const status = document.getElementById('statusVoucherFilter')?.value || '';
+            const response = await api.client.get(`/v1/admin/vouchers?code=${code}&is_active=${status}`);
             this.vouchers = response.data?.data || [];
         } catch (error) {
             console.error('Failed to load vouchers:', error);
@@ -25,29 +27,35 @@ class PromotionsController {
         if (!tbody) return;
 
         if (this.vouchers.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="table-state-cell">No vouchers found.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="table-state-cell">No vouchers found matching filters.</td></tr>';
             return;
         }
 
         tbody.innerHTML = this.vouchers.map(v => `
             <tr>
-                <td><strong class="product-sku">${v.code}</strong></td>
-                <td>${v.title}</td>
-                <td>${v.discount_type === 'percentage' ? v.discount_value + '%' : api.formatCurrency(v.discount_value)}</td>
+                <td><strong class="product-sku" style="background: #f1f5f9; padding: 4px 10px; border-radius: 6px; color: var(--first-color);">${v.code}</strong></td>
+                <td><div style="font-weight: 600;">${v.title}</div></td>
                 <td>
-                    <small>${new Date(v.starts_at).toLocaleDateString()} - ${new Date(v.ends_at).toLocaleDateString()}</small>
+                    <div style="color: #059669; font-weight: 700;">
+                        ${v.discount_type === 'percentage' ? v.discount_value + '%' : api.formatCurrency(v.discount_value)}
+                    </div>
                 </td>
                 <td>
-                    <span class="status-badge ${v.is_active ? 'badge-active' : 'badge-pending'}">
+                    <div style="font-size: 11px; color: #64748b;">
+                        <i class="fi fi-rs-calendar"></i> ${new Date(v.starts_at).toLocaleDateString()} - ${new Date(v.ends_at).toLocaleDateString()}
+                    </div>
+                </td>
+                <td>
+                    <span class="status-badge ${v.is_active ? 'status-in-stock' : 'status-out-of-stock'}" style="font-size: 10px;">
                         ${v.is_active ? 'Active' : 'Inactive'}
                     </span>
                 </td>
                 <td>
-                    <div class="action-buttons">
-                        <button class="btn-small btn-edit" data-id="${v.id}">
-                            <i class="fi fi-rs-edit"></i>
+                    <div class="action-buttons-group">
+                        <button class="btn-inventory-action btn-edit" data-id="${v.id}" title="Edit Voucher">
+                            <i class="fi fi-rs-pencil"></i>
                         </button>
-                        <button class="btn-small btn-cancel" data-id="${v.id}" style="display: ${v.is_active ? 'inline-flex' : 'none'}">
+                        <button class="btn-inventory-action btn-inventory-action--cancel btn-delete" data-id="${v.id}" style="display: ${v.is_active ? 'inline-flex' : 'none'}" title="Deactivate">
                             <i class="fi fi-rs-trash"></i>
                         </button>
                     </div>
@@ -63,10 +71,12 @@ class PromotionsController {
 
     setupEventListeners() {
         document.getElementById('add-voucher-btn')?.addEventListener('click', () => this.openVoucherModal());
+        document.getElementById('searchVoucher')?.addEventListener('input', () => this.init());
+        document.getElementById('statusVoucherFilter')?.addEventListener('change', () => this.init());
         
         document.getElementById('vouchers-table-body')?.addEventListener('click', (e) => {
             const editBtn = e.target.closest('.btn-edit');
-            const deleteBtn = e.target.closest('.btn-cancel');
+            const deleteBtn = e.target.closest('.btn-delete');
 
             if (editBtn) this.openVoucherModal(editBtn.dataset.id);
             if (deleteBtn) this.handleDeleteVoucher(deleteBtn.dataset.id);
@@ -77,47 +87,46 @@ class PromotionsController {
         const voucher = voucherId ? this.vouchers.find(v => v.id == voucherId) : null;
         
         const modalHtml = `
-            <div class="modal-overlay" id="voucher-modal">
-                <div class="modal-container" style="max-width: 500px;">
-                    <div class="modal-header">
-                        <h3>${voucher ? 'Edit Voucher' : 'Create New Voucher'}</h3>
-                        <button class="modal-close">&times;</button>
+            <div class="admin-modal" id="voucher-modal">
+                <div class="admin-modal__card" style="max-width: 500px;">
+                    <div class="flex admin-modal__header">
+                        <h3 class="admin-title-reset">${voucher ? 'Edit Voucher' : 'Create New Voucher'}</h3>
+                        <button class="btn btn--sm modal-close" type="button">Close</button>
                     </div>
-                    <form id="voucher-form" class="p-3">
-                        <div class="form-group mb-3">
-                            <label>Voucher Code</label>
-                            <input type="text" name="code" class="form-control" value="${voucher?.code || ''}" required ${voucher ? 'readonly' : ''}>
+                    <form id="voucher-form" class="grid" style="gap: 1.5rem; padding: 1rem 0;">
+                        <div class="form-group">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem;">Voucher Code</label>
+                            <input type="text" name="code" class="form__input" value="${voucher?.code || ''}" required ${voucher ? 'readonly' : ''} style="text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">
                         </div>
-                        <div class="form-group mb-3">
-                            <label>Title</label>
-                            <input type="text" name="title" class="form-control" value="${voucher?.title || ''}" required>
+                        <div class="form-group">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem;">Promotion Title</label>
+                            <input type="text" name="title" class="form__input" value="${voucher?.title || ''}" required placeholder="e.g. Welcome Discount 10%">
                         </div>
-                        <div class="form-row flex gap-3 mb-3">
+                        <div class="flex gap-3">
                             <div class="form-group flex-1">
-                                <label>Type</label>
-                                <select name="discount_type" class="form-control">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.8rem;">Discount Type</label>
+                                <select name="discount_type" class="form__input">
                                     <option value="percentage" ${voucher?.discount_type === 'percentage' ? 'selected' : ''}>Percentage (%)</option>
                                     <option value="fixed" ${voucher?.discount_type === 'fixed' ? 'selected' : ''}>Fixed Amount</option>
                                 </select>
                             </div>
                             <div class="form-group flex-1">
-                                <label>Value</label>
-                                <input type="number" name="discount_value" class="form-control" value="${voucher?.discount_value || 0}" required>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.8rem;">Value</label>
+                                <input type="number" name="discount_value" class="form__input" value="${voucher?.discount_value || 0}" required>
                             </div>
                         </div>
-                        <div class="form-row flex gap-3 mb-3">
+                        <div class="flex gap-3">
                             <div class="form-group flex-1">
-                                <label>Starts At</label>
-                                <input type="date" name="starts_at" class="form-control" value="${voucher?.starts_at ? voucher.starts_at.split(' ')[0] : ''}" required>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.8rem;">Start Date</label>
+                                <input type="date" name="starts_at" class="form__input" value="${voucher?.starts_at ? voucher.starts_at.split(' ')[0] : ''}" required>
                             </div>
                             <div class="form-group flex-1">
-                                <label>Ends At</label>
-                                <input type="date" name="ends_at" class="form-control" value="${voucher?.ends_at ? voucher.ends_at.split(' ')[0] : ''}" required>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.8rem;">End Date</label>
+                                <input type="date" name="ends_at" class="form__input" value="${voucher?.ends_at ? voucher.ends_at.split(' ')[0] : ''}" required>
                             </div>
                         </div>
-                        <div class="modal-footer mt-4 flex justify-end gap-2">
-                            <button type="button" class="btn btn--secondary modal-close">Cancel</button>
-                            <button type="submit" class="btn btn--primary">${voucher ? 'Update' : 'Create'}</button>
+                        <div class="flex justify-end gap-2 mt-2">
+                            <button type="submit" class="btn btn--sm">${voucher ? 'Update Promotion' : 'Create Voucher'}</button>
                         </div>
                     </form>
                 </div>
@@ -134,7 +143,7 @@ class PromotionsController {
             e.preventDefault();
             const fd = new FormData(form);
             const payload = {
-                code: fd.get('code'),
+                code: fd.get('code').toUpperCase(),
                 title: fd.get('title'),
                 discount_type: fd.get('discount_type'),
                 discount_value: parseFloat(fd.get('discount_value')),
@@ -145,7 +154,7 @@ class PromotionsController {
 
             try {
                 if (voucher) {
-                    await api.client.put(`/v1/admin/vouchers/update?id=${voucher.id}`, payload);
+                    await api.client.put(`/v1/admin/vouchers/${voucher.id}`, payload);
                 } else {
                     await api.client.post('/v1/admin/vouchers', payload);
                 }
@@ -158,9 +167,9 @@ class PromotionsController {
     }
 
     async handleDeleteVoucher(id) {
-        if (!confirm('Deactivate this voucher?')) return;
+        if (!confirm('Are you sure you want to deactivate this voucher?')) return;
         try {
-            await api.client.delete(`/v1/admin/vouchers/delete?id=${id}`);
+            await api.client.delete(`/v1/admin/vouchers/${id}`);
             await this.init();
         } catch (err) {
             alert('Error deleting voucher');

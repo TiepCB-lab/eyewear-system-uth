@@ -1,4 +1,5 @@
 import adminService from '../../services/adminService.js';
+import { getCurrentUserPermissions } from '../../core/rbac.js';
 
 const staffTableBody = document.getElementById('staffTableBody');
 const staffModal = document.getElementById('staffModal');
@@ -15,11 +16,16 @@ const emailInput = document.getElementById('email');
 const phoneInput = document.getElementById('phone');
 const staffRoleSelect = document.getElementById('staffRole');
 const staffStatusSelect = document.getElementById('staffStatus');
+const passwordInput = document.getElementById('password');
+const passwordFieldContainer = document.getElementById('passwordFieldContainer');
 
 let staff = [];
 let editingStaffId = null;
 
 async function initializeStaffPage() {
+  const { hasRole } = await getCurrentUserPermissions();
+  window.currentUserIsAdmin = hasRole('ADMIN');
+  
   await loadStaffList();
   setupEventListeners();
 }
@@ -49,23 +55,40 @@ function renderStaffTable(staffData) {
   }
 
   staffTableBody.innerHTML = staffData.map((member) => {
-    let roleClass = 'badge-pending';
-    if (member.role_name === 'ADMIN') roleClass = 'badge-active';
-    else if (member.role_name === 'CUSTOMER') roleClass = 'badge-qc';
-    else if (member.role_name === 'MANAGER') roleClass = 'badge-shipped';
+    let roleClass = 'status-in-stock'; // Default green for Customer
+    if (member.role_name === 'ADMIN') roleClass = 'status-out-of-stock'; // Red
+    else if (member.role_name === 'MANAGER') roleClass = 'status-low-stock'; // Yellow
+    else if (member.role_name === 'SALES_STAFF' || member.role_name === 'OPERATIONS_STAFF') roleClass = 'status-in-stock';
 
     return `
       <tr>
         <td data-label="ID">${member.id || 'N/A'}</td>
-        <td data-label="Name"><strong>${member.full_name || 'Unknown'}</strong></td>
-        <td data-label="Email">${member.email || 'N/A'}</td>
-        <td data-label="Phone">${member.phone || '—'}</td>
-        <td data-label="Role"><span class="badge ${roleClass}">${member.role_name || 'No role'}</span></td>
-        <td data-label="Status">${member.status || 'Unknown'}</td>
-        <td data-label="Joined">${formatDate(member.created_at)}</td>
-        <td data-label="Action">
-          <button type="button" class="btn btn--sm staff-edit-btn" data-staff-id="${member.id}">Edit / Promote</button>
-          <button type="button" class="btn btn--sm staff-delete-btn" data-staff-id="${member.id}">Delete</button>
+        <td data-label="Name">
+            <div style="font-weight: 700; color: var(--title-color);">${member.full_name || 'Unknown'}</div>
+            <div style="font-size: 11px; color: #64748b;">${member.email || 'N/A'}</div>
+        </td>
+        <td data-label="Phone" style="text-align: center;">${member.phone || '—'}</td>
+        <td data-label="Role" style="text-align: center;">
+            <span class="status-badge ${roleClass}" style="font-size: 10px; padding: 4px 10px;">${member.role_name || 'No role'}</span>
+        </td>
+        <td data-label="Status" style="text-align: center;">
+            <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; color: ${member.status === 'active' ? '#10b981' : '#ef4444'}">
+                <span style="width: 6px; height: 6px; border-radius: 50%; background: ${member.status === 'active' ? '#10b981' : '#ef4444'}"></span>
+                ${member.status.charAt(0).toUpperCase() + member.status.slice(1)}
+            </span>
+        </td>
+        <td data-label="Joined" style="text-align: center; color: #64748b; font-size: 12px;">${formatDate(member.created_at)}</td>
+        <td data-label="Action" style="text-align: center;">
+          ${(member.role_name === 'ADMIN' && !window.currentUserIsAdmin) ? '<span style="font-size: 11px; color: #94a3b8;">Restricted</span>' : `
+          <div class="action-buttons-group">
+            <button type="button" class="btn-inventory-action staff-edit-btn" data-staff-id="${member.id}" title="Edit / Promote">
+                <i class="fi fi-rs-pencil"></i>
+            </button>
+            <button type="button" class="btn-inventory-action btn-inventory-action--cancel staff-delete-btn" data-staff-id="${member.id}" title="Deactivate">
+                <i class="fi fi-rs-trash"></i>
+            </button>
+          </div>
+          `}
         </td>
       </tr>
     `;
@@ -114,8 +137,10 @@ function filterStaffList() {
 function openCreateModal() {
   editingStaffId = null;
   staffForm?.reset();
-  if (modalTitle) modalTitle.textContent = 'Add New Staff';
-  if (submitText) submitText.textContent = 'Create Staff';
+  if (passwordFieldContainer) passwordFieldContainer.hidden = false;
+  if (passwordInput) passwordInput.required = true;
+  if (modalTitle) modalTitle.textContent = 'Add New Staff / Ops';
+  if (submitText) submitText.textContent = 'Create Staff Account';
   if (staffModal) staffModal.hidden = false;
 }
 
@@ -125,14 +150,22 @@ async function openEditModal(staffId) {
     const member = response.data || response;
 
     editingStaffId = staffId;
+    if (member.role_name === 'ADMIN' && !window.currentUserIsAdmin) {
+        showAlert('You do not have permission to edit Admin accounts', 'error');
+        return;
+    }
+
     if (fullNameInput) fullNameInput.value = member.full_name || '';
     if (emailInput) emailInput.value = member.email || '';
     if (phoneInput) phoneInput.value = member.phone || '';
     if (staffRoleSelect) staffRoleSelect.value = member.role_name || '';
     if (staffStatusSelect) staffStatusSelect.value = member.status || 'active';
 
+    if (passwordFieldContainer) passwordFieldContainer.hidden = true;
+    if (passwordInput) passwordInput.required = false;
+
     if (modalTitle) modalTitle.textContent = 'Edit User / Promote';
-    if (submitText) submitText.textContent = 'Update User';
+    if (submitText) submitText.textContent = 'Update User Info';
     if (staffModal) staffModal.hidden = false;
   } catch (error) {
     console.error('Error loading user details:', error);
@@ -152,33 +185,24 @@ async function handleFormSubmit(event) {
   const staffData = {
     full_name: fullNameInput?.value || '',
     email: emailInput?.value || '',
+    password: passwordInput?.value || '',
     phone: phoneInput?.value || '',
     role_name: staffRoleSelect?.value || '',
     status: staffStatusSelect?.value || '',
   };
 
   try {
+    const rolesRes = await adminService.getRoles();
+    const roles = rolesRes.data || rolesRes;
+    const roleId = roles.find(r => r.name === staffRoleSelect.value)?.id;
+
     if (editingStaffId) {
-      await adminService.updateUser(editingStaffId, {
-          role_id: document.querySelector(`#staffRole option[value="${staffRoleSelect.value}"]`)?.index, // This is a bit hacky, better use actual IDs
-          status: staffStatusSelect.value
-      });
-      // Wait, role_id should be numeric. Let's fix this properly.
-      // We need to fetch roles from backend to map names to IDs.
-      const rolesRes = await adminService.getRoles();
-      const roleId = rolesRes.data.find(r => r.name === staffRoleSelect.value)?.id;
-      
       await adminService.updateUser(editingStaffId, {
           role_id: roleId,
           status: staffStatusSelect.value
       });
-      
       showAlert('User updated successfully', 'success');
     } else {
-      // For creation, we still use createStaff but it's fine
-      const rolesRes = await adminService.getRoles();
-      const roleId = rolesRes.data.find(r => r.name === staffRoleSelect.value)?.id;
-      
       await adminService.createStaff({
           ...staffData,
           role_id: roleId
