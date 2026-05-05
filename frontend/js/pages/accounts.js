@@ -389,7 +389,7 @@ async function loadUserTickets() {
                 <td><strong>${escapeHtml(ticket.subject || '—')}</strong></td>
                 <td><span class="badge">${escapeHtml(ticket.status || 'open')}</span></td>
                 <td>${updatedAt}</td>
-                <td><a href="../support-detail/?id=${ticket.id}" class="view__order ticket-detail-link">View</a></td>
+                <td><a href="../support-detail/index.html?id=${ticket.id}" class="view__order ticket-detail-link">View</a></td>
             </tr>
         `;
         }).join('');
