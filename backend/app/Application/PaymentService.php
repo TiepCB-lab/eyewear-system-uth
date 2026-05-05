@@ -39,6 +39,8 @@ class PaymentService
 
     public function confirmPayment(int $paymentId): array
     {
+        $db = Database::getInstance();
+        
         $payment = Payment::find($paymentId);
         if (!$payment) {
             throw new \Exception('Payment not found');
@@ -48,20 +50,31 @@ class PaymentService
             return $payment->toArray();
         }
 
-        $payment->update([
-            'status' => 'paid',
-            'paid_at' => date('Y-m-d H:i:s'),
-        ]);
+        // Explicitly update payment status via database query
+        $updateStmt = $db->prepare("
+            UPDATE payment 
+            SET status = 'paid', paid_at = NOW() 
+            WHERE id = ?
+        ");
+        $updateStmt->execute([$paymentId]);
 
+        // Also update order status if it's still pending
         $order = Order::find($payment->order_id);
         if ($order && $order->status === 'pending') {
-            $order->update([
-                'status' => 'paid',
-                // Nhân viên sales sẽ verify sau
-            ]);
+            $orderUpdateStmt = $db->prepare("
+                UPDATE `order` 
+                SET status = 'paid', updated_at = NOW() 
+                WHERE id = ?
+            ");
+            $orderUpdateStmt->execute([$order->id]);
         }
 
-        return $payment->toArray();
+        // Fetch updated payment from database
+        $refreshStmt = $db->prepare("SELECT * FROM payment WHERE id = ?");
+        $refreshStmt->execute([$paymentId]);
+        $updated = $refreshStmt->fetch(\PDO::FETCH_ASSOC);
+
+        return $updated ?: $payment->toArray();
     }
 
     /**

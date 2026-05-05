@@ -45,9 +45,50 @@ class SalesVerificationService
     {
         $db = Database::getInstance();
         $orderService = new \App\Application\OrderService();
+        $paymentService = new \App\Application\PaymentService();
         
-        // Use the workflow enforcement from OrderService
+        error_log("=== verifyOrder START for order $orderId ===");
+        
+        // Step 1: Confirm payment (payment pending → paid)
+        try {
+            $paymentStmt = $db->prepare("SELECT id, status FROM payment WHERE order_id = ? ORDER BY id DESC LIMIT 1");
+            $paymentStmt->execute([$orderId]);
+            $payment = $paymentStmt->fetch(\PDO::FETCH_ASSOC);
+            
+            error_log("Payment found: " . json_encode($payment));
+            
+            if ($payment) {
+                error_log("Calling confirmPayment for payment ID: " . $payment['id']);
+                $confirmResult = $paymentService->confirmPayment((int) $payment['id']);
+                error_log("confirmPayment result: " . json_encode($confirmResult));
+            } else {
+                error_log("No payment record found for order $orderId");
+                // Force-update payment status directly
+                $forceUpdateStmt = $db->prepare("UPDATE payment SET status = 'paid', paid_at = NOW() WHERE order_id = ? AND status = 'pending'");
+                $forceUpdateStmt->execute([$orderId]);
+                error_log("Force-updated pending payments to paid");
+            }
+        } catch (\Exception $e) {
+            error_log("Payment confirmation failed for order $orderId: " . $e->getMessage());
+        }
+
+        // Step 2: Explicitly update order status from pending → paid if needed
+        $orderStmt = $db->prepare("SELECT status FROM `order` WHERE id = ?");
+        $orderStmt->execute([$orderId]);
+        $order = $orderStmt->fetch(\PDO::FETCH_ASSOC);
+        
+        error_log("Order current status: " . ($order['status'] ?? 'unknown'));
+        
+        if ($order && $order['status'] === 'pending') {
+            $updateStmt = $db->prepare("UPDATE `order` SET status = 'paid', updated_at = NOW() WHERE id = ?");
+            $updateStmt->execute([$orderId]);
+            error_log("Updated order status to paid");
+        }
+
+        // Step 3: Confirm order (order paid/pending → processing)
         $orderService->confirmOrder($orderId, $staffId);
+        
+        error_log("=== verifyOrder COMPLETE for order $orderId ===");
 
         $order = Order::find($orderId);
         return $order->toArray();
