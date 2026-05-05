@@ -10,9 +10,10 @@ class DashboardService
 	{
 		$db = Database::getInstance();
 
-		$revenue = (float) $db->query("SELECT COALESCE(SUM(amount), 0) FROM payment WHERE status = 'paid'")->fetchColumn();
+		$revenue = (float) $db->query("SELECT COALESCE(SUM(total_amount), 0) FROM `order` WHERE status IN ('paid', 'processing', 'shipped', 'delivered')")->fetchColumn();
 		$activeOrders = (int) $db->query("SELECT COUNT(*) FROM `order` WHERE status IN ('pending', 'paid', 'processing', 'shipped')")->fetchColumn();
 		$paidOrders = (int) $db->query("SELECT COUNT(*) FROM `order` WHERE status IN ('paid', 'processing', 'shipped', 'delivered')")->fetchColumn();
+		$averageOrderValue = $paidOrders > 0 ? $revenue / $paidOrders : 0;
 
 		$topProductsStmt = $db->query(
 			"SELECT p.id AS product_id, p.name AS product_name, SUM(oi.quantity) AS units_sold, SUM(oi.line_total) AS revenue
@@ -28,12 +29,29 @@ class DashboardService
 
 		$topProducts = $topProductsStmt->fetchAll(\PDO::FETCH_ASSOC);
 
+		$topCategoriesStmt = $db->query(
+			"SELECT c.id AS category_id, c.name AS category_name, SUM(oi.quantity) AS units_sold, SUM(oi.line_total) AS revenue
+			 FROM orderitem oi
+			 INNER JOIN `order` o ON o.id = oi.order_id
+			 INNER JOIN productvariant pv ON pv.id = oi.productvariant_id
+			 INNER JOIN product p ON p.id = pv.product_id
+			 LEFT JOIN category c ON c.id = p.category_id
+			 WHERE o.status IN ('paid', 'processing', 'shipped', 'delivered')
+			 GROUP BY c.id, c.name
+			 ORDER BY units_sold DESC, revenue DESC
+			 LIMIT 5"
+		);
+
+		$topCategories = $topCategoriesStmt->fetchAll(\PDO::FETCH_ASSOC);
+
 		return [
 			'revenue' => $revenue,
+			'average_order_value' => $averageOrderValue,
 			'active_orders' => $activeOrders,
 			'paid_orders' => $paidOrders,
 			'conversion_rate' => $activeOrders > 0 ? round(($paidOrders / $activeOrders) * 100, 2) : 0,
 			'top_products' => $topProducts,
+			'top_categories' => $topCategories,
 		];
 	}
 
