@@ -31,7 +31,7 @@ This member owns the **back-office workflow**: Production (lens cutting, frame m
  - [ ] Define API Endpoints for operations and analytics reports.
  
  ### Frontend (Vanilla JS)
- - [x] Created common Dashboard Shell (`pages/dashboard/index.html`).
+ - [x] Created common Dashboard Shell (`pages/portal/index.html`).
  - [x] Created `analytics.html` module: Revenue charts and manager reports.
  - [x] Created `ops.html` module: Production workflow and shipping for Ops Staff.
  - [x] Created `users.html` module: Staff management and RBAC configuration (Admin).
@@ -59,10 +59,10 @@ This member owns the **back-office workflow**: Production (lens cutting, frame m
  - `app/Http/Controllers/Api/V1/DashboardController.php`
  
  ### Frontend
- - `frontend/pages/dashboard/index.html` (Shell)
- - `frontend/pages/dashboard/modules/analytics.html`
- - `frontend/pages/dashboard/modules/ops.html`
- - `frontend/pages/dashboard/modules/users.html`
+ - `frontend/pages/portal/index.html` (Shell)
+ - `frontend/pages/portal/modules/analytics.html`
+ - `frontend/pages/portal/modules/ops.html`
+ - `frontend/pages/portal/modules/users.html`
  - `frontend/js/services/dashboardService.js`
 
 ---

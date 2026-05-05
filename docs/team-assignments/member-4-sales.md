@@ -67,8 +67,8 @@ This member owns the **financial and customer service** side: Payment status tra
  ### Frontend
  - `frontend/pages/payment/index.html`
  - `frontend/pages/accounts/index.html` (Order tracking section)
- - `frontend/pages/dashboard/modules/orders.html`
- - `frontend/pages/dashboard/modules/support.html`
+ - `frontend/pages/portal/modules/orders.html`
+ - `frontend/pages/portal/modules/support.html`
  - `frontend/js/services/paymentService.js`
  - `frontend/js/services/supportService.js`
 

@@ -1,27 +1,27 @@
-# Repository Restructuring & Cleanup Plan
+# Repository Restructuring & Cleanup Plan (Status: COMPLETED)
 
-The current repository structure is a flat/traditional PHP/HTML structure, but the documentation recently pulled from the GitHub repository specifies a more mature, N-layered architecture. This plan will align the physical repository with the documentation and replace `.gitkeep` files with actual baseline files as requested.
+The repository has been successfully restructured to align with the N-layered backend architecture and a modular frontend architecture.
 
-## 🏗️ Backend Restructuring (`backend/app/`)
+## ✅ Backend Restructuring (`backend/app/`) - COMPLETED
 
-Goal: Align with `docs/project-structure.md` (N-Layered Architecture).
+The backend now follows the N-layered architecture as defined in `docs/architecture/backend-n-layered.md`.
 
-1.  **Restructure `backend/app/`**:
-    - Move existing logic into `Http/`, `Application/`, `Domain/`, `Infrastructure/`, and `Models/`.
-2.  **Initialize Baseline Files**:
-    - Create empty/skeletal files for all controllers, services, and models mentioned in the `member-*.md` TODO lists.
+1.  **Restructured `backend/app/`**:
+    - Organized into `Http/`, `Application/`, `Domain/`, `Infrastructure/`, and `Models/`.
+2.  **Core Framework**:
+    - Baseline files for `Router.php`, `Database.php`, and `Model.php` are established in `backend/core/`.
 
-## ⚛️ Frontend Restructuring (`frontend/`)
+## ✅ Frontend Restructuring (`frontend/`) - COMPLETED
 
-Goal: Align with `docs/project-structure.md` (React-style component architecture).
+The frontend has been organized into a modular structure supporting a Unified Dashboard Shell.
 
-1.  **Consolidate to `src/`**:
-    - Create `frontend/src/` and move core directories (`assets`, `components`, `layouts`, `pages`) into it.
-    - Create additional mapped directories: `contexts`, `hooks`, `services`, `store`, `types`, `utils`.
-2.  **Initialize Baseline Files**:
-    - Create skeletal files for the React pages and services mentioned in the assignment docs.
+1.  **Modular Directories**:
+    - Established `pages/`, `components/`, `layouts/`, `js/core/`, and `js/services/`.
+    - Note: The decision was made to keep these at the `frontend/` root rather than nesting them in a `src/` folder to maintain simplicity for the current Vanilla JS stack.
+2.  **RBAC and Shell**:
+    - Implemented `js/core/rbac.js` and `js/core/layout-loader.js` for role-based access and dynamic layout management.
 
-## 🧹 Cleanup Tasks
+## 🧹 Cleanup Tasks - COMPLETED
 
--   Delete all `.gitkeep` files once directory structures are established.
--   Ensure all project-level documentation (`README.md`, `TODO.md`) is in English.
+-   Redundant `.gitkeep` files have been removed.
+-   Core documentation has been updated to match the final physical structure.

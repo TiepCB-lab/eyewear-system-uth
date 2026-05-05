@@ -78,19 +78,22 @@ Mở thêm một cửa sổ Terminal khác (đừng tắt Terminal của Backend
 
 ### Backend (`/backend`)
 
-- `core/`: Framework cốt lõi (Router, Database, Model) — **Pure PHP, không dùng Laravel**.
-- `app/Http/`: Chứa Controller (Xử lý request) và Middleware.
-- `app/Application/`: Chứa các Service (Xử lý logic nghiệp vụ).
+- `app/Http/`: Chứa Controller (Xử lý request), Middleware, Requests và Resources.
+- `app/Application/`: Chứa các Service (Xử lý logic nghiệp vụ theo module).
 - `app/Domain/`: Chứa các quy tắc kinh doanh cốt lõi.
-- `app/Infrastructure/`: Chứa các Repository (Lưu trữ và kết nối DB).
+- `app/Infrastructure/`: Chứa các thành phần hạ tầng (Database, Env, Validator).
 - `app/Models/`: Chứa các thực thể dữ liệu (kế thừa `Core\Model`).
-- `database/schema.sql`: Toàn bộ cấu trúc bảng SQL.
+- `core/`: Framework cốt lõi (Router, Database, Model, Session, ApiResponse).
+- `database/`: Chứa schema.sql và các file seeder.
+- `routes/`: Định nghĩa các tuyến đường API.
 
-### Frontend (`/frontend/src`)
+### Frontend (`/frontend`)
 
-- `pages/`: Các trang giao diện chính (Login, Catalog, Cart...).
-- `components/`: Các thành phần tái sử dụng (Header, Footer, ProductCard...).
-- `assets/`: Chứa file CSS, Hình ảnh và JavaScript hỗ trợ.
+- `pages/`: Các trang giao diện chính (Shop, Cart, Portal/Dashboard).
+- `components/`: Các thành phần giao diện tái sử dụng (Modals, Forms, Product).
+- `layouts/`: Các thành phần layout dùng chung (Header, Footer, Sidebar).
+- `js/`: Logic JavaScript bao gồm `core/`, `services/`, và `dashboard/`.
+- `assets/`: Chứa file CSS, Hình ảnh và Fonts.
 
 ---
 

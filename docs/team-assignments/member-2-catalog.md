@@ -58,8 +58,8 @@ This member owns the **heart of the store**: Branded frames, Lens types, and the
  ### Frontend
  - `frontend/pages/catalog/index.html`
  - `frontend/pages/details/index.html`
- - `frontend/pages/dashboard/modules/inventory.html`
- - `frontend/pages/dashboard/modules/products.html`
+ - `frontend/pages/portal/modules/inventory.html`
+ - `frontend/pages/portal/modules/products.html`
  - `frontend/js/services/catalogService.js`
  - `frontend/js/pages/admin-inventory.js`
 

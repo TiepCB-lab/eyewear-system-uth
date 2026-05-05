@@ -59,7 +59,7 @@ This member owns the entry point: Login, Registration, Session/Token protection,
  - `frontend/js/core/rbac.js`
  - `frontend/js/core/layout-guard.js`
  - `frontend/js/pages/auth.js`
- - `frontend/pages/dashboard/modules/profile.html`
+ - `frontend/pages/portal/modules/profile.html`
  - `frontend/js/services/authService.js`
 ---
 
