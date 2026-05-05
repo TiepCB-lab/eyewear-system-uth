@@ -138,11 +138,13 @@
               <span class="old__price skeleton-price" id="price-old">&nbsp;</span>
               <span class="save__price skeleton-price" id="price-discount">&nbsp;</span>
             </div>
-            <div class="order-type-selector details-order-type">
-                <p><strong>Purchase Type</strong></p>
-                <div class="flex details-order-options">
-                    <label><input type="radio" name="order_type" value="instock" checked> In-stock</label>
-                    <label><input type="radio" name="order_type" value="preorder"> Pre-order (10-14 days)</label>
+            <div class="order-type-selector details-order-type" id="preorder-banner" style="display: none;">
+                <div style="display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(135deg, #fff3e0, #ffe0b2); border-radius: 12px; border: 1px solid #ffcc80;">
+                    <i class="fi fi-rs-clock" style="font-size: 20px; color: #e65100;"></i>
+                    <div>
+                        <strong style="color: #e65100; font-size: 13px;">Pre-order Available</strong>
+                        <p style="margin: 2px 0 0; font-size: 11px; color: #bf360c;">This variant is currently out of stock. Estimated delivery: 10–14 business days after order confirmation.</p>
+                    </div>
                 </div>
             </div>
             <p class="short__description">
@@ -868,16 +870,25 @@
           if(ui.lineTotal) ui.lineTotal.textContent = format(total);
           if(ui.variantSku) ui.variantSku.textContent = selectedVariant.sku;
           
+          const preorderBanner = document.getElementById('preorder-banner');
           if (maxStock <= 0) {
-              if(ui.variantStock) ui.variantStock.textContent = `Out of Stock`;
-              addToCartBtn.style.pointerEvents = 'none';
-              addToCartBtn.style.opacity = '0.5';
-              addToCartBtn.querySelector('.btn-text').textContent = 'Out of Stock';
+              // Out of stock → show pre-order option
+              if(ui.variantStock) ui.variantStock.textContent = `Out of Stock — Pre-order Available`;
+              if(ui.variantStock) ui.variantStock.style.color = '#e65100';
+              addToCartBtn.style.pointerEvents = 'auto';
+              addToCartBtn.style.opacity = '1';
+              addToCartBtn.querySelector('.btn-text').textContent = 'Pre-order Now';
+              addToCartBtn.dataset.preorder = 'true';
+              if(preorderBanner) preorderBanner.style.display = 'block';
           } else {
+              // In stock → normal purchase
               if(ui.variantStock) ui.variantStock.textContent = `${maxStock} items in stock`;
+              if(ui.variantStock) ui.variantStock.style.color = '';
               addToCartBtn.style.pointerEvents = 'auto';
               addToCartBtn.style.opacity = '1';
               addToCartBtn.querySelector('.btn-text').textContent = 'Add to Cart';
+              delete addToCartBtn.dataset.preorder;
+              if(preorderBanner) preorderBanner.style.display = 'none';
           }
         }
 
@@ -954,8 +965,9 @@
                 e.preventDefault();
                 if (!selectedVariant || addToCartBtn.classList.contains('animating')) return;
 
-                const orderTypeEl = document.querySelector('input[name="order_type"]:checked');
-                let orderType = orderTypeEl ? orderTypeEl.value : 'instock';
+                // Auto-detect order type based on stock and lens selection
+                const isPreorder = addToCartBtn.dataset.preorder === 'true';
+                let orderType = isPreorder ? 'preorder' : 'instock';
                 
                 // If a lens is selected, it's automatically a prescription order
                 if (lensSelect && lensSelect.value !== "") {
@@ -989,7 +1001,8 @@
                         variant_id: selectedVariant.id, 
                         lens_id: lensSelect?.value ? parseInt(lensSelect.value) : null, 
                         quantity: parseInt(quantityInput.value),
-                        prescription: orderType === 'prescription' ? window.prescriptionData : null
+                        prescription: orderType === 'prescription' ? window.prescriptionData : null,
+                        is_preorder: isPreorder
                     });
                     
                     setTimeout(() => {

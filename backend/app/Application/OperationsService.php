@@ -39,8 +39,11 @@ class OperationsService
 
         $orderService = new \App\Application\OrderService();
 
-        // If order is still 'paid', move it to 'processing' to start production
-		if ($order->status === 'paid') {
+        // Ensure order is verified by Sales before Operations can process it
+        if (in_array($order->status, ['pending', 'paid'])) {
+            if (!$order->verified_by) {
+                throw new \Exception('Order must be verified by Sales before production can begin.');
+            }
 			$orderService->transitionStatus($orderId, 'processing', 0); // System/Ops transition
 		}
 

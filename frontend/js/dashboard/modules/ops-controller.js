@@ -22,7 +22,7 @@ async function loadOperationsData() {
     const queueData = queueResponse?.data || queueResponse || [];
     const overviewData = overviewResponse?.data || overviewResponse || {};
 
-    productionQueue = Array.isArray(queueData) ? queueData : queueData.queue || [];
+    productionQueue = Array.isArray(queueData) ? queueData : (queueData.data || queueData.queue || []);
     
     // Update KPI values from overview
     if (overviewData) {
@@ -69,46 +69,60 @@ function renderQueueTable(queue) {
   queueTableBody.innerHTML = queue.map((order) => {
     const stepLabel = formatProductionStep(order.production_step);
     const status = getStatusPill(order.production_step);
+    const stepIcon = getStepIcon(order.production_step);
 
     return `
       <tr class="ops-table__row">
-        <td class="ops-table__cell ops-table__cell--strong">
+        <td class="ops-table__cell ops-table__cell--strong" data-label="Order">
             <div class="flex-column">
                 <strong>#${order.order_number || order.id}</strong>
                 <span style="font-size: 10px; color: #888;">${new Date(order.placed_at || Date.now()).toLocaleDateString()}</span>
             </div>
         </td>
-        <td class="ops-table__cell">
+        <td class="ops-table__cell" data-label="Details">
             <div class="flex-column">
                 <span>${order.customer_name || 'Customer'}</span>
                 <span style="font-size: 11px; color: var(--first-color); font-weight: 600;">${order.lens_name || 'Standard Lens'}</span>
             </div>
         </td>
-        <td class="ops-table__cell">
+        <td class="ops-table__cell" data-label="Step">
             <div class="production-step-badge">
-                <i class="fi fi-rs-settings"></i> ${stepLabel}
+                <i class="fi ${stepIcon}"></i> ${stepLabel}
             </div>
         </td>
-        <td class="ops-table__cell"><span class="status-pill ${status.class}">${status.label}</span></td>
-        <td class="ops-table__cell">
-          ${order.status === 'shipped'
+        <td class="ops-table__cell" data-label="Progress"><span class="status-pill ${status.class}">${status.label}</span></td>
+        <td class="ops-table__cell" data-label="Action">
+          ${order.status === 'shipped' || order.status === 'shipping'
             ? `<span class="status-pill status-done">Shipped</span>`
-            : (order.production_step === 'ready_to_ship'
-                ? (order.shipment_id
-                    ? `<button type="button" class="btn btn--sm btn--outline ops-table__action" data-order-id="${order.id}" data-shipment-id="${order.shipment_id}" data-action="update">
-                         <i class="fi fi-rs-edit"></i> Update
-                       </button>`
-                    : `<button type="button" class="btn btn--sm btn--outline ops-table__action" data-order-id="${order.id}" data-action="ship">
-                         <i class="fi fi-rs-paper-plane"></i> Ship
-                       </button>`)
-                : `<button type="button" class="btn btn--sm ops-table__action" data-order-id="${order.id}" data-action="advance">
-                     Advance
-                   </button>`)
+            : (!order.verified_by && ['pending', 'paid'].includes((order.status || '').toLowerCase()))
+              ? `<div class="status-pill status-wait" style="font-size: 10px; opacity: 0.8;"><i class="fi fi-rs-time-clock"></i> Waiting for Sales</div>`
+              : (order.production_step === 'ready_to_ship'
+                  ? (order.shipment_id
+                      ? `<button type="button" class="btn btn--sm btn--outline ops-table__action" data-order-id="${order.id}" data-shipment-id="${order.shipment_id}" data-action="update">
+                           <i class="fi fi-rs-edit"></i> Update
+                         </button>`
+                      : `<button type="button" class="btn btn--sm btn--outline ops-table__action" data-order-id="${order.id}" data-action="ship">
+                           <i class="fi fi-rs-paper-plane"></i> Ship
+                         </button>`)
+                  : `<button type="button" class="btn btn--sm ops-table__action" data-order-id="${order.id}" data-action="advance">
+                       Next Step <i class="fi fi-rs-angle-small-right"></i>
+                     </button>`)
           }
         </td>
       </tr>
     `;
   }).join('');
+}
+
+function getStepIcon(step) {
+  const iconMap = {
+    'lens_cutting': 'fi-rs-scissors',
+    'frame_mounting': 'fi-rs-settings',
+    'qc_inspection': 'fi-rs-search',
+    'packaging': 'fi-rs-box-alt',
+    'ready_to_ship': 'fi-rs-truck-side'
+  };
+  return iconMap[step] || 'fi-rs-settings';
 }
 
 function formatProductionStep(step) {
@@ -219,6 +233,11 @@ async function advanceStep(orderId) {
 }
 
 function showAlert(message, type) {
+  if (window.Notification) {
+      window.Notification.show(message, type);
+      return;
+  }
+
   const alertDiv = document.createElement('div');
   alertDiv.className = `admin-alert ${type === 'success' ? 'admin-alert--success' : 'admin-alert--error'}`;
   alertDiv.textContent = message;
@@ -227,6 +246,8 @@ function showAlert(message, type) {
   if (container) {
     container.parentElement.insertBefore(alertDiv, container);
     setTimeout(() => alertDiv.remove(), 3000);
+  } else {
+    alert(message);
   }
 }
 

@@ -94,10 +94,53 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
+            // Detect pre-order items (stock_quantity = 0) vs in-stock items
+            const preorderItems = items.filter(item => parseInt(item.stock_quantity || 0) <= 0);
+            const instockItems = items.filter(item => parseInt(item.stock_quantity || 0) > 0);
+            const hasPreorder = preorderItems.length > 0;
+            const hasInstock = instockItems.length > 0;
+
+            // Block mixed cart: cannot combine pre-order and in-stock in one order
+            if (hasPreorder && hasInstock) {
+                const preorderNames = preorderItems.map(i => i.product_name).join(', ');
+                const instockNames = instockItems.map(i => i.product_name).join(', ');
+
+                if (typeof EvelensNotify !== 'undefined') {
+                    await EvelensNotify.info(
+                        'Cannot Mix Order Types',
+                        `Your cart contains both in-stock items (${instockNames}) and pre-order items (${preorderNames}). Please checkout them separately — go back to your cart and deselect one type before proceeding.`
+                    );
+                }
+                
+                if (placeOrderBtn) {
+                    placeOrderBtn.disabled = true;
+                    placeOrderBtn.style.opacity = '0.5';
+                    placeOrderBtn.textContent = 'Mixed Cart — Cannot Checkout';
+                }
+            }
+
+            // Update delivery estimate based on cart type
+            const deliveryText = document.getElementById('delivery-estimate-text');
+            const deliveryBox = document.getElementById('delivery-estimate-box');
+            const deliveryIcon = document.getElementById('delivery-icon');
+            
+            if (hasPreorder && deliveryText) {
+                deliveryText.innerHTML = 'Pre-order items detected. Estimated delivery in <strong>10 – 14 business days</strong> after confirmation.';
+                if (deliveryBox) {
+                    deliveryBox.style.borderColor = '#e65100';
+                    deliveryBox.style.background = 'linear-gradient(135deg, #fff3e0, #ffe0b2)';
+                }
+                if (deliveryIcon) {
+                    deliveryIcon.className = 'fi fi-rs-clock';
+                    deliveryIcon.style.color = '#e65100';
+                }
+            }
+
             tbody.innerHTML = '';
             items.forEach(item => {
                 const tr = document.createElement('tr');
                 const pt = (parseFloat(item.unit_price) || 0) * (parseInt(item.quantity) || 0);
+                const isItemPreorder = parseInt(item.stock_quantity || 0) <= 0;
                 
                 tr.innerHTML = `
                     <td>
@@ -106,6 +149,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <td>
                         <h3 class="table__title">${item.product_name || 'Product'}</h3>
                         <p class="table__quantity">x ${item.quantity}</p>
+                        ${isItemPreorder ? '<span style="font-size: 10px; padding: 2px 8px; background: #fff3e0; color: #e65100; border-radius: 4px; font-weight: 600;">Pre-order</span>' : ''}
                     </td>
                     <td><span class="table__price">${api.formatCurrency(pt)}</span></td>
                 `;
@@ -163,6 +207,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     type: 'success',
                     title: 'Order Placed!',
                     desc: 'Your order has been recorded. Please wait for our staff to verify your prescription.',
+                    btnText: 'Back to Home',
+                    onConfirm: () => window.location.href = '../../index.html'
+                });
+            } else if (orderData.order_type === 'preorder') {
+                loader.update({
+                    type: 'success',
+                    title: 'Pre-order Confirmed!',
+                    desc: 'Your pre-order has been placed successfully. Estimated delivery is 10–14 business days. We will notify you once the item is ready.',
                     btnText: 'Back to Home',
                     onConfirm: () => window.location.href = '../../index.html'
                 });

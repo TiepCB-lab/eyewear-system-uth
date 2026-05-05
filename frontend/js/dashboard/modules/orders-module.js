@@ -121,22 +121,29 @@ function setupEventListeners() {
             }
         });
 
-        moduleContainer.addEventListener('submit', async (event) => {
-            if (event.target.classList.contains('pres-update-form')) {
+        moduleContainer.addEventListener('click', async (event) => {
+            const submitBtn = event.target.closest('button[type="submit"]');
+            if (submitBtn && submitBtn.closest('.pres-update-form')) {
                 event.preventDefault();
-                const form = event.target;
-                const submitBtn = form.querySelector('button[type="submit"]');
+                const form = submitBtn.closest('.pres-update-form');
                 const originalText = submitBtn.innerText;
                 submitBtn.disabled = true;
                 submitBtn.innerText = 'Saving...';
 
                 const formData = new FormData(form);
                 const data = Object.fromEntries(formData.entries());
+                
+                const showNotify = (msg, type) => window.Notification ? window.Notification.show(msg, type) : alert(msg);
+
                 try {
                     await salesService.updateOrderPrescription(data.order_item_id, data);
-                    alert('Updated successfully!');
+                    showNotify('Prescription parameters updated successfully!', 'success');
                 } catch (err) {
-                    alert('Update failed: ' + err.message);
+                    if (err.response && err.response.status === 403) {
+                        showNotify('Permission Denied: You do not have the required rights to modify prescription parameters. This action is restricted to Sales Staff.', 'error');
+                    } else {
+                        showNotify('Update failed: ' + (err.response?.data?.message || err.message), 'error');
+                    }
                 } finally {
                     submitBtn.disabled = false;
                     submitBtn.innerText = originalText;
@@ -171,13 +178,15 @@ function renderModalContent(order) {
 
     const itemsHtml = order.items.map(item => {
         const hasPrescription = item.sph_od !== null || item.sph_os !== null;
+        const canEditPrescription = api.auth.getUserPermissions().includes('validate_prescription');
+
         const presHtml = hasPrescription ? `
             <div style="margin-top: 12px; padding: 15px; background: #fff; border: 1px solid #eee; border-radius: 10px;">
                 <form class="pres-update-form">
                     <input type="hidden" name="order_item_id" value="${item.id}">
                     <div class="flex admin-flex-between" style="margin-bottom: 10px;">
                         <h5 style="margin: 0; font-size: 13px; color: #555;">Prescription Info</h5>
-                        <button type="submit" class="btn btn--sm" style="padding: 2px 10px; font-size: 10px; background: #333;">Save</button>
+                        ${canEditPrescription ? `<button type="submit" class="btn btn--sm" style="padding: 2px 10px; font-size: 10px; background: #333;">Save</button>` : ''}
                     </div>
                     <div style="overflow-x: auto;">
                         <table style="width: 100%; min-width: 450px; font-size: 11px; border-collapse: collapse;">
@@ -189,18 +198,18 @@ function renderModalContent(order) {
                             <tbody>
                                 <tr>
                                     <td><strong>OD</strong></td>
-                                    <td><input type="text" name="sph_od" value="${item.sph_od}" class="form__input" style="padding: 4px; height: 28px;"></td>
-                                    <td><input type="text" name="cyl_od" value="${item.cyl_od}" class="form__input" style="padding: 4px; height: 28px;"></td>
-                                    <td><input type="number" name="axis_od" value="${item.axis_od}" class="form__input" style="padding: 4px; height: 28px;"></td>
+                                    <td><input type="text" name="sph_od" value="${item.sph_od}" class="form__input" style="padding: 4px; height: 28px;" ${canEditPrescription ? '' : 'readonly'}></td>
+                                    <td><input type="text" name="cyl_od" value="${item.cyl_od}" class="form__input" style="padding: 4px; height: 28px;" ${canEditPrescription ? '' : 'readonly'}></td>
+                                    <td><input type="number" name="axis_od" value="${item.axis_od}" class="form__input" style="padding: 4px; height: 28px;" ${canEditPrescription ? '' : 'readonly'}></td>
                                     <td rowspan="2" style="text-align: center; border-left: 1px dashed #eee;">
-                                        <input type="text" name="pd" value="${item.pd}" class="form__input" style="padding: 4px; width: 45px; text-align: center;">
+                                        <input type="text" name="pd" value="${item.pd}" class="form__input" style="padding: 4px; width: 45px; text-align: center;" ${canEditPrescription ? '' : 'readonly'}>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><strong>OS</strong></td>
-                                    <td><input type="text" name="sph_os" value="${item.sph_os}" class="form__input" style="padding: 4px; height: 28px;"></td>
-                                    <td><input type="text" name="cyl_os" value="${item.cyl_os}" class="form__input" style="padding: 4px; height: 28px;"></td>
-                                    <td><input type="number" name="axis_os" value="${item.axis_os}" class="form__input" style="padding: 4px; height: 28px;"></td>
+                                    <td><input type="text" name="sph_os" value="${item.sph_os}" class="form__input" style="padding: 4px; height: 28px;" ${canEditPrescription ? '' : 'readonly'}></td>
+                                    <td><input type="text" name="cyl_os" value="${item.cyl_os}" class="form__input" style="padding: 4px; height: 28px;" ${canEditPrescription ? '' : 'readonly'}></td>
+                                    <td><input type="number" name="axis_os" value="${item.axis_os}" class="form__input" style="padding: 4px; height: 28px;" ${canEditPrescription ? '' : 'readonly'}></td>
                                 </tr>
                             </tbody>
                         </table>
