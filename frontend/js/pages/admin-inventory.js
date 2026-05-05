@@ -8,9 +8,8 @@ import adminService from '../services/adminService.js';
 var inventoryData = [];
 var editingRow = null;
 
-document.addEventListener('DOMContentLoaded', () => {
-    loadInventory();
-});
+// Initialize on load
+loadInventory();
 
 async function loadInventory() {
     const tbody = document.getElementById('inventoryTableBody');
@@ -139,12 +138,12 @@ function filterInventory() {
     const filtered = inventoryData.filter(item => {
         const matchesSearch = item.productName.toLowerCase().includes(searchTerm) || 
                               item.sku.toLowerCase().includes(searchTerm);
-        const matchesCategory = category === "" || item.category.toLowerCase() === category.toLowerCase();
+        const matchesCategory = category === "" || (item.category && item.category.toLowerCase() === category.toLowerCase());
         
         let matchesStatus = true;
-        if (status === 'in-stock') matchesStatus = item.stock > item.reorder_level;
-        if (status === 'low-stock') matchesStatus = item.stock > 0 && item.stock <= item.reorder_level;
-        if (status === 'out-of-stock') matchesStatus = item.stock <= 0;
+        if (status === 'In Stock') matchesStatus = item.stock > item.reorder_level;
+        else if (status === 'Low Stock') matchesStatus = item.stock > 0 && item.stock <= item.reorder_level;
+        else if (status === 'Out of Stock') matchesStatus = item.stock <= 0;
 
         return matchesSearch && matchesCategory && matchesStatus;
     });
