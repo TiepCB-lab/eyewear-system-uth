@@ -60,18 +60,18 @@ function renderOrdersTable(rows) {
 
         return `
             <tr>
-                <td>#${order.order_number || order.id}</td>
-                <td><span style="font-size: 11px;">${dateStr}</span></td>
-                <td>${order.customer_name || 'Customer'}</td>
-                <td><span class="badge ${statusClass}">${status.toUpperCase()}</span></td>
-                <td>
+                <td data-label="Order #">#${order.order_number || order.id}</td>
+                <td data-label="Date"><span style="font-size: 11px;">${dateStr}</span></td>
+                <td data-label="Customer">${order.customer_name || 'Customer'}</td>
+                <td data-label="Status"><span class="badge ${statusClass}">${status.toUpperCase()}</span></td>
+                <td data-label="Payment">
                     <div class="flex-column" style="gap: 2px;">
                         <span class="badge ${paymentClass}">${paymentLabel}</span>
                         <span style="font-size: 10px; color: #888; text-transform: uppercase;">${order.payment_method || 'N/A'}</span>
                     </div>
                 </td>
-                <td>${api.formatCurrency(order.total_amount)}</td>
-                <td>
+                <td data-label="Total">${api.formatCurrency(order.total_amount)}</td>
+                <td data-label="Action">
                     <button type="button" class="btn btn--sm order-manage-btn" data-order-id="${order.id}">Manage</button>
                 </td>
             </tr>
@@ -81,10 +81,16 @@ function renderOrdersTable(rows) {
 
 function getStatusClass(status) {
     const map = {
-        'pending': 'badge-pending', 'confirmed': 'badge-active', 'shipped': 'badge-shipped',
-        'delivered': 'badge-active', 'cancelled': 'badge-qc', 'refunded': 'badge-pending'
+        'pending': 'badge-pending', 
+        'pending_confirmation': 'badge-pending',
+        'paid': 'badge-active', 
+        'confirmed': 'badge-active', 
+        'shipped': 'badge-shipped',
+        'delivered': 'badge-active', 
+        'cancelled': 'badge-qc', 
+        'refunded': 'badge-pending'
     };
-    return map[status] || 'badge-pending';
+    return map[status?.toLowerCase()] || 'badge-pending';
 }
 
 function setupEventListeners() {
@@ -93,45 +99,52 @@ function setupEventListeners() {
     if (syncBtn) syncBtn.addEventListener('click', () => loadOrders());
     if (closeModalBtn) closeModalBtn.addEventListener('click', () => { detailModal.hidden = true; });
 
-    document.addEventListener('click', async (event) => {
-        const target = event.target;
-        const manageBtn = target.closest('.order-manage-btn');
-        if (manageBtn) {
-            await openOrderManagement(Number(manageBtn.dataset.orderId));
-            return;
-        }
-
-        const actionBtn = target.closest('.modal-action-btn');
-        if (actionBtn) {
-            const orderId = Number(actionBtn.dataset.orderId);
-            const action = actionBtn.dataset.action;
-            await handleOrderAction(orderId, action);
-            return;
-        }
-    });
-
-    document.addEventListener('submit', async (event) => {
-        if (event.target.classList.contains('pres-update-form')) {
-            event.preventDefault();
-            const form = event.target;
-            const submitBtn = form.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerText;
-            submitBtn.disabled = true;
-            submitBtn.innerText = 'Saving...';
-
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData.entries());
-            try {
-                await salesService.updateOrderPrescription(data);
-                alert('Updated successfully!');
-            } catch (err) {
-                alert('Update failed: ' + err.message);
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerText = originalText;
+    // Use a stable parent container for delegated clicks (module root)
+    const moduleContainer = document.getElementById('dashboard-modules');
+    if (moduleContainer) {
+        moduleContainer.addEventListener('click', async (event) => {
+            const target = event.target;
+            
+            // Manage button in table
+            const manageBtn = target.closest('.order-manage-btn');
+            if (manageBtn) {
+                await openOrderManagement(Number(manageBtn.dataset.orderId));
+                return;
             }
-        }
-    });
+
+            // Action button in modal
+            const actionBtn = target.closest('.modal-action-btn');
+            if (actionBtn) {
+                const orderId = Number(actionBtn.dataset.orderId);
+                const action = actionBtn.dataset.action;
+                await handleOrderAction(orderId, action);
+                return;
+            }
+        });
+
+        moduleContainer.addEventListener('submit', async (event) => {
+            if (event.target.classList.contains('pres-update-form')) {
+                event.preventDefault();
+                const form = event.target;
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerText;
+                submitBtn.disabled = true;
+                submitBtn.innerText = 'Saving...';
+
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+                try {
+                    await salesService.updateOrderPrescription(data.order_item_id, data);
+                    alert('Updated successfully!');
+                } catch (err) {
+                    alert('Update failed: ' + err.message);
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = originalText;
+                }
+            }
+        });
+    }
 }
 
 async function openOrderManagement(orderId) {
@@ -230,7 +243,7 @@ function renderModalContent(order) {
                     <div class="flex admin-flex-between"><span>Amount:</span> <strong style="color: var(--first-color); font-size: 18px;">${api.formatCurrency(order.total_amount)}</strong></div>
                 </div>
                 <div style="margin-top: 25px;">
-                    ${(!order.verified_by && !['confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'].includes(order.status.toLowerCase())) ? 
+                    ${(!order.verified_by && ['pending', 'pending_confirmation', 'paid'].includes(order.status.toLowerCase())) ? 
                         `<button class="modal-action-btn" data-action="confirm" data-order-id="${order.id}" 
                             style="width: 100%; padding: 14px; background: #008080; color: #fff; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,128,128,0.2);">Confirm Order</button>` : ''}
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">

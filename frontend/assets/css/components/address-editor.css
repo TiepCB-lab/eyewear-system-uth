@@ -260,13 +260,56 @@
 
 @media screen and (max-width: 768px) {
     .address-modal {
-        padding: 2rem;
+        padding: 1.5rem;
+        max-height: 95vh;
+        overflow-y: auto;
+        border-radius: 20px;
     }
+
+    .address-modal__header {
+        margin-bottom: 1.5rem;
+        gap: 1rem;
+    }
+
+    .address-modal__icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+
+    .address-modal__title {
+        font-size: 1.25rem;
+    }
+
+    .address-modal__subtitle {
+        font-size: 0.85rem;
+    }
+
+    .address-modal__form {
+        gap: 1rem;
+    }
+
     .address-modal__row {
         grid-template-columns: 1fr;
-    }
-    .address-modal__footer {
-        grid-template-columns: 1fr;
         gap: 1rem;
+    }
+
+    .address-modal__actions {
+        flex-direction: column-reverse;
+        padding-top: 1.2rem;
+    }
+
+    .address-modal__actions button {
+        width: 100%;
+    }
+
+    .address-modal__input-wrapper input,
+    .address-modal__input-wrapper select {
+        padding: 0.7rem 1rem;
+        padding-left: 2.6rem;
+    }
+
+    .address-modal__footer {
+        display: none; /* Hide marketing footer on mobile to save space */
     }
 }

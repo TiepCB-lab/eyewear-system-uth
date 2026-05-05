@@ -26,8 +26,11 @@
     <main class="main">
 
       <!--=============== CATALOG LAYOUT ===============-->
-      <section class="section--lg container">
-        <div class="catalog-layout">
+      <section class="section--lg container catalog-layout">
+          <button class="mobile-filter-btn" id="mobileFilterToggle">
+            <i class="fi fi-rs-filter"></i> Filters
+          </button>
+          
           <!-- Sidebar Filters injected here -->
           <aside id="catalogFilterMount" class="catalog-sidebar" aria-label="Product Filters"></aside>
 
@@ -63,7 +66,6 @@
             <!-- Pagination -->
             <div id="productPagination" class="pagination-container"></div>
           </section>
-        </div>
       </section>
 
       <!--=============== NEWSLETTER ===============-->

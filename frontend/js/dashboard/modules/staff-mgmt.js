@@ -56,14 +56,14 @@ function renderStaffTable(staffData) {
 
     return `
       <tr>
-        <td>${member.id || 'N/A'}</td>
-        <td><strong>${member.full_name || 'Unknown'}</strong></td>
-        <td>${member.email || 'N/A'}</td>
-        <td>${member.phone || '—'}</td>
-        <td><span class="badge ${roleClass}">${member.role_name || 'No role'}</span></td>
-        <td>${member.status || 'Unknown'}</td>
-        <td>${formatDate(member.created_at)}</td>
-        <td>
+        <td data-label="ID">${member.id || 'N/A'}</td>
+        <td data-label="Name"><strong>${member.full_name || 'Unknown'}</strong></td>
+        <td data-label="Email">${member.email || 'N/A'}</td>
+        <td data-label="Phone">${member.phone || '—'}</td>
+        <td data-label="Role"><span class="badge ${roleClass}">${member.role_name || 'No role'}</span></td>
+        <td data-label="Status">${member.status || 'Unknown'}</td>
+        <td data-label="Joined">${formatDate(member.created_at)}</td>
+        <td data-label="Action">
           <button type="button" class="btn btn--sm staff-edit-btn" data-staff-id="${member.id}">Edit / Promote</button>
           <button type="button" class="btn btn--sm staff-delete-btn" data-staff-id="${member.id}">Delete</button>
         </td>

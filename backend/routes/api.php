@@ -139,7 +139,7 @@ Router::group(['prefix' => 'api/v1'], function () {
             Router::post('verify', [SalesController::class, 'verify'])->middleware('permission:confirm_order');
             Router::post('complaint', [SalesController::class, 'complaint'])->middleware('permission:handle_returns');
             Router::get('order-complaints', [SalesController::class, 'orderComplaints'])->middleware('permission:handle_returns');
-            Router::put('prescription', [SalesController::class, 'updatePrescription'])->middleware('permission:update_order_status');
+            Router::put('prescription', [SalesController::class, 'updatePrescription'])->middleware('permission:validate_prescription');
         });
 
         Router::group(['prefix' => 'ops'], function () {

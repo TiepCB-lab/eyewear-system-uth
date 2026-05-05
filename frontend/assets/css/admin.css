@@ -93,18 +93,23 @@
 @media screen and (max-width: 1200px) {
     .sidebar {
         left: -100%;
-        z-index: 1000;
-        transition: left 0.3s ease;
+        z-index: 2001;
+        transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         box-shadow: 10px 0 30px rgba(0,0,0,0.1);
+        width: 280px;
     }
 
     .sidebar.show {
         left: 0;
     }
 
+    .sidebar-overlay {
+        z-index: 2000;
+    }
+
     .admin-main {
         margin-left: 0;
-        padding: 2rem 1.5rem;
+        padding: 1.5rem 1rem;
         width: 100%;
     }
 
@@ -117,6 +122,10 @@
         top: 0;
         z-index: 100;
         width: 100%;
+        background: #fff;
+        margin-bottom: 1.5rem;
+        border-radius: 0 0 1rem 1rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
     }
 
     .metrics-grid {
@@ -124,33 +133,87 @@
         gap: 1.25rem;
     }
 
-    .admin-table {
-        padding: 2rem !important;
+    /* Table to Card View Transformation */
+    .admin-table thead {
+        display: none;
+    }
+
+    .admin-table, 
+    .admin-table tbody, 
+    .admin-table tr, 
+    .admin-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .admin-table tr {
+        margin-bottom: 1.5rem;
+        padding: 1.5rem;
+        background: #fff;
+        border: 1px solid var(--border-color-alt);
+        border-radius: 1.25rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    }
+
+    .admin-table td {
+        text-align: left;
+        padding: 0.75rem 0 !important;
+        border-bottom: 1px solid #f8fafc !important;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .admin-table td:last-child {
+        border-bottom: none !important;
+        margin-top: 0.5rem;
+        justify-content: center;
+    }
+
+    .admin-table td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        color: var(--text-color-light);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .admin-table td:empty { display: none; }
+
+    .product-cell {
+        min-width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .product-cell::before {
+        content: attr(data-label);
+        font-weight: 700;
+        color: var(--text-color-light);
+        font-size: 0.75rem;
     }
 
     .dashboard-modules-container {
-        padding: 2rem !important;
+        padding: 1rem !important;
     }
 
-    .filter-grid {
+    .filter-grid,
+    .support-detail__container {
         flex-direction: column !important;
+        display: flex !important;
         gap: 1.25rem !important;
     }
 
-    .filter-group {
+    .filter-group,
+    .support-detail__group {
         width: 100% !important;
     }
 
     .filter-group input, .filter-group select {
         width: 100% !important;
-    }
-
-    .table__title {
-        font-size: 1.1rem !important;
-    }
-
-    .metric-value {
-        font-size: 1.8rem !important;
     }
 }
 

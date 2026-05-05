@@ -127,7 +127,7 @@ class DashboardController {
             }
 
             // Load module HTML
-            const moduleUrl = new URL(`../../pages/portal/modules/${viewName}.html`, import.meta.url);
+            const moduleUrl = new URL(`../../pages/portal/modules/${viewName}.html?t=${Date.now()}`, import.meta.url);
             const response = await fetch(moduleUrl);
             if (!response.ok) throw new Error(`Module ${viewName} not found`);
             

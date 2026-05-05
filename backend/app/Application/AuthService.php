@@ -13,7 +13,7 @@ class AuthService
     {
         $db = Database::getInstance();
 
-        // 1. Kiểm tra Role 'CUSTOMER'
+        // 1. Check Role 'CUSTOMER'
         $roleStmt = $db->prepare('SELECT id FROM role WHERE name = ?');
         $roleStmt->execute(['CUSTOMER']);
         $role = $roleStmt->fetch();
@@ -24,7 +24,7 @@ class AuthService
         }
         $roleId = $role['id'];
 
-        // 2. Kiểm tra email trong bảng user
+        // 2. Check email in user table
         $stmt = $db->prepare('SELECT id, status, verify_token, full_name FROM `user` WHERE email = ?');
         $stmt->execute([$data['email']]);
         $existingUser = $stmt->fetch();
@@ -58,12 +58,12 @@ class AuthService
         $hash = password_hash($data['password'], PASSWORD_DEFAULT);
         $verifyToken = bin2hex(random_bytes(16));
 
-        // 3. Chèn vào bảng user
+        // 3. Insert into user table
         $stmt = $db->prepare('INSERT INTO `user` (full_name, email, password_hash, verify_token, status) VALUES (?, ?, ?, ?, ?)');
         $stmt->execute([$data['name'], $data['email'], $hash, $verifyToken, 'inactive']);
         $userId = $db->lastInsertId();
 
-        // 4. Gán vai trò mặc định (Customer) vào bảng trung gian user_roles
+        // 4. Assign default role (Customer)
         $roleInsert = $db->prepare('INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)');
         $roleInsert->execute([$userId, $roleId]);
 
@@ -99,12 +99,12 @@ class AuthService
             throw new \Exception('Please verify your email or contact admin.');
         }
 
-        // Lấy toàn bộ Role của User qua bảng trung gian
+        // Get all Roles of User
         $roleStmt = $db->prepare('SELECT r.name FROM role r JOIN user_roles ur ON r.id = ur.role_id WHERE ur.user_id = ?');
         $roleStmt->execute([$user['id']]);
         $roles = $roleStmt->fetchAll(\PDO::FETCH_COLUMN);
 
-        // Lấy toàn bộ Permissions qua Role
+        // Get all Permissions via Role
         $permStmt = $db->prepare("
             SELECT DISTINCT p.name
             FROM permissions p
@@ -161,7 +161,7 @@ class AuthService
         $roleStmt->execute([$userId]);
         $user['roles'] = $roleStmt->fetchAll(\PDO::FETCH_COLUMN);
 
-        // Lấy toàn bộ Permissions
+        // Get all Permissions
         $permStmt = $db->prepare("
             SELECT DISTINCT p.name
             FROM permissions p
@@ -407,7 +407,7 @@ class AuthService
         $mail->setFrom($mailFrom, $mailFromName);
         $mail->addAddress($email);
         $mail->isHTML(true);
-        $mail->Subject = '[EVLS] Xác thực tài khoản của bạn';
+        $mail->Subject = '[EVLS] Verify your account';
 
         $verifyLink = $this->buildVerificationUrl($token);
         $logoHtml = $this->buildEmbeddedLogoHtml($mail);
@@ -452,7 +452,7 @@ class AuthService
         $mail->setFrom($mailFrom, $mailFromName);
         $mail->addAddress($email);
         $mail->isHTML(true);
-        $mail->Subject = '[EVLS] Dat lai mat khau cua ban';
+        $mail->Subject = '[EVLS] Reset your password';
         $logoHtml = $this->buildEmbeddedLogoHtml($mail);
         $mail->Body = $this->buildResetPasswordEmailHtml($name, $resetUrl, $logoHtml);
 
@@ -480,17 +480,17 @@ class AuthService
     <div style="max-width: 620px; margin: 0 auto; background: #ffffff; border: 1px solid #e4ede9; border-radius: 18px; overflow: hidden;">
         {$logoBlock}
         <div style="background: linear-gradient(135deg, #0f8b7c, #0b6f63); color: #fff; padding: 22px 28px;">
-            <h2 style="margin: 0; font-size: 22px;">[EVLS] Xác thực tài khoản của bạn</h2>
+            <h2 style="margin: 0; font-size: 22px;">[EVLS] Verify your account</h2>
         </div>
         <div style="padding: 28px; font-size: 15px;">
-            <p style="margin: 0 0 14px 0;">Chào {$safeName},</p>
-            <p style="margin: 0 0 14px 0;">Cảm ơn bạn đã tin tưởng và lựa chọn đồng hành cùng EVLS.</p>
-            <p style="margin: 0 0 18px 0;">Để hoàn tất việc đăng ký và bắt đầu trải nghiệm mua sắm, bạn vui lòng nhấn vào nút xác nhận bên dưới:</p>
+            <p style="margin: 0 0 14px 0;">Hello {$safeName},</p>
+            <p style="margin: 0 0 14px 0;">Thank you for choosing EVLS.</p>
+            <p style="margin: 0 0 18px 0;">To complete your registration and start shopping, please click the button below to verify your email:</p>
             <p style="text-align: center; margin: 28px 0;">
-                <a href="{$safeLink}" style="display: inline-block; background: #0f8b7c; color: #fff; text-decoration: none; font-weight: 700; padding: 14px 24px; border-radius: 999px;">Xác nhận Email của tôi</a>
+                <a href="{$safeLink}" style="display: inline-block; background: #0f8b7c; color: #fff; text-decoration: none; font-weight: 700; padding: 14px 24px; border-radius: 999px;">Verify My Email</a>
             </p>
-            <p style="margin: 0 0 14px 0;">Việc xác thực này giúp bảo mật tài khoản của bạn và đảm bảo bạn không bỏ lỡ bất kỳ ưu đãi đặc quyền nào từ EVLS.</p>
-            <p style="margin: 24px 0 0 0; font-size: 13px; color: #6b7280;">Nếu nút không hoạt động, bạn có thể mở liên kết sau: <br><a href="{$safeLink}" style="color: #0f8b7c; word-break: break-all;">{$safeLink}</a></p>
+            <p style="margin: 0 0 14px 0;">This verification helps secure your account and ensures you don't miss any exclusive offers from EVLS.</p>
+            <p style="margin: 24px 0 0 0; font-size: 13px; color: #6b7280;">If the button doesn't work, you can open the following link: <br><a href="{$safeLink}" style="color: #0f8b7c; word-break: break-all;">{$safeLink}</a></p>
         </div>
     </div>
 </div>
@@ -504,21 +504,22 @@ HTML;
         $logoBlock = $logoHtml === '' ? '' : '<div style="text-align: center; padding: 20px 28px 8px 28px;">' . $logoHtml . '</div>';
 
         return <<<HTML
+        return <<<HTML
 <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #1f2937; background: #f7faf9; padding: 24px;">
     <div style="max-width: 620px; margin: 0 auto; background: #ffffff; border: 1px solid #e4ede9; border-radius: 18px; overflow: hidden;">
         {$logoBlock}
         <div style="background: linear-gradient(135deg, #0f8b7c, #0b6f63); color: #fff; padding: 22px 28px;">
-            <h2 style="margin: 0; font-size: 22px;">[EVLS] Dat lai mat khau cua ban</h2>
+            <h2 style="margin: 0; font-size: 22px;">[EVLS] Reset your password</h2>
         </div>
         <div style="padding: 28px; font-size: 15px;">
-            <p style="margin: 0 0 14px 0;">Chao {$safeName},</p>
-            <p style="margin: 0 0 14px 0;">Ban vua gui yeu cau dat lai mat khau cho tai khoan EVLS.</p>
-            <p style="margin: 0 0 18px 0;">De tiep tuc, vui long nhan vao nut ben duoi. Link co hieu luc trong 60 phut:</p>
+            <p style="margin: 0 0 14px 0;">Hello {$safeName},</p>
+            <p style="margin: 0 0 14px 0;">You just requested a password reset for your EVLS account.</p>
+            <p style="margin: 0 0 18px 0;">To continue, please click the button below. This link is valid for 60 minutes:</p>
             <p style="text-align: center; margin: 28px 0;">
-                <a href="{$safeLink}" style="display: inline-block; background: #0f8b7c; color: #fff; text-decoration: none; font-weight: 700; padding: 14px 24px; border-radius: 999px;">Dat lai mat khau</a>
+                <a href="{$safeLink}" style="display: inline-block; background: #0f8b7c; color: #fff; text-decoration: none; font-weight: 700; padding: 14px 24px; border-radius: 999px;">Reset Password</a>
             </p>
-            <p style="margin: 0 0 14px 0;">Neu ban khong yeu cau thao tac nay, hay bo qua email nay de bao ve tai khoan.</p>
-            <p style="margin: 24px 0 0 0; font-size: 13px; color: #6b7280;">Neu nut khong hoat dong, ban co the mo lien ket sau:<br><a href="{$safeLink}" style="color: #0f8b7c; word-break: break-all;">{$safeLink}</a></p>
+            <p style="margin: 0 0 14px 0;">If you did not request this, please ignore this email to protect your account.</p>
+            <p style="margin: 24px 0 0 0; font-size: 13px; color: #6b7280;">If the button doesn't work, you can open the following link:<br><a href="{$safeLink}" style="color: #0f8b7c; word-break: break-all;">{$safeLink}</a></p>
         </div>
     </div>
 </div>

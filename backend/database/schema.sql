@@ -1,8 +1,4 @@
-CREATE DATABASE IF NOT EXISTS eyewear_system
-CHARACTER SET utf8mb4
-COLLATE utf8mb4_unicode_ci;
-
-USE eyewear_system;
+-- Schema for Eyewear System
 
 CREATE TABLE IF NOT EXISTS role (
 	id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

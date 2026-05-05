@@ -29,25 +29,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const stockClass = item.stock_quantity > 0 ? 'table__stock' : 'table__stock out-of-stock';
                 
                 tr.innerHTML = `
-                    <td>
+                    <td data-label="Image">
                         <a href="../details/index.html?id=${item.product_id}">
                             <img src="${fixImagePath(item.thumbnail)}" alt="${item.name}" class="table__img" data-fallback-src="../../assets/images/products/placeholder.png"/>
                         </a>
                     </td>
-                    <td>
+                    <td data-label="Product">
                         <a href="../details/index.html?id=${item.product_id}">
                             <h3 class="table__title">${item.name}</h3>
                         </a>
                         <p class="table__description">${item.brand || 'Premium Brand'}</p>
                     </td>
-                    <td><span class="table__price">${window.formatVND ? window.formatVND(item.base_price) : '$' + item.base_price}</span></td>
-                    <td><span class="${stockClass}">${stockStatus}</span></td>
-                    <td>
+                    <td data-label="Price"><span class="table__price">${window.formatVND ? window.formatVND(item.base_price) : '$' + item.base_price}</span></td>
+                    <td data-label="Stock"><span class="${stockClass}">${stockStatus}</span></td>
+                    <td data-label="Action">
                         <button class="btn btn--sm add-to-cart-btn" data-id="${item.product_id}" ${item.stock_quantity <= 0 ? 'disabled' : ''}>
                             Add to Cart
                         </button>
                     </td>
-                    <td><i class="fi fi-rs-trash table__trash table__trash--interactive remove-wishlist-btn" data-id="${item.product_id}"></i></td>
+                    <td data-label="Remove"><i class="fi fi-rs-trash table__trash table__trash--interactive remove-wishlist-btn" data-id="${item.product_id}"></i></td>
                 `;
                 tbody.appendChild(tr);
             });

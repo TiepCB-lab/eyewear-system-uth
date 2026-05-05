@@ -22,29 +22,13 @@ class CheckoutService
         try {
             $this->db->beginTransaction();
 
-            $cartItems = array_filter($this->cartService->getCart($userId), function($item) {
-                return (int)$item['is_selected'] === 1;
+            $cartItems = array_filter($this->cartService->getCart($userId), function ($item) {
+                return (int) $item['is_selected'] === 1;
             });
-            
+
             if (empty($cartItems)) {
-                throw new Exception("Không có sản phẩm nào được chọn để thanh toán.");
+                throw new Exception("No items selected for checkout.");
             }
-
-            // Validate User Details (Optional: We rely on shipping address having its own phone)
-            /*
-            $stmtUser = $this->db->prepare("SELECT phone FROM `user` WHERE id = ?");
-            $stmtUser->execute([$userId]);
-            $user = $stmtUser->fetch();
-
-            if (empty($user['phone'])) {
-                $stmtProf = $this->db->prepare("SELECT phone FROM profiles WHERE user_id = ?");
-                $stmtProf->execute([$userId]);
-                $prof = $stmtProf->fetch();
-                if (empty($prof['phone'])) {
-                    throw new Exception("Vui lòng cập nhật số điện thoại trong trang cá nhân trước khi thanh toán.");
-                }
-            }
-            */
 
             $totals = $this->cartService->getCartTotals($userId);
             $orderNumber = 'ORD-' . strtoupper(uniqid());
@@ -68,7 +52,7 @@ class CheckoutService
                     status, order_type, promotion_id, placed_at
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
             ");
-            
+
             $stmt->execute([
                 $userId,
                 $orderNumber,
@@ -103,7 +87,7 @@ class CheckoutService
                         quantity, unit_price, line_total
                     ) VALUES (?, ?, ?, ?, ?, ?, ?)
                 ");
-                
+
                 $stmtItem->execute([
                     $orderId,
                     $item['productvariant_id'],
@@ -141,7 +125,7 @@ class CheckoutService
         $stmtInv->execute([$quantity, $variantId, $quantity]);
 
         if ($stmtInv->rowCount() === 0) {
-            throw new Exception("Lỗi cập nhật kho hoặc hết hàng cho variant ID: " . $variantId);
+            throw new Exception("Error updating stock or item out of stock for variant ID: " . $variantId);
         }
 
         // Sync back to ProductVariant (standard redundancy in this schema)

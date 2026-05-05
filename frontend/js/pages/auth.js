@@ -20,8 +20,15 @@ import api from '../services/api.js';
     }
 
     // Toggle forms
-    document.getElementById('signUp')?.addEventListener('click', () => container.classList.add("active"));
-    document.getElementById('signIn')?.addEventListener('click', () => container.classList.remove("active"));
+    const switchToSignUp = () => container.classList.add("active");
+    const switchToSignIn = () => container.classList.remove("active");
+
+    document.getElementById('signUp')?.addEventListener('click', switchToSignUp);
+    document.getElementById('signIn')?.addEventListener('click', switchToSignIn);
+    
+    // Mobile Toggles
+    document.getElementById('toSignUpMobile')?.addEventListener('click', switchToSignUp);
+    document.getElementById('toSignInMobile')?.addEventListener('click', switchToSignIn);
 
     // Forgot Password
     document.getElementById('forgot-password-link')?.addEventListener('click', async (e) => {
