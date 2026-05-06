@@ -143,8 +143,8 @@ Router::group(['prefix' => 'api/v1'], function () {
         });
 
         Router::group(['prefix' => 'ops'], function () {
-            Router::get('/', [OperationsController::class, 'index'])->middleware('permission:view_orders');
-            Router::post('advance', [OperationsController::class, 'advanceProduction'])->middleware('permission:update_order_status');
+            Router::get('/', [OperationsController::class, 'index'])->middleware('permission:view_orders|pack_order|create_shipment|update_order_status');
+            Router::post('advance', [OperationsController::class, 'advanceProduction'])->middleware('permission:update_order_status|pack_order');
             Router::post('shipments', [OperationsController::class, 'createShipment'])->middleware('permission:create_shipment');
             Router::put('shipments', [OperationsController::class, 'updateShipment'])->middleware('permission:update_tracking');
         });

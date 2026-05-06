@@ -155,7 +155,7 @@ class OperationsService
 		return self::PRODUCTION_FLOW[$index + 1] ?? null;
 	}
 
-	private function normalizeString(mixed $value): ?string
+	private function normalizeString($value): ?string
 	{
 		$value = is_string($value) ? trim($value) : '';
 		return $value !== '' ? $value : null;

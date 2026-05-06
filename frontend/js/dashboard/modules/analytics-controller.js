@@ -13,20 +13,28 @@ class AnalyticsController {
 
     async loadData() {
         try {
-            const [summaryRes, salesRes] = await Promise.all([
-                api.client.get('/dashboard'),
-                api.client.get('/dashboard/sales-report?days=30')
-            ]);
-            
-            this.summary = summaryRes.data?.data || {};
-            this.salesData = salesRes.data?.data || [];
+            const summaryRes = await api.client.get('/dashboard');
+            this.summary = summaryRes.data?.data || summaryRes.data || {};
+
+            try {
+                const salesRes = await api.client.get('/dashboard/sales-report?days=30');
+                this.salesData = salesRes.data?.data || salesRes.data || [];
+            } catch (salesError) {
+                console.error('Failed to load sales trend data:', salesError);
+                this.salesData = [];
+            }
         } catch (error) {
             console.error('Failed to load analytics data:', error);
+            this.summary = null;
+            this.salesData = [];
         }
     }
 
     render() {
-        if (!this.summary) return;
+        if (!this.summary) {
+            this.renderLoadingState();
+            return;
+        }
 
         // Metrics
         const revenueEl = document.querySelector('.metric-card:nth-child(1) .metric-value');
@@ -69,6 +77,17 @@ class AnalyticsController {
         }
 
         this.renderChart();
+    }
+
+    renderLoadingState() {
+        const badges = document.querySelectorAll('.metric-card .badge');
+        badges.forEach(badge => {
+            badge.textContent = 'Unavailable';
+        });
+        const tbody = document.querySelector('.table tbody');
+        if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="4" class="table-state-cell">Unable to load analytics data.</td></tr>';
+        }
     }
 
     renderChart() {

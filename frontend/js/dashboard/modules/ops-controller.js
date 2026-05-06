@@ -14,10 +14,13 @@ async function initializeOpsPage() {
 async function loadOperationsData() {
   try {
     // Load production queue and operations overview
-    const [queueData, overviewData] = await Promise.all([
+    const [queueResponse, overviewResponse] = await Promise.all([
       dashboardService.getProductionQueue(),
       dashboardService.getOperationsOverview()
     ]);
+
+    const queueData = queueResponse?.data || queueResponse || [];
+    const overviewData = overviewResponse?.data || overviewResponse || {};
 
     productionQueue = Array.isArray(queueData) ? queueData : queueData.queue || [];
     
@@ -42,7 +45,7 @@ function updateKPIs(overviewData) {
 
   // Calculate KPI values from overview data
   const ordersInLab = productionSteps.reduce((acc, curr) => acc + (parseInt(curr.total) || 0), 0);
-  const shippedToday = shipmentStatuses.find(s => s.shipping_status === 'shipped')?.total || 0;
+  const shippedToday = shipmentStatuses.find(s => s.shipping_status === 'shipping')?.total || 0;
   const pendingQC = productionSteps.find(s => s.production_step === 'qc_inspection')?.total || 0;
   
   // Use real turnaround data from API
@@ -88,13 +91,19 @@ function renderQueueTable(queue) {
         </td>
         <td class="ops-table__cell"><span class="status-pill ${status.class}">${status.label}</span></td>
         <td class="ops-table__cell">
-          ${order.production_step === 'ready_to_ship' 
-            ? `<button type="button" class="btn btn--sm btn--outline ops-table__action" data-order-id="${order.id}" data-action="ship">
-                 <i class="fi fi-rs-paper-plane"></i> Ship
-               </button>`
-            : `<button type="button" class="btn btn--sm ops-table__action" data-order-id="${order.id}" data-action="advance">
-                 Advance
-               </button>`
+          ${order.status === 'shipped'
+            ? `<span class="status-pill status-done">Shipped</span>`
+            : (order.production_step === 'ready_to_ship'
+                ? (order.shipment_id
+                    ? `<button type="button" class="btn btn--sm btn--outline ops-table__action" data-order-id="${order.id}" data-shipment-id="${order.shipment_id}" data-action="update">
+                         <i class="fi fi-rs-edit"></i> Update
+                       </button>`
+                    : `<button type="button" class="btn btn--sm btn--outline ops-table__action" data-order-id="${order.id}" data-action="ship">
+                         <i class="fi fi-rs-paper-plane"></i> Ship
+                       </button>`)
+                : `<button type="button" class="btn btn--sm ops-table__action" data-order-id="${order.id}" data-action="advance">
+                     Advance
+                   </button>`)
           }
         </td>
       </tr>
@@ -140,12 +149,15 @@ function setupEventListeners() {
     }
 
     const orderId = Number(advanceButton.dataset.orderId);
+    const shipmentId = Number(advanceButton.dataset.shipmentId || 0);
     const action = advanceButton.dataset.action;
 
     if (action === 'ship') {
-        await handleShipAction(orderId);
+      await handleShipAction(orderId);
+    } else if (action === 'update') {
+      await handleUpdateShipment(orderId, shipmentId);
     } else {
-        await advanceStep(orderId);
+      await advanceStep(orderId);
     }
   });
 }
@@ -158,15 +170,42 @@ async function handleShipAction(orderId) {
         await dashboardService.createShipment({
             order_id: orderId,
             tracking_number: trackingNumber || 'SHIP-' + Date.now(),
-            carrier: 'GHTK'
+        courier: 'GHTK',
+        shipping_status: 'shipping'
         });
         showAlert('Order marked as Shipped!', 'success');
         await loadOperationsData();
     } catch (error) {
-        console.error('Error creating shipment:', error);
-        showAlert('Failed to create shipment', 'error');
+      const serverMsg = error?.response?.data?.message || error?.response?.data?.error || error?.message || 'Unknown error';
+      console.error('Error creating shipment:', error?.response || error);
+      showAlert('Failed to create shipment: ' + serverMsg, 'error');
     }
 }
+
+  async function handleUpdateShipment(orderId, shipmentId) {
+    const trackingNumber = prompt("Update Tracking Number (leave blank to keep):");
+    if (trackingNumber === null) return;
+
+    try {
+      const payload = {
+        shipment_id: shipmentId,
+        courier: 'GHTK',
+        shipping_status: 'shipping'
+      };
+
+      if (trackingNumber && trackingNumber.trim() !== '') {
+        payload.tracking_number = trackingNumber.trim();
+      }
+
+      await dashboardService.updateShipment(payload);
+      showAlert('Shipment updated successfully', 'success');
+      await loadOperationsData();
+    } catch (error) {
+      const serverMsg = error?.response?.data?.message || error?.response?.data?.error || error?.message || 'Unknown error';
+      console.error('Error updating shipment:', error?.response || error);
+      showAlert('Failed to update shipment: ' + serverMsg, 'error');
+    }
+  }
 
 async function advanceStep(orderId) {
   try {

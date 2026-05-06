@@ -87,18 +87,18 @@ class DashboardService
 		];
 	}
 
-    public function getSalesByDay(int $days = 30): array
-    {
-        $db = Database::getInstance();
-        $stmt = $db->prepare("
-            SELECT DATE(placed_at) as date, SUM(total_amount) as revenue, COUNT(*) as orders
-            FROM `order`
-            WHERE placed_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
-              AND status NOT IN ('cancelled')
-            GROUP BY DATE(placed_at)
-            ORDER BY date ASC
-        ");
-        $stmt->execute([$days]);
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-    }
+	public function getSalesByDay(int $days = 30): array
+	{
+		$db = Database::getInstance();
+		$days = max(1, (int) $days);
+		$stmt = $db->query("
+			SELECT DATE(placed_at) as date, SUM(total_amount) as revenue, COUNT(*) as orders
+			FROM `order`
+			WHERE placed_at >= DATE_SUB(NOW(), INTERVAL {$days} DAY)
+			  AND status NOT IN ('cancelled')
+			GROUP BY DATE(placed_at)
+			ORDER BY date ASC
+		");
+		return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+	}
 }
